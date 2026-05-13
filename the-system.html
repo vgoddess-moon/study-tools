@@ -237,6 +237,10 @@ function Dashboard() {
   // Pomodoro
   const [pomodoro, setPomodoro] = useState(null); // null | 'work' | 'break'
   const [pomodoroSec, setPomodoroSec] = useState(0);
+  // Custom events
+  const [customEvents, setCustomEvents] = useState([]);
+  const [showEventEditor, setShowEventEditor] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   // Load all data from localStorage on mount
   useEffect(() => {
@@ -280,6 +284,8 @@ function Dashboard() {
     if (ml) setMeditationLog(ml);
     const ms = storage.get('mindfulStreak');
     if (ms !== null) setMindfulStreak(ms);
+    const ce = storage.get('customEvents');
+    if (ce) setCustomEvents(ce);
     // Load weather from cache
     const wc = storage.get('weatherCache');
     if (wc && Date.now() - wc.timestamp < 1800000) {
@@ -361,10 +367,10 @@ function Dashboard() {
   };
 
   const allEvents = useMemo(() =>
-    [...NURSING_EVENTS, ...LIFE_EVENTS]
+    [...NURSING_EVENTS, ...LIFE_EVENTS, ...customEvents]
       .map(e => ({ ...e, daysAway: daysBetween(todayISO(), e.date) }))
       .filter(e => e.daysAway >= 0)
-      .sort((a, b) => a.daysAway - b.daysAway), []);
+      .sort((a, b) => a.daysAway - b.daysAway), [customEvents]);
 
   const nextExam = useMemo(() =>
     NURSING_EVENTS
@@ -766,7 +772,20 @@ function Dashboard() {
 
             {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} onToggle={toggleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
 
-            {tab === 'road' && <RoadView events={allEvents} />}
+            {tab === 'road' && <RoadView events={allEvents} customEvents={customEvents} onSaveEvent={(ev) => {
+              let updated;
+              if (ev.id) {
+                updated = customEvents.map(e => e.id === ev.id ? ev : e);
+              } else {
+                updated = [...customEvents, { ...ev, id: Date.now().toString(), custom: true }];
+              }
+              setCustomEvents(updated);
+              storage.set('customEvents', updated);
+            }} onDeleteEvent={(id) => {
+              const updated = customEvents.filter(e => e.id !== id);
+              setCustomEvents(updated);
+              storage.set('customEvents', updated);
+            }} />}
             {tab === 'pipe' && <PipelineView products={products} onAdd={() => setShowAdd(true)} onAdvance={advance} onDelete={del} examMode={examMode} inAtlanta={inAtlanta} />}
             {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} />}
           </React.Fragment>
@@ -1896,7 +1915,21 @@ function LaunchView({ launchStarted, daysToLaunch, inAtlanta, examMode, nextExam
 }
 
 // ============== ROAD VIEW ==============
-function RoadView({ events }) {
+function RoadView({ events, customEvents, onSaveEvent, onDeleteEvent }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const blank = { label: '', date: '', type: 'event', detail: '', icon: '' };
+  const [form, setForm] = useState(blank);
+
+  const openAdd = () => { setForm(blank); setEditing(null); setShowForm(true); };
+  const openEdit = (e) => { setForm({ label: e.label, date: e.date, type: e.type, detail: e.detail || '', icon: e.icon || '' }); setEditing(e.id); setShowForm(true); };
+  const closeForm = () => { setShowForm(false); setEditing(null); };
+  const handleSave = () => {
+    if (!form.label.trim() || !form.date) return;
+    onSaveEvent(editing ? { ...form, id: editing, custom: true } : form);
+    closeForm();
+  };
+
   const grouped = useMemo(() => {
     const b = { thisWeek: [], next2Weeks: [], later: [] };
     events.forEach(e => {
@@ -1920,38 +1953,94 @@ function RoadView({ events }) {
     work: { bg: 'bg-sky-50', border: 'border-sky-200', icon: '💼', label: 'WORK' },
   }[t] || { bg: 'bg-stone-50', border: 'border-stone-200', icon: '📌', label: 'EVENT' });
 
+  const isCustom = (e) => !!e.custom;
+
   const renderEvent = (e, i) => {
     const s = typeStyle(e.type);
     const d = new Date(e.date + 'T12:00:00');
     return (
-      <div key={i} className={`${s.bg} ${s.border} border rounded-2xl p-3 flex items-start gap-3`}>
+      <div key={e.id || i} className={`${s.bg} ${s.border} border rounded-2xl p-3 flex items-start gap-3`}>
         <div className="text-xl shrink-0">{e.icon || s.icon}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <p className="mono text-[9px] uppercase tracking-wider text-stone-500">{s.label}</p>
             <span className="mono text-[9px] text-stone-400">·</span>
             <p className="mono text-[9px] text-stone-500">{d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+            {isCustom(e) && <span className="mono text-[9px] bg-indigo-100 text-indigo-500 px-1.5 rounded-full">custom</span>}
           </div>
           <p className="font-medium text-stone-900 text-sm leading-snug">{e.label}</p>
           {e.detail && <p className="text-xs text-stone-600 mt-0.5">{e.detail}</p>}
         </div>
-        <div className="text-right shrink-0">
-          <p className="mono text-[9px] uppercase text-stone-400">in</p>
-          <p className="mono text-xs font-semibold text-stone-900">{e.daysAway === 0 ? 'today' : `${e.daysAway}d`}</p>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div className="text-right">
+            <p className="mono text-[9px] uppercase text-stone-400">in</p>
+            <p className="mono text-xs font-semibold text-stone-900">{e.daysAway === 0 ? 'today' : `${e.daysAway}d`}</p>
+          </div>
+          {isCustom(e) && (
+            <div className="flex gap-1 mt-1">
+              <button onClick={() => openEdit(e)} className="text-[10px] px-2 py-0.5 bg-stone-200 rounded-full text-stone-600">edit</button>
+              <button onClick={() => onDeleteEvent(e.id)} className="text-[10px] px-2 py-0.5 bg-rose-100 rounded-full text-rose-500">del</button>
+            </div>
+          )}
         </div>
       </div>
     );
   };
 
+  const TYPE_OPTIONS = ['event','exam','quiz','final','milestone','break','travel','concert','holiday','work'];
+
   return (
     <div className="space-y-4">
       <div className="bg-stone-900 text-stone-50 rounded-2xl p-4 flex items-center gap-3">
         <span className="text-amber-400 text-xl shrink-0">→</span>
-        <div>
+        <div className="flex-1">
           <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-400">The road ahead</p>
           <p className="text-xs text-stone-300 mt-0.5">{grouped.thisWeek.length} this week · {grouped.next2Weeks.length} coming up</p>
         </div>
+        <button onClick={openAdd} className="bg-amber-400 text-stone-900 rounded-xl px-3 py-1.5 text-xs font-semibold mono">+ Add</button>
       </div>
+
+      {showForm && (
+        <div className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3">
+          <p className="mono text-[10px] uppercase tracking-wider text-stone-500">{editing ? 'Edit event' : 'New event'}</p>
+          <input
+            className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-900 bg-stone-50"
+            placeholder="Event name *"
+            value={form.label}
+            onChange={e => setForm(f => ({ ...f, label: e.target.value }))}
+          />
+          <input
+            type="date"
+            className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-900 bg-stone-50"
+            value={form.date}
+            onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+          />
+          <select
+            className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-900 bg-stone-50"
+            value={form.type}
+            onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+          >
+            {TYPE_OPTIONS.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+          </select>
+          <input
+            className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-900 bg-stone-50"
+            placeholder="Details (optional)"
+            value={form.detail}
+            onChange={e => setForm(f => ({ ...f, detail: e.target.value }))}
+          />
+          <input
+            className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-900 bg-stone-50"
+            placeholder="Emoji icon (optional, e.g. 🎂)"
+            value={form.icon}
+            onChange={e => setForm(f => ({ ...f, icon: e.target.value }))}
+          />
+          <div className="flex gap-2">
+            <button onClick={handleSave} className="flex-1 bg-stone-900 text-white rounded-xl py-2 text-sm font-semibold">Save</button>
+            <button onClick={closeForm} className="flex-1 bg-stone-100 text-stone-600 rounded-xl py-2 text-sm">Cancel</button>
+          </div>
+        </div>
+      )}
+
       {grouped.thisWeek.length > 0 && (
         <div>
           <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">This week</p>
@@ -1967,7 +2056,7 @@ function RoadView({ events }) {
       {grouped.later.length > 0 && (
         <div>
           <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Coming up</p>
-          <div className="space-y-2">{grouped.later.slice(0, 8).map(renderEvent)}</div>
+          <div className="space-y-2">{grouped.later.slice(0, 12).map(renderEvent)}</div>
         </div>
       )}
     </div>
