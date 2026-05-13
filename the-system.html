@@ -122,6 +122,24 @@ const LAUNCH_TASKS = [
 
 const todayISO = () => new Date().toISOString().split('T')[0];
 const todayKey = () => new Date().toDateString();
+
+const playChime = () => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.25 + 0.9);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.25);
+      osc.stop(ctx.currentTime + i * 0.25 + 0.9);
+    });
+  } catch(e) {}
+};
 const daysBetween = (d1, d2) => {
   const a = new Date(d1); const b = new Date(d2);
   a.setHours(0,0,0,0); b.setHours(0,0,0,0);
@@ -231,6 +249,7 @@ function Dashboard() {
   const [quizLog, setQuizLog] = useState([]);
   const [studyTimer, setStudyTimer] = useState(false);
   const [studyTimerSec, setStudyTimerSec] = useState(0);
+  const studyStartRef = useRef(null);
   // Meditation state
   const [meditationLog, setMeditationLog] = useState([]);
   const [mindfulStreak, setMindfulStreak] = useState(0);
@@ -320,10 +339,13 @@ function Dashboard() {
     return () => clearInterval(i);
   }, [study]);
 
-  // Study timer
+  // Study timer — uses Date.now() so it survives background tab throttling
   useEffect(() => {
     if (!studyTimer) return;
-    const t = setInterval(() => setStudyTimerSec(s => s + 1), 1000);
+    if (!studyStartRef.current) studyStartRef.current = Date.now();
+    const t = setInterval(() => {
+      setStudyTimerSec(Math.floor((Date.now() - studyStartRef.current) / 1000));
+    }, 1000);
     return () => clearInterval(t);
   }, [studyTimer]);
 
@@ -772,7 +794,7 @@ function Dashboard() {
 
             {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
-            {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { setStudyTimer(true); setStudyTimerSec(0); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
+            {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { studyStartRef.current = Date.now(); setStudyTimer(true); setStudyTimerSec(0); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
             {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} onToggle={toggleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
 
@@ -1001,7 +1023,7 @@ function WeatherWidget({ weather, onRefresh }) {
 }
 
 // ============== BREATHING EXERCISE ==============
-function BreathingExercise() {
+function BreathingExercise({ onSave }) {
   const [mode, setMode] = useState(null); // null | 'box' | '478'
   const [phase, setPhase] = useState(''); // INHALE | HOLD | EXHALE
   const [phaseTime, setPhaseTime] = useState(0);
@@ -1047,6 +1069,9 @@ function BreathingExercise() {
           if (cycleIdx >= cycles) {
             clearInterval(intervalRef.current);
             setRunning(false);
+            const label = mode === 'box' ? 'Box Breathing' : '4-7-8 Breathing';
+            if (onSave) onSave(cycles * (mode === 'box' ? 16 : 19), `${label} · ${cycles} cycles`);
+            playChime();
             setMode(null);
             setPhase('');
             return;
@@ -1123,26 +1148,36 @@ function MeditationTimer({ onSave, meditationLog, mindfulStreak }) {
   const [duration, setDuration] = useState(5);
   const [remaining, setRemaining] = useState(0);
   const [note, setNote] = useState('');
+  const medStartRef = useRef(null);
+  const medDurationRef = useRef(0);
 
   useEffect(() => {
-    if (!active || remaining <= 0) {
-      if (active && remaining <= 0) {
+    if (!active) return;
+    const targetSec = medDurationRef.current;
+    const t = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - medStartRef.current) / 1000);
+      const left = Math.max(0, targetSec - elapsed);
+      setRemaining(left);
+      if (left <= 0) {
+        clearInterval(t);
+        playChime();
         setActive(false);
       }
-      return;
-    }
-    const t = setTimeout(() => setRemaining(s => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [active, remaining]);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [active]);
 
   const start = () => {
+    medStartRef.current = Date.now();
+    medDurationRef.current = duration * 60;
     setRemaining(duration * 60);
     setActive(true);
   };
 
   const finish = () => {
-    const actualDuration = (duration * 60) - remaining;
-    onSave(actualDuration, note || `${duration}-min meditation`);
+    const elapsed = Math.floor((Date.now() - medStartRef.current) / 1000);
+    onSave(elapsed, note || `${duration}-min meditation`);
+    playChime();
     setActive(false);
     setRemaining(0);
     setNote('');
@@ -1348,7 +1383,7 @@ function TodayView({ checkin, suggestions, suggestionLog, onToggleSuggestion, on
       {/* Mindfulness & Meditation */}
       <div>
         <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Mindfulness</p>
-        <BreathingExercise />
+        <BreathingExercise onSave={onSaveMeditation} />
         <div className="mt-2">
           <MeditationTimer onSave={onSaveMeditation} meditationLog={meditationLog} mindfulStreak={mindfulStreak} />
         </div>
