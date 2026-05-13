@@ -634,6 +634,7 @@ function Dashboard() {
     storage.set('allStudyLogs', updated);
     setStudyTimer(false);
     setStudyTimerSec(0);
+    studyStartRef.current = null;
     showToast('Study session logged ✓', 1500);
   };
 
@@ -794,7 +795,7 @@ function Dashboard() {
 
             {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
-            {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { studyStartRef.current = Date.now(); setStudyTimer(true); setStudyTimerSec(0); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
+            {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { studyStartRef.current = studyTimerSec > 0 ? Date.now() - (studyTimerSec * 1000) : Date.now(); setStudyTimer(true); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
             {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} onToggle={toggleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
 
@@ -1552,6 +1553,22 @@ function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizL
             <button onClick={() => { if (studyNote.trim()) onSaveStudySession(studyNote); }} disabled={!studyNote.trim()}
               className="w-full bg-emerald-600 text-white rounded-lg py-2 text-xs font-medium disabled:opacity-40">
               Save Session
+            </button>
+          </div>
+        ) : studyTimerSec > 0 ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="mono text-[10px] uppercase tracking-wider text-amber-600 mb-0.5">Paused</p>
+                <p className="mono text-2xl font-semibold text-amber-900">{fmt(studyTimerSec)}</p>
+              </div>
+              <button onClick={onStartStudyTimer} className="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-medium">Resume</button>
+            </div>
+            <input type="text" value={studyNote} onChange={e => setStudyNote(e.target.value)} placeholder="What are you studying?"
+              className="w-full px-3 py-2 bg-amber-100/50 border border-amber-200 rounded-lg text-xs text-amber-900 placeholder-amber-400 focus:outline-none mb-2" />
+            <button onClick={() => { if (studyNote.trim()) { onSaveStudySession(studyNote); setStudyNote(''); } }} disabled={!studyNote.trim()}
+              className="w-full bg-amber-600 text-white rounded-lg py-2 text-xs font-medium disabled:opacity-40">
+              Save Session & Reset
             </button>
           </div>
         ) : (
