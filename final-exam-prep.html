@@ -73,6 +73,7 @@ h1{font-family:'DM Serif Display',serif;font-size:1.8rem;background:linear-gradi
 <div class="wrap">
   <h1>Final Exam Prep</h1>
   <p class="sub">MS1 Exam 2 · Chapters 10–15 · 25 Questions · Weak-Area Targeted</p>
+  <div id="lastAttempt" style="display:none;background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:14px 18px;margin-bottom:14px"></div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   <div id="quizContainer"></div>
   <div class="score-card" id="scoreCard"></div>
@@ -549,6 +550,20 @@ function restartQuiz() {
 
 buildQuiz();
 updateProgress();
+
+// Show last attempt banner if one exists in localStorage
+try {
+  const last = JSON.parse(localStorage.getItem('lastExamStats'));
+  if (last && last.examId === 'ms1-exam2-final-draft') {
+    const el = document.getElementById('lastAttempt');
+    const color = last.score >= 90 ? '#22c55e' : last.score >= 78 ? '#fbbf24' : '#ef4444';
+    const weak = last.weakAreas && last.weakAreas.length > 0
+      ? `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${last.weakAreas.map(w => `<span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;background:#1f0d0d;color:#fca5a5;padding:2px 8px;border-radius:8px">${w}</span>`).join('')}</div>`
+      : '';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:#64748b;text-transform:uppercase;letter-spacing:.1em">Last Attempt</div><div style="font-size:.8rem;color:#94a3b8;margin-top:2px">${new Date(last.date).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${last.correct}/${last.total}</div></div><div style="font-family:'DM Serif Display',serif;font-size:1.8rem;font-weight:700;color:${color}">${last.score}%</div></div>${weak}`;
+    el.style.display = 'block';
+  }
+} catch(e) {}
 </script>
 </body>
 </html>
