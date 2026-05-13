@@ -240,6 +240,8 @@ function Dashboard() {
   // Custom events
   const [customEvents, setCustomEvents] = useState([]);
   const [showEventEditor, setShowEventEditor] = useState(false);
+  // Exam history from practice tools
+  const [examHistory, setExamHistory] = useState([]);
   const [editingEvent, setEditingEvent] = useState(null);
 
   // Load all data from localStorage on mount
@@ -286,6 +288,8 @@ function Dashboard() {
     if (ms !== null) setMindfulStreak(ms);
     const ce = storage.get('customEvents');
     if (ce) setCustomEvents(ce);
+    const eh = storage.get('examHistory');
+    if (eh) setExamHistory(eh);
     // Load weather from cache
     const wc = storage.get('weatherCache');
     if (wc && Date.now() - wc.timestamp < 1800000) {
@@ -787,7 +791,7 @@ function Dashboard() {
               storage.set('customEvents', updated);
             }} />}
             {tab === 'pipe' && <PipelineView products={products} onAdd={() => setShowAdd(true)} onAdvance={advance} onDelete={del} examMode={examMode} inAtlanta={inAtlanta} />}
-            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} />}
+            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} examHistory={examHistory} />}
           </React.Fragment>
         )}
       </div>
@@ -2129,7 +2133,7 @@ function PipelineView({ products, onAdd, onAdvance, onDelete, examMode, inAtlant
 }
 
 // ============== STATS VIEW ==============
-function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak }) {
+function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak, examHistory }) {
   const totalPosts = products.filter(p => p.stage === 'posted').length;
   const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -2203,6 +2207,35 @@ function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onG
           <div className="mono text-[9px] uppercase tracking-wider text-stone-500">revenue</div>
         </div>
       </div>
+
+      {/* Practice Exam Scores */}
+      {examHistory && examHistory.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Practice Exam Scores</p>
+          <div className="space-y-2">
+            {examHistory.slice(0, 5).map((e, i) => {
+              const color = e.score >= 90 ? 'text-emerald-600' : e.score >= 78 ? 'text-amber-600' : 'text-red-500';
+              const bg = e.score >= 90 ? 'bg-emerald-50 border-emerald-200' : e.score >= 78 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
+              return (
+                <div key={i} className={`rounded-2xl p-3.5 border ${bg}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-stone-900">{e.examLabel}</p>
+                    <span className={`mono text-sm font-bold ${color}`}>{e.score}%</span>
+                  </div>
+                  <p className="text-[10px] text-stone-400 mono mb-1.5">{new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · {e.correct}/{e.total} correct</p>
+                  {e.weakAreas && e.weakAreas.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {e.weakAreas.map((w, j) => (
+                        <span key={j} className="mono text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{w}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Sync section */}
       <div className="bg-white rounded-2xl p-4 border border-stone-200">

@@ -505,6 +505,24 @@ function showScore() {
     .filter(([_, v]) => v.c < v.t)
     .sort((a, b) => (a[1].c / a[1].t) - (b[1].c / b[1].t));
 
+  // Save to localStorage so The System stats tab can track it
+  try {
+    const entry = {
+      examId: 'ms1-exam2-final-draft',
+      examLabel: 'MS1 Exam 2 — Final Draft',
+      date: new Date().toISOString(),
+      score: pct,
+      correct: state.score,
+      total: QUESTIONS.length,
+      topicBreakdown: Object.fromEntries(Object.entries(topicScores).map(([k,v])=>[k,{c:v.c,t:v.t}])),
+      weakAreas: weakTopics.map(([t]) => t)
+    };
+    const hist = JSON.parse(localStorage.getItem('examHistory') || '[]');
+    hist.unshift(entry);
+    localStorage.setItem('examHistory', JSON.stringify(hist.slice(0, 20)));
+    localStorage.setItem('lastExamStats', JSON.stringify(entry));
+  } catch(e) {}
+
   sc.innerHTML = `
     <div class="score-big" style="color:${grade}">${state.score}/${QUESTIONS.length}</div>
     <div class="score-pct">${pct}% · ${msg}</div>

@@ -97,11 +97,11 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
 </div>
 <script>
 const exams=[
-  {date:'2026-05-14',label:'Med Surg Exam #2'},
-  {date:'2026-06-04',label:'Med Surg Exam #3'},
-  {date:'2026-06-25',label:'Med Surg Exam #4'},
-  {date:'2026-07-09',label:'Med Surg Exam #5'},
-  {date:'2026-07-16',label:'Med Surg FINAL'}
+  {date:'2026-05-14T17:00:00',label:'Med Surg Exam #2'},
+  {date:'2026-06-04T17:00:00',label:'Med Surg Exam #3'},
+  {date:'2026-06-25T17:00:00',label:'Med Surg Exam #4'},
+  {date:'2026-07-09T17:00:00',label:'Med Surg Exam #5'},
+  {date:'2026-07-16T17:00:00',label:'Med Surg FINAL'}
 ];
 const now=new Date();
 const next=exams.map(e=>({...e,diff:new Date(e.date)-now})).filter(e=>e.diff>0).sort((a,b)=>a.diff-b.diff)[0];
