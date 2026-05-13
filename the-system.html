@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="The System">
+<meta name="theme-color" content="#fafaf9">
+<title>The System</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%231c1917'/%3E%3Ctext x='50%25' y='58%25' font-family='Georgia,serif' font-size='100' font-style='italic' fill='%23fbbf24' text-anchor='middle' dominant-baseline='middle'%3Ets%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+body { font-family: 'Fraunces', Georgia, serif; -webkit-tap-highlight-color: transparent; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+@keyframes float-up { 0% { opacity: 0; transform: translateY(20px) scale(0.9); } 50% { opacity: 1; transform: translateY(-10px) scale(1.05); } 100% { opacity: 0; transform: translateY(-40px) scale(1); } }
+.toast { animation: float-up 2.5s ease-out forwards; }
+@keyframes pulse-soft { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+.pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+@keyframes breathe-expand { 0% { transform: scale(0.4); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes breathe-contract { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.4); opacity: 0.6; } }
+@keyframes breathe-hold { 0%,100% { transform: scale(1); opacity: 0.85; } }
+.breathe-in { animation: breathe-expand linear forwards; }
+.breathe-out { animation: breathe-contract linear forwards; }
+.breathe-hold { animation: breathe-hold linear forwards; }
+input, textarea { font-family: inherit; }
+</style>
+</head>
+<body class="bg-stone-50">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+// ============== STORAGE LAYER ==============
+const storage = {
+  get: (key) => {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : null;
+    } catch(e) { return null; }
+  },
+  set: (key, val) => {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  },
+  remove: (key) => {
+    try { localStorage.removeItem(key); } catch(e) {}
+  },
+  getAll: () => {
+    const data = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        data[key] = localStorage.getItem(key);
+      }
+    } catch(e) {}
+    return data;
+  },
+  importAll: (data) => {
+    try {
+      Object.entries(data).forEach(([key, val]) => {
+        localStorage.setItem(key, val);
+      });
+    } catch(e) {}
+  }
+};
+
+// ============== DATA ==============
+const NURSING_EVENTS = [
+  { date: '2026-05-14', type: 'exam', label: 'Med Surg Exam #2', detail: 'Ch 10-15 · 5pm', critical: true },
+  { date: '2026-05-28', type: 'quiz', label: 'Med Surg Quiz #4', detail: '5pm Thursday' },
+  { date: '2026-06-04', type: 'exam', label: 'Med Surg Exam #3', detail: 'Ch 16-21', critical: true },
+  { date: '2026-06-11', type: 'quiz', label: 'Med Surg Quiz #5', detail: '5pm Thursday' },
+  { date: '2026-06-15', type: 'break', label: 'School Closed', detail: 'Juneteenth week' },
+  { date: '2026-06-25', type: 'exam', label: 'Med Surg Exam #4', detail: 'Ch 22-26', critical: true },
+  { date: '2026-07-09', type: 'exam', label: 'Med Surg Exam #5', detail: 'Ch 27-32', critical: true },
+  { date: '2026-07-16', type: 'final', label: 'Med Surg FINAL', detail: '5pm — biggest test', critical: true },
+  { date: '2026-07-23', type: 'milestone', label: 'End of Term', detail: 'Concepts 1 complete' },
+];
+
+const LIFE_EVENTS = [
+  { date: '2026-05-16', type: 'travel', label: 'Drive to Atlanta', detail: 'Leave evening · 9-10hr', icon: '🚗' },
+  { date: '2026-05-17', type: 'travel', label: 'Atlanta Day 1', detail: 'Ponce City Market', icon: '🌅' },
+  { date: '2026-05-18', type: 'travel', label: 'Atlanta Day 2', detail: 'Spa Land + Fun Spot', icon: '💆🏽‍♀️' },
+  { date: '2026-05-19', type: 'concert', label: 'Don Toliver — VIP', detail: 'State Farm Arena 7:30pm', icon: '🎤' },
+  { date: '2026-05-20', type: 'travel', label: 'Drive back from ATL', detail: 'Brunch + return', icon: '🚗' },
+  { date: '2026-05-23', type: 'event', label: 'Wedding', detail: 'Port Saint Lucie', icon: '💍' },
+  { date: '2026-05-25', type: 'holiday', label: 'Memorial Day', detail: '', icon: '🇺🇸' },
+  { date: '2026-06-05', type: 'event', label: "Keke's Birthday", detail: '7:30pm · Black & White', icon: '🎂' },
+  { date: '2026-06-07', type: 'event', label: "Cousin's Graduation", detail: '', icon: '🎓' },
+  { date: '2026-06-19', type: 'holiday', label: 'Juneteenth', detail: '', icon: '✊🏾' },
+  { date: '2026-06-20', type: 'work', label: 'New Hire Breakfast', detail: 'JFK North 7:30-11:30am', icon: '☕' },
+  { date: '2026-07-04', type: 'holiday', label: 'Independence Day', detail: '', icon: '🎆' },
+  { date: '2026-07-06', type: 'concert', label: 'Tame Impala + Polo', detail: 'Miami', icon: '🎤' },
+];
+
+const DEFAULT_ADDRESSES = [
+  { id: 'pf1', label: 'Planet Fitness (Lantana)', icon: '💪', address: '5857 S Congress Ave, Lantana, FL 33462' },
+  { id: 'pf2', label: 'Planet Fitness (Lake Worth)', icon: '💪', address: '6488 Lake Worth Rd, Lake Worth, FL 33463' },
+  { id: 'pf3', label: 'Planet Fitness (Forest Hill)', icon: '💪', address: '4560 Forest Hill Blvd, West Palm Beach, FL 33415' },
+  { id: 'jfk', label: 'JFK North (work)', icon: '🏥', address: 'JFK Medical Center North Campus West Palm Beach FL' },
+  { id: 'home', label: 'Home', icon: '🏠', address: '1571 East Breezy Ln West Palm Beach FL 33417' },
+];
+
+const LAUNCH_TASKS = [
+  { id: 'dhgate', day: '2026-05-15', phase: 'Setup', title: 'DHgate Affiliate Signup', time: '15 min', load: 'Low brain', desc: 'Sign up with your real name. Free, no LLC needed.', link: 'https://www.dhgate.com/affiliateprogram', linkLabel: 'Open DHgate Affiliate' },
+  { id: 'tiktok', day: '2026-05-15', phase: 'Setup', title: 'Create new TikTok account', time: '20 min', load: 'Low brain', desc: 'Brand new account, fresh email. Niche-focused handle.', link: 'https://www.tiktok.com/signup', linkLabel: 'Open TikTok Sign Up' },
+  { id: 'linktree', day: '2026-05-15', phase: 'Setup', title: 'Set up Linktree', time: '15 min', load: 'Low brain', desc: 'Free bio-link tool. Add your DHgate affiliate link.', link: 'https://linktr.ee/', linkLabel: 'Open Linktree' },
+  { id: 'bio', day: '2026-05-15', phase: 'Setup', title: 'TikTok bio + profile pic', time: '20 min', load: 'Low brain', desc: 'Clean aesthetic. No face in pic. Niche bio.', link: '', linkLabel: '' },
+  { id: 'samples', day: '2026-05-21', phase: 'Sourcing', title: 'Order first 5 DHgate samples', time: '45 min', load: 'Medium', desc: 'Shoes, tech, fashion, jewelry. 4.7+ rating sellers.', link: 'https://www.dhgate.com/', linkLabel: 'Open DHgate' },
+  { id: 'capcut', day: '2026-05-22', phase: 'Tools', title: 'Download CapCut', time: '10 min', load: 'Low brain', desc: 'Mobile + desktop. Free.', link: 'https://www.capcut.com/', linkLabel: 'Download CapCut' },
+  { id: 'lightbox', day: '2026-05-22', phase: 'Tools', title: 'Test lightbox + Osmo Pocket 3', time: '30 min', load: 'Medium', desc: 'Practice 3 test shots BEFORE samples arrive.', link: '', linkLabel: '' },
+  { id: 'scripts', day: '2026-05-26', phase: 'Content', title: 'Write 5 video scripts', time: '60 min', load: 'High brain', desc: 'Proven hooks: "Why is no one talking about this $X find..."', link: '', linkLabel: '' },
+  { id: 'hashtags', day: '2026-05-26', phase: 'Content', title: 'Save hashtag bank', time: '20 min', load: 'Low brain', desc: '30 hashtags: niche + trending + DHgate tags.', link: '', linkLabel: '' },
+  { id: 'film1', day: '2026-06-08', phase: 'Launch', title: 'First filming session 🎬', time: '90 min', load: 'High · Sunday batch', desc: 'Film all 5 products in one session.', link: '', linkLabel: '' },
+  { id: 'edit1', day: '2026-06-09', phase: 'Launch', title: 'Edit first batch in CapCut', time: '60 min', load: 'Medium', desc: 'Captions + trending sound at 5% volume.', link: '', linkLabel: '' },
+  { id: 'post1', day: '2026-06-10', phase: 'Launch', title: 'POST FIRST VIDEO 🚀', time: '15 min', load: 'Low brain', desc: 'TikTok native scheduler. 7-10pm. THE DAY YOU BECOME A CREATOR.', link: '', linkLabel: '' },
+];
+
+const todayISO = () => new Date().toISOString().split('T')[0];
+const todayKey = () => new Date().toDateString();
+const daysBetween = (d1, d2) => {
+  const a = new Date(d1); const b = new Date(d2);
+  a.setHours(0,0,0,0); b.setHours(0,0,0,0);
+  return Math.round((b - a) / 86400000);
+};
+const formatETA = (date) => {
+  const diff = new Date(date) - new Date();
+  if (diff < 0) return 'now';
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  if (days === 0) {
+    const mins = Math.floor((diff % 3600000) / 60000);
+    return hours === 0 ? `${mins}m` : `${hours}h ${mins}m`;
+  }
+  if (days < 7) return `${days}d ${hours}h`;
+  if (days < 60) return `${days} days`;
+  return `${Math.floor(days/30)}mo ${days%30}d`;
+};
+
+const weatherCodeToEmoji = (code) => {
+  if (code === 0) return '☀️';
+  if (code >= 1 && code <= 3) return '⛅';
+  if (code >= 45 && code <= 48) return '🌫️';
+  if (code >= 51 && code <= 55) return '🌧️';
+  if (code >= 61 && code <= 65) return '🌧️';
+  if (code >= 71 && code <= 77) return '❄️';
+  if (code >= 80 && code <= 82) return '🌦️';
+  if (code >= 95 && code <= 99) return '⛈️';
+  return '🌤️';
+};
+
+const weatherCodeToLabel = (code) => {
+  if (code === 0) return 'Clear';
+  if (code >= 1 && code <= 3) return 'Partly Cloudy';
+  if (code >= 45 && code <= 48) return 'Foggy';
+  if (code >= 51 && code <= 55) return 'Drizzle';
+  if (code >= 61 && code <= 65) return 'Rain';
+  if (code >= 71 && code <= 77) return 'Snow';
+  if (code >= 80 && code <= 82) return 'Showers';
+  if (code >= 95 && code <= 99) return 'Thunderstorm';
+  return 'Fair';
+};
+
+const Icon = ({ name, size = 16, className = '' }) => {
+  const icons = {
+    flame: 'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z',
+    sparkles: 'M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z M20 3v4 M22 5h-4 M4 17v2 M5 18H3',
+    navigation: 'M21.426 11.095a1 1 0 0 0-.547-1.711L3.587 6.005a1 1 0 0 0-1.182 1.181l3.378 17.293a1 1 0 0 0 1.71.547l3.493-3.493a1 1 0 0 1 .707-.293l5.034.722a1 1 0 0 0 1.07-1.069l-.722-5.034a1 1 0 0 1 .293-.707z',
+    check: 'M20 6 9 17l-5-5',
+    x: 'M18 6 6 18 M6 6l12 12',
+    plus: 'M5 12h14 M12 5v14',
+    chevronRight: 'm9 18 6-6-6-6',
+    mapPin: 'M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0 M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
+    edit: 'M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z M15 5l4 4',
+    trash: 'M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6 M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
+    externalLink: 'M15 3h6v6 M10 14 21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6',
+    lock: 'M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2 M7 11V7a5 5 0 0 1 10 0v4',
+    rocket: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0 M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5',
+    heart: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z',
+    graduation: 'M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z M22 10v6 M6 12.5V16a6 3 0 0 0 12 0v-3.5',
+    sync: 'M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8 M3 3v5h5 M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16 M16 16h5v5',
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      {icons[name]?.split(' M').map((path, i) => (
+        <path key={i} d={i === 0 ? path : 'M' + path} />
+      ))}
+    </svg>
+  );
+};
+
+// ============== MAIN COMPONENT ==============
+function Dashboard() {
+  const [tab, setTab] = useState('today');
+  const [checkin, setCheckin] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [streak, setStreak] = useState(0);
+  const [lastActive, setLastActive] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [launchDone, setLaunchDone] = useState({});
+  const [todayLog, setTodayLog] = useState({ suggestions: {}, anki: [] });
+  const [allLogs, setAllLogs] = useState({});
+  const [addresses, setAddresses] = useState(DEFAULT_ADDRESSES);
+  const [editingAddr, setEditingAddr] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newProd, setNewProd] = useState({ name: '', category: 'shoes', notes: '' });
+  const [toast, setToast] = useState(null);
+  const [panic, setPanic] = useState(false);
+  const [anki, setAnki] = useState(false);
+  const [ankiSec, setAnkiSec] = useState(900);
+  const [ankiNote, setAnkiNote] = useState('');
+  const [study, setStudy] = useState(false);
+  const [ate, setAte] = useState(null);
+  const [family, setFamily] = useState(false);
+  // New state
+  const [weather, setWeather] = useState(null);
+  const [lastSync, setLastSync] = useState(null);
+  const [showSyncImport, setShowSyncImport] = useState(false);
+  const [syncCode, setSyncCode] = useState('');
+  // Revenue / content ideas / engagement
+  const [revenue, setRevenue] = useState([]);
+  const [contentIdeas, setContentIdeas] = useState([]);
+  const [engagement, setEngagement] = useState([]);
+  // Study tab state
+  const [studyLogs, setStudyLogs] = useState([]);
+  const [allStudyLogs, setAllStudyLogs] = useState({});
+  const [quizLog, setQuizLog] = useState([]);
+  const [studyTimer, setStudyTimer] = useState(false);
+  const [studyTimerSec, setStudyTimerSec] = useState(0);
+  // Meditation state
+  const [meditationLog, setMeditationLog] = useState([]);
+  const [mindfulStreak, setMindfulStreak] = useState(0);
+  // Pomodoro
+  const [pomodoro, setPomodoro] = useState(null); // null | 'work' | 'break'
+  const [pomodoroSec, setPomodoroSec] = useState(0);
+
+  // Load all data from localStorage on mount
+  useEffect(() => {
+    const c = storage.get(`checkin:${todayKey()}`);
+    if (c) setCheckin(c);
+    const p = storage.get('products');
+    if (p) setProducts(p);
+    const s = storage.get('streak');
+    if (s !== null) setStreak(s);
+    const h = storage.get('history');
+    if (h) setHistory(h);
+    const l = storage.get('lastActive');
+    if (l) setLastActive(l);
+    const a = storage.get(`ate:${todayKey()}`);
+    if (a) setAte(a);
+    const f = storage.get('family');
+    if (f !== null) setFamily(f);
+    const ld = storage.get('launchDone');
+    if (ld) setLaunchDone(ld);
+    const tl = storage.get(`log:${todayKey()}`);
+    if (tl) setTodayLog(tl);
+    const al = storage.get('allLogs');
+    if (al) setAllLogs(al);
+    const ad = storage.get('addresses');
+    if (ad) setAddresses(ad);
+    const ls = storage.get('lastSync');
+    if (ls) setLastSync(ls);
+    const rv = storage.get('revenue');
+    if (rv) setRevenue(rv);
+    const ci = storage.get('contentIdeas');
+    if (ci) setContentIdeas(ci);
+    const eg = storage.get('engagement');
+    if (eg) setEngagement(eg);
+    const sl = storage.get(`studyLog:${todayKey()}`);
+    if (sl) setStudyLogs(sl);
+    const asl = storage.get('allStudyLogs');
+    if (asl) setAllStudyLogs(asl);
+    const ql = storage.get('quizLog');
+    if (ql) setQuizLog(ql);
+    const ml = storage.get(`meditation:${todayKey()}`);
+    if (ml) setMeditationLog(ml);
+    const ms = storage.get('mindfulStreak');
+    if (ms !== null) setMindfulStreak(ms);
+    // Load weather from cache
+    const wc = storage.get('weatherCache');
+    if (wc && Date.now() - wc.timestamp < 1800000) {
+      setWeather(wc.data);
+    } else {
+      fetchWeather();
+    }
+  }, []);
+
+  // Anki timer
+  useEffect(() => {
+    if (!anki || ankiSec <= 0) {
+      if (anki && ankiSec <= 0) { setAnki(false); showToast('Anki done! Log it below 🎯'); }
+      return;
+    }
+    const t = setTimeout(() => setAnkiSec(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [anki, ankiSec]);
+
+  // Study mode 2am cutoff
+  useEffect(() => {
+    if (!study) return;
+    const i = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 1 && now.getMinutes() === 30) showToast('30 min until 2am cutoff ⏸');
+      if (now.getHours() === 2 && now.getMinutes() === 0) { setStudy(false); showToast('Close the books. Sleep is study. 🌙'); }
+    }, 60000);
+    return () => clearInterval(i);
+  }, [study]);
+
+  // Study timer
+  useEffect(() => {
+    if (!studyTimer) return;
+    const t = setInterval(() => setStudyTimerSec(s => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [studyTimer]);
+
+  // Pomodoro timer
+  useEffect(() => {
+    if (!pomodoro) return;
+    if (pomodoroSec <= 0) {
+      if (pomodoro === 'work') {
+        setPomodoro('break');
+        setPomodoroSec(300); // 5 min break
+        showToast('Sprint done! 5-min break 🧘');
+      } else {
+        setPomodoro(null);
+        setPomodoroSec(0);
+        showToast('Break over. Ready for another? 💪');
+      }
+      return;
+    }
+    const t = setTimeout(() => setPomodoroSec(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [pomodoro, pomodoroSec]);
+
+  const showToast = (msg, dur = 2500) => { setToast(msg); setTimeout(() => setToast(null), dur); };
+
+  const saveTodayLog = (newLog) => {
+    setTodayLog(newLog);
+    storage.set(`log:${todayKey()}`, newLog);
+    const updated = { ...allLogs, [todayKey()]: newLog };
+    setAllLogs(updated);
+    storage.set('allLogs', updated);
+  };
+
+  const fetchWeather = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,windspeed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=3&temperature_unit=fahrenheit&windspeed_unit=mph`)
+        .then(r => r.json())
+        .then(data => {
+          setWeather(data);
+          storage.set('weatherCache', { data, timestamp: Date.now() });
+        })
+        .catch(() => {});
+    }, () => {});
+  };
+
+  const allEvents = useMemo(() =>
+    [...NURSING_EVENTS, ...LIFE_EVENTS]
+      .map(e => ({ ...e, daysAway: daysBetween(todayISO(), e.date) }))
+      .filter(e => e.daysAway >= 0)
+      .sort((a, b) => a.daysAway - b.daysAway), []);
+
+  const nextExam = useMemo(() =>
+    NURSING_EVENTS
+      .map(e => ({ ...e, daysAway: daysBetween(todayISO(), e.date) }))
+      .filter(e => e.daysAway >= 0 && (e.type === 'exam' || e.type === 'final'))
+      .sort((a, b) => a.daysAway - b.daysAway)[0], []);
+
+  const nextEvent = allEvents[0];
+  const examMode = nextExam && nextExam.daysAway <= 5;
+  const inAtlanta = useMemo(() => {
+    const t = todayISO();
+    return t >= '2026-05-16' && t <= '2026-05-20';
+  }, []);
+
+  const daysToLaunch = daysBetween(todayISO(), '2026-05-15');
+  const launchStarted = daysToLaunch <= 0;
+  const todayLaunchTasks = LAUNCH_TASKS.filter(t => t.day === todayISO() && !launchDone[t.id]);
+  const upcomingLaunchTask = LAUNCH_TASKS.find(t => !launchDone[t.id] && daysBetween(todayISO(), t.day) >= 0);
+  const launchProgress = (Object.values(launchDone).filter(Boolean).length / LAUNCH_TASKS.length) * 100;
+
+  // Default to study tab when exam mode active
+  useEffect(() => {
+    if (examMode && checkin && tab === 'today') {
+      setTab('study');
+    }
+  }, [examMode, checkin]);
+
+  // Weak area alerts from quiz scores
+  const weakAreas = useMemo(() => {
+    const areas = [];
+    const practiceScores = storage.get('ms1e2v2_scores');
+    const vocabScores = storage.get('ms1e2_vocab_scores');
+    if (practiceScores && typeof practiceScores === 'object') {
+      Object.entries(practiceScores).forEach(([topic, score]) => {
+        if (typeof score === 'number' && score < 70) areas.push({ topic, score, source: 'Practice Exam' });
+      });
+    }
+    if (vocabScores && typeof vocabScores === 'object') {
+      Object.entries(vocabScores).forEach(([topic, score]) => {
+        if (typeof score === 'number' && score < 70) areas.push({ topic, score, source: 'Vocab Quiz' });
+      });
+    }
+    // Also check manual quiz log
+    quizLog.forEach(q => {
+      if (q.score < 70) areas.push({ topic: q.name, score: q.score, source: 'Manual' });
+    });
+    return areas;
+  }, [quizLog]);
+
+  const saveCheckin = (data) => {
+    const full = { ...data, date: todayKey(), timestamp: Date.now() };
+    setCheckin(full);
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    let s = streak;
+    if (lastActive === yesterday) s = streak + 1;
+    else if (lastActive !== todayKey()) s = 1;
+    setStreak(s);
+    setLastActive(todayKey());
+    const h = [...history.filter(x => x.date !== todayKey()), full].slice(-30);
+    setHistory(h);
+    storage.set(`checkin:${todayKey()}`, full);
+    storage.set('streak', s);
+    storage.set('lastActive', todayKey());
+    storage.set('history', h);
+    showToast(`Day ${s} 🔥`);
+  };
+
+  const addProduct = () => {
+    if (!newProd.name.trim()) return;
+    const p = { id: Date.now().toString(), ...newProd, stage: 'queued', added: Date.now() };
+    const u = [...products, p];
+    setProducts(u);
+    storage.set('products', u);
+    setNewProd({ name: '', category: 'shoes', notes: '' });
+    setShowAdd(false);
+  };
+
+  const advance = (id) => {
+    const stages = ['queued', 'filmed', 'edited', 'captioned', 'scheduled', 'posted'];
+    const u = products.map(p => {
+      if (p.id !== id) return p;
+      const i = stages.indexOf(p.stage);
+      return { ...p, stage: stages[Math.min(i+1, stages.length-1)] };
+    });
+    setProducts(u);
+    storage.set('products', u);
+    const p = products.find(x => x.id === id);
+    if (p) {
+      const next = stages[stages.indexOf(p.stage) + 1];
+      if (next === 'posted') showToast('LIVE 🚀', 1800);
+      else if (next) showToast(`✓ ${next}`, 1500);
+    }
+  };
+
+  const del = (id) => {
+    const u = products.filter(p => p.id !== id);
+    setProducts(u);
+    storage.set('products', u);
+  };
+
+  const logEat = () => {
+    setAte(Date.now());
+    storage.set(`ate:${todayKey()}`, Date.now());
+    showToast('Fuel ✓', 1500);
+  };
+
+  const startAnki = () => { setAnkiSec(900); setAnki(true); setAnkiNote(''); showToast('15 min. Just start. 🃏', 2000); };
+
+  const saveAnkiSession = () => {
+    if (!ankiNote.trim()) { showToast('Add a note first', 1500); return; }
+    const session = { time: Date.now(), note: ankiNote, duration: 900 - ankiSec };
+    saveTodayLog({ ...todayLog, anki: [...(todayLog.anki || []), session] });
+    setAnkiNote('');
+    showToast('Logged ✓', 1500);
+  };
+
+  const toggleFamily = () => { const n = !family; setFamily(n); storage.set('family', n); };
+
+  const toggleLaunchTask = (id) => {
+    const u = { ...launchDone, [id]: !launchDone[id] };
+    setLaunchDone(u);
+    storage.set('launchDone', u);
+    if (!launchDone[id]) {
+      const task = LAUNCH_TASKS.find(t => t.id === id);
+      if (task?.id === 'post1') showToast('YOU ARE A CREATOR 🚀', 3500);
+      else showToast('Done! 🎯', 1500);
+    }
+  };
+
+  const toggleSuggestion = (idx) => {
+    const cur = todayLog.suggestions || {};
+    const item = cur[idx] || { done: false, note: '' };
+    saveTodayLog({ ...todayLog, suggestions: { ...cur, [idx]: { ...item, done: !item.done } } });
+    if (!item.done) showToast('✓', 1200);
+  };
+
+  const updateSuggestionNote = (idx, note) => {
+    const cur = todayLog.suggestions || {};
+    const item = cur[idx] || { done: false, note: '' };
+    saveTodayLog({ ...todayLog, suggestions: { ...cur, [idx]: { ...item, note } } });
+  };
+
+  const saveAddresses = (newAddresses) => {
+    setAddresses(newAddresses);
+    storage.set('addresses', newAddresses);
+  };
+
+  // Sync functions
+  const generateSyncCode = () => {
+    try {
+      const allData = storage.getAll();
+      const json = JSON.stringify(allData);
+      const encoded = btoa(unescape(encodeURIComponent(json)));
+      navigator.clipboard.writeText(encoded).then(() => {
+        const now = Date.now();
+        setLastSync(now);
+        storage.set('lastSync', now);
+        showToast('Copied! Paste on other device', 2500);
+      }).catch(() => {
+        // Fallback: show in a prompt
+        const ta = document.createElement('textarea');
+        ta.value = encoded;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const now = Date.now();
+        setLastSync(now);
+        storage.set('lastSync', now);
+        showToast('Copied! Paste on other device', 2500);
+      });
+    } catch(e) {
+      showToast('Sync export failed', 2000);
+    }
+  };
+
+  const importSyncCode = () => {
+    try {
+      const json = decodeURIComponent(escape(atob(syncCode.trim())));
+      const data = JSON.parse(json);
+      storage.importAll(data);
+      const now = Date.now();
+      setLastSync(now);
+      storage.set('lastSync', now);
+      setSyncCode('');
+      setShowSyncImport(false);
+      showToast('Synced! Reloading...', 2000);
+      setTimeout(() => window.location.reload(), 2000);
+    } catch(e) {
+      showToast('Invalid sync code', 2000);
+    }
+  };
+
+  // Revenue functions
+  const addRevenue = (amount, note) => {
+    const entry = { id: Date.now(), amount: parseFloat(amount), note, date: todayKey() };
+    const u = [...revenue, entry];
+    setRevenue(u);
+    storage.set('revenue', u);
+    showToast(`+$${amount} 💰`, 1500);
+  };
+
+  // Content ideas
+  const addContentIdea = (text) => {
+    const idea = { id: Date.now(), text, date: todayKey() };
+    const u = [idea, ...contentIdeas];
+    setContentIdeas(u);
+    storage.set('contentIdeas', u);
+    showToast('Idea saved 💡', 1500);
+  };
+
+  const removeContentIdea = (id) => {
+    const u = contentIdeas.filter(i => i.id !== id);
+    setContentIdeas(u);
+    storage.set('contentIdeas', u);
+  };
+
+  // Engagement
+  const addEngagement = (postName, views, likes, follows) => {
+    const entry = { id: Date.now(), postName, views: parseInt(views)||0, likes: parseInt(likes)||0, follows: parseInt(follows)||0, date: todayKey() };
+    const u = [...engagement, entry];
+    setEngagement(u);
+    storage.set('engagement', u);
+    showToast('Logged 📊', 1500);
+  };
+
+  // Study log
+  const saveStudySession = (note) => {
+    const session = { time: Date.now(), note, duration: studyTimerSec };
+    const u = [...studyLogs, session];
+    setStudyLogs(u);
+    storage.set(`studyLog:${todayKey()}`, u);
+    const updated = { ...allStudyLogs, [todayKey()]: u };
+    setAllStudyLogs(updated);
+    storage.set('allStudyLogs', updated);
+    setStudyTimer(false);
+    setStudyTimerSec(0);
+    showToast('Study session logged ✓', 1500);
+  };
+
+  // Quiz log
+  const addQuiz = (name, score, notes) => {
+    const entry = { id: Date.now(), name, score: parseFloat(score), notes, date: todayKey() };
+    const u = [...quizLog, entry];
+    setQuizLog(u);
+    storage.set('quizLog', u);
+    showToast('Quiz logged ✓', 1500);
+  };
+
+  // Meditation
+  const saveMeditationSession = (duration, note) => {
+    const session = { time: Date.now(), duration, note };
+    const u = [...meditationLog, session];
+    setMeditationLog(u);
+    storage.set(`meditation:${todayKey()}`, u);
+    // Update mindfulness streak
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    const yesterdayMed = storage.get(`meditation:${yesterday}`);
+    let ms = mindfulStreak;
+    if (yesterdayMed && yesterdayMed.length > 0) ms = mindfulStreak + 1;
+    else if (meditationLog.length === 0) ms = 1; // first today
+    setMindfulStreak(ms);
+    storage.set('mindfulStreak', ms);
+    showToast('Mindful moment logged 🧘', 1500);
+  };
+
+  // Pomodoro
+  const startPomodoro = () => {
+    setPomodoro('work');
+    setPomodoroSec(1500); // 25 min
+    showToast('25-min sprint started 🎯', 2000);
+  };
+
+  const getSuggestions = () => {
+    if (!checkin) return [];
+    if (family) return [{ icon: '💕', text: 'Family mode is on. Be present. Hustle is paused.' }];
+    if (inAtlanta) return [
+      { icon: '🌴', text: "You're in Atlanta. Hustle on pause. Be present." },
+      { icon: '📸', text: 'Optional: capture content for later.' },
+    ];
+    if (examMode && nextExam) {
+      const suggestions = [
+        { icon: '📚', text: `${nextExam.label} in ${nextExam.daysAway} day${nextExam.daysAway===1?'':'s'}. Study mode active.` },
+        { icon: '🃏', text: 'Anki Now — even 15 min counts.' },
+        { icon: '🛌', text: 'Sleep IS study. 2am hard cutoff is on tonight.' },
+      ];
+      if (weakAreas.length > 0) {
+        suggestions.push({ icon: '⚠️', text: `Review weak area: ${weakAreas[0].topic} (${weakAreas[0].score}%)` });
+      }
+      return suggestions;
+    }
+    if (todayLaunchTasks.length > 0) return [
+      { icon: '🚀', text: `Launch day! ${todayLaunchTasks.length} task${todayLaunchTasks.length===1?'':'s'} unlocked.` },
+      { icon: '✅', text: `${todayLaunchTasks[0].title} — ${todayLaunchTasks[0].time}` },
+    ];
+    const { energy, meds, sleep, brain } = checkin;
+    const score = (energy==='high'?3:energy==='med'?2:1) + (meds==='taken'?1:0) + (sleep==='good'?1:sleep==='okay'?0.5:0) + (brain==='hyper'?2:brain==='normal'?1:0);
+    const queued = products.filter(p => p.stage==='queued').length;
+    const filmed = products.filter(p => p.stage==='filmed').length;
+    const edited = products.filter(p => p.stage==='edited').length;
+    if (score >= 6) return [
+      { icon: '🎬', text: queued > 0 ? `Film day. ${queued} product${queued>1?'s':''} queued.` : 'Hyperfocus — batch order samples.' },
+      { icon: '💪', text: 'Gym micro-commit: 20 min Planet Fitness.' },
+      { icon: '🃏', text: 'Anki if exam within 2 weeks.' },
+    ];
+    if (score >= 4) return [
+      { icon: '✂️', text: filmed > 0 ? `Edit the ${filmed} filmed video${filmed>1?'s':''}.` : 'Write captions for upcoming posts.' },
+      { icon: '🃏', text: 'Anki 15-min — perfect medium-energy task.' },
+      { icon: '🛒', text: 'Browse DHgate for next samples (15 min cap).' },
+    ];
+    return [
+      { icon: '✅', text: edited > 0 ? 'Schedule edited videos.' : 'Just check in. Streak preserved.' },
+      { icon: '🥗', text: 'Did you eat in the last 4 hours?' },
+      { icon: '🛌', text: 'Rest day. No guilt. Tomorrow is new.' },
+    ];
+  };
+
+  // Tab list varies based on exam mode
+  const tabs = [
+    { id: 'today', label: 'Today' },
+    { id: 'study', label: 'Study' },
+    { id: 'launch', label: 'Launch' },
+    { id: 'road', label: 'Road' },
+    { id: 'pipe', label: 'Pipe' },
+    { id: 'stats', label: 'Stats' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-stone-50 pb-24">
+      {toast && (
+        <div className="fixed top-1/3 left-1/2 -translate-x-1/2 z-50 toast pointer-events-none px-4">
+          <div className="text-3xl font-bold text-amber-700 tracking-tight text-center">{toast}</div>
+        </div>
+      )}
+
+      {panic && <PanicScreen onClose={() => setPanic(false)} nextExam={nextExam} />}
+      {editingAddr && <AddressEditor address={editingAddr} addresses={addresses} onSave={(u) => { saveAddresses(u); setEditingAddr(null); }} onClose={() => setEditingAddr(null)} />}
+
+      <div className="max-w-md mx-auto px-4 py-5">
+        <header className="mb-4">
+          <div className="flex items-baseline justify-between mb-1">
+            <h1 className="text-3xl font-light tracking-tight text-stone-900">
+              <span className="italic font-medium">the</span> system
+            </h1>
+            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              {lastSync && (
+                <button onClick={() => setTab('stats')} className="text-stone-400 hover:text-stone-600" title={`Last synced: ${new Date(lastSync).toLocaleString()}`}>
+                  <Icon name="sync" size={12} />
+                </button>
+              )}
+              {family && <span className="bg-pink-100 text-pink-800 mono text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full">family</span>}
+              {examMode && <span className="bg-rose-100 text-rose-800 mono text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full pulse-soft">exam</span>}
+              <div className="flex items-center gap-1 bg-amber-100 px-2 py-0.5 rounded-full">
+                <span className="text-xs">🔥</span>
+                <span className="mono text-xs font-semibold text-amber-900">{streak}</span>
+              </div>
+            </div>
+          </div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+          </p>
+        </header>
+
+        {nextEvent && (
+          <div className="bg-stone-900 text-stone-50 rounded-2xl p-4 mb-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="mono text-[9px] uppercase tracking-[0.2em] text-stone-400 mb-1.5">→ Next up</p>
+                <p className="text-base font-medium leading-tight">
+                  {nextEvent.icon && <span className="mr-1.5">{nextEvent.icon}</span>}
+                  {nextEvent.label}
+                </p>
+                {nextEvent.detail && <p className="text-xs text-stone-400 mt-0.5">{nextEvent.detail}</p>}
+              </div>
+              <div className="text-right shrink-0">
+                <p className="mono text-[9px] uppercase tracking-wider text-stone-400">ETA</p>
+                <p className="mono text-xl font-semibold text-amber-300">{formatETA(nextEvent.date)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!checkin && <CheckInFlow onSave={saveCheckin} />}
+
+        {checkin && (
+          <React.Fragment>
+            <div className="flex gap-0.5 mb-4 bg-stone-200/50 p-1 rounded-xl overflow-x-auto">
+              {tabs.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`flex-1 py-2 rounded-lg text-[11px] font-medium whitespace-nowrap px-1 ${tab===t.id?'bg-white text-stone-900 shadow-sm':'text-stone-500'}`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
+
+            {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { setStudyTimer(true); setStudyTimerSec(0); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
+
+            {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} onToggle={toggleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
+
+            {tab === 'road' && <RoadView events={allEvents} />}
+            {tab === 'pipe' && <PipelineView products={products} onAdd={() => setShowAdd(true)} onAdvance={advance} onDelete={del} examMode={examMode} inAtlanta={inAtlanta} />}
+            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} />}
+          </React.Fragment>
+        )}
+      </div>
+
+      {showAdd && (
+        <div className="fixed inset-0 bg-stone-900/40 z-40 flex items-end justify-center" onClick={() => setShowAdd(false)}>
+          <div className="bg-stone-50 w-full max-w-md rounded-t-3xl p-6 pb-10" onClick={e => e.stopPropagation()}>
+            <div className="flex items-baseline justify-between mb-5">
+              <h2 className="text-2xl font-medium">New product</h2>
+              <button onClick={() => setShowAdd(false)} className="text-stone-400">✕</button>
+            </div>
+            <div className="space-y-3">
+              <input autoFocus type="text" placeholder="e.g. Nike Dunk Lows dupe" value={newProd.name} onChange={e => setNewProd({...newProd, name: e.target.value})}
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900" />
+              <div className="grid grid-cols-4 gap-2">
+                {['shoes','tech','fashion','jewelry'].map(c => (
+                  <button key={c} onClick={() => setNewProd({...newProd, category: c})}
+                    className={`py-2.5 rounded-lg text-xs font-medium uppercase tracking-wider ${newProd.category===c?'bg-stone-900 text-stone-50':'bg-white text-stone-500 border border-stone-200'}`}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+              <textarea placeholder="Notes (optional)" value={newProd.notes} onChange={e => setNewProd({...newProd, notes: e.target.value})} rows={2}
+                className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 resize-none text-sm" />
+              <button onClick={addProduct} className="w-full py-3.5 bg-stone-900 text-stone-50 rounded-xl font-medium">Add to queue</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============== ADDRESS EDITOR ==============
+function AddressEditor({ address, addresses, onSave, onClose }) {
+  const [label, setLabel] = useState(address.label || '');
+  const [addr, setAddr] = useState(address.address || '');
+  const [icon, setIcon] = useState(address.icon || '📍');
+  const save = () => {
+    const updated = addresses.map(a => a.id === address.id ? { ...a, label, address: addr, icon } : a);
+    onSave(updated);
+  };
+  return (
+    <div className="fixed inset-0 bg-stone-900/40 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="bg-stone-50 w-full max-w-md rounded-t-3xl p-6 pb-10" onClick={e => e.stopPropagation()}>
+        <div className="flex items-baseline justify-between mb-5">
+          <h2 className="text-2xl font-medium">Edit place</h2>
+          <button onClick={onClose} className="text-stone-400">✕</button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <p className="mono text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Icon</p>
+            <div className="flex gap-2 flex-wrap">
+              {['💪','🏥','🏠','📍','🏫','🏪','🍽️','☕'].map(i => (
+                <button key={i} onClick={() => setIcon(i)} className={`text-2xl w-11 h-11 rounded-xl ${icon===i?'bg-stone-900':'bg-white border border-stone-200'}`}>{i}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mono text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Label</p>
+            <input type="text" value={label} onChange={e => setLabel(e.target.value)} placeholder="e.g. PF Forest Hill"
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900" />
+          </div>
+          <div>
+            <p className="mono text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Address</p>
+            <textarea value={addr} onChange={e => setAddr(e.target.value)} placeholder="e.g. 4595 Forest Hill Blvd, West Palm Beach FL" rows={2}
+              className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 resize-none text-sm" />
+            <p className="text-[10px] text-stone-400 mt-1">Tap will open in Apple Maps</p>
+          </div>
+          <button onClick={save} className="w-full py-3.5 bg-stone-900 text-stone-50 rounded-xl font-medium">Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== PANIC SCREEN ==============
+function PanicScreen({ onClose, nextExam }) {
+  const oneThing = nextExam && nextExam.daysAway <= 5
+    ? `Study ONE chapter for ${nextExam.label}. Just one.`
+    : 'Take 3 deep breaths. Drink water. Pick ONE small thing.';
+  return (
+    <div className="fixed inset-0 bg-stone-50 z-50 flex flex-col items-center justify-center p-6">
+      <div className="max-w-sm w-full text-center">
+        <p className="mono text-[10px] uppercase tracking-[0.3em] text-stone-400 mb-6">Breathe</p>
+        <h2 className="text-4xl font-light text-stone-900 mb-3 leading-tight">One thing.<br/><span className="italic font-medium">Right now.</span></h2>
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 my-8">
+          <p className="text-xl text-stone-800 leading-snug">{oneThing}</p>
+        </div>
+        <p className="text-sm text-stone-500 mb-8 leading-relaxed">Everything else can wait. You are not behind.</p>
+        <button onClick={onClose} className="bg-stone-900 text-stone-50 px-8 py-3.5 rounded-full font-medium">I'm ready</button>
+      </div>
+    </div>
+  );
+}
+
+// ============== CHECK-IN FLOW ==============
+function CheckInFlow({ onSave }) {
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState({});
+  const steps = [
+    { q: 'Energy level?', key: 'energy', options: [
+      { val: 'low', label: 'Low', color: 'rose' },
+      { val: 'med', label: 'Medium', color: 'amber' },
+      { val: 'high', label: 'High', color: 'emerald' },
+    ]},
+    { q: 'Meds today?', key: 'meds', options: [
+      { val: 'taken', label: 'Taken', color: 'emerald' },
+      { val: 'not-yet', label: 'Not yet', color: 'amber' },
+      { val: 'skip', label: 'Skipping', color: 'rose' },
+    ]},
+    { q: 'How was sleep?', key: 'sleep', options: [
+      { val: 'poor', label: 'Poor', color: 'rose' },
+      { val: 'okay', label: 'Okay', color: 'amber' },
+      { val: 'good', label: 'Good', color: 'emerald' },
+    ]},
+    { q: 'Brain state?', key: 'brain', options: [
+      { val: 'foggy', label: 'Foggy', color: 'rose' },
+      { val: 'normal', label: 'Normal', color: 'amber' },
+      { val: 'hyper', label: 'Hyperfocus', color: 'emerald' },
+    ]},
+  ];
+  const cmap = {
+    rose: 'bg-rose-100 border-rose-300 text-rose-800',
+    amber: 'bg-amber-100 border-amber-300 text-amber-900',
+    emerald: 'bg-emerald-100 border-emerald-300 text-emerald-900',
+  };
+  const c = steps[step];
+  const select = (val) => {
+    const newData = { ...data, [c.key]: val };
+    setData(newData);
+    if (step < steps.length - 1) setTimeout(() => setStep(step + 1), 200);
+    else setTimeout(() => onSave(newData), 300);
+  };
+  return (
+    <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex gap-1.5 mb-6">
+        {steps.map((_, i) => <div key={i} className={`h-1 flex-1 rounded-full ${i<=step?'bg-stone-900':'bg-stone-200'}`} />)}
+      </div>
+      <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-2">Check-in · {step+1} of {steps.length}</p>
+      <h2 className="text-2xl font-medium text-stone-900 mb-6 leading-tight">{c.q}</h2>
+      <div className="space-y-2.5">
+        {c.options.map(opt => (
+          <button key={opt.val} onClick={() => select(opt.val)} className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 ${cmap[opt.color]} active:scale-[0.99] transition-transform`}>
+            <span className="text-base font-medium">{opt.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============== WEATHER WIDGET ==============
+function WeatherWidget({ weather, onRefresh }) {
+  if (!weather || !weather.current) return (
+    <div className="bg-white rounded-2xl p-4 border border-stone-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-1">Weather</p>
+          <p className="text-sm text-stone-500">Tap to load weather</p>
+        </div>
+        <button onClick={onRefresh} className="bg-stone-100 rounded-full px-3 py-1.5 text-xs text-stone-600">Load</button>
+      </div>
+    </div>
+  );
+
+  const cur = weather.current;
+  const daily = weather.daily;
+
+  return (
+    <div className="bg-white rounded-2xl p-4 border border-stone-200">
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-1">Weather</p>
+          <div className="flex items-center gap-2">
+            <span className="text-3xl">{weatherCodeToEmoji(cur.weathercode)}</span>
+            <div>
+              <p className="text-2xl font-medium text-stone-900">{Math.round(cur.temperature_2m)}°F</p>
+              <p className="text-xs text-stone-500">{weatherCodeToLabel(cur.weathercode)}</p>
+            </div>
+          </div>
+        </div>
+        <button onClick={onRefresh} className="text-stone-400 hover:text-stone-600 p-1">
+          <Icon name="sync" size={14} />
+        </button>
+      </div>
+      <div className="flex gap-3 text-xs text-stone-500 mb-3">
+        <span>💧 {cur.relative_humidity_2m}%</span>
+        <span>💨 {Math.round(cur.windspeed_10m)} mph</span>
+      </div>
+      {daily && (
+        <div className="flex gap-2">
+          {daily.time.map((day, i) => (
+            <div key={i} className="flex-1 bg-stone-50 rounded-xl p-2 text-center">
+              <p className="mono text-[9px] text-stone-500 mb-0.5">
+                {i === 0 ? 'Today' : new Date(day + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' })}
+              </p>
+              <p className="text-lg">{weatherCodeToEmoji(daily.weathercode[i])}</p>
+              <p className="mono text-[10px] text-stone-700">{Math.round(daily.temperature_2m_max[i])}°</p>
+              <p className="mono text-[10px] text-stone-400">{Math.round(daily.temperature_2m_min[i])}°</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============== BREATHING EXERCISE ==============
+function BreathingExercise() {
+  const [mode, setMode] = useState(null); // null | 'box' | '478'
+  const [phase, setPhase] = useState(''); // INHALE | HOLD | EXHALE
+  const [phaseTime, setPhaseTime] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [cycles, setCycles] = useState(3);
+  const [currentCycle, setCurrentCycle] = useState(0);
+  const [running, setRunning] = useState(false);
+  const intervalRef = useRef(null);
+
+  const boxPattern = [
+    { phase: 'INHALE', duration: 4 },
+    { phase: 'HOLD', duration: 4 },
+    { phase: 'EXHALE', duration: 4 },
+    { phase: 'HOLD', duration: 4 },
+  ];
+
+  const pattern478 = [
+    { phase: 'INHALE', duration: 4 },
+    { phase: 'HOLD', duration: 7 },
+    { phase: 'EXHALE', duration: 8 },
+  ];
+
+  useEffect(() => {
+    if (!running || !mode) return;
+    const pattern = mode === 'box' ? boxPattern : pattern478;
+    let cycleIdx = 0;
+    let stepIdx = 0;
+    let countdown = pattern[0].duration;
+    setPhase(pattern[0].phase);
+    setPhaseTime(countdown);
+    setCurrentCycle(1);
+
+    intervalRef.current = setInterval(() => {
+      countdown--;
+      setPhaseTime(countdown);
+      setTotalTime(t => t + 1);
+
+      if (countdown <= 0) {
+        stepIdx++;
+        if (stepIdx >= pattern.length) {
+          stepIdx = 0;
+          cycleIdx++;
+          if (cycleIdx >= cycles) {
+            clearInterval(intervalRef.current);
+            setRunning(false);
+            setMode(null);
+            setPhase('');
+            return;
+          }
+          setCurrentCycle(cycleIdx + 1);
+        }
+        countdown = pattern[stepIdx].duration;
+        setPhase(pattern[stepIdx].phase);
+        setPhaseTime(countdown);
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalRef.current);
+  }, [running, mode, cycles]);
+
+  const stop = () => {
+    clearInterval(intervalRef.current);
+    setRunning(false);
+    setMode(null);
+    setPhase('');
+    setTotalTime(0);
+  };
+
+  if (running) {
+    const circleScale = phase === 'INHALE' ? 'scale-100' : phase === 'EXHALE' ? 'scale-50' : 'scale-75';
+    return (
+      <div className="bg-stone-900 text-stone-50 rounded-2xl p-6 text-center">
+        <p className="mono text-[9px] uppercase tracking-[0.2em] text-stone-400 mb-1">
+          {mode === 'box' ? 'Box Breathing' : '4-7-8 Breathing'} · Cycle {currentCycle}/{cycles}
+        </p>
+        <div className="flex items-center justify-center my-6">
+          <div className={`w-24 h-24 rounded-full bg-amber-400/30 border-2 border-amber-400 flex items-center justify-center transition-transform duration-1000 ${circleScale}`}>
+            <div className="text-center">
+              <p className="text-xl font-semibold text-amber-300">{phaseTime}</p>
+            </div>
+          </div>
+        </div>
+        <p className="text-lg font-medium text-amber-300 mb-4">{phase}</p>
+        <button onClick={stop} className="bg-stone-700/50 px-6 py-2 rounded-full text-sm">Stop</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <button onClick={() => { setMode('box'); setRunning(true); setTotalTime(0); }}
+          className="flex-1 bg-white border border-stone-200 rounded-2xl p-3.5 text-left active:scale-95 transition-transform">
+          <p className="text-sm font-medium text-stone-900">Box Breathing</p>
+          <p className="text-[10px] text-stone-500">4-4-4-4 · calming</p>
+        </button>
+        <button onClick={() => { setMode('478'); setRunning(true); setTotalTime(0); }}
+          className="flex-1 bg-white border border-stone-200 rounded-2xl p-3.5 text-left active:scale-95 transition-transform">
+          <p className="text-sm font-medium text-stone-900">4-7-8 Breathing</p>
+          <p className="text-[10px] text-stone-500">deep relaxation</p>
+        </button>
+      </div>
+      <div className="flex gap-2 px-1">
+        <p className="mono text-[10px] text-stone-400 flex-1">Cycles:</p>
+        {[3, 5, 10].map(n => (
+          <button key={n} onClick={() => setCycles(n)}
+            className={`mono text-[10px] px-2 py-0.5 rounded-full ${cycles === n ? 'bg-stone-900 text-stone-50' : 'text-stone-500'}`}>
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============== MEDITATION TIMER ==============
+function MeditationTimer({ onSave, meditationLog, mindfulStreak }) {
+  const [active, setActive] = useState(false);
+  const [duration, setDuration] = useState(5);
+  const [remaining, setRemaining] = useState(0);
+  const [note, setNote] = useState('');
+
+  useEffect(() => {
+    if (!active || remaining <= 0) {
+      if (active && remaining <= 0) {
+        setActive(false);
+      }
+      return;
+    }
+    const t = setTimeout(() => setRemaining(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [active, remaining]);
+
+  const start = () => {
+    setRemaining(duration * 60);
+    setActive(true);
+  };
+
+  const finish = () => {
+    const actualDuration = (duration * 60) - remaining;
+    onSave(actualDuration, note || `${duration}-min meditation`);
+    setActive(false);
+    setRemaining(0);
+    setNote('');
+  };
+
+  const fmt = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+
+  if (active) {
+    return (
+      <div className="bg-indigo-900 text-indigo-50 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <p className="mono text-[10px] uppercase tracking-wider text-indigo-300 mb-0.5">Meditating</p>
+            <p className="mono text-2xl font-semibold">{fmt(remaining)}</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={finish} className="bg-indigo-700/50 px-4 py-2 rounded-full text-sm">Done</button>
+          </div>
+        </div>
+        <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="Note (optional)"
+          className="w-full mt-2 px-3 py-2 bg-indigo-800/50 border border-indigo-700 rounded-lg text-xs text-indigo-100 placeholder-indigo-400 focus:outline-none" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl p-3.5 border border-stone-200">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-medium text-stone-900">Meditation</p>
+        {mindfulStreak > 0 && (
+          <span className="mono text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">🧘 {mindfulStreak}d</span>
+        )}
+      </div>
+      <div className="flex gap-2 mb-2">
+        {[5, 10, 15].map(n => (
+          <button key={n} onClick={() => setDuration(n)}
+            className={`flex-1 py-2 rounded-lg text-xs font-medium ${duration === n ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-600'}`}>
+            {n} min
+          </button>
+        ))}
+      </div>
+      <button onClick={start} className="w-full bg-indigo-600 text-white rounded-lg py-2 text-xs font-medium">
+        Start {duration}-min Meditation
+      </button>
+      {meditationLog.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {meditationLog.slice().reverse().slice(0, 3).map((s, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs text-stone-600">
+              <span className="text-indigo-500">✓</span>
+              <span className="flex-1 truncate">{s.note}</span>
+              <span className="mono text-[9px] text-stone-400">{Math.round(s.duration/60)}m</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============== TODAY VIEW ==============
+function TodayView({ checkin, suggestions, suggestionLog, onToggleSuggestion, onUpdateSuggestionNote, nextExam, examMode, inAtlanta, ate, onEat, anki, ankiSec, ankiNote, setAnkiNote, ankiSessions, onStartAnki, onStopAnki, onSaveAnkiSession, study, onToggleStudy, family, onToggleFamily, onPanic, onReset, todayLaunchTasks, onGoToLaunch, addresses, onEditAddress, weather, onRefreshWeather, weakAreas, meditationLog, onSaveMeditation, mindfulStreak, pomodoro, pomodoroSec, onStartPomodoro, onStopPomodoro }) {
+  const brainLabel = checkin.brain === 'hyper' ? 'hyperfocus' : checkin.brain === 'normal' ? 'normal' : 'foggy';
+  const energyEmoji = checkin.energy === 'high' ? '⚡' : checkin.energy === 'med' ? '🟡' : '🔴';
+  const ateHrs = ate ? Math.floor((Date.now() - ate) / 3600000) : null;
+  const needsFood = !ate || (Date.now() - ate) > 14400000;
+  const fmt = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+
+  return (
+    <div className="space-y-4">
+      {/* State card */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-1.5">State</p>
+            <p className="text-lg font-medium text-stone-900">{energyEmoji} <span className="italic font-light">{brainLabel}</span> · {checkin.energy}</p>
+            <p className="text-xs text-stone-500 mt-0.5">{checkin.meds === 'taken' ? '✓ meds' : checkin.meds === 'skip' ? '— no meds' : '○ pending'} · sleep {checkin.sleep}</p>
+          </div>
+          <button onClick={onReset} className="mono text-[9px] uppercase tracking-wider text-stone-400 underline">re-check</button>
+        </div>
+      </div>
+
+      {/* Weather */}
+      <WeatherWidget weather={weather} onRefresh={onRefreshWeather} />
+
+      {/* Weak area alerts */}
+      {weakAreas.length > 0 && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-amber-700 mb-1">⚠️ Weak Areas Detected</p>
+          <div className="space-y-1">
+            {weakAreas.slice(0, 3).map((w, i) => (
+              <p key={i} className="text-sm text-amber-900">{w.topic}: <span className="font-semibold">{w.score}%</span> <span className="text-xs text-amber-600">({w.source})</span></p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Exam mode countdown */}
+      {examMode && nextExam && (
+        <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-rose-600 mb-1">Exam Countdown</p>
+          <p className="text-lg font-semibold text-rose-900">{nextExam.label}</p>
+          <p className="mono text-2xl font-bold text-rose-700 mt-1">{formatETA(nextExam.date)}</p>
+          {!pomodoro && (
+            <button onClick={onStartPomodoro} className="mt-3 bg-rose-600 text-white rounded-lg px-4 py-2 text-xs font-medium w-full">
+              🎯 Start 25-min Study Sprint
+            </button>
+          )}
+          {pomodoro && (
+            <div className="mt-3 bg-rose-900 text-rose-50 rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="mono text-[9px] uppercase tracking-wider text-rose-300">{pomodoro === 'work' ? 'Study Sprint' : 'Break'}</p>
+                  <p className="mono text-xl font-semibold">{fmt(pomodoroSec)}</p>
+                </div>
+                <button onClick={onStopPomodoro} className="bg-rose-700/50 px-3 py-1 rounded-full text-xs">Stop</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Launch tasks today */}
+      {todayLaunchTasks.length > 0 && !inAtlanta && !family && (
+        <button onClick={onGoToLaunch} className="w-full bg-gradient-to-br from-amber-400 to-amber-600 text-amber-950 rounded-2xl p-4 text-left active:scale-[0.99] transition-transform">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="mono text-[10px] uppercase tracking-[0.2em] mb-1">🚀 Launch tasks today</p>
+              <p className="text-lg font-semibold">{todayLaunchTasks.length} task{todayLaunchTasks.length===1?'':'s'} unlocked</p>
+            </div>
+            <span className="text-2xl">→</span>
+          </div>
+        </button>
+      )}
+
+      {/* Suggestions */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Suggestions</p>
+        <div className="space-y-2">
+          {suggestions.map((s, i) => {
+            const log = suggestionLog[i] || { done: false, note: '' };
+            return (
+              <div key={i} className={`bg-white rounded-2xl p-3.5 border ${log.done ? 'border-emerald-200 bg-emerald-50/30' : 'border-stone-200'}`}>
+                <div className="flex items-start gap-3">
+                  <button onClick={() => onToggleSuggestion(i)} className="mt-0.5 shrink-0 text-xl">
+                    {log.done ? '✅' : '⭕'}
+                  </button>
+                  <span className="text-2xl shrink-0">{s.icon}</span>
+                  <p className={`text-sm leading-snug flex-1 ${log.done ? 'text-stone-500 line-through' : 'text-stone-800'}`}>{s.text}</p>
+                </div>
+                <input type="text" value={log.note} onChange={(e) => onUpdateSuggestionNote(i, e.target.value)}
+                  placeholder="what did you do? (optional)"
+                  className="w-full mt-2.5 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-stone-400" />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Anki sessions */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Anki sessions</p>
+        {anki && (
+          <div className="bg-emerald-900 text-emerald-50 rounded-2xl p-4 mb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="mono text-[10px] uppercase tracking-wider text-emerald-300 mb-0.5">Anki running</p>
+                <p className="mono text-2xl font-semibold">{fmt(ankiSec)}</p>
+              </div>
+              <button onClick={onStopAnki} className="bg-emerald-700/50 px-4 py-2 rounded-full text-sm">stop</button>
+            </div>
+            {nextExam && <p className="text-xs text-emerald-300 mt-2">For: {nextExam.label}</p>}
+          </div>
+        )}
+        {!anki && (
+          <div className="bg-white rounded-2xl p-3.5 border border-stone-200 mb-2">
+            <p className="text-xs text-stone-600 mb-2">Log a session you just did:</p>
+            <textarea value={ankiNote} onChange={(e) => setAnkiNote(e.target.value)} placeholder="e.g. Med Surg Ch 12 — 25 cards, felt solid" rows={2}
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-stone-400 resize-none mb-2" />
+            <div className="flex gap-2">
+              <button onClick={onStartAnki} className="flex-1 bg-stone-900 text-stone-50 rounded-lg py-2 text-xs font-medium">🃏 Start 15-min Timer</button>
+              <button onClick={onSaveAnkiSession} disabled={!ankiNote.trim()} className="bg-emerald-600 text-white rounded-lg py-2 px-3 text-xs font-medium disabled:opacity-40">Log it</button>
+            </div>
+          </div>
+        )}
+        {ankiSessions.length > 0 && (
+          <div className="space-y-1.5">
+            {ankiSessions.slice().reverse().map((s, i) => (
+              <div key={i} className="bg-emerald-50 border border-emerald-100 rounded-xl p-2.5 flex items-start gap-2">
+                <span className="text-emerald-600 mt-0.5">✓</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-stone-800 leading-snug">{s.note}</p>
+                  <p className="mono text-[9px] text-stone-500 mt-0.5">
+                    {new Date(s.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                    {s.duration > 0 && ` · ${Math.round(s.duration/60)} min`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Mindfulness & Meditation */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Mindfulness</p>
+        <BreathingExercise />
+        <div className="mt-2">
+          <MeditationTimer onSave={onSaveMeditation} meditationLog={meditationLog} mindfulStreak={mindfulStreak} />
+        </div>
+      </div>
+
+      {/* Quick actions */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Quick actions</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={onToggleStudy} className={`rounded-2xl p-3.5 text-left active:scale-95 transition-transform ${study?'bg-stone-900 text-stone-50':'bg-white border border-stone-200'}`}>
+            <div className="text-2xl mb-1">{study?'⏸️':'📚'}</div>
+            <p className="text-sm font-medium">{study?'Studying':'Study Mode'}</p>
+            <p className={`text-[10px] ${study?'text-stone-400':'text-stone-500'}`}>2am cutoff {study?'ON':'off'}</p>
+          </button>
+          <button onClick={onEat} className={`rounded-2xl p-3.5 text-left active:scale-95 transition-transform ${needsFood?'bg-amber-50 border-2 border-amber-200':'bg-white border border-stone-200'}`}>
+            <div className="text-2xl mb-1">🥗</div>
+            <p className="text-sm font-medium text-stone-900">Did you eat?</p>
+            <p className="text-[10px] text-stone-500">{ate?`${ateHrs}h ago`:'tap when you eat'}</p>
+          </button>
+          <button onClick={onToggleFamily} className={`rounded-2xl p-3.5 text-left active:scale-95 transition-transform ${family?'bg-pink-100 border-2 border-pink-300':'bg-white border border-stone-200'}`}>
+            <div className="text-2xl mb-1">{family?'💕':'👨‍👩‍👦'}</div>
+            <p className="text-sm font-medium text-stone-900">Family Mode</p>
+            <p className="text-[10px] text-stone-500">{family?'hustle hidden':'weekends/concerts'}</p>
+          </button>
+          <button onClick={onPanic} className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-3.5 text-left active:scale-95 transition-transform">
+            <div className="text-2xl mb-1">🆘</div>
+            <p className="text-sm font-medium text-rose-900">Overwhelmed</p>
+            <p className="text-[10px] text-rose-600">one thing only</p>
+          </button>
+        </div>
+      </div>
+
+      {/* Saved places */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Saved places · tap to navigate</p>
+        <div className="space-y-1.5">
+          {addresses.map(a => (
+            <div key={a.id} className="bg-white rounded-xl p-3 border border-stone-200 flex items-center gap-3">
+              {a.address ? (
+                <a href={`https://maps.apple.com/?q=${encodeURIComponent(a.address)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="text-xl">{a.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-stone-900 truncate">{a.label}</p>
+                    <p className="text-[11px] text-stone-500 truncate">{a.address}</p>
+                  </div>
+                </a>
+              ) : (
+                <button onClick={() => onEditAddress(a)} className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="text-xl opacity-50">{a.icon}</span>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-medium text-stone-500 truncate">{a.label}</p>
+                    <p className="text-[11px] text-amber-700 truncate">+ tap to add address</p>
+                  </div>
+                </button>
+              )}
+              {a.address && (
+                <button onClick={() => onEditAddress(a)} className="text-stone-400 hover:text-stone-700 p-1 text-xs">✎</button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== STUDY VIEW (NEW) ==============
+function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizLog, studyTimer, studyTimerSec, onStartStudyTimer, onStopStudyTimer, onSaveStudySession, onAddQuiz, weakAreas, pomodoro, pomodoroSec, onStartPomodoro, onStopPomodoro }) {
+  const [showQuizForm, setShowQuizForm] = useState(false);
+  const [quizName, setQuizName] = useState('');
+  const [quizScore, setQuizScore] = useState('');
+  const [quizNotes, setQuizNotes] = useState('');
+  const [studyNote, setStudyNote] = useState('');
+  const [showScores, setShowScores] = useState(false);
+
+  const fmt = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+
+  // Calculate total study time today
+  const todayStudyMin = studyLogs.reduce((sum, s) => sum + Math.round(s.duration / 60), 0);
+  // Weekly
+  const weekStudyMin = useMemo(() => {
+    let total = 0;
+    const now = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now - i * 86400000).toDateString();
+      const logs = allStudyLogs[d] || [];
+      total += logs.reduce((sum, s) => sum + Math.round(s.duration / 60), 0);
+    }
+    return total;
+  }, [allStudyLogs]);
+
+  // Practice exam scores
+  const practiceScores = storage.get('ms1e2v2_scores');
+  const vocabScores = storage.get('ms1e2_vocab_scores');
+
+  const submitQuiz = () => {
+    if (!quizName.trim() || !quizScore.trim()) return;
+    onAddQuiz(quizName, quizScore, quizNotes);
+    setQuizName('');
+    setQuizScore('');
+    setQuizNotes('');
+    setShowQuizForm(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Exam countdown */}
+      {examMode && nextExam && (
+        <div className="bg-rose-900 text-rose-50 rounded-2xl p-5">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-rose-300 mb-1">Exam Mode Active</p>
+          <p className="text-xl font-medium leading-tight">{nextExam.label}</p>
+          <p className="mono text-3xl font-bold text-amber-300 mt-2">{formatETA(nextExam.date)}</p>
+          <p className="text-xs text-rose-300 mt-1">{nextExam.detail}</p>
+        </div>
+      )}
+
+      {/* Pomodoro Sprint */}
+      {examMode && (
+        <div>
+          {!pomodoro ? (
+            <button onClick={onStartPomodoro} className="w-full bg-stone-900 text-stone-50 rounded-2xl py-3.5 flex items-center justify-center gap-2 font-medium">
+              🎯 Start 25-min Study Sprint
+            </button>
+          ) : (
+            <div className="bg-stone-900 text-stone-50 rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="mono text-[10px] uppercase tracking-wider text-stone-400">{pomodoro === 'work' ? 'Study Sprint' : '5-min Break'}</p>
+                  <p className="mono text-2xl font-semibold">{fmt(pomodoroSec)}</p>
+                </div>
+                <button onClick={onStopPomodoro} className="bg-stone-700/50 px-4 py-2 rounded-full text-sm">Stop</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Study time stats */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">📖</div>
+          <div className="text-xl font-medium text-stone-900">{todayStudyMin}m</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">today</div>
+        </div>
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">📊</div>
+          <div className="text-xl font-medium text-stone-900">{weekStudyMin}m</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">this week</div>
+        </div>
+      </div>
+
+      {/* Study timer */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Study Timer</p>
+        {studyTimer ? (
+          <div className="bg-emerald-900 text-emerald-50 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="mono text-[10px] uppercase tracking-wider text-emerald-300 mb-0.5">Studying</p>
+                <p className="mono text-2xl font-semibold">{fmt(studyTimerSec)}</p>
+              </div>
+              <button onClick={onStopStudyTimer} className="bg-emerald-700/50 px-4 py-2 rounded-full text-sm">Pause</button>
+            </div>
+            <input type="text" value={studyNote} onChange={e => setStudyNote(e.target.value)} placeholder="What are you studying?"
+              className="w-full px-3 py-2 bg-emerald-800/50 border border-emerald-700 rounded-lg text-xs text-emerald-100 placeholder-emerald-400 focus:outline-none mb-2" />
+            <button onClick={() => { if (studyNote.trim()) onSaveStudySession(studyNote); }} disabled={!studyNote.trim()}
+              className="w-full bg-emerald-600 text-white rounded-lg py-2 text-xs font-medium disabled:opacity-40">
+              Save Session
+            </button>
+          </div>
+        ) : (
+          <button onClick={onStartStudyTimer} className="w-full bg-white border border-stone-200 rounded-2xl p-3.5 text-left active:scale-95 transition-transform">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⏱️</span>
+              <div>
+                <p className="text-sm font-medium text-stone-900">Start Study Timer</p>
+                <p className="text-[10px] text-stone-500">Track your study time</p>
+              </div>
+            </div>
+          </button>
+        )}
+      </div>
+
+      {/* Weak areas */}
+      {weakAreas.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Weak Areas</p>
+          <div className="space-y-2">
+            {weakAreas.map((w, i) => (
+              <div key={i} className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+                <span className="text-xl">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-amber-900">{w.topic}</p>
+                  <p className="text-[10px] text-amber-700">{w.source} · {w.score}%</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Auto-pulled scores */}
+      {(practiceScores || vocabScores) && (
+        <div>
+          <button onClick={() => setShowScores(!showScores)} className="flex items-center gap-2 mb-2 px-1">
+            <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">Imported Scores</p>
+            <span className="text-stone-400 text-xs">{showScores ? '▼' : '▶'}</span>
+          </button>
+          {showScores && (
+            <div className="space-y-2">
+              {practiceScores && typeof practiceScores === 'object' && (
+                <div className="bg-white rounded-2xl p-3.5 border border-stone-200">
+                  <p className="mono text-[9px] uppercase tracking-wider text-stone-500 mb-2">Practice Exam Scores</p>
+                  <div className="space-y-1">
+                    {Object.entries(practiceScores).map(([topic, score]) => (
+                      <div key={topic} className="flex items-center justify-between">
+                        <span className="text-xs text-stone-700 truncate flex-1">{topic}</span>
+                        <span className={`mono text-xs font-semibold ${score < 70 ? 'text-rose-600' : score < 80 ? 'text-amber-600' : 'text-emerald-600'}`}>{score}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {vocabScores && typeof vocabScores === 'object' && (
+                <div className="bg-white rounded-2xl p-3.5 border border-stone-200">
+                  <p className="mono text-[9px] uppercase tracking-wider text-stone-500 mb-2">Vocab Quiz Scores</p>
+                  <div className="space-y-1">
+                    {Object.entries(vocabScores).map(([topic, score]) => (
+                      <div key={topic} className="flex items-center justify-between">
+                        <span className="text-xs text-stone-700 truncate flex-1">{topic}</span>
+                        <span className={`mono text-xs font-semibold ${score < 70 ? 'text-rose-600' : score < 80 ? 'text-amber-600' : 'text-emerald-600'}`}>{score}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Manual quiz log */}
+      <div>
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">Quiz Log</p>
+          <button onClick={() => setShowQuizForm(!showQuizForm)} className="mono text-[10px] text-amber-700">+ Add</button>
+        </div>
+        {showQuizForm && (
+          <div className="bg-white rounded-2xl p-3.5 border border-stone-200 mb-2">
+            <input type="text" value={quizName} onChange={e => setQuizName(e.target.value)} placeholder="Quiz name (e.g. Evolve Ch13)"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none mb-2" />
+            <input type="number" value={quizScore} onChange={e => setQuizScore(e.target.value)} placeholder="Score (%)" min="0" max="100"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none mb-2" />
+            <textarea value={quizNotes} onChange={e => setQuizNotes(e.target.value)} placeholder="Notes (optional)" rows={2}
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none resize-none mb-2" />
+            <div className="flex gap-2">
+              <button onClick={submitQuiz} disabled={!quizName.trim() || !quizScore.trim()} className="flex-1 bg-stone-900 text-stone-50 rounded-lg py-2 text-xs font-medium disabled:opacity-40">Save Quiz</button>
+              <button onClick={() => setShowQuizForm(false)} className="px-3 py-2 text-stone-400 text-xs">Cancel</button>
+            </div>
+          </div>
+        )}
+        {quizLog.length > 0 && (
+          <div className="space-y-1.5">
+            {quizLog.slice().reverse().slice(0, 5).map((q, i) => (
+              <div key={i} className="bg-white rounded-xl p-2.5 border border-stone-200 flex items-center gap-3">
+                <span className={`mono text-sm font-bold ${q.score < 70 ? 'text-rose-600' : q.score < 80 ? 'text-amber-600' : 'text-emerald-600'}`}>{q.score}%</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-stone-800 truncate">{q.name}</p>
+                  {q.notes && <p className="text-[10px] text-stone-500 truncate">{q.notes}</p>}
+                </div>
+                <span className="mono text-[9px] text-stone-400">{new Date(q.id).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Recent study sessions */}
+      {studyLogs.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Today's Study Sessions</p>
+          <div className="space-y-1.5">
+            {studyLogs.slice().reverse().map((s, i) => (
+              <div key={i} className="bg-emerald-50 border border-emerald-100 rounded-xl p-2.5 flex items-start gap-2">
+                <span className="text-emerald-600 mt-0.5">✓</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-stone-800 leading-snug">{s.note}</p>
+                  <p className="mono text-[9px] text-stone-500 mt-0.5">
+                    {new Date(s.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                    {s.duration > 0 && ` · ${Math.round(s.duration/60)} min`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============== LAUNCH VIEW ==============
+function LaunchView({ launchStarted, daysToLaunch, inAtlanta, examMode, nextExam, todayLaunchTasks, upcomingLaunchTask, launchDone, onToggle, launchProgress, checkin, products, revenue, onAddRevenue, contentIdeas, onAddContentIdea, onRemoveContentIdea, engagement, onAddEngagement }) {
+  const [showRevenueForm, setShowRevenueForm] = useState(false);
+  const [revAmount, setRevAmount] = useState('');
+  const [revNote, setRevNote] = useState('');
+  const [ideaText, setIdeaText] = useState('');
+  const [showEngagement, setShowEngagement] = useState(false);
+  const [engPost, setEngPost] = useState('');
+  const [engViews, setEngViews] = useState('');
+  const [engLikes, setEngLikes] = useState('');
+  const [engFollows, setEngFollows] = useState('');
+
+  const phases = [...new Set(LAUNCH_TASKS.map(t => t.phase))];
+  const tasksByPhase = phases.map(phase => ({ phase, tasks: LAUNCH_TASKS.filter(t => t.phase === phase) }));
+  const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
+
+  // Next best action logic
+  const getNextBestAction = () => {
+    if (!checkin) return null;
+    const energy = checkin.energy;
+    const brain = checkin.brain;
+    const queued = products.filter(p => p.stage === 'queued').length;
+    const filmed = products.filter(p => p.stage === 'filmed').length;
+    const edited = products.filter(p => p.stage === 'edited').length;
+    const captioned = products.filter(p => p.stage === 'captioned').length;
+
+    if (brain === 'hyper' && energy === 'high') {
+      if (queued > 0) return { icon: '🎬', text: `Film ${queued} queued product${queued > 1 ? 's' : ''}. Peak energy = best content.`, action: 'Film' };
+      return { icon: '✍️', text: 'Write 3 new video scripts while you\'re locked in.', action: 'Script' };
+    }
+    if (brain === 'normal' || energy === 'med') {
+      if (filmed > 0) return { icon: '✂️', text: `Edit ${filmed} filmed video${filmed > 1 ? 's' : ''}. Medium energy = perfect for editing.`, action: 'Edit' };
+      if (edited > 0) return { icon: '📝', text: `Add captions to ${edited} edited video${edited > 1 ? 's' : ''}.`, action: 'Caption' };
+      return { icon: '🔍', text: 'Browse DHgate for trending products (15 min cap).', action: 'Browse' };
+    }
+    if (captioned > 0) return { icon: '📤', text: `Schedule ${captioned} captioned video${captioned > 1 ? 's' : ''}. Low effort, high impact.`, action: 'Schedule' };
+    return { icon: '💡', text: 'Jot down content ideas. Low energy = planning mode.', action: 'Plan' };
+  };
+
+  const nextAction = launchStarted ? getNextBestAction() : null;
+
+  if (!launchStarted) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-stone-900 text-stone-50 rounded-2xl p-5">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-2">🔒 Launch is locked</p>
+          <p className="text-2xl font-light leading-tight">
+            <span className="font-medium">Launch Day</span> in <span className="text-amber-300 font-semibold">{daysToLaunch} days</span>
+          </p>
+          <p className="text-xs text-stone-400 mt-2 leading-relaxed">Fri May 15 — the day after your exam. Setup tasks unlock then.</p>
+        </div>
+        {examMode && nextExam && (
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4">
+            <p className="text-sm text-rose-900 leading-snug">
+              <span className="font-medium">📚 Right now:</span> {nextExam.label} in {nextExam.daysAway} day{nextExam.daysAway===1?'':'s'}. This is the only thing.
+            </p>
+          </div>
+        )}
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-3 px-1">Preview · what's coming</p>
+          <div className="space-y-3">
+            {tasksByPhase.map(({ phase, tasks }) => (
+              <div key={phase} className="bg-white rounded-2xl p-4 border border-stone-200 opacity-60">
+                <p className="mono text-[9px] uppercase tracking-wider text-stone-500 mb-2">{phase} · {tasks.length} tasks</p>
+                <div className="space-y-1">
+                  {tasks.map(t => (
+                    <p key={t.id} className="text-sm text-stone-700 flex items-center gap-2">
+                      <span className="text-stone-300">○</span>
+                      <span className="flex-1 truncate">{t.title}</span>
+                      <span className="mono text-[10px] text-stone-400">{t.time}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (inAtlanta) {
+    return (
+      <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-2xl p-5">
+        <p className="mono text-[10px] uppercase tracking-[0.2em] opacity-80 mb-1">🌴 Atlanta Mode</p>
+        <p className="text-2xl font-light leading-tight">Launch resumes <span className="font-medium">May 21</span></p>
+        <p className="text-sm mt-2 opacity-90">Be present. Don Toliver awaits.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Next Best Action */}
+      {nextAction && (
+        <div className="bg-gradient-to-br from-amber-400 to-amber-600 text-amber-950 rounded-2xl p-4">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] mb-1">🎯 Next Best Action</p>
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">{nextAction.icon}</span>
+            <p className="text-sm font-medium leading-snug flex-1">{nextAction.text}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Progress */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <div className="flex items-center justify-between mb-2">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">Launch progress</p>
+          <p className="mono text-xs font-semibold text-stone-900">{Math.round(launchProgress)}%</p>
+        </div>
+        <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all" style={{ width: `${launchProgress}%` }} />
+        </div>
+      </div>
+
+      {/* Revenue tracker */}
+      <div>
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">Revenue</p>
+          <div className="flex items-center gap-2">
+            <span className="mono text-xs font-semibold text-emerald-700">${totalRevenue.toFixed(2)}</span>
+            <button onClick={() => setShowRevenueForm(!showRevenueForm)} className="mono text-[10px] text-amber-700">+ Log</button>
+          </div>
+        </div>
+        {showRevenueForm && (
+          <div className="bg-white rounded-2xl p-3.5 border border-stone-200 mb-2">
+            <div className="flex gap-2 mb-2">
+              <input type="number" value={revAmount} onChange={e => setRevAmount(e.target.value)} placeholder="Amount ($)"
+                className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none" />
+            </div>
+            <input type="text" value={revNote} onChange={e => setRevNote(e.target.value)} placeholder="Source (e.g. DHgate commission)"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none mb-2" />
+            <button onClick={() => { if (revAmount) { onAddRevenue(revAmount, revNote); setRevAmount(''); setRevNote(''); setShowRevenueForm(false); } }}
+              disabled={!revAmount} className="w-full bg-emerald-600 text-white rounded-lg py-2 text-xs font-medium disabled:opacity-40">
+              Log Revenue
+            </button>
+          </div>
+        )}
+        {revenue.length > 0 && (
+          <div className="space-y-1">
+            {revenue.slice().reverse().slice(0, 5).map((r, i) => (
+              <div key={i} className="bg-emerald-50 border border-emerald-100 rounded-xl p-2.5 flex items-center gap-2">
+                <span className="mono text-xs font-bold text-emerald-700">${r.amount.toFixed(2)}</span>
+                <span className="text-xs text-stone-600 flex-1 truncate">{r.note || 'Revenue'}</span>
+                <span className="mono text-[9px] text-stone-400">{r.date}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Content Ideas */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Content Ideas</p>
+        <div className="flex gap-2 mb-2">
+          <input type="text" value={ideaText} onChange={e => setIdeaText(e.target.value)} placeholder="Quick idea..." onKeyDown={e => { if (e.key === 'Enter' && ideaText.trim()) { onAddContentIdea(ideaText); setIdeaText(''); } }}
+            className="flex-1 px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none" />
+          <button onClick={() => { if (ideaText.trim()) { onAddContentIdea(ideaText); setIdeaText(''); } }}
+            disabled={!ideaText.trim()} className="bg-stone-900 text-stone-50 rounded-lg px-3 py-2 text-xs font-medium disabled:opacity-40">+</button>
+        </div>
+        {contentIdeas.length > 0 && (
+          <div className="space-y-1">
+            {contentIdeas.slice(0, 8).map((idea, i) => (
+              <div key={idea.id} className="bg-white rounded-xl p-2.5 border border-stone-200 flex items-center gap-2">
+                <span className="text-amber-500">💡</span>
+                <p className="text-xs text-stone-800 flex-1">{idea.text}</p>
+                <button onClick={() => onRemoveContentIdea(idea.id)} className="text-stone-300 text-xs">✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Engagement Metrics */}
+      <div>
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">Engagement</p>
+          <button onClick={() => setShowEngagement(!showEngagement)} className="mono text-[10px] text-amber-700">+ Log</button>
+        </div>
+        {showEngagement && (
+          <div className="bg-white rounded-2xl p-3.5 border border-stone-200 mb-2">
+            <input type="text" value={engPost} onChange={e => setEngPost(e.target.value)} placeholder="Post name"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none mb-2" />
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <input type="number" value={engViews} onChange={e => setEngViews(e.target.value)} placeholder="Views"
+                className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none" />
+              <input type="number" value={engLikes} onChange={e => setEngLikes(e.target.value)} placeholder="Likes"
+                className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none" />
+              <input type="number" value={engFollows} onChange={e => setEngFollows(e.target.value)} placeholder="Follows"
+                className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-800 placeholder-stone-400 focus:outline-none" />
+            </div>
+            <button onClick={() => { if (engPost.trim()) { onAddEngagement(engPost, engViews, engLikes, engFollows); setEngPost(''); setEngViews(''); setEngLikes(''); setEngFollows(''); setShowEngagement(false); } }}
+              disabled={!engPost.trim()} className="w-full bg-stone-900 text-stone-50 rounded-lg py-2 text-xs font-medium disabled:opacity-40">
+              Log Engagement
+            </button>
+          </div>
+        )}
+        {engagement.length > 0 && (
+          <div className="space-y-1">
+            {engagement.slice().reverse().slice(0, 5).map((e, i) => (
+              <div key={i} className="bg-white rounded-xl p-2.5 border border-stone-200">
+                <p className="text-xs font-medium text-stone-800 mb-1">{e.postName}</p>
+                <div className="flex gap-3 mono text-[10px] text-stone-500">
+                  <span>👁️ {e.views}</span>
+                  <span>❤️ {e.likes}</span>
+                  <span>➕ {e.follows}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Today's launch tasks */}
+      {todayLaunchTasks.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Today</p>
+          <div className="space-y-2">
+            {todayLaunchTasks.map(t => (
+              <div key={t.id} className="rounded-2xl p-4 border-2 bg-amber-50 border-amber-300">
+                <div className="flex items-start gap-3 mb-3">
+                  <button onClick={() => onToggle(t.id)} className="mt-0.5 shrink-0 text-xl">⭕</button>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-stone-900 leading-snug">{t.title}</p>
+                    <p className="mono text-[10px] uppercase tracking-wider text-stone-500 mt-0.5">{t.time} · {t.load}</p>
+                  </div>
+                </div>
+                {t.desc && <p className="text-sm text-stone-600 leading-snug mb-3 ml-9">{t.desc}</p>}
+                {t.link && (
+                  <a href={t.link} target="_blank" rel="noopener noreferrer" className="ml-9 inline-flex items-center gap-1.5 bg-stone-900 text-stone-50 px-4 py-2 rounded-full text-xs font-medium">
+                    {t.linkLabel} ↗
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All tasks */}
+      <div>
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">All tasks</p>
+        <div className="space-y-3">
+          {tasksByPhase.map(({ phase, tasks }) => (
+            <div key={phase} className="bg-white rounded-2xl p-4 border border-stone-200">
+              <p className="mono text-[9px] uppercase tracking-wider text-stone-500 mb-2">{phase}</p>
+              <div className="space-y-2">
+                {tasks.map(t => (
+                  <div key={t.id} className="flex items-center gap-2.5">
+                    <button onClick={() => onToggle(t.id)} className="shrink-0 text-base">{launchDone[t.id] ? '✅' : '⭕'}</button>
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-sm ${launchDone[t.id] ? 'line-through text-stone-400' : 'text-stone-800'}`}>{t.title}</span>
+                    </div>
+                    {t.link && !launchDone[t.id] && (
+                      <a href={t.link} target="_blank" rel="noopener noreferrer" className="text-stone-400 shrink-0 text-xs">↗</a>
+                    )}
+                    <span className="mono text-[10px] text-stone-400 shrink-0">{t.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== ROAD VIEW ==============
+function RoadView({ events }) {
+  const grouped = useMemo(() => {
+    const b = { thisWeek: [], next2Weeks: [], later: [] };
+    events.forEach(e => {
+      if (e.daysAway <= 7) b.thisWeek.push(e);
+      else if (e.daysAway <= 21) b.next2Weeks.push(e);
+      else b.later.push(e);
+    });
+    return b;
+  }, [events]);
+
+  const typeStyle = (t) => ({
+    exam: { bg: 'bg-rose-50', border: 'border-rose-200', icon: '📚', label: 'EXAM' },
+    final: { bg: 'bg-rose-100', border: 'border-rose-300', icon: '📚', label: 'FINAL' },
+    quiz: { bg: 'bg-amber-50', border: 'border-amber-200', icon: '✏️', label: 'QUIZ' },
+    milestone: { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: '🎯', label: 'MILESTONE' },
+    break: { bg: 'bg-blue-50', border: 'border-blue-200', icon: '🌴', label: 'BREAK' },
+    travel: { bg: 'bg-purple-50', border: 'border-purple-200', icon: '✈️', label: 'TRAVEL' },
+    concert: { bg: 'bg-pink-50', border: 'border-pink-200', icon: '🎤', label: 'CONCERT' },
+    event: { bg: 'bg-indigo-50', border: 'border-indigo-200', icon: '🎉', label: 'EVENT' },
+    holiday: { bg: 'bg-stone-100', border: 'border-stone-200', icon: '🇺🇸', label: 'HOLIDAY' },
+    work: { bg: 'bg-sky-50', border: 'border-sky-200', icon: '💼', label: 'WORK' },
+  }[t] || { bg: 'bg-stone-50', border: 'border-stone-200', icon: '📌', label: 'EVENT' });
+
+  const renderEvent = (e, i) => {
+    const s = typeStyle(e.type);
+    const d = new Date(e.date + 'T12:00:00');
+    return (
+      <div key={i} className={`${s.bg} ${s.border} border rounded-2xl p-3 flex items-start gap-3`}>
+        <div className="text-xl shrink-0">{e.icon || s.icon}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="mono text-[9px] uppercase tracking-wider text-stone-500">{s.label}</p>
+            <span className="mono text-[9px] text-stone-400">·</span>
+            <p className="mono text-[9px] text-stone-500">{d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+          </div>
+          <p className="font-medium text-stone-900 text-sm leading-snug">{e.label}</p>
+          {e.detail && <p className="text-xs text-stone-600 mt-0.5">{e.detail}</p>}
+        </div>
+        <div className="text-right shrink-0">
+          <p className="mono text-[9px] uppercase text-stone-400">in</p>
+          <p className="mono text-xs font-semibold text-stone-900">{e.daysAway === 0 ? 'today' : `${e.daysAway}d`}</p>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-stone-900 text-stone-50 rounded-2xl p-4 flex items-center gap-3">
+        <span className="text-amber-400 text-xl shrink-0">→</span>
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-400">The road ahead</p>
+          <p className="text-xs text-stone-300 mt-0.5">{grouped.thisWeek.length} this week · {grouped.next2Weeks.length} coming up</p>
+        </div>
+      </div>
+      {grouped.thisWeek.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">This week</p>
+          <div className="space-y-2">{grouped.thisWeek.map(renderEvent)}</div>
+        </div>
+      )}
+      {grouped.next2Weeks.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Next 2 weeks</p>
+          <div className="space-y-2">{grouped.next2Weeks.map(renderEvent)}</div>
+        </div>
+      )}
+      {grouped.later.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Coming up</p>
+          <div className="space-y-2">{grouped.later.slice(0, 8).map(renderEvent)}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============== PIPELINE VIEW ==============
+function PipelineView({ products, onAdd, onAdvance, onDelete, examMode, inAtlanta }) {
+  const stages = [
+    { id: 'queued', label: 'Queued', icon: '📦' },
+    { id: 'filmed', label: 'Filmed', icon: '🎬' },
+    { id: 'edited', label: 'Edited', icon: '✂️' },
+    { id: 'captioned', label: 'Captioned', icon: '📝' },
+    { id: 'scheduled', label: 'Scheduled', icon: '📤' },
+    { id: 'posted', label: 'Posted', icon: '🚀' },
+  ];
+  const cc = { shoes: 'bg-orange-100 text-orange-800', tech: 'bg-blue-100 text-blue-800', fashion: 'bg-pink-100 text-pink-800', jewelry: 'bg-purple-100 text-purple-800' };
+  return (
+    <div className="space-y-3">
+      {(examMode || inAtlanta) && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5">
+          <p className="text-xs text-amber-900 leading-snug">
+            <span className="font-medium">{inAtlanta ? '🌴 Atlanta mode:' : '📚 Exam mode:'}</span> {inAtlanta ? 'hustle paused.' : 'no filming until exam done.'}
+          </p>
+        </div>
+      )}
+      <button onClick={onAdd} className="w-full bg-stone-900 text-stone-50 rounded-2xl py-3.5 flex items-center justify-center gap-2 font-medium">+ Add product</button>
+      {products.length === 0 && (
+        <div className="text-center py-10 px-6">
+          <p className="text-5xl mb-3">📦</p>
+          <p className="text-stone-600 text-sm">Empty pipeline. Add when you order a sample.</p>
+        </div>
+      )}
+      {stages.map(stage => {
+        const items = products.filter(p => p.stage === stage.id);
+        if (items.length === 0) return null;
+        return (
+          <div key={stage.id}>
+            <div className="flex items-center justify-between mb-1.5 px-1">
+              <div className="flex items-center gap-2">
+                <span>{stage.icon}</span>
+                <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">{stage.label}</p>
+              </div>
+              <span className="mono text-[10px] text-stone-400">{items.length}</span>
+            </div>
+            <div className="space-y-2">
+              {items.map(p => (
+                <div key={p.id} className="bg-white rounded-2xl p-3 border border-stone-200">
+                  <div className="flex items-start justify-between gap-3 mb-1">
+                    <div className="flex-1">
+                      <p className="font-medium text-stone-900 text-sm leading-snug">{p.name}</p>
+                      <span className={`inline-block mono text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full mt-1 ${cc[p.category]}`}>{p.category}</span>
+                    </div>
+                    <button onClick={() => onDelete(p.id)} className="text-stone-300 p-1 text-xs">🗑</button>
+                  </div>
+                  {p.notes && <p className="text-xs text-stone-500 mb-2">{p.notes}</p>}
+                  {p.stage !== 'posted' && (
+                    <button onClick={() => onAdvance(p.id)} className="w-full bg-stone-100 rounded-xl py-2 flex items-center justify-center gap-1 text-xs font-medium text-stone-800">
+                      → {stages[stages.findIndex(s => s.id === p.stage) + 1]?.label}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============== STATS VIEW ==============
+function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak }) {
+  const totalPosts = products.filter(p => p.stage === 'posted').length;
+  const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const logStats = useMemo(() => {
+    let totalSuggestionsDone = 0;
+    let totalAnki = 0;
+    const recentLogs = [];
+    Object.entries(allLogs || {}).forEach(([date, log]) => {
+      const sCount = Object.values(log.suggestions || {}).filter(s => s.done).length;
+      totalSuggestionsDone += sCount;
+      const aCount = (log.anki || []).length;
+      totalAnki += aCount;
+      if (sCount > 0 || aCount > 0) {
+        recentLogs.push({ date, suggestions: sCount, anki: aCount, anki_notes: log.anki || [], suggestion_notes: Object.values(log.suggestions || {}).filter(s => s.done && s.note) });
+      }
+    });
+    return { totalSuggestionsDone, totalAnki, recentLogs: recentLogs.slice(-7).reverse() };
+  }, [allLogs]);
+
+  // Total study time
+  const totalStudyMin = useMemo(() => {
+    let total = 0;
+    Object.values(allStudyLogs || {}).forEach(logs => {
+      total += logs.reduce((sum, s) => sum + Math.round(s.duration / 60), 0);
+    });
+    return total;
+  }, [allStudyLogs]);
+
+  const dp = {};
+  history.forEach(h => {
+    const d = new Date(h.date).getDay();
+    if (!dp[d]) dp[d] = { high:0, med:0, low:0, total:0 };
+    dp[d][h.energy] = (dp[d][h.energy]||0)+1;
+    dp[d].total += 1;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">🔥</div>
+          <div className="text-xl font-medium text-stone-900">{streak}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">streak</div>
+        </div>
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">✅</div>
+          <div className="text-xl font-medium text-stone-900">{logStats.totalSuggestionsDone}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">tasks done</div>
+        </div>
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">🃏</div>
+          <div className="text-xl font-medium text-stone-900">{logStats.totalAnki}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">anki</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">📖</div>
+          <div className="text-xl font-medium text-stone-900">{totalStudyMin}m</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">study time</div>
+        </div>
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">🧘</div>
+          <div className="text-xl font-medium text-stone-900">{mindfulStreak}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">mindful</div>
+        </div>
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">💰</div>
+          <div className="text-xl font-medium text-stone-900">${totalRevenue.toFixed(0)}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">revenue</div>
+        </div>
+      </div>
+
+      {/* Sync section */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-3">Sync</p>
+        {lastSync && (
+          <p className="text-[10px] text-stone-400 mb-2">Last synced: {new Date(lastSync).toLocaleString()}</p>
+        )}
+        <div className="flex gap-2 mb-2">
+          <button onClick={onGenerateSync} className="flex-1 bg-stone-900 text-stone-50 rounded-lg py-2.5 text-xs font-medium">
+            Generate Sync Code
+          </button>
+          <button onClick={() => setShowSyncImport(!showSyncImport)} className="flex-1 bg-stone-100 text-stone-700 rounded-lg py-2.5 text-xs font-medium">
+            Import Sync Code
+          </button>
+        </div>
+        {showSyncImport && (
+          <div>
+            <textarea value={syncCode} onChange={e => setSyncCode(e.target.value)} placeholder="Paste sync code here..." rows={3}
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-800 placeholder-stone-400 focus:outline-none resize-none mb-2 mono" />
+            <button onClick={onImportSync} disabled={!syncCode.trim()} className="w-full bg-amber-600 text-white rounded-lg py-2 text-xs font-medium disabled:opacity-40">
+              Import & Reload
+            </button>
+          </div>
+        )}
+      </div>
+
+      {logStats.recentLogs.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Your wins · last 7 active days</p>
+          <div className="space-y-2">
+            {logStats.recentLogs.map((l, i) => {
+              const d = new Date(l.date);
+              return (
+                <div key={i} className="bg-white rounded-2xl p-3.5 border border-stone-200">
+                  <div className="flex items-baseline justify-between mb-2">
+                    <p className="text-sm font-medium text-stone-900">{d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                    <div className="flex gap-2">
+                      {l.suggestions > 0 && <span className="mono text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">{l.suggestions} tasks</span>}
+                      {l.anki > 0 && <span className="mono text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">{l.anki} anki</span>}
+                    </div>
+                  </div>
+                  {l.suggestion_notes.length > 0 && (
+                    <div className="space-y-1 mb-1.5">
+                      {l.suggestion_notes.map((s, j) => <p key={j} className="text-xs text-stone-700 leading-snug">✓ {s.note}</p>)}
+                    </div>
+                  )}
+                  {l.anki_notes.length > 0 && (
+                    <div className="space-y-1">
+                      {l.anki_notes.map((s, j) => <p key={j} className="text-xs text-purple-800 leading-snug">🃏 {s.note}</p>)}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-1">Patterns</p>
+        <p className="text-base font-medium text-stone-900 mb-3">Energy by day</p>
+        {history.length < 5 ? (
+          <p className="text-xs text-stone-500 italic">Need 5+ check-ins for patterns.</p>
+        ) : (
+          <div className="space-y-2">
+            {days.map((d, i) => {
+              const p = dp[i];
+              if (!p) return <div key={i} className="flex items-center gap-3"><span className="mono text-xs w-8 text-stone-400">{d}</span><span className="text-xs text-stone-300">no data</span></div>;
+              return (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="mono text-xs w-8 text-stone-700 font-medium">{d}</span>
+                  <div className="flex-1 h-4 rounded-full overflow-hidden flex bg-stone-100">
+                    {p.high > 0 && <div className="bg-emerald-400" style={{width:`${(p.high/p.total)*100}%`}} />}
+                    {p.med > 0 && <div className="bg-amber-300" style={{width:`${(p.med/p.total)*100}%`}} />}
+                    {p.low > 0 && <div className="bg-rose-300" style={{width:`${(p.low/p.total)*100}%`}} />}
+                  </div>
+                  <span className="mono text-[10px] text-stone-400 w-5 text-right">{p.total}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {nextExam && (
+        <div className="bg-stone-900 text-stone-50 rounded-2xl p-4">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-1">🎓 Next target</p>
+          <p className="text-lg font-medium leading-snug">{nextExam.label}</p>
+          <p className="text-xs text-stone-400 mt-1">{nextExam.detail} · {formatETA(nextExam.date)}</p>
+        </div>
+      )}
+
+      <div className="bg-pink-50 border border-pink-200 rounded-2xl p-3.5">
+        <p className="text-sm text-stone-800 leading-snug">
+          <span className="font-medium">💗 Reality check:</span> 81.94% avg. 88.89% completion. Extern. Building this. You're doing it.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Dashboard />);
+</script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS1 Exam 2 — Practice Exam v2 (Ch 10–15)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e4e9;min-height:100vh}
+.header{background:linear-gradient(135deg,#1a1b2e,#16213e);padding:20px 28px;border-bottom:2px solid #2d3154;position:sticky;top:0;z-index:100}
+.header h1{font-size:20px;font-weight:600}
+.header-sub{font-size:13px;color:#8b8fa3;margin-top:4px}
+.progress-wrap{margin-top:12px;background:#1e2035;border-radius:8px;height:8px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6c63ff,#48bfe3);border-radius:8px;transition:width .4s}
+.hstats{display:flex;gap:18px;margin-top:10px;font-size:13px;color:#8b8fa3;flex-wrap:wrap}
+.hstats span{display:flex;align-items:center;gap:4px}
+.tab-bar{display:flex;gap:8px;margin-top:14px}
+.tab-btn{padding:8px 18px;border-radius:8px;border:1px solid #2d3154;background:transparent;color:#8b8fa3;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.tab-btn.active{background:#4f46e5;color:#fff;border-color:#4f46e5}
+.container{max-width:860px;margin:0 auto;padding:28px 24px 120px}
+.panel{display:none}.panel.active{display:block}
+
+/* Question cards */
+.qcard{background:#1a1b2e;border:1px solid #2d3154;border-radius:16px;padding:28px;margin-bottom:22px;transition:border-color .3s}
+.qcard.a-correct{border-color:#34d399}.qcard.a-incorrect{border-color:#f87171}
+.q-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.q-num{background:#2d3154;color:#a5b4fc;font-weight:700;font-size:13px;padding:5px 11px;border-radius:8px;white-space:nowrap}
+.qcard.a-correct .q-num{background:#064e3b;color:#34d399}
+.qcard.a-incorrect .q-num{background:#450a0a;color:#f87171}
+.q-type-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.q-type-sata{background:#312e81;color:#a5b4fc}
+.diff-found{background:#064e3b;color:#34d399}
+.diff-app{background:#713f12;color:#fbbf24}
+.diff-disc{background:#450a0a;color:#f87171}
+.q-subtopic{font-size:11px;color:#8b8fa3;background:#1e2035;padding:4px 10px;border-radius:6px;margin-left:auto;white-space:nowrap}
+.q-text{font-size:16px;line-height:1.65;margin:16px 0 20px}
+.sata-inst{color:#fbbf24;font-weight:600;font-size:14px;margin-bottom:14px}
+
+/* EKG */
+.ekg-container{background:#0a0b14;border:1px solid #2d3154;border-radius:12px;padding:16px;margin-bottom:20px;text-align:center}
+.ekg-label{font-size:12px;color:#8b8fa3;margin-top:8px}
+
+/* Options */
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border:2px solid #2d3154;border-radius:12px;cursor:pointer;transition:all .2s;user-select:none}
+.opt:hover:not(.locked){border-color:#4f46e5;background:#1e1f3a}
+.opt.sel{border-color:#6c63ff;background:#1e1f3a}
+.opt.locked{cursor:default}
+.opt.c-right{border-color:#34d399;background:rgba(6,78,59,.19)}
+.opt.c-wrong{border-color:#f87171;background:rgba(69,10,10,.19)}
+.opt.c-missed{border-color:#fbbf24;background:rgba(113,63,18,.19)}
+.opt-mark{width:22px;height:22px;border:2px solid #4a4d6a;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px;transition:all .2s}
+.opt.sel .opt-mark{border-color:#6c63ff;background:#6c63ff;color:#fff}
+.opt.c-right .opt-mark{border-color:#34d399;background:#34d399;color:#064e3b}
+.opt.c-wrong .opt-mark{border-color:#f87171;background:#f87171;color:#450a0a}
+.opt.c-missed .opt-mark{border-color:#fbbf24;background:#fbbf24;color:#713f12}
+.sata-q .opt-mark{border-radius:4px}
+.opt-text{font-size:15px;line-height:1.55;color:#c9cbd5;flex:1}
+.opt.c-right .opt-text,.opt.c-wrong .opt-text,.opt.c-missed .opt-text{color:#e2e4e9}
+.opt-icon{margin-left:auto;font-size:16px;flex-shrink:0;display:none}
+.opt.c-right .opt-icon,.opt.c-wrong .opt-icon,.opt.c-missed .opt-icon{display:block}
+
+/* Per-option rationale — ALWAYS show for all options after submit */
+.opt-rat{font-size:13px;line-height:1.6;padding:8px 0 4px 36px;display:none}
+.opt-rat.show{display:block;animation:fadeIn .2s ease}
+.opt-rat .r-right{color:#34d399}
+.opt-rat .r-wrong{color:#f87171}
+.opt-rat .r-missed{color:#fbbf24}
+.opt-rat .r-neutral{color:#8b8fa3}
+
+/* Mnemonic callout */
+.mnemonic{background:#312e8140;border:1px solid #6c63ff40;border-radius:8px;padding:10px 14px;margin-top:8px;font-size:13px;color:#a5b4fc}
+.mnemonic strong{color:#c4b5fd}
+
+/* Submit */
+.sub-btn{margin-top:18px;padding:11px 30px;background:linear-gradient(135deg,#4f46e5,#6c63ff);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.sub-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(108,99,255,.3)}
+.sub-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* Result box */
+.res-box{margin-top:18px;padding:18px;border-radius:12px;font-size:14px;line-height:1.7;display:none}
+.res-box.show{display:block;animation:fadeIn .3s ease}
+.res-box.r-correct{background:rgba(6,78,59,.25);border:1px solid rgba(52,211,153,.31)}
+.res-box.r-incorrect{background:rgba(69,10,10,.25);border:1px solid rgba(248,113,113,.31)}
+.res-header{font-weight:700;font-size:15px;margin-bottom:8px}
+.res-box.r-correct .res-header{color:#34d399}
+.res-box.r-incorrect .res-header{color:#f87171}
+
+.trap-box{margin-top:12px;padding:12px 14px;background:rgba(113,63,18,.19);border:1px solid rgba(251,191,36,.25);border-radius:10px}
+.trap-hdr{color:#fbbf24;font-weight:700;font-size:13px;margin-bottom:5px}
+.trap-txt{color:#c9cbd5;font-size:13px;line-height:1.6}
+
+/* Analytics panel */
+.analytics{background:#1a1b2e;border:1px solid #2d3154;border-radius:16px;padding:28px;margin-bottom:22px}
+.analytics h2{font-size:18px;margin-bottom:20px;color:#e2e4e9}
+.ana-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.ana-card{background:#0f1117;border:1px solid #2d3154;border-radius:12px;padding:18px;text-align:center}
+.ana-big{font-size:36px;font-weight:800}
+.ana-big.green{color:#34d399}.ana-big.red{color:#f87171}.ana-big.blue{color:#48bfe3}.ana-big.purple{color:#a5b4fc}
+.ana-label{font-size:12px;color:#8b8fa3;margin-top:4px}
+.subtopic-bar{margin-bottom:12px}
+.st-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.st-name{color:#c9cbd5}.st-score{font-weight:700}
+.st-track{background:#1e2035;border-radius:6px;height:10px;overflow:hidden}
+.st-fill{height:100%;border-radius:6px;transition:width .5s}
+.st-fill.green{background:#34d399}.st-fill.yellow{background:#fbbf24}.st-fill.red{background:#f87171}
+.diff-section{margin-top:24px}
+.diff-section h3{font-size:15px;color:#e2e4e9;margin-bottom:12px}
+.pattern-box{margin-top:24px;background:#0f1117;border:1px solid #2d3154;border-radius:12px;padding:18px}
+.pattern-box h3{font-size:15px;color:#e2e4e9;margin-bottom:10px}
+.pattern-item{font-size:13px;color:#c9cbd5;line-height:1.7;padding:4px 0}
+
+.retake-btn{margin-top:24px;padding:13px 36px;background:linear-gradient(135deg,#4f46e5,#6c63ff);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;display:block;margin-left:auto;margin-right:auto}
+.no-data{text-align:center;color:#8b8fa3;padding:60px 20px;font-size:15px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>MS1 Exam 2 — Practice Exam v2</h1>
+<div class="header-sub">Chapters 10–15 | 25 Questions | 4 SATA | Topic-Tagged | Difficulty-Scaled</div>
+<div class="hstats">
+<span id="sP">0 of 25</span>
+<span id="sC">✅ 0</span>
+<span id="sI">❌ 0</span>
+<span id="sScore" style="margin-left:auto;font-weight:700;color:#48bfe3">—</span>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="pBar" style="width:0%"></div></div>
+<div class="tab-bar">
+<button class="tab-btn active" onclick="showPanel('exam')">Exam</button>
+<button class="tab-btn" onclick="showPanel('analytics')">Analytics</button>
+</div>
+</div>
+
+<div class="container">
+<div class="panel active" id="panel-exam"></div>
+<div class="panel" id="panel-analytics"></div>
+</div>
+
+<script>
+const Q=[
+{q:"A nurse is caring for a patient admitted after a motor vehicle crash. The patient's abdominal surgical dressing appears clean and dry. Vital signs show HR 112, BP 88/56, and the patient is restless and anxious. What is the nurse's priority action?",type:"mc",sub:"Emergency & Trauma",subDetail:"Hemorrhage Assessment",diff:"disc",
+opts:["Administer a fluid bolus of 0.9% Normal Saline as prescribed","Reassure the patient and recheck vitals in 15 minutes","Log-roll the patient and assess for blood pooling beneath them","Notify the rapid response team for hypotension"],
+cor:[2],
+rats:["Addresses the symptom (hypotension) but not the cause — you haven't found where the patient is bleeding yet. Treating before assessing the source delays the real intervention.","Dangerous delay. HR 112 + BP 88/56 + restlessness = early hemorrhagic shock. This patient is actively decompensating. Waiting 15 minutes could be fatal.","Blood obeys gravity — your professor emphasized that a clean top dressing gives a false sense of security. The tachycardia and hypotension suggest hemorrhage pooling underneath. You must find the source before treating.","May be appropriate after assessment, but you need to identify the source of bleeding first. Calling RRT without assessment data wastes critical time and doesn't tell them what they're responding to."],
+trap:"The 'Pristine Dressing' Trap — Your professor specifically warned: blood flows downward with gravity. A perfectly white dressing on top means nothing. Always physically check underneath by log-rolling.",mnemonic:null},
+
+{q:"A patient with a history of COPD is admitted with the following ABG results: pH 7.31, PaCO₂ 52, HCO₃ 24. How should the nurse interpret these results?",type:"mc",sub:"Acid-Base Balance",subDetail:"ABG Interpretation",diff:"app",
+opts:["Metabolic acidosis, uncompensated","Respiratory acidosis, uncompensated","Respiratory acidosis, partially compensated","Mixed respiratory and metabolic acidosis"],
+cor:[1],
+rats:["The metabolic component (HCO₃ 24) is normal — it's not causing the acidosis. The elevated PaCO₂ points to a respiratory origin, not metabolic.","pH 7.31 is acidotic (<7.35). PaCO₂ 52 is elevated (>45) — the respiratory acid matches the acidotic pH. HCO₃ 24 is within normal (22–26), meaning kidneys haven't started compensating.","Would require HCO₃ above 26, showing kidneys are retaining bicarb to buffer. At 24, no compensation has started — the metabolic system hasn't kicked in yet.","Would require both PaCO₂ elevated AND HCO₃ decreased. The HCO₃ is normal here — only one system is off."],
+trap:"Use your professor's exact ABG ranges — pH 7.35–7.45, PaCO₂ 35–45, HCO₃ 22–26. He specifically said not to use textbook ranges for bicarb.",mnemonic:"<strong>ABG Steps:</strong> 1) Is pH acid or base? 2) Which value matches? That's the cause. 3) Is the other value compensating (abnormal) or not (normal)?"},
+
+{q:"A nurse is triaging four patients who arrive simultaneously to the emergency department. Which patient should the nurse assess first?",type:"mc",sub:"Emergency & Trauma",subDetail:"Triage",diff:"app",
+opts:["A 45-year-old with a visibly deformed ankle and 7/10 pain","A 62-year-old reporting diaphoresis, jaw tightness, and left arm heaviness","A 38-year-old with flank pain, nausea, and vomiting","A 70-year-old with a fever of 102°F and profound weakness"],
+cor:[1],
+rats:["Urgent but not life-threatening. A deformed ankle is painful but won't kill the patient in the next hour. This is a yellow/urgent category.","Diaphoresis + jaw tightness + left arm heaviness = classic atypical MI presentation. Emergent — immediate risk of cardiac arrest. Your professor used this exact scenario in class.","Suggests renal colic (kidney stone). Extremely painful but not immediately lethal. This patient can wait for the MI to be addressed first.","Could be early sepsis and needs prompt attention, but the MI presentation takes priority due to immediate cardiac arrest risk. This would be seen second."],
+trap:"Your professor gave this exact triage scenario in class. The sweating + jaw + arm combo is a heart attack until proven otherwise.",mnemonic:null},
+
+{q:"A patient's serum potassium is 6.1 mEq/L. Which ECG change does the nurse expect to find?",type:"mc",sub:"Fluid & Electrolytes",subDetail:"Potassium / ECG Changes",diff:"found",ekg:"hyper",
+opts:["ST-segment depression with flat T waves","Prominent U waves following the T wave","Tall, peaked T waves with widened QRS complex","Prolonged QT interval with flattened P waves"],
+cor:[2],
+rats:["This describes HYPOkalemia — the opposite problem. Low potassium flattens T waves and depresses ST segments. Don't confuse hypo and hyper ECG patterns.","Prominent U waves are a hallmark of HYPOkalemia, not hyperkalemia. U waves appear after the T wave when potassium is LOW.","Hyperkalemia (>5.0) causes tall, peaked T waves and widened QRS — hallmark changes preceding fatal dysrhythmias (ventricular fibrillation, asystole). Your professor emphasized this connection.","Prolonged QT is associated with hypocalcemia or certain medications (like amiodarone), not hyperkalemia."],
+trap:"Know the ECG changes for hypo vs. hyper — they're mirror images designed to be confused on exams. Peaked T + wide QRS = hyperK. Flat T + U wave + ST depression = hypoK.",mnemonic:"<strong>HyperK ECG:</strong> \"Tall Tents\" — Tall peaked T waves look like tents. As K rises: peaked T → wide QRS → sine wave → cardiac arrest."},
+
+{q:"A patient is admitted with severe heat stroke. Which interventions should the nurse implement?",type:"sata",sub:"Environmental Emergencies",subDetail:"Heat-Related Illness",diff:"app",
+opts:["Apply ice packs to the neck, axillae, and groin","Administer acetaminophen 650 mg PO for fever reduction","Initiate rapid IV fluid replacement with a sports-drink electrolyte solution","Remove excess clothing and apply cooling blankets","Administer aspirin 325 mg for temperature management","Continuously monitor core body temperature"],
+cor:[0,3,5],
+rats:["✓ Ice packs on pulse points (neck, axillae, groin) provide rapid external cooling for environmental hyperthermia.","✗ Antipyretics work by resetting the hypothalamic set point — useless in environmental heat illness. The hypothalamus isn't broken, the body is overwhelmed. Your professor said do NOT give antipyretics.","✗ Sports drinks are for ORAL rehydration in heat EXHAUSTION (mild). Heat stroke IV fluids = isotonic saline, not a sports drink through an IV line.","✓ Reducing insulation and applying cooling blankets increases heat dissipation through convection and conduction.","✗ Same trap as acetaminophen — aspirin is an antipyretic. Heat stroke ≠ fever. Fever = thermostat resets. Heat stroke = body overwhelmed by environment.","✓ Continuous temperature monitoring guides cooling interventions and prevents overcooling (below 102°F, slow down cooling to prevent rebound hypothermia)."],
+trap:"Heat stroke ≠ fever. Fever = hypothalamus resets higher (give antipyretics). Heat stroke = body overwhelmed by environment (antipyretics useless). Your professor flagged this specifically.",mnemonic:"<strong>Heat Stroke vs Exhaustion:</strong> Exhaustion = still sweating, can drink (sports drinks PO). Stroke = emergency, hot/dry, altered mental status (ice packs + IV NS + monitor)."},
+
+{q:"A nurse is caring for a patient 2 hours after receiving IV morphine 4 mg for post-surgical pain. Naloxone 0.4 mg was administered for respiratory depression, and the patient's respiratory rate improved from 6 to 16 breaths/min. What is the nurse's priority action 45 minutes later?",type:"mc",sub:"Emergency & Trauma",subDetail:"Medication Safety / Naloxone",diff:"disc",
+opts:["Document the intervention as effective and continue routine monitoring","Reassess respiratory rate and level of consciousness","Administer a second dose of morphine for anticipated pain return","Discontinue the pulse oximetry since the patient responded to Naloxone"],
+cor:[1],
+rats:["This is the trap — your professor warned about it specifically. Naloxone half-life is 30–90 min, morphine is 3–4 hours. At 45 min the Narcan is wearing off while active morphine remains. Documenting and walking away could kill the patient.","At 45 minutes, Naloxone is wearing off while significant morphine remains bound to receptors. Re-narcotization can cause respiratory arrest again. You must continuously reassess and be ready with repeat doses.","Dangerous — the original morphine caused respiratory depression. The opioid is still in the system. Adding more would compound the problem.","Removes your early warning system at the exact moment the patient is at highest risk for re-narcotization. The pulse ox is your safety net."],
+trap:"The Narcan Half-Life Trap — Naloxone wears off in 30–90 min, opioids last 3–4+ hours. The opioid 're-attaches to the receptors' as your professor put it. Continuous reassessment is mandatory.",mnemonic:"<strong>Narcan Rule:</strong> \"Short umbrella in a long rain.\" Narcan is the short umbrella — the opioid rain keeps falling after the umbrella blows away. Never push Narcan and walk away."},
+
+{q:"A patient reports pain at 9/10 but is observed sitting up in bed scrolling through their phone with stable vital signs (HR 78, BP 122/74). What is the most appropriate nursing action?",type:"mc",sub:"Emergency & Trauma",subDetail:"Pain Assessment",diff:"disc",
+opts:["Document that the patient's pain appears well-controlled based on observed behavior","Administer prescribed analgesic based on the patient's reported pain level","Reassess in 30 minutes to determine if the pain rating is accurate","Ask the patient to rate their pain again using a different assessment scale"],
+cor:[1],
+rats:["Substituting your judgment for the patient's self-report. The autonomic nervous system ADAPTS to chronic pain — normal vitals do NOT mean no pain. This is a bias-based error.","The patient's self-report is the gold standard. The sympathetic nervous system adapts over time, normalizing vital signs even at high pain levels. Treat what the patient tells you.","Delays treatment based on doubt. There's no clinical justification to wait — you have a report and a prescription. Delaying pain relief violates the ethical duty of beneficence.","Implies the patient's initial rating is unreliable. Changing the tool doesn't change the pain experience — it signals distrust to the patient."],
+trap:"The Vital Sign / Pain Adaptation Trap — Your professor was explicit: if they're on their phone with normal vitals but say 9/10, treat it as 9/10. Never withhold medication based on how you THINK pain should look.",mnemonic:null},
+
+{q:"A nurse receives a frantic phone call from a family member asking, 'Is my mother okay? I heard she was brought in by ambulance.' The patient has not provided consent for information sharing. What is the nurse's best response?",type:"mc",sub:"Emergency & Trauma",subDetail:"HIPAA / Ethics",diff:"disc",
+opts:["\"She's resting comfortably right now, but I can't give you details.\"","\"I'm unable to confirm or deny whether that person is a patient here.\"","\"Let me transfer you to the charge nurse who can help you.\"","\"Can you give me your name so I can check if you're listed as a contact?\""],
+cor:[1],
+rats:["CONFIRMS the patient is there AND shares status — double HIPAA violation. Even 'she's resting peacefully' is a breadcrumb your professor warned about. You just told the caller their mother is at your facility.","Without documented consent, you cannot confirm or deny the patient's presence. This is the only response that fully protects privacy under HIPAA and the nursing duty of fidelity.","Transferring the call just moves the HIPAA violation to someone else. The charge nurse is bound by the same privacy rules. You're passing a problem, not solving it.","Sounds reasonable but already implies the patient is there by acknowledging a contact list exists. The family member now knows their mother is at your facility."],
+trap:"The HIPAA/Fidelity Phone Call Trap — Even compassionate-sounding responses can violate HIPAA. ANY confirmation of the patient's presence = violation. Zero information without documented consent.",mnemonic:null},
+
+{q:"A patient's lab results show: Na⁺ 128 mEq/L, serum osmolarity 270 mOsm/L. Which assessment finding does the nurse anticipate?",type:"mc",sub:"Fluid & Electrolytes",subDetail:"Sodium",diff:"app",
+opts:["Dry, sticky mucous membranes and extreme thirst","Muscle twitching, irritability, and decreased skin turgor","Confusion, headache, and potential seizure activity","Bounding pulse with distended neck veins only"],
+cor:[2],
+rats:["Describes HYPERnatremia — dehydration, where high osmolarity pulls water OUT of cells. This patient has LOW sodium (128 < 136).","Partially describes hypernatremia. Irritability and twitching occur when cells SHRINK (high sodium), not when they SWELL (low sodium). Decreased skin turgor is also a dehydration sign.","Na⁺ 128 = hyponatremia (<136). Low ECF osmolarity → water shifts INTO cells → cellular swelling. Brain cells swelling inside a rigid skull → confusion, headache, seizures. Neuro symptoms are the danger.","Bounding pulse and JVD suggest fluid overload, which CAN accompany hyponatremia, but this misses the critical neurological findings that are the priority concern and make hyponatremia lethal."],
+trap:"Low sodium = low osmolarity = water rushes INTO cells = cells swell. Brain cells swelling inside a rigid skull = the dangerous part. Neuro assessment is your priority.",mnemonic:"<strong>Sodium shifts:</strong> \"Salt sucks\" — where sodium goes, water follows. Low Na in blood → water leaves blood → enters cells → cells swell (esp. brain). High Na → water pulled out of cells → cells shrink."},
+
+{q:"A nurse is preparing to administer a unit of packed red blood cells. Which IV catheter is the minimum acceptable gauge?",type:"mc",sub:"Infusion Therapy",subDetail:"IV Access / Blood Products",diff:"found",
+opts:["24-gauge","22-gauge","20-gauge","18-gauge"],
+cor:[1],
+rats:["Too small — a 24-gauge lumen will lyse (rupture) red blood cells as they're forced through. Hemolysis makes the transfusion dangerous and useless.","Your professor emphasized 22-gauge is the absolute minimum for blood transfusions. 18 or 20 is preferred, but 22 is acceptable when larger veins aren't available. Direct lecture point.","20-gauge is preferred and ideal for blood products, but the question asks for the MINIMUM — the smallest gauge that's still safe. Read carefully.","18-gauge is the BEST option for blood transfusions, but not the minimum. 'Minimum acceptable' ≠ 'preferred' ≠ 'best.' This distinction matters on exams."],
+trap:"Read the question carefully — 'minimum acceptable' vs 'preferred' vs 'best.' 18G = best, 20G = preferred, 22G = minimum. Your professor specifically emphasized this distinction.",mnemonic:"<strong>IV Gauge for Blood:</strong> \"22 will do, 18 is great.\" Remember: lower gauge number = bigger needle. 22 is the floor — anything smaller destroys the red blood cells."},
+
+{q:"A patient is receiving D5 0.45% NS intravenously. The nurse understands that once infused, this solution will have what effect on the patient's cells?",type:"mc",sub:"Fluid & Electrolytes",subDetail:"IV Fluid Tonicity",diff:"app",
+opts:["No effect — it remains isotonic in the body","Fluid will shift into the cells, causing them to swell","Fluid will shift into the vascular space, causing cells to shrink","The solution only affects the interstitial space"],
+cor:[1],
+rats:["It's hypertonic in the bag but does NOT stay that way. The body metabolizes dextrose rapidly, fundamentally changing the solution's tonicity in vivo.","Your professor flagged this as a GUARANTEED exam question. D5 0.45% NS is hypertonic in the bag, but once the body burns the dextrose, only 0.45% NS remains — which is hypotonic. Hypotonic → water enters cells → swelling.","This describes what a hypertonic solution does. While D5 0.45% IS hypertonic in the bag, it BECOMES hypotonic in the body after dextrose metabolism. The in-body effect is what matters.","Fluid dynamics affect all compartments — intravascular, interstitial, and intracellular. This is not how fluid physiology works."],
+trap:"The D5 0.45% NS Trick — Your professor said 'you WILL see this on your exam, your final, you definitely WILL see this.' Hypertonic in bag → body burns sugar → hypotonic in body.",mnemonic:"<strong>Hyp-O-tonic = \"O\" for \"Oh, fat guy\"</strong> — cells swell (get fat) because water goes IN. Hypertonic = cells shrink because water gets pulled OUT. Remember the direction."},
+
+{q:"A patient presents with frostbite to the right foot. Which nursing interventions are appropriate?",type:"sata",sub:"Environmental Emergencies",subDetail:"Cold-Related Injury",diff:"app",
+opts:["Immerse the foot in a water bath at 98.6°F–102.2°F","Massage the affected area gently to restore circulation","Elevate the foot above heart level","Administer aggressive pain management as prescribed","Apply dry heat using a heating pad on low setting","Ensure the extremity does not touch the sides of the rewarming container"],
+cor:[0,2,3,5],
+rats:["✓ Rapid rewarming in warm water (98.6–102.2°F / 37–39°C) is the standard of care. This temperature range is critical — too hot causes burns to insensate tissue.","✗ NEVER massage frostbitten tissue. Ice crystals in frozen cells act like tiny blades — massage shreds the cells and causes further tissue destruction. This is a common wrong-answer trap.","✓ Elevation above heart level reduces edema and promotes venous return from the injured tissue, minimizing swelling during the rewarming process.","✓ Frostbite rewarming is extremely painful. Your professor emphasized aggressive pain management. Anticipate the pain — don't wait for the patient to ask.","✗ NEVER use dry heat (heating pads, fires, hair dryers, radiators). Dry heat causes uneven rewarming and thermal burns to tissue that cannot sense temperature. Water immersion only.","✓ Your professor specifically emphasized: swirl the part in water WITHOUT letting it touch the container sides. Contact pressure damages fragile frozen tissue."],
+trap:"No massage (ice crystals shred cells), no dry heat (burns insensate tissue). Water bath only at 98.6–102.2°F, swirl gently, don't touch the sides, elevate, and manage pain aggressively.",mnemonic:null},
+
+{q:"A nurse is caring for a patient with a pH of 7.48, PaCO₂ 38, and HCO₃ 30. Which electrolyte imbalance should the nurse monitor for?",type:"mc",sub:"Acid-Base Balance",subDetail:"Alkalosis & Electrolytes",diff:"disc",
+opts:["Hyperkalemia and hypercalcemia","Hypokalemia and hypocalcemia","Hypernatremia and hypermagnesemia","Hyponatremia and hyperkalemia"],
+cor:[1],
+rats:["Backwards — alkalosis causes the OPPOSITE. K⁺ shifts INTO cells (hypokalemia) and more calcium binds to albumin (hypocalcemia). ACIDOSIS causes hyperkalemia.","pH 7.48 = metabolic alkalosis (HCO₃ 30 is elevated, PaCO₂ normal). Alkalosis → K⁺ shifts into cells (hypokalemia) + calcium binds more to albumin (hypocalcemia) → overexcited nervous system → twitching, tetany, seizures.","Sodium and magnesium aren't the primary electrolytes directly affected by pH shifts. This combination doesn't match any acid-base compensation pattern.","Hyperkalemia occurs with ACIDOSIS (excess H⁺ pushes K⁺ OUT of cells), not alkalosis. This reverses the relationship entirely."],
+trap:"The domino effects: Acidosis = hyperkalemia (H⁺ pushes K⁺ OUT). Alkalosis = hypokalemia + hypocalcemia (overexcited nervous system). These electrolyte shifts are your priority assessments.",mnemonic:"<strong>Acid-Base Electrolyte Rule:</strong> \"AcidosisHighK\" — Acidosis drives potassium HIGH. Alkalosis is the opposite: low K, low Ca, overexcited nerves (twitching, tetany, seizures)."},
+
+{q:"A patient admitted with severe diarrhea for 3 days has a pH of 7.28 and a potassium level of 5.8 mEq/L. The nurse understands that the hyperkalemia is caused by which mechanism?",type:"mc",sub:"Acid-Base Balance",subDetail:"Acidosis & Potassium Shift",diff:"disc",
+opts:["The kidneys are retaining potassium due to dehydration","Excess hydrogen ions in the blood are pushing potassium out of the cells","Diarrhea directly increases potassium absorption in the colon","Metabolic alkalosis is triggering aldosterone release"],
+cor:[1],
+rats:["Sounds plausible but isn't the mechanism. The kidneys would actually try to EXCRETE excess potassium, not retain it. Dehydration affects concentration but not via this pathway.","pH 7.28 = acidosis. Diarrhea loses bicarbonate → metabolic acidosis. Your professor's 'Domino Effect': excess H⁺ ions compete for space inside cells, pushing K⁺ out into the blood → hyperkalemia → cardiac dysrhythmias. Cardiovascular assessment is the priority.","Backwards — diarrhea LOSES potassium from the GI tract. The hyperkalemia here is from the intracellular-to-extracellular shift caused by acidosis, not from absorption.","Two errors: (1) this is acidosis, not alkalosis. (2) aldosterone causes potassium EXCRETION, which would lower K⁺, not raise it."],
+trap:"The Domino Effect: Acidosis → excess H⁺ floods INTO cells → K⁺ pushed OUT into blood → hyperkalemia → cardiac dysrhythmias. Cardiovascular system is always your priority assessment in acidosis.",mnemonic:"<strong>\"H⁺ and K⁺ are roommates that can't live together.\"</strong> When too much H⁺ moves INTO the cell (acidosis), K⁺ gets kicked OUT into the blood. When H⁺ leaves (alkalosis), K⁺ moves back IN."},
+
+{q:"A nurse is assessing a patient with suspected hypocalcemia. Which assessment technique confirms this diagnosis?",type:"mc",sub:"Fluid & Electrolytes",subDetail:"Calcium",diff:"app",
+opts:["Tapping the facial nerve anterior to the ear and observing for ipsilateral facial twitching","Assessing for a positive Kernig sign by extending the patient's knee","Striking the patellar tendon and observing for an absent deep tendon reflex","Compressing the nail bed for 3 seconds and measuring capillary refill time"],
+cor:[0],
+rats:["This is Chvostek's sign — tapping CN VII anterior to the ear causes facial twitching when calcium is low (hyperexcitable nerves). Trousseau's sign is the other test: BP cuff inflated → hand spasm (carpopedal spasm).","Kernig's sign tests for meningeal irritation (meningitis), not electrolyte imbalances. Wrong body system entirely. Kernig's = knee extension causes pain/resistance with hip flexed.","An ABSENT deep tendon reflex = SEDATED nervous system = HYPERcalcemia or HYPERmagnesemia. HYPOcalcemia causes the opposite: HYPERACTIVE reflexes because nerves are overexcited.","Capillary refill tests peripheral perfusion and circulatory status, not calcium levels. This assesses cardiac output and vascular tone."],
+trap:"Low Ca²⁺ and low Mg²⁺ = hyperexcitable nervous system. Know both tests: Chvostek's (tap face → twitching) and Trousseau's (BP cuff → hand spasm). HIGH levels = opposite (sedated, decreased reflexes, lethargy).",mnemonic:"<strong>\"Chvostek = Cheek, Trousseau = Tourniquet.\"</strong> Chvostek: tap the Cheek (facial nerve) → twitch. Trousseau: Tourniquet (BP cuff) on the arm → hand spasm. Both positive in hypocalcemia."},
+
+{q:"An older adult patient is lying in bed, eyes open, staring at the ceiling, not responding to their name. Vital signs are stable. What should the nurse do first?",type:"mc",sub:"Emergency & Trauma",subDetail:"Delirium Assessment",diff:"disc",
+opts:["Document that the patient is resting quietly and continue assessments per schedule","Perform a focused neurological assessment and evaluate for underlying causes","Dim the lights and minimize stimulation to promote rest","Administer a PRN sedative to maintain the calm state"],
+cor:[1],
+rats:["THE trap answer — your professor called hypoactive delirium a silent killer. Documenting 'resting comfortably' while the patient has an acute neurological crisis could be lethal. This is the answer that kills patients in real life.","This is hypoactive delirium — eyes open + unresponsive + staring = acute change in mentation caused by infection, hypoxia, medication toxicity, or metabolic imbalance. You must investigate immediately.","Treats a medical emergency as a comfort issue. This patient isn't resting — their brain is crashing. Dimming lights delays life-saving assessment and treatment.","Sedating a patient already in altered mental status masks worsening neurological decline and could be fatal. You'd be chemically hiding the problem instead of finding the cause."],
+trap:"The 'Quiet Patient' Trap — Hypoactive delirium is a deadly 'software crash' triggered by infection or hypoxia. NEVER document 'resting peacefully.' The 3 D's (Delirium, Dementia, Depression) are NEVER normal aging.",mnemonic:"<strong>3 D's:</strong> Dementia = slow hardware failure (progressive). Delirium = acute software crash (sudden, reversible, find the cause). Depression = treatable mood disorder. None are normal aging."},
+
+{q:"A nurse is assessing a trauma patient using the primary survey. The patient has a penetrating wound to the right thigh with bright red blood spurting in a pulsatile rhythm. What is the nurse's first action?",type:"mc",sub:"Emergency & Trauma",subDetail:"Primary Survey / CAB vs ABC",diff:"app",
+opts:["Establish a patent airway with jaw thrust maneuver","Apply direct pressure and a tourniquet to control the hemorrhage","Assess bilateral breath sounds and apply supplemental oxygen","Establish two large-bore IV lines for fluid resuscitation"],
+cor:[1],
+rats:["Normally airway IS first in the primary survey (ABC) — but not when there's massive arterial hemorrhage. This is the exception that flips to CAB. The patient bleeds out before hypoxia becomes the problem.","Bright red + pulsatile = arterial hemorrhage = massive, life-threatening. This is when ABC flips to CAB — Circulation first. Stop the bleed before anything else.","Breathing assessment matters but is secondary to hemorrhage control in this scenario. The patient will exsanguinate before hypoxia kills them.","IV access is important for volume resuscitation but not before stopping the source of hemorrhage. Pouring fluid in while it's pouring out doesn't fix the problem."],
+trap:"CAB vs. ABC — massive uncontrolled external bleeding = Circulation first (CAB). Otherwise, Airway always first (ABC). The key word in the question is 'spurting in a pulsatile rhythm' — that's arterial.",mnemonic:"<strong>CAB Exception:</strong> \"Can't fill a bucket with a hole.\" If they're actively bleeding out massively, stop the bleeding (C) before managing airway (A). Otherwise, always ABC."},
+
+{q:"A patient with a left leg DVT asks the nurse why the affected leg is being elevated. Which response demonstrates correct understanding?",type:"mc",sub:"Fluid & Electrolytes",subDetail:"Venous vs Arterial Clots",diff:"app",
+opts:["\"Elevation reduces arterial blood flow to the clot, preventing it from growing.\"","\"Gravity helps return venous blood toward the heart and reduces swelling.\"","\"Keeping the leg up helps the medication dissolve the clot more effectively.\"","\"Elevation prevents the clot from traveling to the lungs by changing blood flow direction.\""],
+cor:[1],
+rats:["Confuses venous with arterial pathophysiology. A DVT is a venous problem — elevation doesn't significantly affect arterial inflow. This answer mixes up the two systems.","For a venous clot: leg is red, warm, swollen. Elevation uses gravity to promote venous return and reduce edema. Venous = elevate. Your professor drilled this distinction.","Fabricated mechanism — elevation doesn't change how anticoagulants work. Heparin and warfarin work systemically regardless of limb position.","Sounds logical but is mechanistically wrong. Clots embolize based on venous blood flow dynamics, not gravitational direction of the leg."],
+trap:"\"Venous Up, Arterial Down\" — VENOUS clot (red, warm, swollen): ELEVATE. ARTERIAL clot (pale, cold, pulseless): keep FLAT or dependent. Elevating an arterial blockage forces the heart to pump uphill → accelerates tissue death.",mnemonic:"<strong>\"Venous Up, Arterial Down\"</strong> — Venous clot: blood needs help getting BACK to the heart → elevate. Arterial clot: blood needs to get DOWN to the tissues → keep flat/dependent so gravity assists."},
+
+{q:"A nurse suspects a patient's peripheral IV has extravasation. Which action should the nurse take first?",type:"mc",sub:"Infusion Therapy",subDetail:"IV Complications",diff:"app",
+opts:["Remove the IV catheter immediately and apply a warm compress","Stop the infusion and leave the catheter in place to attempt aspiration of the drug","Slow the infusion rate and reassess the site in 15 minutes","Elevate the extremity and apply a cold compress over the catheter site"],
+cor:[1],
+rats:["Removing the catheter eliminates your only access to aspirate the vesicant sitting in tissue or deliver an antidote. You lose your treatment pathway by pulling it.","Extravasation = vesicant (tissue-damaging) fluid leaked into tissue. Stop infusion immediately but LEAVE the catheter — you need it to aspirate residual drug or deliver an antidote through the same site.","NEVER continue infusing a vesicant into tissue at any rate. Every additional drop causes more necrosis. 'Slow down and watch' is never appropriate with a tissue-destroying drug.","Addresses comfort but misses the critical intervention. You must stop the vesicant and attempt aspiration FIRST, then consider positioning and compresses."],
+trap:"Extravasation (vesicant) vs. Infiltration (non-vesicant) — both leak into tissue. Extravasation: LEAVE catheter for aspiration/antidote. Infiltration: REMOVE catheter. Know which drugs are vesicants.",mnemonic:"<strong>Extravasation = \"Extra dangerous\"</strong> — vesicant destroys tissue. Leave the IV in (need it for rescue). Infiltration = \"just leaking\" — remove the IV and elevate."},
+
+{q:"A nurse is caring for a patient with a serum potassium of 2.9 mEq/L. Which assessment findings does the nurse expect?",type:"sata",sub:"Fluid & Electrolytes",subDetail:"Potassium / Hypokalemia",diff:"app",ekg:"hypo",
+opts:["Hyperactive deep tendon reflexes","Shallow, ineffective respirations","Hyperactive bowel sounds with diarrhea","ST-segment depression on the ECG","Skeletal muscle weakness and fatigue","Prominent U wave on the ECG"],
+cor:[1,3,4,5],
+rats:["✗ Low potassium causes HYPOactive reflexes. Muscles can't contract properly without adequate potassium for depolarization — reflexes are diminished, not enhanced.","✓ Hypokalemia weakens respiratory muscles, causing shallow and ineffective breathing. This is a dangerous complication — respiratory failure can occur with severely low K⁺.","✗ Backwards — hypokalemia causes paralytic ileus (decreased/ABSENT bowel sounds). Smooth muscle of the GI tract needs potassium to contract. No K⁺ = no peristalsis.","✓ ST-segment depression is a characteristic ECG finding in hypokalemia. Combined with flat T waves and U waves, this creates the classic hypoK tracing.","✓ Skeletal muscles depend on potassium for depolarization and contraction. Low K⁺ = generalized weakness, fatigue, and lethargy.","✓ The prominent U wave (a small wave appearing after the T wave) is THE hallmark ECG finding in hypokalemia. If you see a U wave on an exam, think low potassium."],
+trap:"Loop diuretics (furosemide/Lasix) cause loss of BOTH potassium AND magnesium — your professor said this at least three times. Full hypoK picture: weakness, shallow respirations, paralytic ileus, ST depression, flat T waves, prominent U waves.",mnemonic:"<strong>HypoK = \"Everything is flat and slow.\"</strong> Flat T waves, flat muscles (weakness), flat breathing (shallow), flat bowels (ileus), flat reflexes. Only the U wave pops UP — that's your clue."},
+
+{q:"A 36-year-old female patient who smokes one pack per day and takes oral contraceptives reports unilateral calf swelling and warmth. Based on this risk profile, which condition should the nurse prioritize assessing for?",type:"mc",sub:"Fluid & Electrolytes",subDetail:"VTE Risk Factors",diff:"disc",
+opts:["Peripheral arterial disease","Venous thromboembolism","Cellulitis from a recent insect bite","Musculoskeletal strain from exercise"],
+cor:[1],
+rats:["PAD presents with a pale, cool, PULSELESS extremity — the OPPOSITE of warm and swollen. Arterial problems look cold; venous problems look hot. Wrong vascular system.","Your professor's 'lethal combination': female >35 + heavy smoker + oral contraceptives. Estrogen = hypercoagulable blood. Smoking = vessel damage. Together → Virchow's Triad (stasis + vessel injury + hypercoagulability). Unilateral calf swelling + warmth = classic DVT.","Cellulitis is possible but doesn't match this SPECIFIC risk factor combination. The question is testing whether you recognize the VTE risk profile, not just the symptoms.","Exercise strain wouldn't present with warmth (inflammation sign) and doesn't connect to the risk factors described. The risk profile is the key to this question."],
+trap:"The VTE 'Lethal Combination': female >35 + heavy smoker + oral contraceptives. Virchow's Triad (stasis + vessel damage + hypercoagulability) is the formal term for the three conditions that cause clots. Know this term for HESI/NCLEX.",mnemonic:"<strong>Virchow's Triad (3 causes of clots):</strong> 1) Stasis (immobility, sitting too long) 2) Vessel damage (smoking, trauma, surgery) 3) Hypercoagulability (estrogen/OCPs, cancer, pregnancy). Any combo = clot risk."},
+
+{q:"During a mass casualty event, a nurse finds a patient with severe burns over 80% of their body, agonal respirations, and no palpable pulse. Which triage tag should be assigned?",type:"mc",sub:"Disaster Preparedness",subDetail:"Triage Tags / MCI",diff:"app",
+opts:["Red — emergent","Yellow — urgent","Green — nonurgent","Black — expectant"],
+cor:[3],
+rats:["The trap — in a SINGLE-patient scenario, you'd attempt resuscitation. But in mass casualty, limited resources go to salvageable patients. 80% burns + agonal respirations + no pulse = not survivable with constrained resources.","Urgent means the patient can wait a short time but WILL survive with treatment. This patient's injuries are incompatible with survival given limited MCI resources.","Green is for 'walking wounded' with minor injuries. Clearly doesn't apply to a patient with 80% burns and no pulse.","Black tag = expectant (dead or injuries incompatible with survival). In MCI triage, you allocate scarce resources for the greatest good for the greatest number."],
+trap:"Mass casualty triage ≠ normal triage. You're allocating scarce resources, not treating one patient. The hardest part: tagging someone black who you'd normally try to save. Your professor said to 'please remember' these categories.",mnemonic:"<strong>Triage Tags:</strong> 🔴 Red = life-threatening but TREATABLE. 🟡 Yellow = can wait hours. 🟢 Green = walking wounded. ⚫ Black = dead or expectant. The key word for Red is 'treatable' — if it's not treatable with available resources, it's Black."},
+
+{q:"A nurse is caring for a patient with suspected cervical spine injury after a diving accident into shallow water. The patient also aspirated water and is hypoxic. Which intervention takes priority?",type:"mc",sub:"Environmental Emergencies",subDetail:"Drowning / C-Spine",diff:"disc",
+opts:["Immobilize the cervical spine before any other intervention","Perform abdominal thrusts to remove water from the lungs","Establish airway patency using a jaw-thrust maneuver without head tilt","Administer IV normal saline to prevent secondary drowning"],
+cor:[2],
+rats:["C-spine protection matters but airway comes first — hypoxia kills faster than spinal cord injury. You CAN protect the spine WHILE managing the airway with jaw-thrust. Both simultaneously.","Your professor specifically said do NOT attempt to get water out of the lungs with thrusts. Abdominal thrusts are for choking (physical obstruction), not drowning (aspiration). Different mechanism entirely.","Airway is the priority — hypoxia is the immediate killer. With suspected C-spine, use jaw-thrust (NOT head-tilt chin-lift) to open the airway while maintaining spinal alignment. Both problems addressed simultaneously.","IV fluids don't prevent 'secondary drowning' and don't address the immediate hypoxia. Airway management always comes before IV access in the primary survey."],
+trap:"Drowning + C-spine = jaw-thrust (protects spine while opening airway). NEVER do abdominal thrusts to 'get water out' — that's for choking with a physical obstruction, not aspiration.",mnemonic:"<strong>Jaw-Thrust vs Head-Tilt:</strong> Suspected C-spine → jaw-thrust ONLY (no neck movement). No spine concern → head-tilt chin-lift is fine. Both open the airway, but jaw-thrust protects the neck."},
+
+{q:"A nurse is preparing to remove a central venous catheter. Which instruction should the nurse give the patient during catheter removal?",type:"mc",sub:"Infusion Therapy",subDetail:"Central Line Management",diff:"found",
+opts:["\"Take a deep breath in and hold it\"","\"Bear down as if you are having a bowel movement\"","\"Exhale slowly through pursed lips\"","\"Cough forcefully as I pull the catheter\""],
+cor:[1],
+rats:["Could create negative intrathoracic pressure on exhalation if timed incorrectly, potentially drawing air into the open venous system → air embolism.","The Valsalva maneuver (bearing down) increases intrathoracic pressure sustained and steady. This positive pressure prevents air from entering the venous system during removal → prevents venous air embolism.","Pursed-lip breathing doesn't generate enough SUSTAINED intrathoracic pressure to prevent air entry. It's a technique for COPD patients to maintain airway patency, not for line removal.","Coughing creates INTERMITTENT pressure changes — between coughs, pressure drops and air could enter the venous system. You need sustained positive pressure, not pulsatile."],
+trap:"Central line removal + Valsalva = prevention of venous air embolism. Sustained intrathoracic pressure creates a positive-pressure barrier that keeps air out of the open vein.",mnemonic:"<strong>Valsalva = \"Val-SEAL-va\"</strong> — bearing down SEALS the vein by creating positive pressure. Used for: central line removal, assessing heart murmurs, vagal maneuvers for SVT."},
+
+{q:"A nurse is caring for a patient with acute altitude sickness treated with acetazolamide. Which nursing considerations are appropriate?",type:"sata",sub:"Environmental Emergencies",subDetail:"Altitude Illness",diff:"app",
+opts:["Assess the patient for a sulfa allergy before administering","Monitor for signs of metabolic alkalosis as a side effect","Educate the patient that descent to a lower altitude is the definitive treatment","Monitor intake and output, as the drug is a diuretic","Administer dexamethasone if symptoms progress to cerebral edema","Restrict oral fluids to prevent fluid overload"],
+cor:[0,2,3,4],
+rats:["✓ Acetazolamide is a SULFA drug — always check for sulfa allergy. Cross-reactivity can cause anaphylaxis. Your professor specifically flagged this.","✗ BACKWARDS — acetazolamide causes metabolic ACIDOSIS, not alkalosis. It inhibits carbonic anhydrase → kidneys dump bicarbonate → blood becomes more acidic → body compensates by breathing faster → better oxygenation at altitude. That's how it works.","✓ Descent is the definitive treatment for ALL altitude illnesses (AMS, HACE, HAPE). Medications buy time, but getting lower is what saves the patient.","✓ Acetazolamide is a carbonic anhydrase inhibitor that acts as a diuretic (dumps bicarb and water). Monitor I&O to prevent dehydration.","✓ If AMS progresses to HACE (high-altitude cerebral edema), dexamethasone rapidly reduces brain swelling. Escalation of care.","✗ PUSH fluids with altitude illness — dehydration worsens it. The thin, dry air at altitude increases insensible fluid loss. Encourage hydration, don't restrict it."],
+trap:"Acetazolamide: sulfa drug (check allergy) + causes metabolic ACIDOSIS (not alkalosis) + diuretic (monitor I&O) + push fluids. The acid-base effect is intentional — acidosis stimulates faster/deeper breathing at altitude.",mnemonic:"<strong>Acetazolamide = \"Acid-a-zolamide\"</strong> — causes ACIDosis on purpose. Also a sulfa drug and a diuretic. Three things to remember: allergy check, acid effect, and I&O monitoring."}
+];
+
+let S={ans:0,cor:0,inc:0,sel:{},subScores:{},diffScores:{found:{c:0,t:0},app:{c:0,t:0},disc:{c:0,t:0}},wrongPicks:[]};
+const LS_KEY='ms1e2v2_scores';
+function loadState(){try{const d=localStorage.getItem(LS_KEY);if(d)S=JSON.parse(d)}catch(e){}}
+function saveState(){try{localStorage.setItem(LS_KEY,JSON.stringify(S))}catch(e){}}
+
+function ekgSVG(type){
+  if(type==='hyper')return `<div class="ekg-container"><svg viewBox="0 0 400 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg"><rect fill="#0a0b14" width="400" height="120" rx="8"/><g stroke="#1e3a1e" stroke-width="0.5">${Array.from({length:20},(_,i)=>`<line x1="${i*20}" y1="0" x2="${i*20}" y2="120"/>`).join('')}${Array.from({length:6},(_,i)=>`<line x1="0" y1="${i*20}" x2="400" y2="${i*20}"/>`).join('')}</g><polyline fill="none" stroke="#34d399" stroke-width="2" points="0,60 30,60 40,58 45,60 55,60 60,62 65,15 70,62 80,60 90,60 100,55 102,60 104,90 108,20 112,60 115,65 118,60 140,60 170,60 180,58 185,60 195,60 200,62 205,15 210,62 220,60 230,60 240,55 242,60 244,90 248,20 252,60 255,65 258,60 280,60 310,60 320,58 325,60 335,60 340,62 345,15 350,62 360,60 370,60 380,55 382,60 384,90 388,20 392,60 395,65 398,60 400,60"/></svg><div class="ekg-label">⬆ Hyperkalemia ECG: Tall, peaked T waves with widened QRS complexes</div></div>`;
+  if(type==='hypo')return `<div class="ekg-container"><svg viewBox="0 0 400 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg"><rect fill="#0a0b14" width="400" height="120" rx="8"/><g stroke="#1e1e3a" stroke-width="0.5">${Array.from({length:20},(_,i)=>`<line x1="${i*20}" y1="0" x2="${i*20}" y2="120"/>`).join('')}${Array.from({length:6},(_,i)=>`<line x1="0" y1="${i*20}" x2="400" y2="${i*20}"/>`).join('')}</g><polyline fill="none" stroke="#48bfe3" stroke-width="2" points="0,60 30,60 40,58 45,60 55,60 60,65 65,60 75,58 80,60 90,60 95,55 97,60 99,85 103,25 107,60 110,63 115,60 125,58 130,55 135,58 140,60 170,60 180,58 185,60 195,60 200,65 205,60 215,58 220,60 230,60 235,55 237,60 239,85 243,25 247,60 250,63 255,60 265,58 270,55 275,58 280,60 310,60 320,58 325,60 335,60 340,65 345,60 355,58 360,60 370,60 375,55 377,60 379,85 383,25 387,60 390,63 395,60 400,60"/><text x="132" y="50" fill="#fbbf24" font-size="10" font-family="sans-serif">U wave</text><line x1="132" y1="52" x2="132" y2="56" stroke="#fbbf24" stroke-width="1"/></svg><div class="ekg-label">⬆ Hypokalemia ECG: Flattened T waves, ST depression, and prominent U waves (labeled)</div></div>`;
+  return '';
+}
+
+const diffLabel={found:'🟢 Foundation',app:'🟡 Application',disc:'🔴 Discrimination'};
+const diffClass={found:'diff-found',app:'diff-app',disc:'diff-disc'};
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='analytics')renderAnalytics();
+}
+
+function render(){
+  const el=document.getElementById('panel-exam');
+  let h='';
+  Q.forEach((q,qi)=>{
+    const answered=S.sel[qi]&&S.sel[qi].sub;
+    const isC=answered&&S.sel[qi].cor;
+    const cc=answered?(isC?'a-correct':'a-incorrect'):'';
+    const isSata=q.type==='sata';
+    h+=`<div class="qcard ${cc}" id="q${qi}">`;
+    h+=`<div class="q-top"><span class="q-num">Q${qi+1}</span>`;
+    h+=`<span class="q-type-badge ${diffClass[q.diff]}">${diffLabel[q.diff]}</span>`;
+    if(isSata)h+=`<span class="q-type-badge q-type-sata">SATA</span>`;
+    h+=`<span class="q-subtopic">${q.subDetail}</span></div>`;
+    h+=`<div class="q-text">${q.q}</div>`;
+    if(q.ekg&&!answered)h+=ekgSVG(q.ekg);
+    if(isSata)h+=`<div class="sata-inst">⚠ Select ALL that apply</div>`;
+    h+=`<div class="opts ${isSata?'sata-q':''}">`;
+    q.opts.forEach((opt,oi)=>{
+      const L=String.fromCharCode(65+oi);
+      const sel=S.sel[qi]||{ch:[]};
+      const isChosen=sel.ch.includes(oi);
+      const isAns=q.cor.includes(oi);
+      let oc='opt';
+      if(answered){
+        oc+=' locked';
+        if(isChosen&&isAns)oc+=' c-right';
+        else if(isChosen&&!isAns)oc+=' c-wrong';
+        else if(!isChosen&&isAns)oc+=' c-missed';
+      }else if(isChosen)oc+=' sel';
+      h+=`<div class="${oc}" onclick="pick(${qi},${oi})"><div class="opt-mark">${L}</div><div class="opt-text">${opt}</div>`;
+      if(answered){
+        let icon='';
+        if(isChosen&&isAns)icon='✅';else if(isChosen&&!isAns)icon='❌';else if(!isChosen&&isAns)icon='⚠️';
+        h+=`<div class="opt-icon">${icon}</div>`;
+      }
+      h+=`</div>`;
+      // ALWAYS show rationale for EVERY option after answering
+      if(answered){
+        let rc='r-neutral';
+        if(isChosen&&isAns)rc='r-right';
+        else if(isChosen&&!isAns)rc='r-wrong';
+        else if(!isChosen&&isAns)rc='r-missed';
+        const prefix=isAns?'✓ ':'✗ ';
+        h+=`<div class="opt-rat show"><span class="${rc}">${q.rats[oi]}</span></div>`;
+      }
+    });
+    h+=`</div>`;
+    if(q.ekg&&answered)h+=ekgSVG(q.ekg);
+    if(!answered){
+      const has=(S.sel[qi]||{ch:[]}).ch.length>0;
+      h+=`<button class="sub-btn" id="btn${qi}" onclick="submit(${qi})" ${has?'':'disabled'}>Submit Answer</button>`;
+    }
+    if(answered){
+      const rb=isC?'r-correct':'r-incorrect';
+      const rh=isC?'✅ Correct!':'❌ Incorrect';
+      h+=`<div class="res-box ${rb} show"><div class="res-header">${rh}</div>`;
+      if(q.trap)h+=`<div class="trap-box"><div class="trap-hdr">⚠ TEST TRAP</div><div class="trap-txt">${q.trap}</div></div>`;
+      if(q.mnemonic)h+=`<div class="mnemonic">${q.mnemonic}</div>`;
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  });
+  if(S.ans===Q.length){
+    const pct=Math.round((S.cor/Q.length)*100);
+    h+=`<div style="text-align:center;margin-top:40px"><div style="font-size:56px;font-weight:800;background:linear-gradient(135deg,#6c63ff,#48bfe3);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${pct}%</div>`;
+    h+=`<div style="color:#8b8fa3;margin-top:8px">${S.cor} of ${Q.length} correct</div>`;
+    h+=`<button class="retake-btn" onclick="retake()">Retake Exam</button>`;
+    h+=`<p style="color:#8b8fa3;font-size:13px;margin-top:12px">Check the Analytics tab for your full breakdown →</p></div>`;
+  }
+  el.innerHTML=h;
+  updateStats();
+}
+
+function pick(qi,oi){
+  if(S.sel[qi]&&S.sel[qi].sub)return;
+  if(!S.sel[qi])S.sel[qi]={ch:[],sub:false};
+  const s=S.sel[qi];
+  if(Q[qi].type==='sata'){const i=s.ch.indexOf(oi);if(i>-1)s.ch.splice(i,1);else s.ch.push(oi)}
+  else s.ch=[oi];
+  render();
+}
+
+function submit(qi){
+  const s=S.sel[qi];if(!s||!s.ch.length)return;
+  const q=Q[qi];
+  const cs=[...s.ch].sort(),co=[...q.cor].sort();
+  const isC=cs.length===co.length&&cs.every((v,i)=>v===co[i]);
+  s.sub=true;s.cor=isC;
+  S.ans++;
+  if(isC)S.cor++;else{S.inc++;S.wrongPicks.push({qi,picked:s.ch,correct:q.cor,sub:q.subDetail})}
+  // Track subtopic
+  if(!S.subScores[q.subDetail])S.subScores[q.subDetail]={c:0,t:0};
+  S.subScores[q.subDetail].t++;
+  if(isC)S.subScores[q.subDetail].c++;
+  // Track difficulty
+  S.diffScores[q.diff].t++;
+  if(isC)S.diffScores[q.diff].c++;
+  saveState();render();
+  setTimeout(()=>{const c=document.getElementById('q'+qi);const r=c.querySelector('.res-box');if(r)r.scrollIntoView({behavior:'smooth',block:'nearest'})},100);
+}
+
+function updateStats(){
+  const pct=Q.length>0?Math.round((S.ans/Q.length)*100):0;
+  document.getElementById('pBar').style.width=pct+'%';
+  document.getElementById('sP').textContent=`${S.ans} of ${Q.length}`;
+  document.getElementById('sC').textContent=`✅ ${S.cor}`;
+  document.getElementById('sI').textContent=`❌ ${S.inc}`;
+  document.getElementById('sScore').textContent=S.ans>0?Math.round((S.cor/S.ans)*100)+'%':'—';
+}
+
+function renderAnalytics(){
+  const el=document.getElementById('panel-analytics');
+  if(S.ans===0){el.innerHTML='<div class="no-data">Complete some questions first to see your analytics.</div>';return;}
+  const pct=Math.round((S.cor/S.ans)*100);
+  let h=`<div class="analytics"><h2>Score Overview</h2><div class="ana-grid">`;
+  h+=`<div class="ana-card"><div class="ana-big blue">${pct}%</div><div class="ana-label">Overall Score</div></div>`;
+  h+=`<div class="ana-card"><div class="ana-big green">${S.cor}</div><div class="ana-label">Correct</div></div>`;
+  h+=`<div class="ana-card"><div class="ana-big red">${S.inc}</div><div class="ana-label">Incorrect</div></div>`;
+  h+=`<div class="ana-card"><div class="ana-big purple">${S.ans}/${Q.length}</div><div class="ana-label">Completed</div></div>`;
+  h+=`</div></div>`;
+
+  // Subtopic breakdown
+  h+=`<div class="analytics"><h2>Performance by Subtopic</h2>`;
+  const subs=Object.entries(S.subScores).sort((a,b)=>{const pa=a[1].t?a[1].c/a[1].t:0;const pb=b[1].t?b[1].c/b[1].t:0;return pa-pb});
+  subs.forEach(([name,d])=>{
+    const p=d.t?Math.round((d.c/d.t)*100):0;
+    const fc=p>=80?'green':p>=60?'yellow':'red';
+    h+=`<div class="subtopic-bar"><div class="st-label"><span class="st-name">${name}</span><span class="st-score" style="color:${fc==='green'?'#34d399':fc==='yellow'?'#fbbf24':'#f87171'}">${d.c}/${d.t} (${p}%)</span></div>`;
+    h+=`<div class="st-track"><div class="st-fill ${fc}" style="width:${p}%"></div></div></div>`;
+  });
+  h+=`</div>`;
+
+  // Difficulty breakdown
+  h+=`<div class="analytics"><h2>Performance by Difficulty</h2><div class="ana-grid">`;
+  [{k:'found',l:'🟢 Foundation'},{k:'app',l:'🟡 Application'},{k:'disc',l:'🔴 Discrimination'}].forEach(({k,l})=>{
+    const d=S.diffScores[k];const p=d.t?Math.round((d.c/d.t)*100):0;
+    const c=p>=80?'green':p>=60?'blue':'red';
+    h+=`<div class="ana-card"><div class="ana-big ${c}">${d.t?p+'%':'—'}</div><div class="ana-label">${l}<br>${d.c}/${d.t} correct</div></div>`;
+  });
+  h+=`</div></div>`;
+
+  // Wrong answer patterns
+  if(S.wrongPicks.length>0){
+    h+=`<div class="analytics"><h2>Missed Questions — What You Picked vs. Correct</h2><div class="pattern-box">`;
+    S.wrongPicks.forEach(wp=>{
+      const q=Q[wp.qi];
+      const picked=wp.picked.map(i=>String.fromCharCode(65+i)).join(', ');
+      const correct=wp.correct.map(i=>String.fromCharCode(65+i)).join(', ');
+      h+=`<div class="pattern-item"><strong>Q${wp.qi+1} (${wp.sub}):</strong> You picked <span style="color:#f87171">${picked}</span> → Correct: <span style="color:#34d399">${correct}</span></div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // Weak areas recommendation
+  const weakSubs=subs.filter(([_,d])=>d.t>0&&(d.c/d.t)<0.7);
+  if(weakSubs.length>0){
+    h+=`<div class="analytics"><h2>🎯 Recommended Focus Areas</h2><div class="pattern-box">`;
+    weakSubs.forEach(([name,d])=>{
+      const p=Math.round((d.c/d.t)*100);
+      h+=`<div class="pattern-item" style="color:#fbbf24">⚡ <strong>${name}</strong> — ${p}% (${d.c}/${d.t}). Review this topic before the exam.</div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  h+=`<button class="retake-btn" onclick="retake()">Retake Exam</button>`;
+  el.innerHTML=h;
+}
+
+function retake(){
+  S={ans:0,cor:0,inc:0,sel:{},subScores:{},diffScores:{found:{c:0,t:0},app:{c:0,t:0},disc:{c:0,t:0}},wrongPicks:[]};
+  saveState();
+  showPanel('exam');
+  document.querySelector('.tab-btn').click();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+loadState();render();
+</script>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS1 Exam 2 — Three-Tier Vocab Quiz (Ch. 10–15)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.app{max-width:900px;margin:0 auto;padding:20px}
+h1{text-align:center;font-size:1.6rem;margin-bottom:4px;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#94a3b8;font-size:.85rem;margin-bottom:20px}
+.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;border:2px solid transparent;transition:.2s}
+.tab:hover{opacity:.9}
+.tab.active{transform:scale(1.03)}
+.tab-prof{background:#1e293b;color:#818cf8}.tab-prof.active{border-color:#818cf8;background:#312e81}
+.tab-hesi{background:#1e293b;color:#f59e0b}.tab-hesi.active{border-color:#f59e0b;background:#78350f}
+.tab-nclex{background:#1e293b;color:#ef4444}.tab-nclex.active{border-color:#ef4444;background:#7f1d1d}
+.tab-analytics{background:#1e293b;color:#10b981}.tab-analytics.active{border-color:#10b981;background:#064e3b}
+.tier-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.7rem;font-weight:700;letter-spacing:.5px;margin-bottom:12px}
+.tier-1{background:#312e81;color:#a5b4fc}.tier-2{background:#78350f;color:#fbbf24}.tier-3{background:#7f1d1d;color:#fca5a5}
+.chapter-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.65rem;background:#1e3a5f;color:#7dd3fc;margin-left:6px}
+.panel{display:none}.panel.active{display:block}
+.card{background:#1e293b;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #334155;transition:.3s}
+.card:hover{border-color:#475569}
+.q-num{font-size:.75rem;color:#64748b;margin-bottom:6px}
+.term-display{font-size:1.15rem;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.pronunciation{font-size:.8rem;color:#94a3b8;font-style:italic;margin-bottom:8px}
+.word-breakdown{background:#0f172a;border-radius:8px;padding:10px 14px;margin-bottom:12px;border-left:3px solid #818cf8}
+.word-breakdown .label{font-size:.7rem;color:#818cf8;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.word-breakdown .parts{font-size:.85rem;color:#cbd5e1}
+.word-breakdown .parts span{color:#c084fc;font-weight:600}
+.prompt{font-size:.95rem;color:#cbd5e1;margin-bottom:14px;line-height:1.5}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.opt{padding:12px 16px;background:#0f172a;border:2px solid #334155;border-radius:10px;cursor:pointer;font-size:.9rem;transition:.2s;line-height:1.4}
+.opt:hover:not(.disabled){border-color:#64748b;background:#1a2332}
+.opt.selected{border-color:#818cf8;background:#1e1b4b}
+.opt.correct{border-color:#22c55e;background:#052e16}
+.opt.wrong{border-color:#ef4444;background:#450a0a}
+.opt.disabled{cursor:default;opacity:.85}
+.opt .opt-rat{display:none;margin-top:8px;padding-top:8px;border-top:1px solid #334155;font-size:.82rem;line-height:1.5;color:#94a3b8}
+.opt.show-rat .opt-rat{display:block}
+.submit-btn{width:100%;padding:12px;border-radius:10px;border:none;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:10px;transition:.2s}
+.submit-btn.ready{background:linear-gradient(135deg,#818cf8,#c084fc);color:#fff}
+.submit-btn.ready:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(129,140,248,.3)}
+.submit-btn:disabled{background:#334155;color:#64748b;cursor:default}
+.mnemonic-box{background:#1a1a2e;border:1px dashed #818cf8;border-radius:10px;padding:14px;margin-top:12px;display:none}
+.mnemonic-box.show{display:block}
+.mnemonic-box .label{font-size:.7rem;color:#818cf8;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.mnemonic-box .content{font-size:.88rem;color:#e2e8f0;line-height:1.5}
+.clinical-box{background:#0c1a0c;border:1px solid #166534;border-radius:10px;padding:14px;margin-top:10px;display:none}
+.clinical-box.show{display:block}
+.clinical-box .label{font-size:.7rem;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.clinical-box .content{font-size:.85rem;color:#bbf7d0;line-height:1.5}
+.prof-box{background:#1c0a2e;border:1px solid #7c3aed;border-radius:10px;padding:14px;margin-top:10px;display:none}
+.prof-box.show{display:block}
+.prof-box .label{font-size:.7rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.prof-box .content{font-size:.85rem;color:#ddd6fe;line-height:1.5}
+.progress-bar{background:#1e293b;border-radius:8px;height:8px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;border-radius:8px;transition:width .4s;background:linear-gradient(90deg,#818cf8,#c084fc)}
+.score-display{text-align:center;padding:20px;margin-bottom:20px;background:#1e293b;border-radius:12px}
+.score-display .big{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.score-display .label{color:#94a3b8;font-size:.85rem}
+.analytics-section{background:#1e293b;border-radius:12px;padding:20px;margin-bottom:16px}
+.analytics-section h3{font-size:1rem;color:#f1f5f9;margin-bottom:14px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #334155}
+.stat-row:last-child{border:none}
+.stat-label{font-size:.85rem;color:#cbd5e1}
+.stat-value{font-size:.85rem;font-weight:700}
+.stat-bar{flex:1;margin:0 12px;height:6px;background:#0f172a;border-radius:3px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.retake-btn{width:100%;padding:14px;border-radius:10px;border:2px solid #818cf8;background:transparent;color:#818cf8;font-size:1rem;font-weight:700;cursor:pointer;margin-top:16px;transition:.2s}
+.retake-btn:hover{background:#818cf8;color:#fff}
+.tier-legend{display:flex;gap:16px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.tier-legend span{font-size:.75rem;display:flex;align-items:center;gap:4px}
+.tier-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.td-1{background:#818cf8}.td-2{background:#f59e0b}.td-3{background:#ef4444}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Three-Tier Vocabulary Quiz</h1>
+<p class="subtitle">Med Surg 1 — Chapters 10–15 | Exam 2</p>
+
+<div class="tier-legend">
+<span><span class="tier-dot td-1"></span> Tier 1: Professor Terms</span>
+<span><span class="tier-dot td-2"></span> Tier 2: HESI / Class Exam</span>
+<span><span class="tier-dot td-3"></span> Tier 3: NCLEX-Level</span>
+</div>
+
+<div class="tabs">
+<div class="tab tab-prof active" onclick="switchPanel('prof')">Tier 1 — Professor</div>
+<div class="tab tab-hesi" onclick="switchPanel('hesi')">Tier 2 — HESI</div>
+<div class="tab tab-nclex" onclick="switchPanel('nclex')">Tier 3 — NCLEX</div>
+<div class="tab tab-analytics" onclick="switchPanel('analytics')">Analytics</div>
+</div>
+
+<div id="panel-prof" class="panel active"></div>
+<div id="panel-hesi" class="panel"></div>
+<div id="panel-nclex" class="panel"></div>
+<div id="panel-analytics" class="panel"></div>
+</div>
+
+<script>
+const VOCAB_DATA = {
+prof: [
+{
+term:"Solvent",
+pronunciation:"SAHL-vent",
+breakdown:{prefix:"Solv-",root:"solvere (Latin: to loosen/dissolve)",meaning:"The substance that dissolves other substances — in the body, this is <span>water</span>"},
+chapter:"Ch. 13",
+prompt:"The professor stated 'If you don't know the vocabulary, you're not going to pass the tests.' What is the SOLVENT in body fluids?",
+options:[
+{text:"The water portion of body fluid",correct:true,rationale:"Solvent = the liquid that dissolves solutes. In the body, water is always the solvent. The professor explicitly defined this as testable vocabulary."},
+{text:"The dissolved particles like sodium and potassium",correct:false,rationale:"This describes SOLUTES (the particles), not the solvent. Remember: solvent = water, solute = particles."},
+{text:"The membrane that separates fluid compartments",correct:false,rationale:"This describes a semipermeable membrane, not a solvent. The membrane is what allows selective passage of water and solutes."},
+{text:"The pressure that pulls water across a membrane",correct:false,rationale:"This describes osmotic pressure, not a solvent. Osmotic pressure is the force generated by solute concentration differences."}
+],
+mnemonic:"SOLVENT sounds like SOLVE-it — water SOLVES (dissolves) everything in the body.",
+clinical:"When we say a patient is 'fluid overloaded,' we mean they have too much solvent (water), which dilutes their solutes (sodium, potassium) — this dilution effect can cause seizures.",
+profNote:"Professor said: 'If you don't know the vocabulary, you're not going to be able to pass the tests.' This is one of those must-know terms."
+},
+{
+term:"Solute",
+pronunciation:"SAHL-yoot",
+breakdown:{prefix:"Solut-",root:"solutus (Latin: loosened/dissolved)",meaning:"The particles <span>dissolved</span> in a solvent — in the body, these are electrolytes like Na⁺, K⁺, Ca²⁺"},
+chapter:"Ch. 13",
+prompt:"Which of the following correctly defines SOLUTE in the context of body fluids?",
+options:[
+{text:"The dissolved particles (electrolytes, glucose, proteins) in body water",correct:true,rationale:"Solutes are the particles dissolved in the solvent. Major body solutes include sodium, potassium, calcium, glucose, and proteins."},
+{text:"The total volume of water in the intravascular space",correct:false,rationale:"This describes plasma volume, which is part of the solvent (water), not the solute (particles)."},
+{text:"The net movement of water from low to high solute concentration",correct:false,rationale:"This describes osmosis — a process, not a substance. Osmosis is driven BY solute concentration differences."},
+{text:"The semi-permeable barrier between intracellular and extracellular fluid",correct:false,rationale:"This describes the cell membrane. While the membrane interacts with solutes, it is not itself a solute."}
+],
+mnemonic:"SOLUTE = the SALT (and other stuff) floating in the water. S-o-l-u-t-e = S-a-l-t-e-d.",
+clinical:"When solute concentration is high outside the cell (hypernatremia), water follows the solute and gets pulled OUT of cells, causing them to shrink (crenation)."
+},
+{
+term:"Osmolarity",
+pronunciation:"oz-moh-LAIR-ih-tee",
+breakdown:{prefix:"Osmo-",root:"osmos (Greek: push/thrust)",suffix:"-arity (quality of)",meaning:"A measure of the <span>concentration of solute particles</span> in a solution — how 'thick' or 'thin' the fluid is"},
+chapter:"Ch. 13",
+prompt:"A solution with a HIGH osmolarity indicates:",
+options:[
+{text:"A high concentration of dissolved particles, which pulls water toward it",correct:true,rationale:"High osmolarity = many solute particles = strong osmotic pull. Water always moves toward higher osmolarity (from dilute to concentrated)."},
+{text:"A low concentration of dissolved particles that pushes water away",correct:false,rationale:"Low particle concentration = LOW osmolarity (hypotonic). This would push water into cells, not pull it."},
+{text:"An equal concentration of particles inside and outside the cell",correct:false,rationale:"Equal concentration describes an ISOTONIC state, not high osmolarity. In isotonic conditions, there is no net water movement."},
+{text:"The speed at which solutes cross the cell membrane",correct:false,rationale:"Osmolarity measures concentration, not speed of movement. The rate of solute transport is influenced by membrane permeability, not osmolarity itself."}
+],
+mnemonic:"OsmoLARITY = how LARGE is the particle load? High osmolarity = LARGE particle concentration.",
+clinical:"Normal serum osmolarity is 270-300 mOsm/L. When it rises (dehydration, hypernatremia), the brain triggers thirst and ADH release to retain water."
+},
+{
+term:"Isotonic",
+pronunciation:"eye-so-TAHN-ik",
+breakdown:{prefix:"Iso-",root:"isos (Greek: equal)",suffix:"-tonic (tension/tone)",meaning:"A solution with the <span>same</span> osmolarity as body fluids (270-300 mOsm/L)"},
+chapter:"Ch. 13",
+prompt:"Which IV fluid is ISOTONIC, and what happens to cells when it is infused?",
+options:[
+{text:"0.9% Normal Saline — cells remain unchanged because osmolarity is equal",correct:true,rationale:"0.9% NS has the same osmolarity as blood (~308 mOsm/L). No osmotic gradient = no water shift = cells stay the same size. Used for volume replacement."},
+{text:"0.45% Normal Saline — cells shrink as water is pulled out",correct:false,rationale:"0.45% NS is HYPOTONIC (half the solute of blood). It would push water INTO cells, causing swelling, not shrinking."},
+{text:"3% Saline — cells remain unchanged because it matches blood sodium",correct:false,rationale:"3% Saline is HYPERTONIC (much higher solute than blood). It PULLS water out of cells, causing them to shrink/crenate."},
+{text:"D5W — cells swell because dextrose attracts water into them",correct:false,rationale:"D5W is isotonic in the bag but becomes HYPOTONIC in the body once glucose is metabolized. This is a common exam trap."}
+],
+mnemonic:"ISO = EQUAL. Isotonic = equal tension. Think: 'I SO don't change' — cells stay the same.",
+clinical:"Isotonic fluids (0.9% NS, Lactated Ringer's) expand ONLY the extracellular space. They don't enter cells. Used for dehydration, blood loss, and shock resuscitation."
+},
+{
+term:"Hypertonic",
+pronunciation:"HY-per-TAHN-ik",
+breakdown:{prefix:"Hyper-",root:"hyper (Greek: above/excessive)",suffix:"-tonic (tension)",meaning:"A solution with a <span>higher</span> osmolarity than body fluids — pulls water OUT of cells"},
+chapter:"Ch. 13",
+prompt:"A nurse hangs a hypertonic IV solution. What fluid shift should the nurse expect?",
+options:[
+{text:"Water moves from the cells into the vascular space, shrinking the cells",correct:true,rationale:"Hypertonic solution has MORE solute than inside the cell. Water follows the solute gradient OUT of the cell and INTO the bloodstream. Cells shrink (crenation)."},
+{text:"Water moves from the vascular space into the cells, causing cellular swelling",correct:false,rationale:"This is what HYPOTONIC solutions do. Hyper = more solute outside = water leaves cells."},
+{text:"No fluid shift occurs because the body auto-corrects within minutes",correct:false,rationale:"Osmotic shifts happen immediately upon infusion. The body does compensate over time, but the initial shift is clinically significant."},
+{text:"Water moves equally in both directions, maintaining equilibrium",correct:false,rationale:"This describes an ISOTONIC state. Hypertonic solutions create a concentration gradient that drives a one-directional shift."}
+],
+mnemonic:"HYPER-tonic = HYPER-concentrated = HYPER-pulls water out. Cells SHRINK like raisins.",
+clinical:"3% saline is used for severe hyponatremia to pull water out of swollen brain cells. Must be given via central line and with frequent neuro checks.",
+profNote:"Professor emphasized: 'You WILL see this on your exam. Hypertonic pulls fluid into the vascular space.'"
+},
+{
+term:"Hypotonic",
+pronunciation:"HY-po-TAHN-ik",
+breakdown:{prefix:"Hypo-",root:"hypo (Greek: under/below)",suffix:"-tonic (tension)",meaning:"A solution with a <span>lower</span> osmolarity than body fluids — pushes water INTO cells"},
+chapter:"Ch. 13",
+prompt:"A patient receiving a hypotonic IV solution is at risk for which complication?",
+options:[
+{text:"Cellular swelling and cerebral edema from water moving into the cells",correct:true,rationale:"Hypotonic = LESS solute than inside the cell. Water rushes INTO cells to equalize. Brain cells swell in a rigid skull = increased ICP = deadly."},
+{text:"Cellular dehydration from water being pulled out of cells",correct:false,rationale:"Cellular dehydration occurs with HYPERTONIC solutions. Hypotonic does the opposite — it overhydrates cells."},
+{text:"Hypernatremia from excessive sodium infusion",correct:false,rationale:"Hypotonic solutions have LESS sodium than blood. They would worsen or cause HYPOnatremia, not hypernatremia."},
+{text:"Metabolic alkalosis from bicarbonate shift",correct:false,rationale:"Fluid tonicity affects water balance, not acid-base directly. Hypotonic fluids cause dilution, not alkalosis."}
+],
+mnemonic:"HYPO-tonic = HIPPO — cells get FAT like a hippo because water rushes IN.",
+clinical:"NEVER give hypotonic fluids to patients with increased ICP, head injury, or cerebral edema — the water shift into brain cells will increase swelling and can be fatal.",
+profNote:"Professor said: 'Hypotonic pushes fluid OUT into the cells, which can cause cellular swelling and edema.'"
+},
+{
+term:"D5 0.45% NS (The Trick Fluid)",
+pronunciation:"dee-five half-normal saline",
+breakdown:{prefix:"D5",root:"Dextrose 5% in 0.45% Sodium Chloride",meaning:"<span>Hypertonic in the bag</span> but becomes <span>hypotonic in the body</span> once dextrose is metabolized"},
+chapter:"Ch. 13",
+prompt:"D5 0.45% NS is classified as hypertonic in the IV bag. Why does it act as a HYPOTONIC solution in the body?",
+options:[
+{text:"The body rapidly metabolizes the dextrose, leaving only the hypotonic 0.45% saline behind",correct:true,rationale:"Dextrose is metabolized almost immediately by cells. Once the glucose is gone, all that remains is 0.45% NS, which is hypotonic. This is a classic exam trap."},
+{text:"The kidneys excrete the excess sodium, converting it to a dilute solution",correct:false,rationale:"The kidneys don't selectively remove sodium from this solution. The issue is dextrose metabolism, not renal sodium handling."},
+{text:"The dextrose converts to bicarbonate, which neutralizes the tonicity",correct:false,rationale:"Dextrose is metabolized to CO₂ and water, not bicarbonate. The mechanism is about removing particles, not creating new ones."},
+{text:"Plasma proteins bind the sodium, reducing the effective osmolarity",correct:false,rationale:"Plasma proteins don't bind sodium in this way. The tonicity change is due to dextrose metabolism removing solute particles."}
+],
+mnemonic:"D5 is the DISGUISE fluid — dressed up as hypertonic in the bag, but strips down to hypotonic in the body.",
+profNote:"Professor specifically warned about this trick on exams: 'D5 0.45% NS is hypertonic in the bag but once infused, the glucose metabolizes making it hypotonic in the body.'"
+},
+{
+term:"Extracellular Fluid (ECF)",
+pronunciation:"EX-trah-SEL-yoo-lar",
+breakdown:{prefix:"Extra-",root:"extra (Latin: outside) + cellula (cell)",meaning:"All fluid <span>outside</span> the cells — includes both interstitial AND intravascular fluid"},
+chapter:"Ch. 13",
+prompt:"Extracellular fluid (ECF) is composed of which TWO compartments?",
+options:[
+{text:"Interstitial fluid (between cells) and intravascular fluid (plasma in blood vessels)",correct:true,rationale:"ECF = everything outside the cell. It has two subcompartments: interstitial (surrounds cells, ~75% of ECF) and intravascular (plasma, ~25% of ECF)."},
+{text:"Intracellular fluid and cerebrospinal fluid",correct:false,rationale:"Intracellular fluid (ICF) is INSIDE the cells — the opposite of extracellular. CSF is technically ECF but is not one of the two main compartments."},
+{text:"Plasma and intracellular fluid",correct:false,rationale:"Plasma is part of ECF, but intracellular fluid is NOT. ICF is inside cells; ECF is outside cells."},
+{text:"Lymphatic fluid and transcellular fluid",correct:false,rationale:"These are minor ECF subsets, not the two major compartments. The professor specifically emphasized interstitial and intravascular."}
+],
+mnemonic:"ECF = Exit the Cell Fluid. It's the fluid that EXITED (is outside) the cell. Two pools: puddles between cells (interstitial) and rivers in vessels (intravascular).",
+profNote:"Professor emphasized: 'You MUST know that ECF consists of BOTH the interstitial fluid AND the intravascular fluid.'"
+},
+{
+term:"Blunt Trauma",
+pronunciation:"blunt TRAW-mah",
+breakdown:{prefix:"",root:"blunt (no penetration) + trauma (Greek: wound)",meaning:"Injury from a <span>non-penetrating</span> force — the skin may be intact but internal organs are damaged"},
+chapter:"Ch. 10",
+prompt:"A patient was in an MVC and hit the steering wheel. The skin on the chest is intact but they are hypotensive and tachycardic. This mechanism of injury is classified as:",
+options:[
+{text:"Blunt trauma — force applied without breaking the skin, but internal organs may be injured",correct:true,rationale:"Blunt trauma occurs when a non-penetrating force impacts the body. The skin stays intact, but internal structures (liver, spleen, aorta) can be crushed, ruptured, or hemorrhage."},
+{text:"Penetrating trauma — the steering wheel penetrated the chest wall",correct:false,rationale:"Penetrating trauma requires an object to break through the skin and enter the body. An intact chest wall rules out penetrating trauma."},
+{text:"Blast effect — the airbag created a pressure wave",correct:false,rationale:"Blast effect refers to injuries from explosive pressure waves (bombs, explosions), not airbag deployment in an MVC."},
+{text:"Acceleration-deceleration — organs shifted forward then snapped back",correct:false,rationale:"While acceleration-deceleration IS occurring in this MVC, the MECHANISM category is still blunt trauma. Accel-decel describes the physics of the blunt force."}
+],
+mnemonic:"BLUNT = Body Looks Uninjured but Nasty Things (are happening inside).",
+profNote:"Professor warned: 'The question will have something about a description — you need to identify the MOI term from the scenario.'"
+},
+{
+term:"Pulseless Electrical Activity (PEA)",
+pronunciation:"P-E-A",
+breakdown:{prefix:"",root:"Pulseless (no pulse) + Electrical Activity (heart rhythm present)",meaning:"The monitor shows a rhythm but the heart is <span>not actually pumping</span> — no pulse, no cardiac output"},
+chapter:"Ch. 10",
+prompt:"A nurse sees a normal sinus rhythm on the cardiac monitor, but when assessing the patient, finds no pulse. This is called:",
+options:[
+{text:"Pulseless Electrical Activity (PEA) — organized electrical rhythm but no mechanical pumping",correct:true,rationale:"PEA is a lethal disconnect between the heart's electrical and mechanical systems. The electrical conduction is firing normally (pretty rhythm on the monitor) but the heart muscle is not contracting. No pulse = no cardiac output = dead."},
+{text:"Ventricular fibrillation — the heart is quivering with no effective contraction",correct:false,rationale:"V-fib shows a chaotic, disorganized rhythm on the monitor (no recognizable QRS). PEA shows an ORGANIZED rhythm — that's what makes it deceptive."},
+{text:"Asystole — a complete flatline with no electrical activity",correct:false,rationale:"Asystole = no electrical activity = flat line. PEA has electrical activity (a visible rhythm) — it's just not producing a pulse."},
+{text:"Sinus bradycardia — the heart rate has slowed below 60 BPM",correct:false,rationale:"Sinus bradycardia is a real, perfusing rhythm (you would feel a pulse). PEA has no pulse despite the visible rhythm."}
+],
+mnemonic:"PEA = Pretty ECG, Actually (dead). The monitor lies — always check the PATIENT, not just the screen.",
+clinical:"The professor's 'soup sandwich' patient story: a DNR patient showed perfect NSR at 2 AM, but had actually died. At 7 AM, a static shock from the nurse's touch broke the residual electrical pattern and the monitor flatlined. Lesson: ALWAYS assess the patient, not just the monitor."
+},
+{
+term:"Charting by Exception",
+pronunciation:"chart-ing by ex-SEP-shun",
+breakdown:{prefix:"",root:"Exception (deviation from normal)",meaning:"A documentation method where you <span>only chart what is abnormal</span> — normal findings are assumed unless otherwise noted"},
+chapter:"Ch. 10",
+prompt:"A nurse is using 'charting by exception.' This means the nurse documents:",
+options:[
+{text:"Only findings that deviate from established norms — abnormal findings only",correct:true,rationale:"Charting by exception means normal assessment parameters are assumed/pre-printed, and the nurse only writes entries for ABNORMAL or unexpected findings. Saves time while flagging important changes."},
+{text:"Every single finding from head-to-toe assessment in narrative form",correct:false,rationale:"This describes comprehensive narrative charting, which is the opposite of charting by exception. CBE specifically avoids documenting every normal finding."},
+{text:"Only the medications administered and their times",correct:false,rationale:"This describes a Medication Administration Record (MAR), not charting by exception. CBE covers all assessments, not just medications."},
+{text:"Only the patient's subjective complaints and vital signs",correct:false,rationale:"CBE is broader than just complaints and vitals. It covers any assessment finding that deviates from normal, including physical exam findings, lab values, and changes in condition."}
+],
+mnemonic:"CBE = Chart the BAD and EXCEPTIONAL only. If it's normal, it's already assumed.",
+profNote:"Professor specifically stated you must know what charting by exception means."
+}
+],
+hesi: [
+{
+term:"Hyperkalemia",
+pronunciation:"HY-per-kah-LEE-mee-ah",
+breakdown:{prefix:"Hyper-",root:"kal- (Latin: kalium = potassium)",suffix:"-emia (blood condition)",meaning:"<span>Excess potassium</span> in the blood (K⁺ > 5.0 mEq/L)"},
+chapter:"Ch. 13",
+prompt:"A patient's potassium level is 6.8 mEq/L. Which ECG change should the nurse expect?",
+options:[
+{text:"Tall, peaked T waves and widened QRS complexes",correct:true,rationale:"Hyperkalemia slows cardiac conduction. The classic progression: peaked T waves → flattened P waves → widened QRS → sine wave → cardiac arrest. At 6.8, you'd see peaked T's and possibly wide QRS."},
+{text:"ST-segment depression and prominent U waves",correct:false,rationale:"ST depression and U waves are classic signs of HYPOkalemia (low potassium). Hyperkalemia causes the opposite ECG pattern."},
+{text:"Shortened QT interval and inverted T waves",correct:false,rationale:"Shortened QT is seen with HYPERcalcemia. Hyperkalemia causes tall/peaked T waves, not inverted ones."},
+{text:"Normal sinus rhythm with occasional PACs",correct:false,rationale:"A K⁺ of 6.8 is dangerously high and would NOT show a normal rhythm. This level causes significant conduction disturbances."}
+],
+mnemonic:"HyperK = K goes UP, T waves go UP (peaked). Think: 'High K = High T = High alert!'",
+clinical:"Hyperkalemia is a medical emergency. Interventions include: IV calcium gluconate (cardiac membrane stabilizer), insulin + glucose (drives K into cells), sodium bicarb (if acidotic), kayexalate (GI excretion), and dialysis if refractory."
+},
+{
+term:"Hypokalemia",
+pronunciation:"HY-po-kah-LEE-mee-ah",
+breakdown:{prefix:"Hypo-",root:"kal- (Latin: kalium = potassium)",suffix:"-emia (blood condition)",meaning:"<span>Deficient potassium</span> in the blood (K⁺ < 3.5 mEq/L)"},
+chapter:"Ch. 13",
+prompt:"A patient on furosemide (Lasix) has a potassium of 2.9 mEq/L. Which clinical manifestation should the nurse assess for FIRST?",
+options:[
+{text:"Skeletal muscle weakness, shallow respirations, and decreased bowel sounds (paralytic ileus)",correct:true,rationale:"Potassium is critical for muscle contraction. Low K = weak muscles everywhere: skeletal (weakness, fatigue), smooth (paralytic ileus, constipation), and respiratory (shallow breathing). The respiratory muscle weakness can be life-threatening."},
+{text:"Muscle spasms, hyperactive reflexes, and positive Trousseau sign",correct:false,rationale:"These are signs of HYPOcalcemia or HYPOmagnesemia (nerve hyper-excitability). Hypokalemia causes the opposite: muscle WEAKNESS, not spasms."},
+{text:"Bounding pulses, jugular vein distension, and crackles in the lungs",correct:false,rationale:"These are signs of fluid volume OVERLOAD, not hypokalemia. Potassium imbalances affect muscle and cardiac function, not fluid volume."},
+{text:"Peaked T waves and widened QRS complexes on the cardiac monitor",correct:false,rationale:"Peaked T waves = HYPERkalemia. Hypokalemia shows flat T waves, ST depression, and prominent U waves — the opposite pattern."}
+],
+mnemonic:"Low K = Low and Slow everything. Muscles are LOW (weak), bowels are SLOW (ileus), breathing is SHALLOW.",
+clinical:"Loop diuretics (Lasix) dump potassium AND magnesium. You cannot correct hypokalemia until magnesium is also corrected — they're linked.",
+profNote:"Professor said AT LEAST THREE TIMES: 'Loop diuretics cause loss of potassium AND magnesium. I have said this at least three times so I'm thinking it might be important.'"
+},
+{
+term:"Metabolic Acidosis",
+pronunciation:"met-ah-BOL-ik as-ih-DOH-sis",
+breakdown:{prefix:"Meta-",root:"metabole (Greek: change)",suffix:"-ic acidosis (excess acid state)",meaning:"pH < 7.35 with <span>low HCO₃ (< 22)</span> — the metabolic (kidney) system has too much acid or lost too much base"},
+chapter:"Ch. 14",
+prompt:"A patient has these ABG values: pH 7.28, PaCO₂ 38, HCO₃ 16. The nurse identifies this as:",
+options:[
+{text:"Metabolic acidosis — low pH caused by low bicarbonate with normal CO₂",correct:true,rationale:"pH 7.28 = acidotic (<7.35). PaCO₂ 38 = normal (35-45), so it's NOT respiratory. HCO₃ 16 = low (<22), confirming the metabolic system is the problem. Low bicarb = metabolic acidosis."},
+{text:"Respiratory acidosis — the lungs are retaining CO₂",correct:false,rationale:"PaCO₂ is 38, which is NORMAL. Respiratory acidosis would show elevated CO₂ (>45). The abnormal value here is bicarb."},
+{text:"Metabolic alkalosis — the kidneys are excreting too much acid",correct:false,rationale:"The pH is 7.28, which is ACIDOTIC, not alkalotic. Alkalosis = pH > 7.45. Also, HCO₃ is LOW, not high."},
+{text:"Mixed respiratory and metabolic acidosis",correct:false,rationale:"Mixed acidosis would show BOTH elevated CO₂ AND low bicarb. Here, CO₂ is normal — only the metabolic component is abnormal."}
+],
+mnemonic:"ABG Steps: (1) pH acidotic or alkalotic? (2) Which value matches — CO₂ (respiratory) or HCO₃ (metabolic)? The one that's abnormal in the same direction as pH = the cause.",
+clinical:"Metabolic acidosis causes HYPERKALEMIA via the 'domino effect' — excess H⁺ ions push K⁺ out of cells into the blood. Priority assessment = cardiac dysrhythmias.",
+profNote:"Professor's ABG ranges for THIS exam: pH 7.35-7.45, PaCO₂ 35-45, HCO₃ 22-26. Do NOT use textbook ranges for bicarb."
+},
+{
+term:"Infiltration vs. Extravasation",
+pronunciation:"in-fil-TRAY-shun / ex-TRAV-ah-SAY-shun",
+breakdown:{prefix:"In- (into) / Extra- (outside) + vas- (vessel)",root:"",meaning:"Infiltration = <span>non-vesicant</span> fluid leaks into tissue. Extravasation = <span>vesicant</span> (tissue-damaging) fluid leaks into tissue"},
+chapter:"Ch. 15",
+prompt:"A patient receiving IV chemotherapy develops blistering and tissue necrosis at the IV site. The nurse identifies this as:",
+options:[
+{text:"Extravasation — a vesicant drug has leaked into surrounding tissue, causing tissue destruction",correct:true,rationale:"Extravasation occurs when a VESICANT (tissue-destroying) drug leaks outside the vein. Signs include pain, blistering, and necrosis. Action: stop infusion, leave catheter in place to aspirate drug or deliver antidote."},
+{text:"Infiltration — a non-irritating fluid has leaked into surrounding tissue",correct:false,rationale:"Infiltration involves NON-vesicant fluids (like NS or D5W). It causes coolness and swelling but NOT blistering or necrosis. The tissue destruction here indicates a vesicant = extravasation."},
+{text:"Phlebitis — inflammation of the vein wall from the catheter",correct:false,rationale:"Phlebitis causes redness, warmth, and a palpable cord along the vein. It does not cause blistering or necrosis of surrounding tissue."},
+{text:"Thrombophlebitis — a blood clot has formed in the vein with inflammation",correct:false,rationale:"Thrombophlebitis involves a clot within the inflamed vein. It causes vein tenderness and swelling but not tissue necrosis from drug leakage."}
+],
+mnemonic:"Extra-vasation = EXTRA dangerous — the EXTRA bad stuff (vesicants) leaked EXTRA-outside the vessel. Infiltration = just Irritating, not life-threatening.",
+clinical:"For extravasation: STOP the infusion, leave the catheter IN to aspirate remaining drug or deliver antidote, apply cold or warm compresses (drug-specific), and notify the provider immediately."
+},
+{
+term:"Trousseau Sign / Chvostek Sign",
+pronunciation:"troo-SOH / VOSS-tek",
+breakdown:{prefix:"",root:"Named after physicians Armand Trousseau and František Chvostek",meaning:"Clinical signs of <span>hypocalcemia</span> — indicates nerve hyper-excitability from low calcium or magnesium"},
+chapter:"Ch. 13",
+prompt:"A nurse inflates a blood pressure cuff on a patient's arm, and the patient's hand and fingers spasm into a claw-like position. This is called:",
+options:[
+{text:"Positive Trousseau sign — carpal spasm from inflated BP cuff, indicating hypocalcemia",correct:true,rationale:"Trousseau sign: inflate BP cuff above systolic for 3 min → hand/wrist spasm (carpopedal spasm). This indicates low calcium causing nerve hyper-excitability. The cuff compresses the nerve, triggering involuntary spasm."},
+{text:"Positive Chvostek sign — facial twitching when the facial nerve is tapped",correct:false,rationale:"Chvostek sign is tapping the facial nerve (in front of the ear) and seeing facial muscle twitching. Both indicate hypocalcemia, but Chvostek involves the FACE, not the hand."},
+{text:"Tetany from hyperkalemia causing involuntary muscle contraction",correct:false,rationale:"Hyperkalemia causes muscle WEAKNESS progressing to flaccid paralysis, not spasms. The spastic/tetanic response is from LOW calcium or magnesium."},
+{text:"Carpopedal spasm from hyperventilation-induced respiratory alkalosis",correct:false,rationale:"While respiratory alkalosis CAN cause carpopedal spasm (by binding calcium to albumin), the specific test with the BP cuff is called Trousseau sign and tests for hypocalcemia directly."}
+],
+mnemonic:"TROUSSEAU = TROUSERS on your arm (BP cuff). CHVOSTEK = CHEEK twitches (tap the face).",
+clinical:"Both signs indicate critically low calcium or magnesium. If positive, check Ca²⁺ (normal 9.0-10.5 mg/dL) and Mg²⁺ (normal 1.3-2.1 mEq/L). Anticipate IV calcium gluconate."
+},
+{
+term:"Emergent / Urgent / Non-urgent / Expectant",
+pronunciation:"triage categories",
+breakdown:{prefix:"",root:"Triage (French: trier = to sort)",meaning:"A system of <span>sorting patients by severity</span> to determine treatment priority"},
+chapter:"Ch. 10/12",
+prompt:"During a mass casualty event, a patient has severe burns over 90% of their body, is unresponsive, and has agonal respirations. The triage nurse assigns which color tag?",
+options:[
+{text:"Black (Expectant) — injuries are so severe that survival is unlikely given available resources",correct:true,rationale:"Black tags are for patients who are dead or have injuries incompatible with survival given current resources. 90% burns with agonal breathing in a mass casualty = resources must go to salvageable patients."},
+{text:"Red (Emergent) — life-threatening injuries requiring immediate intervention",correct:false,rationale:"Red tags go to patients who ARE salvageable with immediate treatment (e.g., tension pneumothorax, controllable hemorrhage). This patient's injuries are not survivable with available resources."},
+{text:"Yellow (Urgent) — serious but can wait for treatment briefly",correct:false,rationale:"Yellow is for patients who need treatment soon but can tolerate a short delay (e.g., open fractures, moderate burns). This patient is beyond 'urgent.'"},
+{text:"Green (Non-urgent) — minor injuries, 'walking wounded'",correct:false,rationale:"Green tags are for minor injuries (sprains, small lacerations). A patient with 90% burns is clearly not 'walking wounded.'"}
+],
+mnemonic:"Red = Right now (emergent). Yellow = You can wait a bit (urgent). Green = Go sit down (minor). Black = Beyond help (expectant).",
+profNote:"Professor said: 'Please remember' the triage tag categories."
+},
+{
+term:"Keraunoparalysis",
+pronunciation:"keh-RAW-no-pah-RAL-ih-sis",
+breakdown:{prefix:"Kerauno-",root:"keraunos (Greek: thunderbolt)",suffix:"-paralysis (loss of movement)",meaning:"<span>Temporary paralysis</span> caused by lightning strike — resolves on its own"},
+chapter:"Ch. 11",
+prompt:"After being struck by lightning, a patient presents with complete paralysis of both legs, mottled skin, and absent pulses in the lower extremities. The nurse knows this is likely:",
+options:[
+{text:"Keraunoparalysis — a temporary, reversible paralysis specific to lightning injuries",correct:true,rationale:"Keraunoparalysis is unique to lightning strikes. It causes temporary motor paralysis, mottled/blue skin, and absent pulses in affected limbs. It typically resolves within hours as the autonomic nervous system recovers."},
+{text:"Spinal cord transection requiring emergency surgical intervention",correct:false,rationale:"While this presentation mimics spinal cord injury, keraunoparalysis is self-limiting. The key differentiator is the mechanism: lightning strike + this exact presentation = likely keraunoparalysis."},
+{text:"Bilateral arterial occlusion from thermal damage to the blood vessels",correct:false,rationale:"Lightning injuries cause electrical damage, not thermal vascular occlusion. The absent pulses are from vasospasm, not clots, and will resolve."},
+{text:"Permanent neurological damage from electrical conduction through the spinal cord",correct:false,rationale:"Keraunoparalysis is TEMPORARY. While lightning can cause permanent neurological damage, this specific pattern (bilateral lower extremity paralysis + mottled skin + absent pulses) is the classic reversible presentation."}
+],
+mnemonic:"KERAUNO-paralysis = KABLAM (thunder) paralysis. It's temporary — the body just needs time to reboot after the lightning strike.",
+profNote:"Professor said to know the lightning injury assessment cues, including keraunoparalysis."
+},
+{
+term:"Lichtenberg Figures",
+pronunciation:"LIK-ten-berg",
+breakdown:{prefix:"",root:"Named after physicist Georg Lichtenberg",meaning:"<span>Fern-like skin markings</span> from lightning strikes — caused by coagulated blood under the skin, NOT actual burns"},
+chapter:"Ch. 11",
+prompt:"A lightning strike victim has fern-like, branching red marks across their torso. The nurse documents these as:",
+options:[
+{text:"Lichtenberg figures — pathognomonic skin markings from lightning, not thermal burns",correct:true,rationale:"Lichtenberg figures are branching, fern-like patterns caused by the electrical discharge coagulating blood in superficial capillaries. They are NOT burns and do not require burn treatment. They typically fade within hours to days."},
+{text:"First-degree thermal burns requiring cool water application",correct:false,rationale:"Lichtenberg figures are NOT burns — they are subcutaneous blood coagulation patterns. Treating them as burns is incorrect and represents a testing trap."},
+{text:"Petechiae from blast-wave-induced capillary rupture",correct:false,rationale:"Petechiae are small, pinpoint, non-blanching spots from capillary bleeding. Lichtenberg figures have a distinctive BRANCHING, FERN-LIKE pattern — very different from petechiae."},
+{text:"Contact burns from grounded metal jewelry conducting electricity",correct:false,rationale:"Contact burns from metal are possible with lightning, but Lichtenberg figures are specifically the fern-like patterns from the electrical discharge itself, not from metal contact."}
+],
+mnemonic:"LICHTENBERG = LIGHTNING's LEAF pattern. Fern-like = not a burn, just a lightning tattoo.",
+profNote:"Professor emphasized knowing lightning injury assessment cues — Lichtenberg figures are a key identification point."
+},
+{
+term:"Intraosseous (IO) Infusion",
+pronunciation:"IN-trah-OSS-ee-us",
+breakdown:{prefix:"Intra-",root:"intra (Latin: within) + os (Latin: bone)",suffix:"-eous (pertaining to)",meaning:"Emergency vascular access by inserting a needle directly into the <span>bone marrow</span>"},
+chapter:"Ch. 15",
+prompt:"In an emergency situation where IV access cannot be established, the provider orders intraosseous (IO) access. The nurse knows the highest risk complication of IO infusion is:",
+options:[
+{text:"Compartment syndrome — fluid leaking from the bone into the surrounding muscle compartment",correct:true,rationale:"IO infusion delivers fluid directly into the bone marrow, which drains into the central circulation. If the needle dislodges or fluid extravasates, it can leak into the surrounding muscular compartment, causing dangerously elevated pressures (compartment syndrome)."},
+{text:"Fat embolism from disruption of the bone marrow",correct:false,rationale:"Fat embolism is a risk with long bone fractures, not typically with IO access. The IO needle is placed in flat bones or the proximal tibia, and the risk of fat embolism is minimal."},
+{text:"Air embolism from improper flushing technique",correct:false,rationale:"Air embolism is more associated with central line insertion/removal (hence Valsalva maneuver during removal). IO access has minimal air embolism risk."},
+{text:"Osteomyelitis from contamination during insertion",correct:false,rationale:"While infection is a risk with any invasive procedure, compartment syndrome is the HIGHEST risk and most emergent complication of IO infusion."}
+],
+mnemonic:"IO = Into the Os (bone). Biggest risk: COMPARTMENT syndrome — fluid trapped in the wrong compartment.",
+clinical:"IO access is used when you can't get an IV in an emergency (cardiac arrest, severe trauma, pediatric codes). Sites: proximal tibia, distal tibia, proximal humerus."
+},
+{
+term:"Valsalva Maneuver (Central Line Context)",
+pronunciation:"val-SAL-vah",
+breakdown:{prefix:"",root:"Named after Antonio Valsalva",meaning:"Bearing down / forced expiration against a closed glottis — <span>increases intrathoracic pressure</span> to prevent air from entering veins"},
+chapter:"Ch. 15",
+prompt:"When removing a central venous catheter, the nurse instructs the patient to perform the Valsalva maneuver. The purpose of this action is to:",
+options:[
+{text:"Increase intrathoracic pressure to prevent venous air embolism during catheter removal",correct:true,rationale:"Bearing down increases pressure in the chest, which prevents air from being sucked into the large central vein when the catheter is pulled. Without this, negative inspiratory pressure could draw air into the vein → air embolism → potentially fatal."},
+{text:"Decrease heart rate through vagal stimulation to prevent bleeding",correct:false,rationale:"While Valsalva does stimulate the vagus nerve and can slow HR, that's not the purpose here. The goal during central line removal is specifically preventing air entry."},
+{text:"Increase blood pressure to maintain perfusion during the procedure",correct:false,rationale:"Valsalva actually temporarily decreases venous return and can drop BP. The purpose is preventing air entry, not supporting blood pressure."},
+{text:"Relax the chest muscles to allow smooth catheter withdrawal",correct:false,rationale:"Valsalva tenses (contracts) the chest muscles — it doesn't relax them. The purpose is increasing intrathoracic pressure to create a positive-pressure barrier against air entry."}
+],
+mnemonic:"VALSALVA during central line removal = VALVE sealed shut — no air gets in. Bear down = seal up.",
+clinical:"Position the patient supine or Trendelenburg (head down) during removal. Apply an occlusive dressing immediately after removal. Monitor for signs of air embolism: sudden dyspnea, chest pain, churning 'mill wheel' heart murmur."
+}
+],
+nclex: [
+{
+term:"Crenation",
+pronunciation:"kree-NAY-shun",
+breakdown:{prefix:"",root:"crena (Latin: notch/scallop)",suffix:"-ation (process of)",meaning:"The process of a cell <span>shrinking and developing scalloped edges</span> when placed in a hypertonic solution"},
+chapter:"Ch. 13",
+prompt:"A nurse understands that cellular crenation occurs when:",
+options:[
+{text:"A hypertonic solution causes water to leave the cell via osmosis, making the cell shrink and develop notched edges",correct:true,rationale:"In a hypertonic environment, the higher solute concentration outside the cell draws water OUT of the cell. The cell membrane collapses inward, creating a wrinkled/scalloped appearance = crenation."},
+{text:"A hypotonic solution causes water to enter the cell, stretching the membrane until it bursts",correct:false,rationale:"This describes CYTOLYSIS (cell bursting/lysis), which is the opposite of crenation. Cytolysis occurs in hypotonic solutions when too much water enters."},
+{text:"An isotonic solution maintains equal osmotic pressure across the cell membrane",correct:false,rationale:"In isotonic solutions, cells maintain their normal shape — no crenation or swelling. Crenation requires a hypertonic (unequal) environment."},
+{text:"Intracellular potassium shifts to the extracellular space during acidosis",correct:false,rationale:"While the potassium shift in acidosis is real, it describes an electrolyte shift, not the physical process of cellular crenation (shape change from water loss)."}
+],
+mnemonic:"CRENATION = CRINKLE-ation. The cell CRINKLES up like a raisin in hypertonic fluid.",
+clinical:"Think of a grape (normal cell in isotonic fluid) → raisin (crenated cell in hypertonic fluid) → water balloon popping (lysed cell in hypotonic fluid)."
+},
+{
+term:"Cytolysis",
+pronunciation:"sy-TAHL-ih-sis",
+breakdown:{prefix:"Cyto-",root:"kytos (Greek: cell)",suffix:"-lysis (breaking/destruction)",meaning:"The <span>bursting of a cell</span> due to excessive water entry in a hypotonic environment"},
+chapter:"Ch. 13",
+prompt:"When red blood cells are placed in a hypotonic solution, the nurse expects:",
+options:[
+{text:"Hemolysis — water enters the RBCs by osmosis until they swell and rupture",correct:true,rationale:"In a hypotonic solution, water moves INTO the cell (from low solute to high solute concentration). RBCs have no nucleus to regulate size, so they swell until the membrane ruptures (hemolysis = specific term for RBC lysis)."},
+{text:"Crenation — the RBCs shrink and develop scalloped edges",correct:false,rationale:"Crenation occurs in HYPERTONIC solutions where water leaves the cell. In hypotonic solutions, water ENTERS and cells SWELL, not shrink."},
+{text:"Agglutination — the RBCs clump together due to antigen-antibody reactions",correct:false,rationale:"Agglutination is an immune reaction (wrong blood type transfusion), not an osmotic phenomenon. It involves antibodies cross-linking RBCs, not water movement."},
+{text:"Rouleaux formation — RBCs stack together like coins from increased plasma proteins",correct:false,rationale:"Rouleaux formation is caused by elevated plasma proteins (like in multiple myeloma), not by osmotic imbalance. It's unrelated to solution tonicity."}
+],
+mnemonic:"CYTO-LYSIS = CELL-LYSIS = the cell LIES in pieces after BURSTING. Hypotonic = Hippo stomps on the cell.",
+clinical:"This is why you never give hypotonic IV fluids too quickly — you can lyse RBCs and cause hemolytic reactions. Also why the minimum IV catheter for blood transfusion is 22-gauge: smaller needles physically shear RBCs."
+},
+{
+term:"Acidosis-Hyperkalemia Domino Effect",
+pronunciation:"",
+breakdown:{prefix:"",root:"Physiologic compensation mechanism",meaning:"When blood pH drops (acidosis), excess H⁺ ions move INTO cells, and K⁺ ions are <span>kicked OUT</span> of cells into the blood"},
+chapter:"Ch. 14",
+prompt:"A patient in diabetic ketoacidosis (DKA) has a pH of 7.18. The nurse's PRIORITY assessment is:",
+options:[
+{text:"Cardiac monitoring — acidosis causes hyperkalemia, which triggers lethal dysrhythmias",correct:true,rationale:"The 'domino effect': acidosis → H⁺ floods into cells → K⁺ is displaced out of cells → serum K⁺ rises → peaked T waves → wide QRS → cardiac arrest. Priority = cardiac monitoring because hyperkalemia kills via the heart."},
+{text:"Neurological assessment — acidosis causes confusion and decreased LOC",correct:false,rationale:"While acidosis does cause CNS depression, the PRIORITY is cardiac because hyperkalemia can cause sudden cardiac arrest. Neuro changes are important but not immediately lethal."},
+{text:"Respiratory assessment — acidosis causes hypoventilation and CO₂ retention",correct:false,rationale:"Actually, METABOLIC acidosis triggers compensatory HYPERVENTILATION (Kussmaul respirations) to blow off CO₂. The body tries to raise pH by exhaling acid. But the priority is still cardiac."},
+{text:"Renal assessment — the kidneys are failing to excrete excess acid",correct:false,rationale:"While renal function matters in acid-base balance, the immediate life threat from acidosis-induced hyperkalemia is cardiac dysrhythmia. Renal assessment is important but not the FIRST priority."}
+],
+mnemonic:"ACIDOSIS = A-C-I-D-osis → Acid Causes Increased (K⁺) → Deadly (to the heart).",
+clinical:"In DKA, the initial serum K⁺ may be NORMAL or even HIGH despite total body potassium depletion. Once you correct the acidosis with insulin, K⁺ rushes BACK into cells and the patient can crash from sudden hypokalemia. Always replace K⁺ before or with insulin."
+},
+{
+term:"Alkalosis-Hypocalcemia Cascade",
+pronunciation:"",
+breakdown:{prefix:"",root:"Physiologic compensation mechanism",meaning:"When blood pH rises (alkalosis), calcium binds more tightly to albumin, leaving <span>less free/ionized calcium</span> in the blood"},
+chapter:"Ch. 14",
+prompt:"A patient is hyperventilating from a panic attack (respiratory alkalosis). The nurse assesses for which electrolyte-related complication?",
+options:[
+{text:"Hypocalcemia — manifested by tingling, muscle cramps, tetany, and positive Trousseau/Chvostek signs",correct:true,rationale:"Alkalosis causes calcium to bind more tightly to albumin in the blood. This reduces FREE (ionized) calcium → nervous system becomes hyper-excitable → tingling, cramping, tetany, seizures. This is why patients hyperventilating get numbness/tingling in fingers."},
+{text:"Hyperkalemia — manifested by peaked T waves and muscle weakness",correct:false,rationale:"ACIDOSIS causes hyperkalemia (H⁺ pushes K⁺ out of cells). ALKALOSIS does the opposite — it causes HYPOkalemia (K⁺ moves INTO cells). They're mirror images."},
+{text:"Hypernatremia — manifested by thirst, dry mucous membranes, and agitation",correct:false,rationale:"Hyperventilation affects CO₂ and pH, not sodium levels directly. Respiratory alkalosis from panic attack doesn't cause hypernatremia."},
+{text:"Hypermagnesemia — manifested by decreased reflexes and drowsiness",correct:false,rationale:"Alkalosis doesn't cause hypermagnesemia. If anything, alkalosis patterns parallel low divalent cations (low Ca²⁺, low Mg²⁺). HyperMg causes lethargy, not excitability."}
+],
+mnemonic:"ALKALOSIS = ALL the calcium LOCKS onto albumin. Locked up calcium = hyper-excitable nerves = twitching, tingling, tetany.",
+clinical:"For a panic attack with hyperventilation: have the patient breathe slowly (NOT into a paper bag — this is outdated). Coach slow breathing to retain CO₂ and correct the respiratory alkalosis, which will release the bound calcium."
+},
+{
+term:"After-drop Phenomenon",
+pronunciation:"AF-ter drop",
+breakdown:{prefix:"After-",root:"drop (continued decrease)",meaning:"A <span>continued decrease in core body temperature</span> AFTER the patient has been removed from the cold environment"},
+chapter:"Ch. 11",
+prompt:"A hypothermic patient has been rescued from cold water immersion. After removal, the patient's core temperature continues to DROP. This phenomenon is called:",
+options:[
+{text:"After-drop — cold peripheral blood returns to the core as rewarming begins, temporarily lowering core temperature further",correct:true,rationale:"After-drop occurs because cold blood pooled in the extremities returns to the central circulation during rewarming. This cold venous blood mixes with warmer core blood, causing the core temp to drop further even though external warming has begun."},
+{text:"Rebound hypothermia — the brain's thermostat overshoots and triggers additional cooling",correct:false,rationale:"This is not a real clinical term. The brain doesn't actively cool the body further. After-drop is a passive circulatory phenomenon, not a neurological overcorrection."},
+{text:"Cold diuresis — the kidneys excrete warm fluid, lowering overall body temperature",correct:false,rationale:"Cold diuresis (increased urine output in cold) does occur in hypothermia, but it doesn't explain the continued temperature drop after removal from cold. After-drop is about blood circulation, not urine output."},
+{text:"Peripheral vasodilation — warming the skin causes blood vessels to dilate and release cold blood",correct:false,rationale:"This is partially correct in mechanism but uses the wrong term. The PHENOMENON of continued temperature decrease is called after-drop. Peripheral vasodilation is part of the mechanism, but after-drop is the correct clinical term."}
+],
+mnemonic:"AFTER you're out of the cold, the temp still DROPS — cold blood from the arms and legs rushes back to the core like an unwelcome house guest.",
+clinical:"This is why rewarming must be done carefully and with continuous core temperature monitoring. Active core rewarming (warm IV fluids, warm humidified O₂) is preferred over just external warming to prevent lethal cardiac dysrhythmias from the cold blood return."
+},
+{
+term:"Diving Reflex",
+pronunciation:"",
+breakdown:{prefix:"",root:"Mammalian diving reflex",meaning:"An involuntary physiologic response to cold water submersion that causes <span>extreme bradycardia and blood shunting</span> to preserve brain and heart"},
+chapter:"Ch. 11",
+prompt:"A child is rescued after 20 minutes of cold water submersion with no pulse. The team continues resuscitation efforts because:",
+options:[
+{text:"The diving reflex causes extreme bradycardia and shunts blood to the brain/heart, potentially allowing survival even after prolonged submersion",correct:true,rationale:"The mammalian diving reflex is triggered by cold water on the face. It causes: severe bradycardia (slows metabolism), peripheral vasoconstriction (shunts blood to brain/heart), and reduced O₂ consumption. Combined with cold-water hypothermia, this can be neuroprotective."},
+{text:"Cold water prevents bacterial growth, so there is no risk of aspiration pneumonia",correct:false,rationale:"Bacterial growth is irrelevant in acute drowning resuscitation. The issue is hypoxia and cardiac arrest, not infection. The reason to continue resuscitation is the neuroprotective diving reflex."},
+{text:"Children have a higher percentage of body fat that insulates the brain from hypoxic injury",correct:false,rationale:"Body fat doesn't protect the brain from hypoxia. The protective factor in cold water drowning is the diving reflex and hypothermia-induced metabolic slowdown."},
+{text:"Fresh water is isotonic with blood, so pulmonary damage is minimal",correct:false,rationale:"Fresh water is actually HYPOTONIC relative to blood (it gets absorbed into pulmonary capillaries). Regardless, the reason to continue resuscitation is the diving reflex, not the type of water."}
+],
+mnemonic:"The DIVING reflex DIVES your heart rate down and DIVERTS blood to the brain. Cold water = slow metabolism = maybe survivable.",
+clinical:"The clinical saying: 'You're not dead until you're warm and dead.' In cold water drowning, always rewarm to normothermia before pronouncing death. Children have a stronger diving reflex than adults."
+},
+{
+term:"Venous Thromboembolism (VTE) Risk Triad",
+pronunciation:"VEE-tee-ee",
+breakdown:{prefix:"",root:"Virchow's Triad: Stasis + Vessel injury + Hypercoagulability",meaning:"The three conditions that together create the <span>highest risk for blood clot formation</span>"},
+chapter:"Ch. 13/15",
+prompt:"Which patient is at the HIGHEST risk for developing a venous thromboembolism (VTE)?",
+options:[
+{text:"A 35-year-old female who smokes heavily and takes oral contraceptive pills",correct:true,rationale:"This is the 'lethal combination': (1) Estrogen in OCP makes blood hypercoagulable (sticky), (2) Smoking damages vessel endothelium (vessel injury), (3) Nicotine causes vasoconstriction (relative stasis). All three legs of Virchow's triad are activated."},
+{text:"A 25-year-old male marathon runner with a recent ankle sprain",correct:false,rationale:"While immobilization from the sprain creates some stasis, this patient lacks the hypercoagulability and vessel injury components. Young, active males without additional risk factors are low-risk."},
+{text:"A 60-year-old female on daily aspirin therapy after knee replacement",correct:false,rationale:"Aspirin is an antiplatelet agent that REDUCES clot risk. While post-surgical immobility increases risk, the aspirin therapy is protective. The 35-year-old smoker on OCP has more risk factors converging."},
+{text:"A 40-year-old male with a sedentary desk job and mild hypertension",correct:false,rationale:"Sedentary lifestyle creates some stasis, but without vessel injury or hypercoagulability, the overall VTE risk is lower than the smoker + OCP combination that activates all three triad components."}
+],
+mnemonic:"VTE's Deadly Trio: STICKY blood (OCP estrogen) + SICK vessels (smoking damage) + STAGNANT flow (vasoconstriction). All three = highest risk.",
+profNote:"Professor specifically highlighted the female smoker on birth control as the highest-risk VTE patient."
+},
+{
+term:"Venous vs. Arterial Clot Differentiation",
+pronunciation:"",
+breakdown:{prefix:"",root:"Clinical assessment pattern",meaning:"Venous clots cause <span>red, swollen, warm</span> legs (blood can't get OUT). Arterial clots cause <span>pale, pulseless, cold</span> legs (blood can't get IN)."},
+chapter:"Ch. 13",
+prompt:"A patient has a pale, cold, pulseless right leg. The nurse should position the extremity:",
+options:[
+{text:"Flat or in a dependent position — gravity assists arterial blood flow to the ischemic limb",correct:true,rationale:"Arterial clot = blood can't get TO the leg. The leg is pale/cold/pulseless because it's starved of oxygenated blood. Keep it flat or dependent so gravity helps push blood DOWN to the limb. Elevating would make the heart pump UPHILL against gravity = worse ischemia."},
+{text:"Elevated above the heart to promote venous return",correct:false,rationale:"Elevation is correct for VENOUS clots (DVT), where blood can't get OUT of the leg. For an arterial clot, elevating forces the heart to pump against gravity, worsening ischemia and accelerating tissue death."},
+{text:"Flexed at the knee to reduce pain and spasm",correct:false,rationale:"Flexing the knee could further compress the already-blocked artery. Position should be flat/dependent to maximize arterial flow, not flexed."},
+{text:"Immobilized in a splint with ice applied to reduce swelling",correct:false,rationale:"Ice causes vasoconstriction, which would WORSEN arterial insufficiency. There is no swelling to reduce — the leg is pale because blood isn't reaching it. Ice is appropriate for injuries, not arterial occlusion."}
+],
+mnemonic:"VENOUS clot = blood stuck IN the leg → red, hot, swollen → ELEVATE to drain it OUT. ARTERIAL clot = blood can't get IN → pale, cold, pulseless → keep FLAT/DOWN to help blood flow IN.",
+profNote:"Professor warned: 'The trap is elevating an arterial clot — it forces the heart to pump uphill and accelerates tissue death. Keep it flat or dependent.'"
+}
+]
+};
+
+let state = {
+prof: {answers:{},submitted:{}},
+hesi: {answers:{},submitted:{}},
+nclex: {answers:{},submitted:{}}
+};
+
+const STORAGE_KEY = 'ms1e2_vocab_scores';
+
+function loadState(){
+try{const s=localStorage.getItem(STORAGE_KEY);if(s)state=JSON.parse(s);}catch(e){}
+}
+function saveState(){
+try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+}
+
+function switchPanel(id){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById('panel-'+id).classList.add('active');
+document.querySelector('.tab-'+id).classList.add('active');
+if(id==='analytics')renderAnalytics();
+}
+
+function selectOption(tier,qi,oi){
+if(state[tier].submitted[qi])return;
+state[tier].answers[qi]=oi;
+saveState();
+renderTier(tier);
+}
+
+function submitAnswer(tier,qi){
+if(state[tier].answers[qi]===undefined||state[tier].submitted[qi])return;
+state[tier].submitted[qi]=true;
+saveState();
+renderTier(tier);
+}
+
+function renderTier(tier){
+const panel=document.getElementById('panel-'+tier);
+const data=VOCAB_DATA[tier];
+const tierLabel=tier==='prof'?'Tier 1 — Professor Terms':tier==='hesi'?'Tier 2 — HESI / Class Exam':'Tier 3 — NCLEX-Level';
+const tierClass=tier==='prof'?'tier-1':tier==='hesi'?'tier-2':'tier-3';
+
+const answered=Object.keys(state[tier].submitted).length;
+const correct=Object.keys(state[tier].submitted).filter(qi=>{
+const q=data[qi];
+return q.options[state[tier].answers[qi]]?.correct;
+}).length;
+const pct=data.length>0?Math.round((answered/data.length)*100):0;
+
+let html=`<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+if(answered>0){
+html+=`<div class="score-display"><div class="big">${correct}/${answered}</div><div class="label">${tierLabel} — ${Math.round(correct/answered*100)}% correct</div></div>`;
+}
+
+data.forEach((q,qi)=>{
+const selected=state[tier].answers[qi];
+const submitted=state[tier].submitted[qi];
+const isCorrect=submitted&&q.options[selected]?.correct;
+
+html+=`<div class="card">`;
+html+=`<div class="q-num">Question ${qi+1} of ${data.length} <span class="chapter-tag">${q.chapter}</span></div>`;
+html+=`<span class="tier-badge ${tierClass}">${tierLabel}</span>`;
+html+=`<div class="term-display">${q.term}</div>`;
+if(q.pronunciation)html+=`<div class="pronunciation">${q.pronunciation}</div>`;
+html+=`<div class="word-breakdown"><div class="label">Word Breakdown</div><div class="parts">${q.breakdown.meaning}</div></div>`;
+html+=`<div class="prompt">${q.prompt}</div>`;
+html+=`<div class="options">`;
+q.options.forEach((opt,oi)=>{
+let cls='opt';
+if(submitted){
+cls+=' disabled show-rat';
+if(opt.correct)cls+=' correct';
+else if(oi===selected&&!opt.correct)cls+=' wrong';
+}else if(oi===selected){
+cls+=' selected';
+}
+html+=`<div class="${cls}" onclick="selectOption('${tier}',${qi},${oi})">`;
+html+=`<strong>${String.fromCharCode(65+oi)}.</strong> ${opt.text}`;
+html+=`<div class="opt-rat">${opt.correct?'✅':'❌'} ${opt.rationale}</div>`;
+html+=`</div>`;
+});
+html+=`</div>`;
+
+if(!submitted){
+const ready=selected!==undefined;
+html+=`<button class="submit-btn ${ready?'ready':''}" ${ready?'':'disabled'} onclick="submitAnswer('${tier}',${qi})">Submit Answer</button>`;
+}
+
+if(submitted&&q.mnemonic){
+html+=`<div class="mnemonic-box show"><div class="label">🧠 Mnemonic</div><div class="content">${q.mnemonic}</div></div>`;
+}
+if(submitted&&q.clinical){
+html+=`<div class="clinical-box show"><div class="label">🏥 Clinical Connection</div><div class="content">${q.clinical}</div></div>`;
+}
+if(submitted&&q.profNote){
+html+=`<div class="prof-box show"><div class="label">👨‍🏫 Professor's Emphasis</div><div class="content">${q.profNote}</div></div>`;
+}
+html+=`</div>`;
+});
+
+html+=`<button class="retake-btn" onclick="retakeTier('${tier}')">🔄 Retake ${tierLabel}</button>`;
+panel.innerHTML=html;
+}
+
+function retakeTier(tier){
+state[tier]={answers:{},submitted:{}};
+saveState();
+renderTier(tier);
+window.scrollTo(0,0);
+}
+
+function renderAnalytics(){
+const panel=document.getElementById('panel-analytics');
+let html='';
+
+const tiers=[
+{key:'prof',label:'Tier 1 — Professor Terms',color:'#818cf8'},
+{key:'hesi',label:'Tier 2 — HESI / Class Exam',color:'#f59e0b'},
+{key:'nclex',label:'Tier 3 — NCLEX-Level',color:'#ef4444'}
+];
+
+let totalCorrect=0,totalAnswered=0;
+tiers.forEach(t=>{
+const data=VOCAB_DATA[t.key];
+const answered=Object.keys(state[t.key].submitted).length;
+const correct=Object.keys(state[t.key].submitted).filter(qi=>data[qi].options[state[t.key].answers[qi]]?.correct).length;
+totalCorrect+=correct;
+totalAnswered+=answered;
+});
+
+html+=`<div class="score-display"><div class="big">${totalCorrect}/${totalAnswered}</div><div class="label">Overall Vocabulary Score${totalAnswered>0?' — '+Math.round(totalCorrect/totalAnswered*100)+'%':''}</div></div>`;
+
+html+=`<div class="analytics-section"><h3>Performance by Tier</h3>`;
+tiers.forEach(t=>{
+const data=VOCAB_DATA[t.key];
+const answered=Object.keys(state[t.key].submitted).length;
+const correct=Object.keys(state[t.key].submitted).filter(qi=>data[qi].options[state[t.key].answers[qi]]?.correct).length;
+const pct=answered>0?Math.round(correct/answered*100):0;
+html+=`<div class="stat-row">
+<span class="stat-label">${t.label}</span>
+<div class="stat-bar"><div class="stat-bar-fill" style="width:${pct}%;background:${t.color}"></div></div>
+<span class="stat-value" style="color:${t.color}">${correct}/${answered} (${pct}%)</span>
+</div>`;
+});
+html+=`</div>`;
+
+html+=`<div class="analytics-section"><h3>Chapter Breakdown</h3>`;
+const chapterScores={};
+['prof','hesi','nclex'].forEach(tier=>{
+const data=VOCAB_DATA[tier];
+Object.keys(state[tier].submitted).forEach(qi=>{
+const ch=data[qi].chapter;
+if(!chapterScores[ch])chapterScores[ch]={correct:0,total:0};
+chapterScores[ch].total++;
+if(data[qi].options[state[tier].answers[qi]]?.correct)chapterScores[ch].correct++;
+});
+});
+const chapters=Object.keys(chapterScores).sort();
+if(chapters.length===0){
+html+=`<div class="stat-row"><span class="stat-label" style="color:#64748b">Complete some questions to see chapter analytics</span></div>`;
+}else{
+chapters.forEach(ch=>{
+const s=chapterScores[ch];
+const pct=Math.round(s.correct/s.total*100);
+const color=pct>=80?'#22c55e':pct>=60?'#f59e0b':'#ef4444';
+html+=`<div class="stat-row">
+<span class="stat-label">${ch}</span>
+<div class="stat-bar"><div class="stat-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+<span class="stat-value" style="color:${color}">${s.correct}/${s.total} (${pct}%)</span>
+</div>`;
+});
+}
+html+=`</div>`;
+
+html+=`<div class="analytics-section"><h3>Missed Terms — Review These</h3>`;
+let missedAny=false;
+['prof','hesi','nclex'].forEach(tier=>{
+const data=VOCAB_DATA[tier];
+Object.keys(state[tier].submitted).forEach(qi=>{
+if(!data[qi].options[state[tier].answers[qi]]?.correct){
+missedAny=true;
+html+=`<div class="stat-row">
+<span class="stat-label">❌ <strong>${data[qi].term}</strong> <span class="chapter-tag">${data[qi].chapter}</span></span>
+<span class="stat-value" style="color:#94a3b8">Review in ${tier.toUpperCase()} tier</span>
+</div>`;
+}
+});
+});
+if(!missedAny){
+html+=`<div class="stat-row"><span class="stat-label" style="color:#22c55e">No missed terms yet — keep going!</span></div>`;
+}
+html+=`</div>`;
+
+html+=`<button class="retake-btn" onclick="retakeAll()">🔄 Reset All Tiers</button>`;
+panel.innerHTML=html;
+}
+
+function retakeAll(){
+state={prof:{answers:{},submitted:{}},hesi:{answers:{},submitted:{}},nclex:{answers:{},submitted:{}}};
+saveState();
+['prof','hesi','nclex'].forEach(t=>renderTier(t));
+renderAnalytics();
+}
+
+loadState();
+renderTier('prof');
+renderTier('hesi');
+renderTier('nclex');
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Tools — vgoddess-moon</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',system-ui,sans-serif;min-height:100vh;padding:24px 16px 60px}
+.wrap{max-width:600px;margin:0 auto}
+h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;background:linear-gradient(135deg,#818cf8,#c084fc,#e09a3a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin-bottom:32px}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;margin-top:28px}
+.card{display:block;background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:18px 20px;margin-bottom:10px;text-decoration:none;transition:.2s;cursor:pointer}
+.card:hover{border-color:#334155;transform:translateY(-2px)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.card-title{font-size:1rem;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.card-desc{font-size:.8rem;color:#64748b;line-height:1.5}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.ms1{background:#1e3a5f;color:#7dd3fc}
+.recall{background:#1e1b4b;color:#a5b4fc}
+.vocab{background:#312e81;color:#c4b5fd}
+.system{background:#1c1a10;color:#fbbf24}
+.arrow{color:#334155;font-size:1.2rem;margin-top:2px}
+.exam-banner{background:linear-gradient(135deg,#1e1b4b,#1a0a2e);border:1px solid #4c1d95;border-radius:14px;padding:16px 20px;margin-bottom:28px;display:flex;align-items:center;gap:12px}
+.exam-banner .icon{font-size:1.8rem}
+.exam-banner .label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#a78bfa;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.exam-banner .title{font-size:.95rem;font-weight:700;color:#f1f5f9}
+.exam-banner .eta{font-family:'IBM Plex Mono',monospace;font-size:1.3rem;font-weight:700;color:#fbbf24;margin-left:auto;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Study Tools</h1>
+  <p class="sub">vgoddess-moon · Med Surg 1 & 2</p>
+
+  <div class="exam-banner" id="examBanner" style="display:none">
+    <div class="icon">📚</div>
+    <div>
+      <div class="label">Exam Mode Active</div>
+      <div class="title" id="examTitle">Med Surg Exam #2</div>
+    </div>
+    <div class="eta" id="examEta">—</div>
+  </div>
+
+  <div class="section-label">Practice Exams</div>
+  <a class="card" href="practice-exam.html">
+    <div class="card-top">
+      <div>
+        <div class="card-title">MS1 Exam 2 — Practice</div>
+        <div class="card-desc">25 NCLEX-style questions · Ch. 10–15 · Difficulty tiers · Full rationales · Analytics</div>
+      </div>
+      <span class="badge ms1">MS1 · E2</span>
+    </div>
+  </a>
+  <a class="card" href="vocab-quiz.html">
+    <div class="card-top">
+      <div>
+        <div class="card-title">Vocab Quiz — 3 Tiers</div>
+        <div class="card-desc">29 terms · Professor → HESI → NCLEX · Word breakdowns · Mnemonics · Clinical context</div>
+      </div>
+      <span class="badge vocab">Vocab</span>
+    </div>
+  </a>
+
+  <div class="section-label">Active Recall</div>
+  <a class="card" href="active-recall.html">
+    <div class="card-top">
+      <div>
+        <div class="card-title">Active Recall App</div>
+        <div class="card-desc">50 cards · MS1 & MS2 · Keyboard + Pencil · Progressive reveal · Shuffle · Missed Only mode</div>
+      </div>
+      <span class="badge recall">50 Cards</span>
+    </div>
+  </a>
+
+  <div class="section-label">Dashboard</div>
+  <a class="card" href="the-system.html">
+    <div class="card-top">
+      <div>
+        <div class="card-title">The System</div>
+        <div class="card-desc">Daily check-in · Weather · Meditation · Study tracker · Side hustle · Road ahead</div>
+      </div>
+      <span class="badge system">Life OS</span>
+    </div>
+  </a>
+</div>
+<script>
+const exams=[
+  {date:'2026-05-14',label:'Med Surg Exam #2'},
+  {date:'2026-06-04',label:'Med Surg Exam #3'},
+  {date:'2026-06-25',label:'Med Surg Exam #4'},
+  {date:'2026-07-09',label:'Med Surg Exam #5'},
+  {date:'2026-07-16',label:'Med Surg FINAL'}
+];
+const now=new Date();
+const next=exams.map(e=>({...e,diff:new Date(e.date)-now})).filter(e=>e.diff>0).sort((a,b)=>a.diff-b.diff)[0];
+if(next&&next.diff<7*86400000){
+  const days=Math.floor(next.diff/86400000);
+  const hrs=Math.floor((next.diff%86400000)/3600000);
+  document.getElementById('examBanner').style.display='flex';
+  document.getElementById('examTitle').textContent=next.label;
+  document.getElementById('examEta').textContent=days>0?`${days}d ${hrs}h`:`${hrs}h`;
+}
+</script>
+</body>
+</html>
