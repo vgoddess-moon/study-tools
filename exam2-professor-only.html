@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS1 Exam 2 — Professor-Confirmed Only</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',system-ui,sans-serif;min-height:100vh;padding:20px 16px 60px}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:4px;background:linear-gradient(135deg,#34d399,#06b6d4,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.notice{background:#052e16;border:1px solid #16a34a;border-radius:10px;padding:12px 16px;margin-bottom:24px;font-size:.82rem;color:#86efac;line-height:1.6}
+.notice strong{color:#4ade80}
+.ch-divider{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid #1e293b}
+.qcard{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:20px;margin-bottom:14px}
+.qcard.correct{border-color:#16a34a;background:#052e16}
+.qcard.wrong{border-color:#dc2626;background:#1c0a0a}
+.q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:12px}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#64748b;white-space:nowrap;margin-top:2px}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.b10{background:#1e3a5f;color:#7dd3fc}
+.b11{background:#14532d;color:#86efac}
+.b12{background:#3b1f08;color:#fb923c}
+.b13{background:#1e1b4b;color:#a5b4fc}
+.b14{background:#4a1942;color:#f0abfc}
+.b15{background:#1c2a1c;color:#6ee7b7}
+.btrap{background:#450a0a;color:#fca5a5;margin-left:4px}
+.bsata{background:#1e1b4b;color:#c4b5fd;margin-left:4px}
+.q-text{font-size:.95rem;line-height:1.6;color:#f1f5f9;margin-bottom:14px}
+.sata-note{font-size:.75rem;color:#a5b4fc;font-style:italic;margin-bottom:10px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;border:1px solid #1e293b;margin-bottom:7px;cursor:pointer;transition:.15s;user-select:none}
+.opt:hover{border-color:#334155;background:#1a2030}
+.opt.selected{border-color:#818cf8;background:#1e1b4b}
+.opt.correct-opt{border-color:#16a34a;background:#052e16}
+.opt.wrong-opt{border-color:#dc2626;background:#1c0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;color:#64748b;min-width:18px;margin-top:1px}
+.opt-text{font-size:.88rem;line-height:1.5;color:#cbd5e1}
+.rationale{font-size:.8rem;line-height:1.6;color:#94a3b8;margin-top:10px;padding:10px 12px;background:#0f1620;border-radius:8px;border-left:3px solid #334155;display:none}
+.rationale.show{display:block}
+.rationale .correct-r{color:#4ade80;font-weight:600}
+.rationale .wrong-r{color:#f87171;font-weight:600}
+.vocab-tip{font-size:.78rem;color:#64748b;margin-top:10px;padding:10px 12px;background:#0c1018;border-radius:8px;border-left:3px solid #1e3a5f;display:none}
+.vocab-tip.show{display:block}
+.vocab-tip strong{color:#7dd3fc}
+.submit-btn{margin-top:12px;padding:8px 20px;background:#1e1b4b;border:1px solid #4c1d95;border-radius:8px;color:#a5b4fc;font-size:.82rem;font-weight:600;cursor:pointer;transition:.15s}
+.submit-btn:hover{background:#2d2b69;border-color:#7c3aed}
+.submit-btn:disabled{opacity:.4;cursor:default}
+.result-icon{margin-left:8px;font-size:.9rem}
+.score-section{background:#13181f;border:1px solid #1e293b;border-radius:16px;padding:28px;margin-top:32px;display:none}
+.score-section.show{display:block}
+.score-big{font-family:'DM Serif Display',serif;font-size:3.5rem;text-align:center;margin-bottom:4px}
+.score-label{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#64748b;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px}
+.ch-scores{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.ch-score{background:#0c0f14;border:1px solid #1e293b;border-radius:10px;padding:12px 14px}
+.ch-score-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.ch-score-val{font-size:1.3rem;font-weight:700;color:#f1f5f9}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:10px 24px;border-radius:10px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:#4c1d95;color:#e9d5ff}
+.btn-primary:hover{background:#6d28d9}
+.btn-secondary{background:#1e293b;color:#94a3b8}
+.btn-secondary:hover{background:#334155}
+.progress-bar{height:4px;background:#1e293b;border-radius:2px;margin-bottom:20px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#34d399,#06b6d4);border-radius:2px;transition:.3s}
+.finish-btn{display:block;margin:28px auto 0;padding:12px 36px;background:linear-gradient(135deg,#16a34a,#059669);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s}
+.finish-btn:hover{opacity:.9;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Professor-Confirmed Only</h1>
+  <p class="sub">MS1 Exam 2 · Ch 10–15 · 30 Questions · 5 Per Chapter</p>
+
+  <div class="notice">
+    <strong>✅ What's in this exam:</strong> Only topics your professor explicitly confirmed as testable — verified against your NotebookLM sources and lecture transcripts.<br>
+    <strong>❌ What's NOT here:</strong> Rule of Nines, Parkland formula, escharotomy, smoke inhalation — your professor did not emphasize these. Don't study them.
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div id="quizContainer"></div>
+  <button class="finish-btn" id="finishBtn" onclick="showScore()" style="display:none">See My Score →</button>
+
+  <div class="score-section" id="scoreSection">
+    <div class="score-big" id="scoreBig">—</div>
+    <div class="score-label" id="scoreLabel">—</div>
+    <div class="ch-scores" id="chScores"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="restartQuiz()">Retake Exam</button>
+      <button class="btn btn-secondary" onclick="window.location.href='index.html'">Back to Hub</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions=[
+// ── CH 10 ─────────────────────────────────────────────────
+{id:1,ch:10,label:'Ch 10',badge:'b10',type:'single',trap:false,
+stem:'A nurse working triage in the emergency department receives four patients simultaneously. Which patient should be classified as EMERGENT?',
+opts:[
+{l:'A',t:'A 22-year-old with a rash and fever of 100.2°F',r:'This is nonurgent — rash and low-grade fever can wait several hours without risk to life or limb.'},
+{l:'B',t:'A 45-year-old with a closed ankle fracture and 6/10 pain',r:'Closed fracture with controlled pain is urgent, not emergent. Needs care within a couple hours but is not immediately life-threatening.'},
+{l:'C',t:'A 58-year-old with sudden onset facial drooping, slurred speech, and right arm weakness',r:'',correct:true},
+{l:'D',t:'A 67-year-old with pneumonia and a temperature of 102°F',r:'This is urgent — needs treatment within 1–2 hours, but pneumonia with a 102°F fever is not an immediate threat to life.'}
+],
+correctR:'CORRECT. Sudden facial droop + slurred speech + unilateral weakness = stroke. This is an EMERGENT condition — immediate threat to life and function. Time is brain.',
+vocab:'Emergent = life or limb at immediate risk (stroke, MI, airway obstruction). Urgent = needs care within 1–2 hours but stable (pneumonia, moderate pain). Nonurgent = can wait hours (rash, minor pain).'},
+
+{id:2,ch:10,label:'Ch 10',badge:'b10',type:'sata',trap:false,
+stem:'During a mass casualty incident (MCI), which principles are CORRECT? Select all that apply.',
+opts:[
+{l:'A',t:'The goal is to save the greatest number of lives, not the sickest individual',r:'',correct:true},
+{l:'B',t:'A patient in full cardiac arrest receives highest priority treatment',r:'In MCI, a cardiac arrest patient is tagged BLACK (expectant) — resources are directed to those who are salvageable. This is the opposite of everyday ER triage.'},
+{l:'C',t:'A patient who is breathing, has a radial pulse, and can follow commands is tagged RED',r:'This patient is stable and would likely be tagged YELLOW (delayed) — not in immediate danger.'},
+{l:'D',t:'Walking wounded patients who are alert and ambulatory are tagged GREEN',r:'',correct:true},
+{l:'E',t:'A patient with severe head trauma, no pulse, and fixed pupils is tagged BLACK',r:'',correct:true}
+],
+correctR:'A, D, E. MCI rule: save the MOST people. Black = expectant (not salvageable or resources unavailable). Green = minor/walking wounded. Red = immediate/salvageable. Yellow = delayed/major injuries but stable.',
+vocab:'MCI triage inverts normal priorities. Everyday ER: sickest first. MCI: most salvageable first. Black tag = you would use resources on them in everyday care, but in MCI it means resources go elsewhere.'},
+
+{id:3,ch:10,label:'Ch 10',badge:'b10',type:'single',trap:true,
+stem:'A trauma patient arrives with massive, uncontrolled bleeding from a femoral wound. Blood is spurting and the patient is becoming unresponsive. What is the FIRST action the nurse takes?',
+opts:[
+{l:'A',t:'Open and maintain the airway using jaw thrust',r:'Airway is first in the standard ABCDE primary survey — but there is a critical EXCEPTION when there is massive, uncontrolled external bleeding.'},
+{l:'B',t:'Apply direct pressure to the femoral wound immediately',r:'',correct:true},
+{l:'C',t:'Assess level of consciousness and pupil response',r:'This is D (Disability) in the primary survey — comes much later. Bleeding out will kill the patient before you assess pupils.'},
+{l:'D',t:'Expose and assess for additional injuries',r:'Exposure is last in the primary survey. Do not expose before controlling life-threatening bleeding.'}
+],
+correctR:'CORRECT. The professor\'s critical exception: when there is MASSIVE UNCONTROLLED EXTERNAL BLEEDING, use CAB — Circulation FIRST. Stop the bleeding before airway. Standard ABCDE becomes CAB in this scenario.',
+vocab:'CAB exception = Circulation before Airway when massive hemorrhage is present. Think: dead from bleeding in 2 minutes, can survive airway obstruction longer. This is the #1 trap in trauma triage questions.'},
+
+{id:4,ch:10,label:'Ch 10',badge:'b10',type:'single',trap:true,
+stem:'A nurse answers the phone. The caller identifies herself as the patient\'s daughter and says, "I\'m very worried — can you just tell me if my mom is okay?" Which response is CORRECT?',
+opts:[
+{l:'A',t:'"She\'s resting comfortably right now — no need to worry."',r:'TRAP. This is a HIPAA violation even though it sounds kind. You confirmed the patient is present AND gave information about her status — both are violations.'},
+{l:'B',t:'"I can\'t give out information over the phone, but you can come in and ask at the desk."',r:'TRAP. This still implies the patient is here. Even redirecting to the desk without confirming or denying is safer, but the model answer is strict denial.'},
+{l:'C',t:'"I cannot confirm or deny the presence of any patient without their explicit written consent."',r:'',correct:true},
+{l:'D',t:'"I understand your concern. Your mother came in earlier but she\'s stable."',r:'TRAP. Full HIPAA violation — you confirmed her presence AND gave a status update without her consent.'}
+],
+correctR:'CORRECT. The professor emphasized: never give a "breadcrumb" of information to family members calling without patient consent. You cannot confirm OR deny a patient\'s presence. Fidelity to the patient requires strict confidentiality.',
+vocab:'HIPAA fidelity rule: "I cannot confirm or deny the presence of any patient." Any hint — even "she\'s resting" — is a violation. The patient must explicitly authorize what family is told and when.'},
+
+{id:5,ch:10,label:'Ch 10',badge:'b10',type:'single',trap:false,
+stem:'A nurse needs to transfer a 280-pound immobile patient from the bed to a stretcher. Three nurses are available to assist. What is the CORRECT action?',
+opts:[
+{l:'A',t:'Use a three-person team lift with proper body mechanics',r:'TRAP. Even with three nurses and proper body mechanics, manual team lifts of heavy patients are a leading cause of career-ending spinal injuries in nurses. This is NOT the correct answer.'},
+{l:'B',t:'Ask the patient to assist with a draw sheet',r:'An immobile patient cannot meaningfully assist. This does not protect the nurses.'},
+{l:'C',t:'Obtain a mechanical lifting device (Hoyer lift) before transferring',r:'',correct:true},
+{l:'D',t:'Wait for a fourth nurse before attempting the transfer',r:'More nurses does not solve the problem. A mechanical lift is always the correct answer for immobile patients.'}
+],
+correctR:'CORRECT. Safe patient handling: always use a mechanical lifting device (Hoyer lift) for immobile patients. Manual team lifts are the #1 cause of career-ending nurse injuries. The exam will always favor the mechanical lift.',
+vocab:'Safe patient handling = mechanical devices protect nurses\' spines. Hoyer lift = full body sling. Never "team lift" on an exam — it\'s always wrong when a mechanical option exists.'},
+
+// ── CH 11 ─────────────────────────────────────────────────
+{id:6,ch:11,label:'Ch 11',badge:'b11',type:'single',trap:true,
+stem:'A runner collapses at mile 18 of a marathon. Temperature is 105.2°F. She is confused and disoriented. Her skin is warm and she is actively sweating. Which conclusion is CORRECT?',
+opts:[
+{l:'A',t:'Sweating rules out heat stroke — this is heat exhaustion',r:'TRAP. This is the #1 heat stroke test trap. Sweating does NOT rule out heat stroke. Thermoregulation can still produce sweat even when it has failed to control temperature.'},
+{l:'B',t:'Temperature of 105.2°F with altered mental status confirms heat stroke',r:'',correct:true},
+{l:'C',t:'Heat exhaustion is more dangerous because it causes more sweating',r:'Heat stroke is the medical emergency, not heat exhaustion. Heat exhaustion does not typically cause altered mental status.'},
+{l:'D',t:'Give acetaminophen (Tylenol) immediately to reduce the fever',r:'TRAP. Antipyretics do NOT work for heat stroke. The heat is from failed thermoregulation, not inflammation. Tylenol and ibuprofen have no mechanism to fix this.'}
+],
+correctR:'CORRECT. Heat stroke: temp ≥104°F AND mental status changes (confusion, disorientation). The professor specifically said: sweating does NOT rule out heat stroke. Antipyretics don\'t work — use rapid cooling (ice-water immersion).',
+vocab:'Heat stroke diagnosis = temp ≥104°F + altered mental status. Sweating ≠ safe. No antipyretics. Rapid cooling is the treatment. Heat exhaustion = temp <104°F, sweating, dizzy, no mental status changes.'},
+
+{id:7,ch:11,label:'Ch 11',badge:'b11',type:'single',trap:true,
+stem:'A patient with heat exhaustion is brought to the clinic after working outside in extreme heat. She is dizzy, sweating, and has a temperature of 102°F with normal mental status. What should the nurse provide first?',
+opts:[
+{l:'A',t:'Ice-water immersion',r:'TRAP. Ice-water immersion is reserved for HEAT STROKE (temp ≥104°F with mental status changes). Using it for heat exhaustion is excessive and not indicated.'},
+{l:'B',t:'Plain water and encourage the patient to drink as much as possible',r:'TRAP. Plain water alone can dilute sodium levels causing hyponatremia. Heat exhaustion requires electrolyte replacement, not just water.'},
+{l:'C',t:'Sports drinks with electrolytes and move to a cool environment',r:'',correct:true},
+{l:'D',t:'Aspirin to reduce the fever',r:'Antipyretics are not effective for heat-related illness. The heat is not from inflammation.'}
+],
+correctR:'CORRECT. Heat exhaustion treatment: cool environment + electrolyte-containing fluids (sports drinks). Plain water can cause hyponatremia in someone who has lost electrolytes through sweating. Ice immersion is only for heat stroke.',
+vocab:'Heat exhaustion = sports drinks (not plain water) to prevent hyponatremia. Think: you lose salt when you sweat — replacing with plain water dilutes what\'s left. Electrolytes restore balance.'},
+
+{id:8,ch:11,label:'Ch 11',badge:'b11',type:'single',trap:true,
+stem:'A lightning strike hits a crowded park. Five victims are found. Two are in full cardiopulmonary arrest, two are conscious with burns and confusion, and one is ambulatory with minor injuries. Using correct lightning triage, who should receive care FIRST?',
+opts:[
+{l:'A',t:'The ambulatory patient with minor injuries',r:'Green tag — lowest priority in normal triage. Still lowest priority here.'},
+{l:'B',t:'The two conscious patients with burns and confusion',r:'In standard MCI these would be priority (Yellow/Red). But lightning triage inverts this rule.'},
+{l:'C',t:'The two patients in full cardiopulmonary arrest',r:'',correct:true},
+{l:'D',t:'Triage all victims and treat in order of severity of burns',r:'Lightning injuries are not primarily about burns. The cardiac mechanism is what kills — and it\'s reversible with immediate CPR.'}
+],
+correctR:'CORRECT. Lightning reverse triage: treat pulseless/apneic victims FIRST. Lightning-induced cardiac arrest is highly reversible because the heart\'s autorhythmic cells can spontaneously restart if you immediately support airway and ventilations. This is the EXCEPTION to standard MCI protocol.',
+vocab:'Lightning = REVERSE triage. Normally pulseless = Black tag (expectant). In lightning = treat pulseless FIRST because arrest is from electrical disruption of a healthy heart, not underlying disease. Highly reversible with CPR.'},
+
+{id:9,ch:11,label:'Ch 11',badge:'b11',type:'single',trap:false,
+stem:'A backcountry hiker is brought in with frostbite to the right hand. The affected area shows large, fluid-filled clear/milky blisters. The skin beneath is soft and sensation is returning after rewarming. Which classification is CORRECT?',
+opts:[
+{l:'A',t:'Grade 1 frostbite — superficial ice crystal formation only',r:'Grade 1 is the mildest — skin appears red, waxy, or yellow with numbness but no blisters yet.'},
+{l:'B',t:'Grade 2 frostbite — partial thickness with clear/milky blisters',r:'',correct:true},
+{l:'C',t:'Grade 3 frostbite — full thickness with dark hemorrhagic blisters',r:'Grade 3 has DARK (hemorrhagic) blisters with cool, non-blanching tissue. Much more serious.'},
+{l:'D',t:'Grade 4 frostbite — complete tissue necrosis with gangrene',r:'Grade 4 is the most severe — full thickness through muscle, nerve, and bone with eventual gangrene.'}
+],
+correctR:'CORRECT. Grade 2 frostbite = large, clear or milky fluid-filled blisters with partial thickness involvement. Key: manifestations only become apparent AFTER rewarming. Grade 3 = small, dark hemorrhagic blisters with non-blanching tissue.',
+vocab:'Frostbite grading: Grade 1 = waxy/red, no blisters. Grade 2 = clear/milky blisters (partial thickness). Grade 3 = dark hemorrhagic blisters (full thickness). Grade 4 = gangrene. Never assess severity until after rewarming.'},
+
+{id:10,ch:11,label:'Ch 11',badge:'b11',type:'sata',trap:false,
+stem:'A hiker develops a severe headache, ataxia, and is becoming confused after a rapid ascent to 14,000 feet. Which interventions are correct? Select all that apply.',
+opts:[
+{l:'A',t:'Immediately descend to a lower altitude',r:'',correct:true},
+{l:'B',t:'Administer supplemental oxygen',r:'',correct:true},
+{l:'C',t:'Give acetazolamide (Diamox) after assessing for sulfa allergy',r:'',correct:true},
+{l:'D',t:'Encourage the patient to remain at altitude and rest for 24 hours',r:'WRONG. Remaining at altitude with cerebral edema (HACE) is dangerous and can be fatal. The only cure is descent.'},
+{l:'E',t:'Apply cooling blankets for the fever',r:'Altitude illness does not typically cause fever. This is not an indicated intervention.'}
+],
+correctR:'A, B, C. Ataxia + confusion at altitude = High-Altitude Cerebral Edema (HACE) — a medical emergency. Treatment: descend immediately, supplemental oxygen, acetazolamide. ALWAYS check for sulfa allergy before giving Diamox (it\'s a sulfonamide).',
+vocab:'Altitude illness progression: AMS (headache, nausea) → HACE (ataxia, confusion, cerebral edema) → HAPE (pulmonary edema, crackles). All treated with descent + O2 + acetazolamide. Sulfa allergy check is always required.'},
+
+// ── CH 12 ─────────────────────────────────────────────────
+{id:11,ch:12,label:'Ch 12',badge:'b12',type:'single',trap:false,
+stem:'During an earthquake, the hospital activates the Incident Command System. The Emergency Operations Center (EOC) is established. What is the PRIMARY function of the EOC?',
+opts:[
+{l:'A',t:'Direct patient care and triage coordination at the bedside',r:'TRAP. The EOC is NOT a clinical area. Direct patient care happens at the unit level.'},
+{l:'B',t:'Administrative command hub for communication, resource coordination, and decision-making',r:'',correct:true},
+{l:'C',t:'Receiving and stabilizing incoming trauma patients',r:'This happens in the ED, not the EOC.'},
+{l:'D',t:'Determining which patients receive lifesaving interventions',r:'Triage decisions are made by clinicians in the field/ED, not the administrative EOC.'}
+],
+correctR:'CORRECT. The EOC is an administrative command hub — it coordinates communication, allocates resources, and manages logistics. Direct patient care and triage decisions are made by nurses and physicians at the bedside, not the EOC.',
+vocab:'EOC = Emergency Operations Center. Think of it like mission control at NASA — it coordinates everything but is not physically doing the repairs. HICS = Hospital Incident Command System = the structure the EOC operates within.'},
+
+{id:12,ch:12,label:'Ch 12',badge:'b12',type:'single',trap:true,
+stem:'A 35-year-old is brought in from an explosion at a construction site. She has shrapnel embedded in her left thigh and abdomen. Which mechanism of injury is CORRECT?',
+opts:[
+{l:'A',t:'Blunt trauma from blast pressure wave',r:'Blast injury from the pressure wave causes blunt trauma to hollow organs (eardrums, intestines, lungs). Shrapnel is a separate mechanism.'},
+{l:'B',t:'Acceleration-deceleration injury',r:'Acceleration-deceleration is caused by rapid speed changes — like a car crash — where organs continue moving after the body stops.'},
+{l:'C',t:'Penetrating trauma from shrapnel',r:'',correct:true},
+{l:'D',t:'Flashover phenomenon',r:'Flashover is the lightning injury mechanism — current travels over the surface of the skin. Not applicable to explosions.'}
+],
+correctR:'CORRECT. Flying shrapnel causes penetrating trauma — objects break the skin and enter the body. Blast injuries can cause multiple mechanisms simultaneously, but shrapnel specifically = penetrating. Flashover = lightning, not explosions.',
+vocab:'Explosion mechanisms: shrapnel = penetrating trauma. Pressure wave = blunt trauma to hollow organs. Lightning = flashover phenomenon (current travels over skin surface). Acceleration-deceleration = car crashes.'},
+
+{id:13,ch:12,label:'Ch 12',badge:'b12',type:'sata',trap:false,
+stem:'A mass casualty incident (MCI) occurs with 40 victims. Which statements about triage color categories are CORRECT? Select all that apply.',
+opts:[
+{l:'A',t:'RED tag = immediate — life-threatening but salvageable with rapid intervention',r:'',correct:true},
+{l:'B',t:'YELLOW tag = delayed — serious injuries but can wait without immediate life threat',r:'',correct:true},
+{l:'C',t:'GREEN tag = minor — walking wounded, alert and ambulatory',r:'',correct:true},
+{l:'D',t:'BLACK tag = deceased only — used solely for confirmed deaths',r:'TRAP. Black includes EXPECTANT patients — those who are unlikely to survive even with treatment or whose treatment would consume too many resources. Not just confirmed deaths.'},
+{l:'E',t:'BLACK tag includes expectant patients not expected to survive given available resources',r:'',correct:true}
+],
+correctR:'A, B, C, E. Black tag includes both confirmed deaths AND expectant patients (those unlikely to survive or whose care is not resource-efficient in MCI). This is a key distinction — in everyday care you would treat them; in MCI you move on.',
+vocab:'MCI colors: Red = immediate/salvageable. Yellow = delayed/major injuries but stable. Green = minor/walking wounded. Black = expectant OR deceased. Remember: MCI goal is greatest good for greatest number, not most aggressive care for sickest.'},
+
+{id:14,ch:12,label:'Ch 12',badge:'b12',type:'single',trap:true,
+stem:'In an everyday ED (non-MCI) setting, a patient arrives with a displaced, complex femur fracture after a fall. Using standard civilian triage, this patient is classified as:',
+opts:[
+{l:'A',t:'Nonurgent — fractures can always wait',r:'TRAP. Simple, closed, non-displaced fractures are nonurgent in civilian triage. But complex or displaced fractures are a different category.'},
+{l:'B',t:'Emergent — fractures are always life-threatening',r:'Not every fracture is emergent. A displaced femur fracture is serious but typically not an immediate airway/cardiac emergency.'},
+{l:'C',t:'Urgent — needs treatment within 1–2 hours due to significant injury',r:'',correct:true},
+{l:'D',t:'This depends on whether the MCI protocol is active',r:'This question specifies a standard civilian ED — MCI triage rules do not apply here.'}
+],
+correctR:'CORRECT. Civilian triage: displaced/complex fractures = URGENT (needs care within 1–2 hours). Simple closed fractures = nonurgent (can wait several hours). MCI triage: simple closed fractures become nonurgent/Green tag.',
+vocab:'Civilian vs MCI fracture triage: complex/displaced fracture = Urgent in ED. Simple closed fracture = Nonurgent in ED, Green in MCI. The setting changes the answer — read the question carefully.'},
+
+{id:15,ch:12,label:'Ch 12',badge:'b12',type:'single',trap:false,
+stem:'A nurse is called to assist with a patient post-abdominal surgery. The patient\'s vital signs are stable and the abdominal dressing appears clean and white. Thirty minutes later the patient becomes tachycardic and hypotensive. What should the nurse have done EARLIER?',
+opts:[
+{l:'A',t:'Assumed the clean dressing indicated no bleeding',r:'This is the mistake — a clean abdominal dressing does not rule out internal or posterior bleeding.'},
+{l:'B',t:'Log-rolled the patient or slid hands beneath the body to check dependent areas',r:'',correct:true},
+{l:'C',t:'Ordered a stat hemoglobin level before anything else',r:'Lab values take time. The immediate nursing assessment is physical inspection of dependent areas.'},
+{l:'D',t:'Increased the IV fluid rate as a precaution',r:'Increasing fluids without assessing the source of deterioration is not the correct first action.'}
+],
+correctR:'CORRECT. The professor\'s pristine dressing trap: blood follows gravity. A clean abdominal dressing does not rule out hemorrhage into dependent posterior areas. Always log-roll or slide hands underneath post-op abdominal patients to check for pooled blood.',
+vocab:'Dependent bleeding = blood pools downward by gravity. After abdominal surgery, blood may pour posteriorly even as the front dressing stays clean. Assessment = check under the patient, not just what you can see from the front.'},
+
+// ── CH 13 ─────────────────────────────────────────────────
+{id:16,ch:13,label:'Ch 13',badge:'b13',type:'single',trap:true,
+stem:'A nurse is preparing to hang D5 0.45% NS. A student nurse asks what type of solution this is. The most accurate answer is:',
+opts:[
+{l:'A',t:'Hypertonic — it stays hypertonic throughout infusion',r:'TRAP. This is the first half of the answer — it IS hypertonic in the bag. But the exam is testing whether you know what happens AFTER infusion.'},
+{l:'B',t:'Isotonic — the dextrose and saline balance each other out',r:'Incorrect. D5 0.45% NS is NOT isotonic in either the bag or the body.'},
+{l:'C',t:'Hypertonic in the bag, but becomes hypotonic in the body once the dextrose metabolizes',r:'',correct:true},
+{l:'D',t:'Hypotonic — the 0.45% saline component makes it hypotonic overall',r:'The 0.45% saline alone is hypotonic, but the added dextrose makes the combined solution hypertonic in the bag.'}
+],
+correctR:'CORRECT. D5 0.45% NS is hypertonic in the bag (calculated osmolarity ~405 mOsm/L). But once infused, the dextrose is rapidly metabolized for energy — leaving behind only the 0.45% NS, which is HYPOTONIC. This is the #1 IV fluid trap on this exam.',
+vocab:'D5 0.45% NS trap: hypertonic in bag → dextrose metabolizes rapidly → hypotonic in body. Clinical effect: water shifts OUT of vascular space INTO cells. Risk: cellular swelling, cerebral edema in susceptible patients. Professor emphasized this multiple times.'},
+
+{id:17,ch:13,label:'Ch 13',badge:'b13',type:'sata',trap:false,
+stem:'A nurse is assessing a patient for fluid overload (hypervolemia). Which findings are consistent with fluid overload? Select all that apply.',
+opts:[
+{l:'A',t:'Distended neck veins while the patient is in an upright position',r:'',correct:true},
+{l:'B',t:'Weight gain of 4.4 lbs (2 kg) over 24 hours',r:'',correct:true},
+{l:'C',t:'Decreased pulse pressure',r:'TRAP. Decreased pulse pressure occurs in both dehydration and fluid overload. It is not a distinguishing sign — it is a distractor.'},
+{l:'D',t:'Bounding pulse',r:'',correct:true},
+{l:'E',t:'Crackles in the lung bases',r:'',correct:true}
+],
+correctR:'A, B, D, E. Fluid overload signs: distended JVD in upright position, rapid weight gain (1L = 2.2 lbs/1 kg), bounding pulse from increased stroke volume, pulmonary crackles from fluid in lungs. Decreased pulse pressure is a TRAP — it happens in both states.',
+vocab:'1 liter of fluid = 2.2 lbs (1 kg). Weight is the MOST accurate indicator of fluid changes. JVD in upright = overload. JVD flat = normal. Crackles = fluid in lungs. Bounding pulse = too much in the pipes.'},
+
+{id:18,ch:13,label:'Ch 13',badge:'b13',type:'single',trap:true,
+stem:'A patient with severe hyponatremia (Na+ 118 mEq/L) and SIADH is deteriorating with worsening confusion. The physician orders a medication to correct the sodium without risking cerebral swelling. Which medication is CORRECT?',
+opts:[
+{l:'A',t:'Furosemide (Lasix) IV — diuresis will excrete the excess water',r:'TRAP. Furosemide washes out sodium along with water — worsening the hyponatremia and risking fatal cerebral swelling. Wrong drug for this situation.'},
+{l:'B',t:'Tolvaptan (Samsca) — a vasopressin receptor antagonist that excretes free water',r:'',correct:true},
+{l:'C',t:'Potassium chloride IV — low sodium often accompanies low potassium',r:'Potassium replacement may be needed but does not correct the underlying sodium/water imbalance.'},
+{l:'D',t:'0.9% Normal Saline at 200 mL/hr',r:'Isotonic saline is not appropriate for SIADH where the problem is excess free water retention.'}
+],
+correctR:'CORRECT. Tolvaptan (a vaptans class drug) blocks vasopressin receptors — the body excretes FREE WATER without losing sodium. This raises sodium safely. Furosemide is the trap because it causes diuresis but takes sodium with it, worsening hyponatremia.',
+vocab:'SIADH = too much ADH → too much water retained → diluted sodium. Fix = excrete water WITHOUT sodium loss. Tolvaptan does exactly that. Furosemide trap: it makes you urinate but takes sodium too — dangerous in hyponatremia.'},
+
+{id:19,ch:13,label:'Ch 13',badge:'b13',type:'single',trap:true,
+stem:'A nurse assessing a post-op patient notes that the skin is tenting, mucous membranes are dry, and urine output has dropped to 20 mL/hr despite a total body fluid balance that appears normal. Which condition is MOST likely?',
+opts:[
+{l:'A',t:'Hypervolemia — total body fluid is increased',r:'The total body fluid is normal in this scenario. Hypervolemia would mean excess total body fluid with signs like edema and bounding pulse.'},
+{l:'B',t:'Vascular dehydration — fluid has shifted from plasma to the interstitial space',r:'',correct:true},
+{l:'C',t:'Third spacing with hypervolemia',r:'Third spacing causes vascular dehydration, not hypervolemia. Total body water may be unchanged or elevated while the intravascular space is depleted.'},
+{l:'D',t:'Hypovolemia from total body fluid loss',r:'True hypovolemia means total body water is DECREASED. In vascular dehydration, total body water is normal — fluid has simply shifted out of the plasma.'}
+],
+correctR:'CORRECT. Vascular dehydration = fluid shifts FROM the plasma (intravascular) INTO the interstitial space (third spacing) without actual total body fluid loss. The blood vessels are "dry" even though the body has normal total water. Classic signs: dry mucous membranes, decreased urine output, skin tenting — but no total fluid deficit.',
+vocab:'Vascular dehydration ≠ hypovolemia. Hypovolemia = total body water is LESS. Vascular dehydration = total body water normal, but it shifted OUT of plasma. The vessels are empty even though the body isn\'t dehydrated overall.'},
+
+{id:20,ch:13,label:'Ch 13',badge:'b13',type:'single',trap:false,
+stem:'A nurse is explaining hyponatremia to a student nurse. Which statement BEST explains why hyponatremia can cause seizures and brain herniation?',
+opts:[
+{l:'A',t:'Low sodium causes the kidneys to retain excess fluid, flooding the brain from outside',r:'This does not accurately describe the cellular mechanism of hyponatremia-related brain swelling.'},
+{l:'B',t:'The lower osmolarity of ECF compared to ICF drives water INTO brain cells, causing swelling',r:'',correct:true},
+{l:'C',t:'High sodium in the ICF pulls water out of brain cells, causing shrinkage',r:'This describes hypernatremia, not hyponatremia.'},
+{l:'D',t:'Sodium loss directly causes electrical misfiring in neurons without fluid involvement',r:'While sodium affects neuron excitability, the dangerous mechanism in hyponatremia is cellular swelling from osmotic fluid shifts.'}
+],
+correctR:'CORRECT. In hyponatremia: ECF sodium drops → ECF osmolarity falls below ICF osmolarity → water moves DOWN the osmotic gradient INTO cells (including brain cells) → brain cells swell → increased intracranial pressure → seizures, herniation.',
+vocab:'Hyponatremia → water INTO cells (cellular swelling) → brain at risk in rigid skull. Hypernatremia → water OUT of cells (cellular shrinking) → brain cells shrink → irritability, confusion. Water always moves toward higher concentration (osmotic gradient).'},
+
+// ── CH 14 ─────────────────────────────────────────────────
+{id:21,ch:14,label:'Ch 14',badge:'b14',type:'single',trap:true,
+stem:'A patient in DKA arrives with a potassium level of 6.2 mEq/L and tall T-waves on ECG. The physician starts insulin therapy. Two hours later, the potassium is 3.1 mEq/L. Which statement BEST explains this shift?',
+opts:[
+{l:'A',t:'Insulin caused the kidneys to excrete the excess potassium',r:'Insulin does not directly cause renal excretion of potassium. The mechanism is intracellular shifting.'},
+{l:'B',t:'The acidosis resolved, allowing potassium to move back into cells, dropping serum levels',r:'',correct:true},
+{l:'C',t:'DKA caused total body potassium depletion before arrival',r:'DKA causes REDISTRIBUTION of potassium (out of cells), not necessarily total depletion. The serum level was HIGH on arrival.'},
+{l:'D',t:'Insulin directly pulls potassium out of the bloodstream',r:'Insulin facilitates the Na/K-ATPase pump, driving potassium INTO cells — which is correct, but the answer above is more complete about the mechanism.'}
+],
+correctR:'CORRECT. DKA chain: acidosis → H+ ions enter cells → K+ pushed OUT → hyperkalemia (tall T-waves). Treat with insulin → acidosis corrects → K+ rushes BACK into cells → serum K+ crashes → hypokalemia. Always monitor potassium closely after starting DKA treatment.',
+vocab:'DKA K+ trap: arrive with HIGH K+ (hyperkalemia from acidosis). Treat → K+ shifts back in → LOW K+ (hypokalemia). The danger is AFTER treatment, not before. Tall T-waves = hyperkalemia. Flat T-waves + U-waves = hypokalemia.'},
+
+{id:22,ch:14,label:'Ch 14',badge:'b14',type:'single',trap:false,
+stem:'A patient\'s ABG results show pH 7.30, PaCO2 50 mmHg, HCO3 24 mEq/L. Using the professor\'s ranges (pH 7.35–7.45, PaCO2 35–45, HCO3 22–26), what is the interpretation?',
+opts:[
+{l:'A',t:'Metabolic acidosis — the HCO3 is low',r:'HCO3 is 24 — within normal range (22–26). The HCO3 is NOT the problem here.'},
+{l:'B',t:'Respiratory alkalosis — the PaCO2 is low',r:'The PaCO2 is HIGH (50), not low. High CO2 = acidosis, not alkalosis.'},
+{l:'C',t:'Respiratory acidosis — the PaCO2 is elevated causing the pH to fall',r:'',correct:true},
+{l:'D',t:'Metabolic alkalosis — compensated by high CO2',r:'pH is LOW (acidotic), not alkalotic. And HCO3 is normal, not elevated.'}
+],
+correctR:'CORRECT. pH is LOW (7.30 = acidosis). PaCO2 is HIGH (50 = above 45 = problem with CO2 retention). HCO3 is NORMAL (24 = within 22–26). Since the abnormal value matching the pH direction is PaCO2, this is RESPIRATORY ACIDOSIS.',
+vocab:'ABG interpretation: step 1 = is pH acid or base? Step 2 = which value matches? High CO2 → acidosis. Low CO2 → alkalosis. High HCO3 → alkalosis. Low HCO3 → acidosis. Use professor\'s ranges ONLY: pH 7.35–7.45, CO2 35–45, HCO3 22–26.'},
+
+{id:23,ch:14,label:'Ch 14',badge:'b14',type:'sata',trap:false,
+stem:'A patient has been vomiting for 3 days due to a bowel obstruction. Which acid-base and electrolyte findings are expected? Select all that apply.',
+opts:[
+{l:'A',t:'Metabolic alkalosis',r:'',correct:true},
+{l:'B',t:'Hypokalemia',r:'',correct:true},
+{l:'C',t:'Metabolic acidosis',r:'Acidosis comes from LOWER GI loss (diarrhea). Vomiting = upper GI = alkalosis.'},
+{l:'D',t:'Hypocalcemia with possible muscle tetany',r:'',correct:true},
+{l:'E',t:'Hyperkalemia from acid-base shift',r:'Hyperkalemia occurs with ACIDOSIS (K+ pushed out of cells). Alkalosis shifts K+ INTO cells, causing hypokalemia.'}
+],
+correctR:'A, B, D. Vomiting = upper GI loss of HCl → metabolic ALKALOSIS. Alkalosis causes K+ and Ca2+ to shift INTO cells → hypokalemia and hypocalcemia → muscle twitching, cramps, tetany. Diarrhea = lower GI = acidosis + hypokalemia.',
+vocab:'GI loss rule: Vomiting (upper GI) = alkalosis. Diarrhea (lower GI) = acidosis. Both cause hypokalemia. Alkalosis also causes hypocalcemia (Ca2+ binds to albumin more in alkaline environment) → Chvostek\'s sign, Trousseau\'s sign, muscle cramps.'},
+
+{id:24,ch:14,label:'Ch 14',badge:'b14',type:'single',trap:true,
+stem:'A patient with hypokalemia (K+ 2.9 mEq/L) requires IV potassium replacement. The nurse receives a verbal order for "IV push potassium chloride 10 mEq." What is the correct action?',
+opts:[
+{l:'A',t:'Administer the IV push slowly over 2–3 minutes',r:'TRAP. There is NO safe rate for IV push potassium. Even slow IV push is lethal. This is an absolute prohibition.'},
+{l:'B',t:'Dilute the potassium in 50 mL NS and give over 15 minutes',r:'TRAP. This is still too fast and too concentrated. Potassium must always be diluted in at least 100 mL and given slowly via infusion pump, never push.'},
+{l:'C',t:'Refuse to administer — contact the provider to clarify the order as IV potassium push is never safe',r:'',correct:true},
+{l:'D',t:'Administer as ordered — the provider knows the patient\'s potassium is critically low',r:'TRAP. A provider order does not override the absolute prohibition on IV push potassium. This is a nurse safety responsibility.'}
+],
+correctR:'CORRECT. IV push potassium is NEVER safe under any circumstance. It is a severe tissue irritant and acts as a lethal injection — it causes cardiac muscle paralysis and cardiac arrest. Refuse the order, document it, and call the provider for a corrected order.',
+vocab:'K+ IV push = absolute prohibition. Always. No exceptions. Not even in a code situation. Must be diluted and given by infusion pump slowly. This is one of the most emphasized safety rules in all of nursing school.'},
+
+{id:25,ch:14,label:'Ch 14',badge:'b14',type:'single',trap:false,
+stem:'A patient receiving loop diuretics for heart failure develops leg cramps, muscle weakness, and an irregular pulse. Which lab value is MOST likely responsible?',
+opts:[
+{l:'A',t:'Serum sodium 130 mEq/L (low)',r:'Hyponatremia can cause muscle cramps and weakness but the primary culprit with loop diuretics is potassium loss.'},
+{l:'B',t:'Serum potassium 2.8 mEq/L (low)',r:'',correct:true},
+{l:'C',t:'Serum calcium 11.2 mg/dL (high)',r:'Hypercalcemia causes muscle weakness and lethargy but is not directly caused by loop diuretics.'},
+{l:'D',t:'Serum magnesium 0.9 mEq/L (low)',r:'Hypomagnesemia is also caused by loop diuretics and can cause similar symptoms, but hypokalemia is the primary and most heavily tested complication.'}
+],
+correctR:'CORRECT. Loop diuretics (furosemide/Lasix) waste potassium. Hypokalemia causes: muscle cramps, weakness, fatigue, and most dangerously — cardiac dysrhythmias (irregular pulse). The professor repeated the Lasix → K+ loss connection multiple times.',
+vocab:'Loop diuretics (Lasix/furosemide) = potassium-wasting. Hypokalemia (K+ <3.5) = muscle weakness, cramps, irregular pulse, flat/inverted T-waves on ECG. Always monitor K+ in patients on Lasix. Teach to eat high-K+ foods (bananas, oranges, potatoes).'},
+
+// ── CH 15 ─────────────────────────────────────────────────
+{id:26,ch:15,label:'Ch 15',badge:'b15',type:'single',trap:true,
+stem:'A patient receiving a chemotherapy infusion through a peripheral IV complains of burning and severe pain at the site. The nurse notes blanching and tissue hardening around the insertion site. Which complication is occurring?',
+opts:[
+{l:'A',t:'Infiltration — nonvesicant fluid is leaking into surrounding tissue',r:'TRAP. Infiltration involves NONVESICANT fluids — those that do not cause tissue damage. Chemotherapy drugs are vesicants, making this a more serious complication.'},
+{l:'B',t:'Phlebitis — inflammation of the vein wall from the chemotherapy',r:'Phlebitis presents as redness, warmth, and tenderness along the vein — not blanching and tissue hardening.'},
+{l:'C',t:'Extravasation — a vesicant fluid is leaking into tissue causing necrosis',r:'',correct:true},
+{l:'D',t:'Air embolism — air entered the IV line',r:'Air embolism presents with sudden respiratory distress and cardiovascular collapse, not localized site pain and tissue changes.'}
+],
+correctR:'CORRECT. Extravasation = vesicant drug leaking into surrounding tissue. Chemotherapy = vesicant = causes blistering, tissue necrosis, and permanent damage. Must stop the infusion immediately. Infiltration = same leak but with a nonvesicant (saline, etc.) — less dangerous.',
+vocab:'Infiltration = nonvesicant leak = uncomfortable but not tissue-destroying. Extravasation = vesicant leak = TISSUE DAMAGE, blistering, necrosis. Vesicants include: chemotherapy, calcium, potassium, dopamine, vancomycin at high concentrations.'},
+
+{id:27,ch:15,label:'Ch 15',badge:'b15',type:'sata',trap:false,
+stem:'A nurse is reviewing orders for a patient with a midline catheter. Which medications or fluids are CONTRAINDICATED through a midline catheter? Select all that apply.',
+opts:[
+{l:'A',t:'Vesicant chemotherapy drugs',r:'',correct:true},
+{l:'B',t:'Total parenteral nutrition (TPN)',r:'',correct:true},
+{l:'C',t:'0.9% Normal Saline for hydration',r:'Normal saline is nonvesicant and has normal osmolarity — safe for midline.'},
+{l:'D',t:'Fluids with osmolarity greater than 600 mOsm/L',r:'',correct:true},
+{l:'E',t:'Peripheral blood draw for routine labs',r:'Midlines can be used for blood draws in many institutions — not a standard contraindication.'}
+],
+correctR:'A, B, D. Midline catheters do not enter a central vein, so they cannot rely on high blood flow for dilution. Vesicants cause tissue destruction, TPN is highly concentrated (hypertonic), and any fluid >600 mOsm/L will chemically burn the vessel wall. These MUST go through a central line (PICC or CVC).',
+vocab:'Midline catheter = longer than peripheral IV but shorter than PICC — tip sits in upper arm, not in a central vein. No vesicants. No TPN. No >600 mOsm/L solutions. These need a PICC or central line for the dilution power of the superior vena cava.'},
+
+{id:28,ch:15,label:'Ch 15',badge:'b15',type:'single',trap:true,
+stem:'A patient with a PICC line in the right arm reports sudden onset of right arm swelling and pain. The arm appears edematous and the skin is warm and erythematous. Which complication is MOST likely?',
+opts:[
+{l:'A',t:'Infiltration — the PICC tip has dislodged and fluid is leaking',r:'TRAP. Infiltration typically occurs with short peripheral IVs, not PICCs. PICCs have their tips in central veins where flow is high — fluid doesn\'t easily leak into tissue.'},
+{l:'B',t:'Deep Vein Thrombosis (DVT) or Thrombophlebitis',r:'',correct:true},
+{l:'C',t:'Local infection at the insertion site',r:'Infection presents with purulent drainage, fever, and localized redness at the site — not diffuse arm swelling.'},
+{l:'D',t:'Air embolism from the PICC line',r:'Air embolism presents with sudden respiratory distress, chest pain, and cardiovascular signs — not unilateral arm swelling.'}
+],
+correctR:'CORRECT. Sudden arm swelling + pain with a PICC = DVT or Thrombophlebitis until proven otherwise. The PICC catheter is a foreign body in the vein, increasing clot risk. Infiltration is a trap — it\'s the wrong complication for a PICC because central venous flow prevents leakage.',
+vocab:'PICC complications: DVT/thrombophlebitis (swelling, pain, warmth in entire arm), CLABSI (central line-associated bloodstream infection), air embolism, catheter migration. Infiltration = peripheral IV complication, not PICC. Key distinction the professor highlighted.'},
+
+{id:29,ch:15,label:'Ch 15',badge:'b15',type:'single',trap:false,
+stem:'A nurse is about to remove a central venous catheter (CVC). Which instruction should the nurse give the patient during the removal to prevent air embolism?',
+opts:[
+{l:'A',t:'"Take a deep breath in and hold it" (Valsalva maneuver)',r:'',correct:true},
+{l:'B',t:'"Take a deep breath in and exhale slowly and steadily"',r:'Exhaling during removal creates NEGATIVE intrathoracic pressure, which can suck air into the vessel as the catheter is withdrawn. This CAUSES air embolism, not prevents it.'},
+{l:'C',t:'"Breathe normally and try to relax"',r:'Normal breathing creates pressure fluctuations that increase air embolism risk during CVC removal.'},
+{l:'D',t:'"Hold your breath by exhaling fully first, then hold"',r:'Exhaling fully creates the most negative intrathoracic pressure — the highest risk for air entrainment.'}
+],
+correctR:'CORRECT. Valsalva maneuver (inhale and hold) increases intrathoracic pressure, which CLOSES the vein and PREVENTS air from being sucked in during CVC removal. This is standard protocol for all central line removals.',
+vocab:'Valsalva maneuver = inhale deeply and hold = increases intrathoracic pressure = closes venous lumen. Used for: CVC removal, port access, subclavian vein procedures. The opposite (exhaling) creates NEGATIVE pressure and OPENS the vein — air in = fatal air embolism.'},
+
+{id:30,ch:15,label:'Ch 15',badge:'b15',type:'single',trap:true,
+stem:'A patient with an intraosseous (IO) line placed in the proximal tibia during a code reports that the lower leg is becoming swollen, tight, and painful, and pulses below the knee are weakening. What complication is occurring?',
+opts:[
+{l:'A',t:'Osteomyelitis — bone infection from the IO needle',r:'Osteomyelitis is a risk of prolonged IO use (>24 hours), presenting with delayed bone pain, fever, and signs of infection — not acute tightness and lost pulses.'},
+{l:'B',t:'Fat embolism from marrow disruption',r:'Fat embolism presents with respiratory distress, petechiae, and confusion — not localized limb swelling with absent pulses.'},
+{l:'C',t:'Compartment syndrome from fluid infiltrating into the fascial compartment',r:'',correct:true},
+{l:'D',t:'Normal expected swelling from IO placement',r:'TRAP. Swelling, tightness, and diminishing pulses are never "normal" — these are the classic hallmarks of compartment syndrome.'}
+],
+correctR:'CORRECT. IO line complication to watch for: COMPARTMENT SYNDROME. If fluid infiltrates the fascial compartment of the lower leg, pressure builds → cuts off circulation → tissue/nerve death. The 5 Ps: Pain, Pressure, Pallor, Pulselessness, Paresthesia. IO lines also have a maximum 24-hour duration — must convert to IV access ASAP.',
+vocab:'Compartment syndrome = pressure builds inside a closed muscle compartment → blood supply cut off → tissue dies. IO + compartment syndrome: if fluid leaks outside the bone, it\'s trapped in the compartment. 5 Ps: Pain out of proportion, Pressure, Pallor, Pulselessness, Paresthesia. Always convert IO to IV within 24 hours.'}
+];
+
+let answered={};
+let chapterMap={10:[],11:[],12:[],13:[],14:[],15:[]};
+questions.forEach(q=>chapterMap[q.ch].push(q.id));
+
+function buildQuiz(){
+  const container=document.getElementById('quizContainer');
+  container.innerHTML='';
+  let lastCh=null;
+  questions.forEach(q=>{
+    if(q.ch!==lastCh){
+      const div=document.createElement('div');
+      div.className='ch-divider';
+      const chLabels={10:'Chapter 10 — Trauma & Emergency Triage',11:'Chapter 11 — Environmental Emergencies',12:'Chapter 12 — Disaster & Mass Casualty',13:'Chapter 13 — Fluid & Electrolytes',14:'Chapter 14 — Acid-Base & Electrolyte Imbalances',15:'Chapter 15 — Infusion Therapy'};
+      div.textContent=chLabels[q.ch];
+      container.appendChild(div);
+      lastCh=q.ch;
+    }
+    const card=document.createElement('div');
+    card.className='qcard';
+    card.id='qcard-'+q.id;
+    const trapBadge=q.trap?`<span class="badge btrap">TRAP</span>`:'';
+    const sataBadge=q.type==='sata'?`<span class="badge bsata">SATA</span>`:'';
+    const sataNote=q.type==='sata'?`<div class="sata-note">Select all that apply</div>`:'';
+    card.innerHTML=`
+      <div class="q-header">
+        <div class="q-num">Q${q.id}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end"><span class="badge ${q.badge}">${q.label}</span>${trapBadge}${sataBadge}</div>
+      </div>
+      <div class="q-text">${q.stem}</div>
+      ${sataNote}
+      <div class="opts" id="opts-${q.id}">
+        ${q.opts.map(o=>`
+          <div class="opt" id="opt-${q.id}-${o.l}" onclick="toggleOpt(${q.id},'${o.l}')">
+            <span class="opt-letter">${o.l}</span>
+            <span class="opt-text">${o.t}</span>
+          </div>`).join('')}
+      </div>
+      <div class="vocab-tip" id="vocab-${q.id}"><strong>Vocab / Concept:</strong> ${q.vocab}</div>
+      <div class="rationale" id="rat-${q.id}"></div>
+      <button class="submit-btn" id="sub-${q.id}" onclick="submitQ(${q.id})">Check Answer</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleOpt(qid,letter){
+  if(answered[qid])return;
+  const q=questions.find(x=>x.id===qid);
+  const el=document.getElementById(`opt-${qid}-${letter}`);
+  if(q.type==='sata'){
+    el.classList.toggle('selected');
+  } else {
+    document.querySelectorAll(`#opts-${qid} .opt`).forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+}
+
+function submitQ(qid){
+  const q=questions.find(x=>x.id===qid);
+  const selected=Array.from(document.querySelectorAll(`#opts-${qid} .opt.selected`)).map(el=>el.id.split('-')[2]);
+  if(selected.length===0)return;
+  answered[qid]=selected;
+  const correctLetters=q.opts.filter(o=>o.correct).map(o=>o.l);
+  const isCorrect=selected.length===correctLetters.length&&selected.every(l=>correctLetters.includes(l));
+  const card=document.getElementById('qcard-'+qid);
+  card.classList.add(isCorrect?'correct':'wrong');
+
+  q.opts.forEach(o=>{
+    const el=document.getElementById(`opt-${qid}-${o.l}`);
+    el.classList.remove('selected');
+    if(o.correct)el.classList.add('correct-opt');
+    else if(selected.includes(o.l))el.classList.add('wrong-opt');
+  });
+
+  let ratHtml='';
+  if(isCorrect) ratHtml=`<span class="correct-r">✓ Correct!</span> ${q.correctR}`;
+  else{
+    ratHtml=`<span class="wrong-r">✗ Incorrect.</span> ${q.correctR}<br><br>`;
+    q.opts.forEach(o=>{
+      if(selected.includes(o.l)&&!o.correct) ratHtml+=`<strong style="color:#f87171">You chose ${o.l}:</strong> ${o.r}<br>`;
+    });
+  }
+  const rat=document.getElementById('rat-'+qid);
+  rat.innerHTML=ratHtml;
+  rat.classList.add('show');
+  document.getElementById('vocab-'+qid).classList.add('show');
+  document.getElementById('sub-'+qid).disabled=true;
+
+  const total=questions.length;
+  const done=Object.keys(answered).length;
+  document.getElementById('progressFill').style.width=(done/total*100)+'%';
+  if(done===total)document.getElementById('finishBtn').style.display='block';
+}
+
+function showScore(){
+  let total=0,correct=0;
+  const chStats={};
+  [10,11,12,13,14,15].forEach(ch=>{chStats[ch]={c:0,t:0};});
+  questions.forEach(q=>{
+    const sel=answered[q.id]||[];
+    const correctLetters=q.opts.filter(o=>o.correct).map(o=>o.l);
+    const ok=sel.length===correctLetters.length&&sel.every(l=>correctLetters.includes(l));
+    total++;correct+=ok?1:0;
+    chStats[q.ch].t++;chStats[q.ch].c+=ok?1:0;
+  });
+  const pct=Math.round(correct/total*100);
+  const bigEl=document.getElementById('scoreBig');
+  bigEl.textContent=pct+'%';
+  bigEl.style.color=pct>=80?'#4ade80':pct>=70?'#fbbf24':'#f87171';
+  document.getElementById('scoreLabel').textContent=`${correct} / ${total} correct`;
+  const chEl=document.getElementById('chScores');
+  chEl.innerHTML='';
+  const chLabels={10:'Ch 10 Trauma',11:'Ch 11 Environmental',12:'Ch 12 Disaster',13:'Ch 13 Fluids',14:'Ch 14 Acid-Base',15:'Ch 15 Infusion'};
+  Object.entries(chStats).forEach(([ch,s])=>{
+    const p=Math.round(s.c/s.t*100);
+    const div=document.createElement('div');
+    div.className='ch-score';
+    div.innerHTML=`<div class="ch-score-label">${chLabels[ch]}</div><div class="ch-score-val" style="color:${p>=80?'#4ade80':p>=60?'#fbbf24':'#f87171'}">${s.c}/${s.t} — ${p}%</div>`;
+    chEl.appendChild(div);
+  });
+  try{
+    const history=JSON.parse(localStorage.getItem('examHistory')||'[]');
+    history.push({examId:'ms1-exam2-professor-only',date:new Date().toISOString(),score:pct,correct,total});
+    localStorage.setItem('examHistory',JSON.stringify(history.slice(-20)));
+  }catch(e){}
+  document.getElementById('scoreSection').classList.add('show');
+  document.getElementById('scoreSection').scrollIntoView({behavior:'smooth'});
+}
+
+function restartQuiz(){
+  answered={};
+  document.getElementById('scoreSection').classList.remove('show');
+  document.getElementById('finishBtn').style.display='none';
+  document.getElementById('progressFill').style.width='0%';
+  buildQuiz();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
