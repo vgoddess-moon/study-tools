@@ -307,7 +307,7 @@ function Dashboard() {
     if (ms !== null) setMindfulStreak(ms);
     const ce = storage.get('customEvents');
     if (ce) setCustomEvents(ce);
-    const eh = storage.get('examHistory') || [];
+    let eh = storage.get('examHistory') || [];
     const backfillKeys = [
       {key:'ms1-exam2-comprehensive-v2-last', id:'ms1-exam2-comprehensive-v2', label:'MS1 Exam 2 — Comprehensive v2 (30Q)'},
       {key:'ms1-exam2-comprehensive-v3-last', id:'ms1-exam2-comprehensive-v3', label:'MS1 Exam 2 — Comprehensive v3 (30Q)'}
@@ -321,6 +321,13 @@ function Dashboard() {
         changed = true;
       }
     });
+    // Deduplicate: remove entries with same examId, score, and correct count, keep only the latest
+    const dominated = new Set();
+    for (let i = eh.length - 1; i >= 0; i--) {
+      const key = eh[i].examId + '|' + eh[i].score + '|' + eh[i].correct;
+      if (dominated.has(key)) { eh.splice(i, 1); changed = true; }
+      else dominated.add(key);
+    }
     if (changed) localStorage.setItem('examHistory', JSON.stringify(eh.slice(-20)));
     setExamHistory(eh);
     // Load weather from cache
