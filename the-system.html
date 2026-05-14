@@ -307,8 +307,22 @@ function Dashboard() {
     if (ms !== null) setMindfulStreak(ms);
     const ce = storage.get('customEvents');
     if (ce) setCustomEvents(ce);
-    const eh = storage.get('examHistory');
-    if (eh) setExamHistory(eh);
+    const eh = storage.get('examHistory') || [];
+    const backfillKeys = [
+      {key:'ms1-exam2-comprehensive-v2-last', id:'ms1-exam2-comprehensive-v2', label:'MS1 Exam 2 — Comprehensive v2 (30Q)'},
+      {key:'ms1-exam2-comprehensive-v3-last', id:'ms1-exam2-comprehensive-v3', label:'MS1 Exam 2 — Comprehensive v3 (30Q)'}
+    ];
+    let changed = false;
+    backfillKeys.forEach(b => {
+      const raw = localStorage.getItem(b.key);
+      if (raw && !eh.find(e => e.examId === b.id)) {
+        const r = JSON.parse(raw);
+        eh.push({examId:b.id, examLabel:b.label, date:r.date || new Date().toISOString(), score:r.score, correct:r.correct, total:r.total, topicBreakdown:r.chapters || {}});
+        changed = true;
+      }
+    });
+    if (changed) localStorage.setItem('examHistory', JSON.stringify(eh.slice(-20)));
+    setExamHistory(eh);
     // Load weather from cache
     const wc = storage.get('weatherCache');
     if (wc && Date.now() - wc.timestamp < 1800000) {
