@@ -544,9 +544,11 @@ localStorage.setItem('examHistory',JSON.stringify(eh.slice(-20)));
 
 function restartQuiz(){
 answers={};submitted={};
+localStorage.removeItem(EXAM_ID+'-state');
 document.getElementById('scoreCard').style.display='none';
 buildQuiz();
 updateProgress();
+window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function saveState(){
