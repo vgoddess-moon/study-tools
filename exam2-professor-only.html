@@ -515,12 +515,15 @@ function submitQ(qid){
 
   let ratHtml='';
   if(isCorrect) ratHtml=`<span class="correct-r">✓ Correct!</span> ${q.correctR}`;
-  else{
-    ratHtml=`<span class="wrong-r">✗ Incorrect.</span> ${q.correctR}<br><br>`;
-    q.opts.forEach(o=>{
-      if(selected.includes(o.l)&&!o.correct) ratHtml+=`<strong style="color:#f87171">You chose ${o.l}:</strong> ${o.r}<br>`;
-    });
-  }
+  else ratHtml=`<span class="wrong-r">✗ Incorrect.</span> ${q.correctR}`;
+  ratHtml+='<br><br><strong style="color:#7dd3fc">All Options Explained:</strong><br>';
+  q.opts.forEach(o=>{
+    const icon=o.correct?'✓':'✗';
+    const color=o.correct?'#4ade80':selected.includes(o.l)?'#f87171':'#94a3b8';
+    const label=o.correct?'CORRECT':selected.includes(o.l)?'YOU CHOSE':'';
+    const ratText=o.correct?(o.r||'See full explanation above.'):(o.r||o.t);
+    ratHtml+=`<div style="margin:6px 0;padding:6px 8px;border-left:2px solid ${color};"><strong style="color:${color}">${icon} ${o.l}${label?' — '+label:''}:</strong> ${ratText}</div>`;
+  });
   const rat=document.getElementById('rat-'+qid);
   rat.innerHTML=ratHtml;
   rat.classList.add('show');
