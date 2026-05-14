@@ -530,6 +530,7 @@ Object.keys(chScores).forEach(ch=>{
 bd.innerHTML+=`<div class="ch-score"><div class="ch-label">${chNames[ch]}</div><div class="ch-val">${chScores[ch]}/${chTotals[ch]}</div></div>`;
 });
 document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 // Save to localStorage
 const record={score:pct,correct:total,total:questions.length,date:new Date().toISOString(),chapters:chScores};
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
