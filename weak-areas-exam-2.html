@@ -343,14 +343,16 @@ const QUESTIONS = [
 
   // ============ MIXED (3 Questions) ============
   {
-    id:23, topic:'Burns + Fluid', badge:'mixed', type:'single',
-    text:'A 80 kg patient sustained 45% TBSA burns 2 hours ago. Using the Parkland formula, the nurse calculates the total 24-hour fluid requirement. The burn occurred at 1400. What volume of lactated Ringer\'s should be infused between 1400 and 2200?',
-    vocabTip:'The Parkland formula is just multiplication: 4 mL x weight in kg x % burned = total fluids for 24 hours. The tricky part: you give HALF the total in the FIRST 8 hours from when the burn happened (not when they arrived at the hospital). The other half goes over the remaining 16 hours. So "1400 to 2200" = the first 8 hours = HALF the total. They try to trick you by making you think you need to calculate an hourly rate — just find the total and divide by 2.',
+    id:23, topic:'Electrolytes', badge:'mixed', type:'sata',
+    text:'A patient has been taking furosemide (a loop diuretic) daily for heart failure. Morning labs show K+ 2.8 mEq/L (normal 3.5–5.0). Which findings does the nurse expect in this patient? Select all that apply.',
+    vocabTip:'Hypokalemia (low potassium) has 3 classic effects: (1) Muscle effects — all muscle types are weaker (skeletal = weakness/cramps, smooth = constipation, cardiac = arrhythmias). (2) ECG changes — flat or inverted T-waves, U-waves appear. (3) Digoxin danger — low K+ makes cardiac cells MORE sensitive to digoxin, dramatically increasing toxicity risk even at "therapeutic" levels. Trick: peaked T-waves = HYPERkalemia (too much K+). Flat/absent T-waves = HYPOkalemia.',
     options:[
-      {l:'A', t:'7,200 mL', correct:true, rationale:'CORRECT. Parkland: 4 x 80 x 45 = 14,400 mL total for 24 hours. First 8 hours (1400-2200) gets HALF = 7,200 mL. This would be approximately 900 mL/hr during that window.'},
-      {l:'B', t:'14,400 mL', correct:false, rationale:'14,400 mL is the TOTAL 24-hour volume. The question asks for the first 8 hours only, which is half the total = 7,200 mL.'},
-      {l:'C', t:'3,600 mL', correct:false, rationale:'3,600 is one-quarter of the total. You may have divided by 4 instead of 2. The first 8 hours receives HALF (50%) of the total volume.'},
-      {l:'D', t:'5,400 mL', correct:false, rationale:'This doesn\'t correspond to the standard Parkland calculation. Total = 4 x 80 x 45 = 14,400. Half for first 8 hours = 7,200. Double-check your multiplication.'},
+      {l:'A', t:'Muscle weakness and fatigue', correct:true, rationale:'CORRECT. Hypokalemia reduces the resting membrane potential of muscle cells, making them harder to depolarize. This causes generalized skeletal muscle weakness, which can range from fatigue to profound weakness or even paralysis in severe cases.'},
+      {l:'B', t:'Flat or inverted T-waves on ECG', correct:true, rationale:'CORRECT. Hypokalemia causes characteristic ECG changes: flattening or inversion of T-waves, and the appearance of prominent U-waves (a small positive deflection after the T-wave). These reflect altered cardiac repolarization.'},
+      {l:'C', t:'Increased risk of digoxin toxicity', correct:true, rationale:'CORRECT. Hypokalemia and digoxin compete for the same receptor (Na+/K+ ATPase pump). When K+ is low, digoxin binds more readily, dramatically increasing toxicity risk even at otherwise therapeutic digoxin levels. A patient on digoxin with K+ of 2.8 is at high risk.'},
+      {l:'D', t:'Constipation', correct:true, rationale:'CORRECT. Hypokalemia also affects smooth muscle in the GI tract, reducing peristalsis. This leads to constipation, and in severe cases, paralytic ileus (complete absence of bowel motility).'},
+      {l:'E', t:'Peaked, tall T-waves on ECG', correct:false, rationale:'TRAP. Peaked T-waves are the hallmark ECG finding of HYPERkalemia (elevated K+), not hypokalemia. This is a classic exam trap. Low K+ = flat/inverted T-waves. High K+ = peaked T-waves.'},
+      {l:'F', t:'Hypertension', correct:false, rationale:'Hypokalemia does not cause hypertension. In fact, hypokalemia is more commonly associated with hypotension (especially orthostatic) due to reduced cardiac contractility and vascular smooth muscle tone. Loop diuretics also lower blood pressure.'},
     ]
   },
   {

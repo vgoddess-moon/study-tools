@@ -325,36 +325,36 @@ const QUESTIONS = [
 
   // ============ CH 11: BURNS / LIGHTNING ============
   {
-    id:6, ch:'Ch 11', topic:'Burns', badge:'ch11', type:'single',
-    text:'A patient sustained burns to the entire anterior trunk and both arms (circumferential). Using the Rule of Nines for an adult, what is the estimated total body surface area (TBSA) burned?',
-    vocabTip:'Rule of Nines (adult): Head = 9%, Each arm = 9%, Anterior trunk = 18%, Posterior trunk = 18%, Each leg = 18%, Perineum = 1%. This patient: anterior trunk (18%) + both arms (9% × 2 = 18%) = 36% TBSA. Burns >20% TBSA in adults require IV fluid resuscitation.',
+    id:6, ch:'Ch 11', topic:'Drowning', badge:'ch11', type:'single',
+    text:'A drowning victim is pulled from a cold lake after an estimated 20 minutes of submersion. Bystanders are surprised the patient has any chance of survival. Which physiological mechanism best explains why survival may still be possible despite prolonged submersion?',
+    vocabTip:'The diving reflex is triggered by cold water on the face: it causes immediate bradycardia (heart slows way down) and redirects blood to only the brain and heart. Cold also slows metabolism so cells need less oxygen. Together these protect the brain during submersion. Rule: "Not dead until warm and dead" — always attempt resuscitation on cold-water drowning victims.',
     options:[
-      {l:'A', t:'27% TBSA', correct:false, rationale:'27% would be anterior trunk (18%) + one arm (9%). The question specifies BOTH arms.'},
-      {l:'B', t:'36% TBSA', correct:true, rationale:'CORRECT. Anterior trunk = 18% + right arm = 9% + left arm = 9% = 36% TBSA. This exceeds 20%, requiring Parkland formula fluid resuscitation.'},
-      {l:'C', t:'45% TBSA', correct:false, rationale:'45% is too high. You may have added anterior + posterior trunk (36%) + one arm (9%). The question only mentions ANTERIOR trunk.'},
-      {l:'D', t:'54% TBSA', correct:false, rationale:'54% would include both anterior and posterior trunk (36%) plus both arms (18%). Only the anterior trunk is burned.'},
+      {l:'A', t:'The cold water caused vasodilation, improving tissue oxygenation', correct:false, rationale:'Cold water causes vasoconstriction, not vasodilation. Vasodilation would worsen heat loss and distribute blood away from core organs.'},
+      {l:'B', t:'Hypothermia combined with the diving reflex slowed metabolism and redirected blood to the brain and heart', correct:true, rationale:'CORRECT. The diving reflex (triggered by cold water on the face) causes bradycardia and shunts blood to the brain and heart. Hypothermia simultaneously reduces the body\'s oxygen demand. Together, these mechanisms can extend the window for neurologically intact survival beyond what would be expected in warm water.'},
+      {l:'C', t:'Warm water drowning has the same survival potential as cold water drowning', correct:false, rationale:'TRAP. Warm water drowning has WORSE outcomes than cold water. Cold water is protective because of the diving reflex and metabolic slowing. Warm water provides neither protective mechanism.'},
+      {l:'D', t:'The patient\'s young age caused natural apnea that preserved oxygen stores', correct:false, rationale:'Apnea does not preserve oxygen stores — it simply stops air exchange. The protective mechanism is the combination of hypothermia and the diving (mammalian dive) reflex, not breath-holding.'},
     ]
   },
   {
-    id:7, ch:'Ch 11', topic:'Burns', badge:'ch11', type:'single',
-    text:'A nurse is caring for a patient with a 40% TBSA burn, 70 kg, admitted 1 hour ago. Using the Parkland formula, how much lactated Ringer\'s should be infused in the FIRST 8 hours from the time of injury?',
-    vocabTip:'Parkland formula: 4 mL × kg × %TBSA = total 24-hour volume. Give HALF in the first 8 hours, the other half over the next 16 hours. The 8-hour clock starts from TIME OF INJURY, not time of hospital arrival.',
+    id:7, ch:'Ch 11', topic:'Lightning Injury', badge:'ch11', type:'single',
+    text:'A lightning strike victim is brought to the ED with complete paralysis and absent sensation in both lower extremities immediately after the strike. Thirty minutes later, the nurse reassesses and notes the patient is beginning to feel tingling in both feet and can wiggle his toes. Which condition does this presentation describe?',
+    vocabTip:'Keraunoparalysis comes from the Greek "kerauno" meaning thunderbolt. It is a unique, temporary paralysis caused by lightning that typically affects the lower limbs. It resolves within hours. Do NOT assume permanent spinal cord injury — the key clue is that it is IMPROVING. Always obtain spinal imaging, but the clinical picture points to keraunoparalysis, not cord transection.',
     options:[
-      {l:'A', t:'5,600 mL', correct:true, rationale:'CORRECT. Parkland: 4 × 70 × 40 = 11,200 mL total over 24 hours. Half in first 8 hours = 5,600 mL. The clock starts from time of injury.'},
-      {l:'B', t:'11,200 mL', correct:false, rationale:'11,200 mL is the full 24-hour total. The question asks for the FIRST 8 hours only, which is half = 5,600 mL.'},
-      {l:'C', t:'2,800 mL', correct:false, rationale:'2,800 mL is one-quarter of the total. The first 8 hours gets HALF (5,600 mL), and the remaining 16 hours gets the other half.'},
-      {l:'D', t:'4,200 mL', correct:false, rationale:'This doesn\'t correspond to any standard Parkland calculation. 4 × 70 × 40 = 11,200; half = 5,600.'},
+      {l:'A', t:'Spinal cord transection — the tingling indicates incomplete injury', correct:false, rationale:'TRAP. While spinal imaging should always be obtained, the rapid spontaneous improvement within 30 minutes is not consistent with cord transection. True transection does not reverse this quickly.'},
+      {l:'B', t:'Keraunoparalysis — temporary lower limb paralysis from lightning that typically resolves within hours', correct:true, rationale:'CORRECT. Keraunoparalysis is pathognomonic of lightning strike: immediate flaccid paralysis and sensory loss in the lower extremities that resolves spontaneously within minutes to hours. The improving exam is the key differentiator from permanent cord injury.'},
+      {l:'C', t:'Transient ischemic attack affecting the spinal cord', correct:false, rationale:'TIAs affect cerebral circulation and present with neurological symptoms above the neck (speech, vision, arm weakness). Bilateral lower extremity paralysis after lightning is keraunoparalysis, not a TIA.'},
+      {l:'D', t:'Conversion disorder triggered by the traumatic event', correct:false, rationale:'Conversion disorder is a diagnosis of exclusion. With a clear precipitating event (lightning strike) and a known physiological mechanism (keraunoparalysis), this is not conversion disorder. Do not dismiss lightning strike neurological findings as psychological.'},
     ]
   },
   {
-    id:8, ch:'Ch 11', topic:'Burns', badge:'ch11', type:'sata',
-    text:'A patient with a circumferential full-thickness burn to the right forearm is 6 hours post-injury. The nurse notes the fingers are pale, cool, and capillary refill is >4 seconds. Radial pulse is absent on Doppler. Which findings indicate the need for an escharotomy? Select all that apply.',
-    vocabTip:'Escharotomy = surgical cut through burned eschar (dead skin) to release pressure. Circumferential burns act like a tourniquet as edema builds underneath rigid eschar. Signs: 5 Ps of compartment syndrome — Pain, Pallor, Pulselessness, Paresthesia, Paralysis.',
+    id:8, ch:'Ch 11', topic:'Lightning Injury', badge:'ch11', type:'single',
+    text:'A patient who was struck by lightning has fern-like, branching reddish markings across the torso and left shoulder. The markings do not blister, and the skin does not blanch with pressure. The patient asks if the marks will scar. What should the nurse tell the patient about these findings?',
+    vocabTip:'Lichtenberg figures (also called "lightning flowers" or "keraunographic markings") are pathognomonic of lightning strike — meaning they ONLY occur from lightning and no other cause. They result from electron avalanche through superficial blood vessels, not thermal injury. They require NO wound care, NO debridement, and fade within 24–72 hours without scarring.',
     options:[
-      {l:'A', t:'Absent distal pulses', correct:true, rationale:'CORRECT. Loss of pulse distal to a circumferential burn indicates vascular compromise from increasing compartment pressure. This is a surgical emergency.'},
-      {l:'B', t:'Pale, cool fingers with delayed capillary refill', correct:true, rationale:'CORRECT. Pallor and coolness indicate inadequate arterial inflow — the eschar is acting as a tourniquet. Capillary refill >3 seconds is significant.'},
-      {l:'C', t:'Numbness and tingling reported by the patient', correct:true, rationale:'CORRECT. Paresthesias (numbness/tingling) indicate nerve compression from rising compartment pressure. This is an early sign before complete loss of sensation.'},
-      {l:'D', t:'Temperature of 101°F with elevated WBC count', correct:false, rationale:'Fever and elevated WBC suggest infection, not compartment syndrome. While important, this would not indicate a need for escharotomy.'},
+      {l:'A', t:'These are superficial thermal burns from the lightning flash and will need wound care and dressing changes', correct:false, rationale:'TRAP. Lichtenberg figures are NOT thermal burns. They are caused by electron discharge through superficial vessels. Treating them as burns with debridement or dressings is incorrect and unnecessary.'},
+      {l:'B', t:'These are Lichtenberg figures — pathognomonic of lightning strike. They are not burns, require no wound care, and will fade within days without scarring', correct:true, rationale:'CORRECT. Lichtenberg figures are the hallmark skin finding of lightning strike. They are purely a vascular phenomenon (not thermal), they do not cause tissue damage, they need no treatment, and they resolve spontaneously within 24–72 hours leaving no scar.'},
+      {l:'C', t:'The marks indicate deep tissue injury beneath the skin and the patient needs urgent surgical evaluation', correct:false, rationale:'Lichtenberg figures are superficial vascular markings with no underlying tissue injury. They do not indicate deep damage and do not require surgical evaluation.'},
+      {l:'D', t:'These marks are a sign of inadequate blood flow and the patient should be anticoagulated', correct:false, rationale:'Lichtenberg figures are not caused by clotting or circulatory obstruction. They represent electrical discharge through superficial vessels. Anticoagulation is not indicated.'},
     ]
   },
   {
@@ -369,14 +369,14 @@ const QUESTIONS = [
     ]
   },
   {
-    id:10, ch:'Ch 11', topic:'Smoke Inhalation', badge:'ch11', type:'single',
-    text:'A patient rescued from a house fire has singed nasal hairs, a hoarse voice, and carbonaceous (sooty) sputum. What is the nurse\'s priority concern?',
-    vocabTip:'Smoke inhalation triad: singed nasal/facial hair + hoarseness + sooty sputum = AIRWAY BURN. The airway will swell over the next 24-48 hours. If you wait for stridor, it may be too late to intubate. Priority: EARLY intubation before edema closes the airway.',
+    id:10, ch:'Ch 11', topic:'Heat Stroke', badge:'ch11', type:'single',
+    text:'A marathon runner collapses near the finish line on a hot, humid day. Paramedics confirm heat stroke: temperature 106°F (41.1°C), confused, not sweating. Which cooling method is the PRIORITY intervention?',
+    vocabTip:'Heat stroke = thermoregulation failure. The hypothalamus can no longer regulate temperature. Because it is NOT a fever (no pyrogen), antipyretics like acetaminophen or ibuprofen are USELESS — they work by blocking prostaglandins, but there are no prostaglandins causing this. Fastest cooling method = ice-water immersion. Goal: get temperature below 102°F (38.9°C) ASAP to prevent brain and organ damage.',
     options:[
-      {l:'A', t:'Carbon monoxide poisoning — administer 100% oxygen', correct:false, rationale:'CO poisoning IS a concern in house fires and 100% O2 is correct treatment for it, but the assessment findings described (singed hairs, hoarseness, sooty sputum) specifically indicate AIRWAY injury. The airway is the immediate priority.'},
-      {l:'B', t:'Impending airway obstruction — prepare for early intubation', correct:true, rationale:'CORRECT. Singed nasal hairs + hoarseness + carbonaceous sputum = inhalation injury to the upper airway. Edema will progress over 24-48 hours. Early elective intubation is the priority before swelling makes it impossible.'},
-      {l:'C', t:'Pneumonia risk — begin prophylactic antibiotics', correct:false, rationale:'Prophylactic antibiotics are not recommended for inhalation injury. The immediate concern is airway patency, not infection prevention.'},
-      {l:'D', t:'Fluid overload from resuscitation — restrict IV fluids', correct:false, rationale:'Burn patients need aggressive fluid resuscitation. Restricting fluids would be harmful. Fluid balance is a concern, but AIRWAY is always priority #1.'},
+      {l:'A', t:'Administer acetaminophen 1,000 mg to reduce the temperature', correct:false, rationale:'TRAP. Acetaminophen is useless in heat stroke. Antipyretics work by blocking prostaglandins that cause fever — but heat stroke is not caused by pyrogens. The hypothalamus has simply failed. Only physical cooling works.'},
+      {l:'B', t:'Apply cooling blankets and fans for gradual temperature reduction', correct:false, rationale:'Cooling blankets are too slow for heat stroke emergency. They are appropriate for mild hyperthermia but cannot achieve the rapid cooling rate needed when temperature is 106°F and the patient is confused.'},
+      {l:'C', t:'Ice-water immersion — the most rapid external cooling method', correct:true, rationale:'CORRECT. Ice-water immersion is the fastest and most effective cooling method for heat stroke. It can reduce core temperature by 0.2°C per minute. Speed of cooling is the primary determinant of survival and neurological outcome. This is the priority.'},
+      {l:'D', t:'Tepid sponge bath with a fan to promote evaporative cooling', correct:false, rationale:'Tepid sponge bathing is too slow for confirmed heat stroke at 106°F. Evaporative cooling is less effective than immersion in high-humidity environments and does not achieve the rapid temperature drop required.'},
     ]
   },
 
