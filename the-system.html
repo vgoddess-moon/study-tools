@@ -2279,7 +2279,7 @@ function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onG
         <div>
           <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Practice Exam Scores</p>
           <div className="space-y-2">
-            {examHistory.slice(0, 5).map((e, i) => {
+            {[...examHistory].sort((a,b) => new Date(b.date) - new Date(a.date)).map((e, i) => {
               const color = e.score >= 90 ? 'text-emerald-600' : e.score >= 78 ? 'text-amber-600' : 'text-red-500';
               const bg = e.score >= 90 ? 'bg-emerald-50 border-emerald-200' : e.score >= 78 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
               return (
