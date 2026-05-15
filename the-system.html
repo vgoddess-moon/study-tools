@@ -113,16 +113,15 @@ const storage = {
 
 // ============== DATA ==============
 const NURSING_EVENTS = [
-  { date: '2026-05-14T17:00:00', type: 'exam', label: 'Med Surg Exam #2', detail: 'Ch 10-15 · 5pm · DONE 100%', critical: true },
-  { date: '2026-05-21T17:00:00', type: 'exam', label: 'Exam 2 Retake', detail: 'Retake window' },
-  { date: '2026-05-28T17:00:00', type: 'quiz', label: 'Med Surg Quiz #4', detail: '5pm Thursday' },
-  { date: '2026-06-04T17:00:00', type: 'exam', label: 'Med Surg Exam #3', detail: 'Ch 16-21', critical: true },
-  { date: '2026-06-11T17:00:00', type: 'exam', label: 'Exam 3 Retake', detail: 'Retake window' },
-  { date: '2026-06-15T17:00:00', type: 'break', label: 'School Closed', detail: 'Juneteenth week' },
-  { date: '2026-06-25T17:00:00', type: 'exam', label: 'Med Surg Exam #4', detail: 'Ch 22-26', critical: true },
-  { date: '2026-07-02T17:00:00', type: 'exam', label: 'Exam 4 Retake', detail: 'Retake window' },
-  { date: '2026-07-09T17:00:00', type: 'exam', label: 'Med Surg Exam #5', detail: 'Ch 27-32', critical: true },
-  { date: '2026-07-16T17:00:00', type: 'final', label: 'Med Surg FINAL', detail: '5pm — biggest test', critical: true },
+  { date: '2026-04-23T17:00:00', type: 'exam', label: 'Med Surg Exam #1', detail: 'Ch 1-9 · 85%', critical: false },
+  { date: '2026-05-14T17:00:00', type: 'exam', label: 'Med Surg Exam #2', detail: 'Ch 10-15 · 100%', critical: false },
+  { date: '2026-05-28T17:00:00', type: 'quiz', label: 'Med Surg Quiz #4', detail: 'Pharmacology · 5pm Thu' },
+  { date: '2026-06-04T17:00:00', type: 'exam', label: 'Med Surg Exam #3', detail: 'Ch 16-21 · 5pm', critical: true },
+  { date: '2026-06-25T17:00:00', type: 'exam', label: 'Med Surg Exam #4', detail: 'Ch 22-26 · 5pm', critical: true },
+  { date: '2026-07-09T17:00:00', type: 'exam', label: 'Med Surg Exam #5', detail: 'Ch 27-32 · 5pm', critical: true },
+  { date: '2026-07-14T15:00:00', type: 'exam', label: 'Exam 5 Retake', detail: '3pm' },
+  { date: '2026-07-15T17:00:00', type: 'final', label: 'Mental Health Final', detail: '5pm', critical: true },
+  { date: '2026-07-16T17:00:00', type: 'final', label: 'Med Surg FINAL', detail: 'Ch 1-32 · 5pm', critical: true },
   { date: '2026-07-23T17:00:00', type: 'milestone', label: 'End of Term', detail: 'Concepts 1 complete' },
 ];
 
@@ -134,8 +133,7 @@ const LIFE_EVENTS = [
   { date: '2026-05-20', type: 'travel', label: 'Drive back from ATL', detail: 'Brunch + return', icon: '🚗' },
   { date: '2026-05-23', type: 'event', label: 'Wedding', detail: 'Port Saint Lucie', icon: '💍' },
   { date: '2026-05-25', type: 'holiday', label: 'Memorial Day', detail: '', icon: '🇺🇸' },
-  { date: '2026-06-05', type: 'event', label: "Keke's Birthday", detail: '7:30pm · Black & White', icon: '🎂' },
-  { date: '2026-06-07', type: 'event', label: "Cousin's Graduation", detail: '', icon: '🎓' },
+  { date: '2026-06-05', type: 'event', label: "Keke's Birthday + Cousin's Grad", detail: 'Fri · Black & White · 7:30pm', icon: '🎂🎓' },
   { date: '2026-06-19', type: 'holiday', label: 'Juneteenth', detail: '', icon: '✊🏾' },
   { date: '2026-06-20', type: 'work', label: 'New Hire Breakfast', detail: 'JFK North 7:30-11:30am', icon: '☕' },
   { date: '2026-07-04', type: 'holiday', label: 'Independence Day', detail: '', icon: '🎆' },
@@ -975,12 +973,10 @@ function AddressEditor({ address, addresses, onSave, onClose }) {
 // ============== EXAM COUNTDOWN TIMELINE ==============
 function ExamCountdownTimeline() {
   const EXAM_SCHEDULE = [
+    { date: '2026-04-23T17:00:00', label: 'Exam 1', chapters: 'Ch 1-9', completed: true, score: 85 },
     { date: '2026-05-14T17:00:00', label: 'Exam 2', chapters: 'Ch 10-15', completed: true, score: 100 },
-    { date: '2026-05-21T17:00:00', label: 'Exam 2 Retake', chapters: '', retake: true },
     { date: '2026-06-04T17:00:00', label: 'Exam 3', chapters: 'Ch 16-21' },
-    { date: '2026-06-11T17:00:00', label: 'Exam 3 Retake', chapters: '', retake: true },
     { date: '2026-06-25T17:00:00', label: 'Exam 4', chapters: 'Ch 22-26' },
-    { date: '2026-07-02T17:00:00', label: 'Exam 4 Retake', chapters: '', retake: true },
     { date: '2026-07-09T17:00:00', label: 'Exam 5', chapters: 'Ch 27-32' },
     { date: '2026-07-16T17:00:00', label: 'Final', chapters: 'Ch 1-32', isFinal: true },
   ];
@@ -988,7 +984,7 @@ function ExamCountdownTimeline() {
   const TRIP = { start: '2026-05-16', end: '2026-05-20', label: 'Atlanta Trip' };
 
   const now = new Date();
-  const semStart = new Date('2026-05-14T17:00:00');
+  const semStart = new Date('2026-04-23T17:00:00');
   const semEnd = new Date('2026-07-16T17:00:00');
   const totalSpan = semEnd - semStart;
   const progress = Math.max(0, Math.min(100, ((now - semStart) / totalSpan) * 100));
@@ -1024,7 +1020,7 @@ function ExamCountdownTimeline() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-lg font-semibold text-stone-900">{nextExam.label}</p>
-            <p className="text-xs text-stone-500">{nextExam.chapters || (nextExam.retake ? 'Retake window' : '')}</p>
+            <p className="text-xs text-stone-500">{nextExam.chapters || ''}</p>
           </div>
           <div className="text-right">
             <p className="mono text-2xl font-bold" style={{color: daysToNext <= 3 ? '#ef4444' : '#ec4899'}}>{daysToNext}d {hoursToNext}h</p>
@@ -1055,13 +1051,13 @@ function ExamCountdownTimeline() {
             <div key={i} className="absolute" style={{left: `${Math.min(pos, 98)}%`, top: '-2px', transform: 'translateX(-50%)'}}>
               <div className="flex flex-col items-center" style={{width: '20px'}}>
                 <div style={{
-                  width: isNext ? 14 : exam.retake ? 6 : 10,
-                  height: isNext ? 14 : exam.retake ? 6 : 10,
+                  width: isNext ? 14 : 10,
+                  height: isNext ? 14 : 10,
                   borderRadius: '50%',
                   background: exam.completed ? '#22c55e' : isNext ? '#ec4899' : isPast ? '#94a3b8' : '#cbd5e1',
                   border: isNext ? '2px solid #fff' : 'none',
                   boxShadow: isNext ? '0 0 0 2px #ec4899' : 'none',
-                  marginTop: isNext ? '-1px' : exam.retake ? '5px' : '3px',
+                  marginTop: isNext ? '-1px' : '3px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '7px', color: '#fff', fontWeight: 700,
                 }}>
@@ -1076,7 +1072,7 @@ function ExamCountdownTimeline() {
       {/* Legend row */}
       <div className="flex items-center justify-between mt-1">
         <div className="flex items-center gap-3 flex-wrap">
-          {EXAM_SCHEDULE.filter(e => !e.retake).map((exam, i) => {
+          {EXAM_SCHEDULE.map((exam, i) => {
             const isPast = new Date(exam.date) < now;
             return (
               <div key={i} className="flex items-center gap-1">
