@@ -9,178 +9,320 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',system-ui,sans-serif;min-height:100vh;padding:24px 16px 60px}
 .wrap{max-width:600px;margin:0 auto}
-h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;background:linear-gradient(135deg,#818cf8,#c084fc,#e09a3a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;background:linear-gradient(135deg,#ec4899,#f472b6,#e09a3a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sub{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin-bottom:32px}
-.section-label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;margin-top:28px}
-.card{display:block;background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:18px 20px;margin-bottom:10px;text-decoration:none;transition:.2s;cursor:pointer}
-.card:hover{border-color:#334155;transform:translateY(-2px)}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.card-title{font-size:1rem;font-weight:700;color:#f1f5f9;margin-bottom:4px}
-.card-desc{font-size:.8rem;color:#64748b;line-height:1.5}
-.badge{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0}
-.ms1{background:#1e3a5f;color:#7dd3fc}
-.recall{background:#1e1b4b;color:#a5b4fc}
-.vocab{background:#312e81;color:#c4b5fd}
-.system{background:#1c1a10;color:#fbbf24}
-.arrow{color:#334155;font-size:1.2rem;margin-top:2px}
-.exam-banner{background:linear-gradient(135deg,#1e1b4b,#1a0a2e);border:1px solid #4c1d95;border-radius:14px;padding:16px 20px;margin-bottom:28px;display:flex;align-items:center;gap:12px}
+
+/* Exam Banner */
+.exam-banner{background:linear-gradient(135deg,#831843,#4a0626);border:1px solid #ec4899;border-radius:14px;padding:16px 20px;margin-bottom:28px;display:flex;align-items:center;gap:12px}
 .exam-banner .icon{font-size:1.8rem}
-.exam-banner .label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#a78bfa;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.exam-banner .label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#f472b6;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
 .exam-banner .title{font-size:.95rem;font-weight:700;color:#f1f5f9}
 .exam-banner .eta{font-family:'IBM Plex Mono',monospace;font-size:1.3rem;font-weight:700;color:#fbbf24;margin-left:auto;white-space:nowrap}
+.exam-banner-complete{background:linear-gradient(135deg,#052e16,#0a3a1a);border-color:#22c55e}
+.exam-banner-complete .label{color:#4ade80}
+.exam-banner-complete .eta{color:#4ade80}
+
+/* Accordion */
+.accordion{margin-bottom:12px}
+.accordion-header{display:flex;align-items:center;gap:10px;background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:16px 20px;cursor:pointer;transition:.2s;user-select:none;width:100%}
+.accordion-header:hover{border-color:#ec4899;background:#17111e}
+.accordion-header.open{border-radius:14px 14px 0 0;border-bottom-color:#2a1525;background:#17111e;border-color:#ec4899}
+.accordion-chevron{font-size:.75rem;color:#ec4899;transition:transform .25s ease;flex-shrink:0;width:20px;text-align:center}
+.accordion-header.open .accordion-chevron{transform:rotate(90deg)}
+.accordion-title{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#f1f5f9;flex:1}
+.accordion-tag{font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.tag-complete{background:#052e16;color:#4ade80}
+.tag-soon{background:#831843;color:#f472b6}
+.tag-progress{background:#422006;color:#fbbf24}
+.tag-count{background:#1e1525;color:#f472b6}
+.accordion-body{background:#111620;border:1px solid #ec4899;border-top:none;border-radius:0 0 14px 14px;padding:8px 12px 12px;display:none}
+.accordion-body.open{display:block}
+.accordion-note{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#64748b;text-align:center;padding:24px 12px;letter-spacing:.05em}
+
+/* Cards */
+.card{display:block;background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:14px 16px;margin-bottom:8px;text-decoration:none;transition:.2s;cursor:pointer}
+.card:hover{border-color:#ec4899;transform:translateY(-2px);background:#17111e}
+.card:first-child{margin-top:4px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-title{font-size:.95rem;font-weight:700;color:#f1f5f9;margin-bottom:3px}
+.card-desc{font-size:.75rem;color:#64748b;line-height:1.4}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.ms1{background:#1e1525;color:#f472b6}
+.recall{background:#1e1525;color:#f472b6}
+.vocab{background:#2a1525;color:#fda4af}
+.system{background:#1c1a10;color:#fbbf24}
+.verified{background:#052e16;color:#4ade80}
+
+/* Score badge */
+.score-badge{font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:600;color:#4ade80;background:#052e16;padding:2px 7px;border-radius:8px;margin-left:8px;white-space:nowrap}
+
+/* Section label for non-accordion items */
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;margin-top:28px}
+
+/* Sub-section labels inside accordion */
+.sub-label{font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:#64748b;letter-spacing:.12em;text-transform:uppercase;margin:12px 0 4px 4px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Study Tools</h1>
-  <p class="sub">vgoddess-moon · Med Surg 1 & 2</p>
+  <p class="sub">vgoddess-moon &middot; Med Surg 1 &amp; 2</p>
 
+  <!-- Exam Banner -->
   <div class="exam-banner" id="examBanner" style="display:none">
-    <div class="icon">📚</div>
+    <div class="icon">&#128218;</div>
     <div>
-      <div class="label">Exam Mode Active</div>
-      <div class="title" id="examTitle">Med Surg Exam #2</div>
+      <div class="label" id="examLabel">Exam Mode Active</div>
+      <div class="title" id="examTitle">—</div>
     </div>
     <div class="eta" id="examEta">—</div>
   </div>
 
-  <div class="section-label">✅ Professor-Confirmed Only (No Parkland · No Rule of Nines · No Escharotomy)</div>
-  <a class="card" href="exam2-professor-only.html" style="border-color:#16a34a">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Professor-Confirmed Only ★ START HERE</div>
-        <div class="card-desc">30Q · 5/chapter · Only professor-verified testable content · All traps · SATA · Clean rationales</div>
-      </div>
-      <span class="badge" style="background:#052e16;color:#4ade80">VERIFIED</span>
+  <!-- Exam 1 -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <span class="accordion-chevron">&#9654;</span>
+      <span class="accordion-title">Med Surg 1 — Exam 1</span>
+      <span class="accordion-tag tag-soon">Coming Soon</span>
     </div>
-  </a>
+    <div class="accordion-body">
+      <p class="accordion-note">Practice exams for Exam 1 will be added here.</p>
+    </div>
+  </div>
 
-  <div class="section-label">Comprehensive Exams (Professor's Format · 30Q · 5/Chapter)</div>
-  <a class="card" href="exam2-comprehensive.html" style="border-color:#4c1d95">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Comprehensive v1</div>
-        <div class="card-desc">30 questions · 5 per chapter · Ch 10-15 · Diagrams · Vocab tips · Analytics</div>
-      </div>
-      <span class="badge ms1">MS1 · E2 ★★★</span>
+  <!-- Exam 2 -->
+  <div class="accordion">
+    <div class="accordion-header open" onclick="toggleAccordion(this)">
+      <span class="accordion-chevron">&#9654;</span>
+      <span class="accordion-title">Med Surg 1 — Exam 2</span>
+      <span class="accordion-tag tag-complete">&#10003; Complete</span>
+      <span class="accordion-tag tag-count" id="exam2Count">8 exams</span>
     </div>
-  </a>
-  <a class="card" href="exam2-comprehensive-v2.html" style="border-color:#4c1d95">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Comprehensive v2</div>
-        <div class="card-desc">30 NEW questions · 5 per chapter · Different scenarios · Simple vocab tips · Trap badges</div>
-      </div>
-      <span class="badge ms1">MS1 · E2 ★★★</span>
-    </div>
-  </a>
-  <a class="card" href="exam2-comprehensive-v3.html" style="border-color:#4c1d95">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Comprehensive v3</div>
-        <div class="card-desc">30 NEW questions · 5 per chapter · All-new patients · ELI5 explanations · Trap badges</div>
-      </div>
-      <span class="badge ms1">MS1 · E2 ★★★</span>
-    </div>
-  </a>
+    <div class="accordion-body open">
 
-  <div class="section-label">Weak Areas (Electrolytes · Infusion · ABG · SATA-Heavy)</div>
-  <a class="card" href="weak-areas-exam-1.html">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Weak Areas v1</div>
-        <div class="card-desc">25 questions · 8 electrolyte · 8 infusion · 6 ABG · 3 mixed · 12 SATA · Simple explanations</div>
-      </div>
-      <span class="badge recall">Weak · SATA</span>
-    </div>
-  </a>
-  <a class="card" href="weak-areas-exam-2.html">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Weak Areas v2</div>
-        <div class="card-desc">25 NEW questions · SATA-heavy (12+) · DKA · PICC · TPN · Transfusion reactions · Rate calcs</div>
-      </div>
-      <span class="badge recall">Weak · SATA</span>
-    </div>
-  </a>
+      <div class="sub-label">&#9989; Professor-Confirmed Only</div>
+      <a class="card" href="exam2-professor-only.html" data-exam-id="ms1-exam2-professor-only">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Professor-Confirmed Only <span style="color:#4ade80">&#9733; START HERE</span></div>
+            <div class="card-desc">30Q &middot; 5/chapter &middot; Only professor-verified testable content &middot; All traps &middot; SATA &middot; Clean rationales</div>
+          </div>
+          <span class="badge verified">VERIFIED</span>
+        </div>
+      </a>
 
-  <div class="section-label">Earlier Versions</div>
-  <a class="card" href="final-exam-prep-v2.html">
-    <div class="card-top">
-      <div>
-        <div class="card-title">MS1 Exam 2 — v2 (Visual)</div>
-        <div class="card-desc">25 questions · Anatomy diagrams · Vein maps · Gauge chart · ABG reference · Vocab tips</div>
-      </div>
-      <span class="badge ms1">MS1 · E2</span>
-    </div>
-  </a>
-  <a class="card" href="final-exam-prep.html">
-    <div class="card-top">
-      <div>
-        <div class="card-title">MS1 Exam 2 — Final Draft v1</div>
-        <div class="card-desc">25 questions · Weak-area targeted · Heat/Cold/Electrolytes/ABG/Infusion · Rationales</div>
-      </div>
-      <span class="badge ms1">MS1 · E2</span>
-    </div>
-  </a>
-  <a class="card" href="practice-exam.html">
-    <div class="card-top">
-      <div>
-        <div class="card-title">MS1 Exam 2 — Practice (Original)</div>
-        <div class="card-desc">25 NCLEX-style questions · Ch. 10–15 · Difficulty tiers · Full rationales · Analytics</div>
-      </div>
-      <span class="badge ms1">MS1 · E2</span>
-    </div>
-  </a>
-  <a class="card" href="vocab-quiz.html">
-    <div class="card-top">
-      <div>
-        <div class="card-title">Vocab Quiz — 3 Tiers</div>
-        <div class="card-desc">29 terms · Professor → HESI → NCLEX · Word breakdowns · Mnemonics · Clinical context</div>
-      </div>
-      <span class="badge vocab">Vocab</span>
-    </div>
-  </a>
+      <div class="sub-label">Comprehensive Exams (30Q &middot; 5/Chapter)</div>
+      <a class="card" href="exam2-comprehensive.html" data-exam-id="ms1-exam2-comprehensive">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v1</div>
+            <div class="card-desc">30 questions &middot; 5 per chapter &middot; Ch 10-15 &middot; Diagrams &middot; Vocab tips &middot; Analytics</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E2</span>
+        </div>
+      </a>
+      <a class="card" href="exam2-comprehensive-v2.html" data-exam-id="ms1-exam2-comprehensive-v2">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v2</div>
+            <div class="card-desc">30 NEW questions &middot; 5 per chapter &middot; Different scenarios &middot; Trap badges</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E2</span>
+        </div>
+      </a>
+      <a class="card" href="exam2-comprehensive-v3.html" data-exam-id="ms1-exam2-comprehensive-v3">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v3</div>
+            <div class="card-desc">30 NEW questions &middot; 5 per chapter &middot; All-new patients &middot; ELI5 explanations &middot; Trap badges</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E2</span>
+        </div>
+      </a>
 
+      <div class="sub-label">Weak Areas (Electrolytes &middot; Infusion &middot; ABG &middot; SATA-Heavy)</div>
+      <a class="card" href="weak-areas-exam-1.html" data-exam-id="ms1-exam2-weak-areas">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Weak Areas v1</div>
+            <div class="card-desc">25 questions &middot; 8 electrolyte &middot; 8 infusion &middot; 6 ABG &middot; 3 mixed &middot; 12 SATA</div>
+          </div>
+          <span class="badge recall">Weak &middot; SATA</span>
+        </div>
+      </a>
+      <a class="card" href="weak-areas-exam-2.html" data-exam-id="ms1-exam2-weak-areas-v2">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Weak Areas v2</div>
+            <div class="card-desc">25 NEW questions &middot; SATA-heavy (12+) &middot; DKA &middot; PICC &middot; TPN &middot; Transfusion reactions</div>
+          </div>
+          <span class="badge recall">Weak &middot; SATA</span>
+        </div>
+      </a>
+
+      <div class="sub-label">Earlier Versions</div>
+      <a class="card" href="final-exam-prep-v2.html">
+        <div class="card-top">
+          <div>
+            <div class="card-title">MS1 Exam 2 — v2 (Visual)</div>
+            <div class="card-desc">25 questions &middot; Anatomy diagrams &middot; Vein maps &middot; Gauge chart &middot; ABG reference</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E2</span>
+        </div>
+      </a>
+      <a class="card" href="final-exam-prep.html">
+        <div class="card-top">
+          <div>
+            <div class="card-title">MS1 Exam 2 — Final Draft v1</div>
+            <div class="card-desc">25 questions &middot; Weak-area targeted &middot; Heat/Cold/Electrolytes/ABG/Infusion</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E2</span>
+        </div>
+      </a>
+      <a class="card" href="practice-exam.html">
+        <div class="card-top">
+          <div>
+            <div class="card-title">MS1 Exam 2 — Practice (Original)</div>
+            <div class="card-desc">25 NCLEX-style questions &middot; Ch. 10-15 &middot; Difficulty tiers &middot; Full rationales</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E2</span>
+        </div>
+      </a>
+
+      <div class="sub-label">Vocabulary</div>
+      <a class="card" href="vocab-quiz.html">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Vocab Quiz — 3 Tiers</div>
+            <div class="card-desc">29 terms &middot; Professor &rarr; HESI &rarr; NCLEX &middot; Word breakdowns &middot; Mnemonics</div>
+          </div>
+          <span class="badge vocab">Vocab</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Exam 3 -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <span class="accordion-chevron">&#9654;</span>
+      <span class="accordion-title">Med Surg 1 — Exam 3</span>
+      <span class="accordion-tag tag-progress">In Progress</span>
+    </div>
+    <div class="accordion-body">
+      <p class="accordion-note">Ch 16-21 &middot; Practice exams are being built and will appear here soon.</p>
+    </div>
+  </div>
+
+  <!-- Active Recall -->
   <div class="section-label">Active Recall</div>
   <a class="card" href="active-recall.html">
     <div class="card-top">
       <div>
         <div class="card-title">Active Recall App</div>
-        <div class="card-desc">50 cards · MS1 & MS2 · Keyboard + Pencil · Progressive reveal · Shuffle · Missed Only mode</div>
+        <div class="card-desc">50 cards &middot; MS1 &amp; MS2 &middot; Keyboard + Pencil &middot; Progressive reveal &middot; Shuffle &middot; Missed Only mode</div>
       </div>
       <span class="badge recall">50 Cards</span>
     </div>
   </a>
 
+  <!-- Dashboard -->
   <div class="section-label">Dashboard</div>
   <a class="card" href="the-system.html">
     <div class="card-top">
       <div>
         <div class="card-title">The System</div>
-        <div class="card-desc">Daily check-in · Weather · Meditation · Study tracker · Side hustle · Road ahead</div>
+        <div class="card-desc">Daily check-in &middot; Weather &middot; Meditation &middot; Study tracker &middot; Side hustle &middot; Road ahead</div>
       </div>
       <span class="badge system">Life OS</span>
     </div>
   </a>
 </div>
+
 <script>
+/* Accordion toggle */
+function toggleAccordion(header){
+  const body=header.nextElementSibling;
+  const isOpen=header.classList.contains('open');
+  if(isOpen){
+    header.classList.remove('open');
+    body.classList.remove('open');
+  }else{
+    header.classList.add('open');
+    body.classList.add('open');
+  }
+}
+
+/* Exam countdown banner */
 const exams=[
-  {date:'2026-05-14T17:00:00',label:'Med Surg Exam #2'},
-  {date:'2026-06-04T17:00:00',label:'Med Surg Exam #3'},
-  {date:'2026-06-25T17:00:00',label:'Med Surg Exam #4'},
-  {date:'2026-07-09T17:00:00',label:'Med Surg Exam #5'},
-  {date:'2026-07-16T17:00:00',label:'Med Surg FINAL'}
+  {date:'2026-05-14T17:00:00',label:'Med Surg Exam #2',chapters:'Ch 10-15',passed:true},
+  {date:'2026-06-04T17:00:00',label:'Med Surg Exam #3',chapters:'Ch 16-21',passed:false},
+  {date:'2026-06-25T17:00:00',label:'Med Surg Exam #4',chapters:'Ch 22-26',passed:false},
+  {date:'2026-07-09T17:00:00',label:'Med Surg Exam #5',chapters:'Ch 27-32',passed:false},
+  {date:'2026-07-16T17:00:00',label:'Med Surg FINAL',chapters:'Ch 1-32',passed:false}
 ];
 const now=new Date();
-const next=exams.map(e=>({...e,diff:new Date(e.date)-now})).filter(e=>e.diff>0).sort((a,b)=>a.diff-b.diff)[0];
-if(next&&next.diff<7*86400000){
-  const days=Math.floor(next.diff/86400000);
-  const hrs=Math.floor((next.diff%86400000)/3600000);
-  document.getElementById('examBanner').style.display='flex';
-  document.getElementById('examTitle').textContent=next.label;
-  document.getElementById('examEta').textContent=days>0?`${days}d ${hrs}h`:`${hrs}h`;
+const banner=document.getElementById('examBanner');
+
+/* Show the next upcoming exam, or the most recently passed one if within 24h */
+const upcoming=exams.filter(e=>new Date(e.date)>now).sort((a,b)=>new Date(a.date)-new Date(b.date));
+const passed=exams.filter(e=>e.passed);
+
+if(upcoming.length>0){
+  const next=upcoming[0];
+  const diff=new Date(next.date)-now;
+  if(diff<14*86400000){
+    const days=Math.floor(diff/86400000);
+    const hrs=Math.floor((diff%86400000)/3600000);
+    banner.style.display='flex';
+    document.getElementById('examLabel').textContent='Next Exam';
+    document.getElementById('examTitle').textContent=next.label+' ('+next.chapters+')';
+    document.getElementById('examEta').textContent=days>0?days+'d '+hrs+'h':hrs+'h';
+  }
 }
+
+/* Score badges from localStorage */
+const examIds={
+  'ms1-exam2-comprehensive':'exam2-comprehensive.html',
+  'ms1-exam2-comprehensive-v2':'exam2-comprehensive-v2.html',
+  'ms1-exam2-comprehensive-v3':'exam2-comprehensive-v3.html',
+  'ms1-exam2-professor-only':'exam2-professor-only.html',
+  'ms1-exam2-weak-areas':'weak-areas-exam-1.html',
+  'ms1-exam2-weak-areas-v2':'weak-areas-exam-2.html'
+};
+
+Object.keys(examIds).forEach(function(id){
+  try{
+    const raw=localStorage.getItem('examHistory');
+    if(!raw)return;
+    const history=JSON.parse(raw);
+    let best=-1;
+    if(Array.isArray(history)){
+      history.forEach(function(entry){
+        if(entry.examId===id&&typeof entry.score==='number'&&entry.score>best)best=entry.score;
+        if(entry.examId===id&&typeof entry.percentage==='number'&&entry.percentage>best)best=entry.percentage;
+      });
+    }else if(history[id]){
+      const entries=Array.isArray(history[id])?history[id]:[history[id]];
+      entries.forEach(function(entry){
+        const s=entry.score||entry.percentage||0;
+        if(s>best)best=s;
+      });
+    }
+    if(best>=0){
+      const card=document.querySelector('[data-exam-id="'+id+'"]');
+      if(card){
+        const titleEl=card.querySelector('.card-title');
+        if(titleEl){
+          const badge=document.createElement('span');
+          badge.className='score-badge';
+          badge.textContent='Best: '+Math.round(best)+'%';
+          titleEl.appendChild(badge);
+        }
+      }
+    }
+  }catch(e){}
+});
 </script>
 </body>
 </html>

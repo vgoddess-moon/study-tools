@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="The System">
-<meta name="theme-color" content="#fafaf9">
+<meta name="theme-color" content="#0c0f14">
 <title>The System</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%231c1917'/%3E%3Ctext x='50%25' y='58%25' font-family='Georgia,serif' font-size='100' font-style='italic' fill='%23fbbf24' text-anchor='middle' dominant-baseline='middle'%3Ets%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -28,9 +28,52 @@ body { font-family: 'Fraunces', Georgia, serif; -webkit-tap-highlight-color: tra
 .breathe-out { animation: breathe-contract linear forwards; }
 .breathe-hold { animation: breathe-hold linear forwards; }
 input, textarea { font-family: inherit; }
+/* Dark mode */
+body.dark { background: #0c0f14; color: #e2e8f0; }
+body.dark .bg-stone-50, body.dark .min-h-screen.bg-stone-50 { background: #0c0f14; }
+body.dark .bg-white, body.dark .bg-stone-100 { background: #13181f; }
+body.dark .bg-stone-200\/50 { background: rgba(30,41,59,0.5); }
+body.dark .border-stone-200, body.dark .border-stone-300 { border-color: #1e293b; }
+body.dark .text-stone-900 { color: #e2e8f0; }
+body.dark .text-stone-800 { color: #cbd5e1; }
+body.dark .text-stone-700 { color: #94a3b8; }
+body.dark .text-stone-600 { color: #94a3b8; }
+body.dark .text-stone-500 { color: #64748b; }
+body.dark .text-stone-400 { color: #475569; }
+body.dark .text-amber-700 { color: #f472b6; }
+body.dark .text-amber-900 { color: #ec4899; }
+body.dark .text-amber-300 { color: #f472b6; }
+body.dark .bg-amber-100 { background: rgba(236,72,153,0.15); }
+body.dark .bg-amber-50 { background: rgba(236,72,153,0.1); }
+body.dark .border-amber-200 { border-color: rgba(236,72,153,0.3); }
+body.dark .bg-stone-900 { background: #1e293b; }
+body.dark .text-stone-50 { color: #e2e8f0; }
+body.dark .bg-rose-100 { background: rgba(244,114,182,0.15); }
+body.dark .text-rose-800 { color: #f472b6; }
+body.dark .bg-pink-50 { background: rgba(236,72,153,0.1); }
+body.dark .border-pink-200 { border-color: rgba(236,72,153,0.25); }
+body.dark .bg-pink-100 { background: rgba(236,72,153,0.15); }
+body.dark .text-pink-800 { color: #f472b6; }
+body.dark .bg-emerald-100 { background: rgba(16,185,129,0.15); }
+body.dark .border-emerald-300 { border-color: rgba(16,185,129,0.3); }
+body.dark .text-emerald-900, body.dark .text-emerald-800 { color: #34d399; }
+body.dark .bg-rose-100 { background: rgba(244,63,94,0.15); }
+body.dark .border-rose-300 { border-color: rgba(244,63,94,0.3); }
+body.dark .text-rose-800 { color: #fb7185; }
+body.dark .bg-amber-100 { background: rgba(236,72,153,0.15); }
+body.dark .border-amber-300 { border-color: rgba(236,72,153,0.3); }
+body.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+body.dark input, body.dark textarea { background: #13181f; border-color: #1e293b; color: #e2e8f0; }
+body.dark input::placeholder, body.dark textarea::placeholder { color: #475569; }
+body.dark .bg-stone-900.text-stone-50 { background: #1e293b; }
+.dark-toggle { cursor: pointer; background: none; border: none; font-size: 18px; line-height: 1; padding: 2px; }
 </style>
 </head>
 <body class="bg-stone-50">
+<script>
+  // Apply dark mode immediately to prevent flash
+  if (localStorage.getItem('darkMode') !== 'false') document.body.classList.add('dark');
+</script>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useMemo, useCallback, useRef } = React;
@@ -70,12 +113,14 @@ const storage = {
 
 // ============== DATA ==============
 const NURSING_EVENTS = [
-  { date: '2026-05-14T17:00:00', type: 'exam', label: 'Med Surg Exam #2', detail: 'Ch 10-15 · 5pm', critical: true },
+  { date: '2026-05-14T17:00:00', type: 'exam', label: 'Med Surg Exam #2', detail: 'Ch 10-15 · 5pm · DONE 100%', critical: true },
+  { date: '2026-05-21T17:00:00', type: 'exam', label: 'Exam 2 Retake', detail: 'Retake window' },
   { date: '2026-05-28T17:00:00', type: 'quiz', label: 'Med Surg Quiz #4', detail: '5pm Thursday' },
   { date: '2026-06-04T17:00:00', type: 'exam', label: 'Med Surg Exam #3', detail: 'Ch 16-21', critical: true },
-  { date: '2026-06-11T17:00:00', type: 'quiz', label: 'Med Surg Quiz #5', detail: '5pm Thursday' },
+  { date: '2026-06-11T17:00:00', type: 'exam', label: 'Exam 3 Retake', detail: 'Retake window' },
   { date: '2026-06-15T17:00:00', type: 'break', label: 'School Closed', detail: 'Juneteenth week' },
   { date: '2026-06-25T17:00:00', type: 'exam', label: 'Med Surg Exam #4', detail: 'Ch 22-26', critical: true },
+  { date: '2026-07-02T17:00:00', type: 'exam', label: 'Exam 4 Retake', detail: 'Retake window' },
   { date: '2026-07-09T17:00:00', type: 'exam', label: 'Med Surg Exam #5', detail: 'Ch 27-32', critical: true },
   { date: '2026-07-16T17:00:00', type: 'final', label: 'Med Surg FINAL', detail: '5pm — biggest test', critical: true },
   { date: '2026-07-23T17:00:00', type: 'milestone', label: 'End of Term', detail: 'Concepts 1 complete' },
@@ -262,6 +307,16 @@ function Dashboard() {
   // Exam history from practice tools
   const [examHistory, setExamHistory] = useState([]);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved !== null ? JSON.parse(saved) : true; // default to dark
+  });
+
+  // Apply dark mode class to body
+  useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
 
   // Load all data from localStorage on mount
   useEffect(() => {
@@ -764,6 +819,9 @@ function Dashboard() {
               <span className="italic font-medium">the</span> system
             </h1>
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              <button onClick={() => setDarkMode(d => !d)} className="dark-toggle" title="Toggle dark mode">
+                {darkMode ? '☀️' : '🌙'}
+              </button>
               {lastSync && (
                 <button onClick={() => setTab('stats')} className="text-stone-400 hover:text-stone-600" title={`Last synced: ${new Date(lastSync).toLocaleString()}`}>
                   <Icon name="sync" size={12} />
@@ -802,6 +860,8 @@ function Dashboard() {
         )}
 
         {!checkin && <CheckInFlow onSave={saveCheckin} />}
+
+        <ExamCountdownTimeline />
 
         {checkin && (
           <React.Fragment>
@@ -906,6 +966,127 @@ function AddressEditor({ address, addresses, onSave, onClose }) {
             <p className="text-[10px] text-stone-400 mt-1">Tap will open in Apple Maps</p>
           </div>
           <button onClick={save} className="w-full py-3.5 bg-stone-900 text-stone-50 rounded-xl font-medium">Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== EXAM COUNTDOWN TIMELINE ==============
+function ExamCountdownTimeline() {
+  const EXAM_SCHEDULE = [
+    { date: '2026-05-14T17:00:00', label: 'Exam 2', chapters: 'Ch 10-15', completed: true, score: 100 },
+    { date: '2026-05-21T17:00:00', label: 'Exam 2 Retake', chapters: '', retake: true },
+    { date: '2026-06-04T17:00:00', label: 'Exam 3', chapters: 'Ch 16-21' },
+    { date: '2026-06-11T17:00:00', label: 'Exam 3 Retake', chapters: '', retake: true },
+    { date: '2026-06-25T17:00:00', label: 'Exam 4', chapters: 'Ch 22-26' },
+    { date: '2026-07-02T17:00:00', label: 'Exam 4 Retake', chapters: '', retake: true },
+    { date: '2026-07-09T17:00:00', label: 'Exam 5', chapters: 'Ch 27-32' },
+    { date: '2026-07-16T17:00:00', label: 'Final', chapters: 'Ch 1-32', isFinal: true },
+  ];
+
+  const TRIP = { start: '2026-05-16', end: '2026-05-20', label: 'Atlanta Trip' };
+
+  const now = new Date();
+  const semStart = new Date('2026-05-14T17:00:00');
+  const semEnd = new Date('2026-07-16T17:00:00');
+  const totalSpan = semEnd - semStart;
+  const progress = Math.max(0, Math.min(100, ((now - semStart) / totalSpan) * 100));
+
+  // Find next upcoming exam
+  const nextExam = EXAM_SCHEDULE.find(e => new Date(e.date) > now);
+  const nextExamDate = nextExam ? new Date(nextExam.date) : null;
+  const msToNext = nextExamDate ? nextExamDate - now : 0;
+  const daysToNext = Math.floor(msToNext / 86400000);
+  const hoursToNext = Math.floor((msToNext % 86400000) / 3600000);
+
+  // Calculate actual study days (subtract trip days if trip is between now and next exam)
+  const countTripDaysInRange = () => {
+    if (!nextExamDate) return 0;
+    const tripStart = new Date(TRIP.start);
+    const tripEnd = new Date(TRIP.end);
+    // Count overlap days
+    const overlapStart = new Date(Math.max(now.getTime(), tripStart.getTime()));
+    const overlapEnd = new Date(Math.min(nextExamDate.getTime(), tripEnd.getTime()));
+    if (overlapStart >= overlapEnd) return 0;
+    overlapStart.setHours(0,0,0,0);
+    overlapEnd.setHours(0,0,0,0);
+    return Math.max(0, Math.round((overlapEnd - overlapStart) / 86400000) + 1);
+  };
+  const tripDays = countTripDaysInRange();
+  const actualStudyDays = Math.max(0, daysToNext - tripDays);
+
+  return (
+    <div className="bg-white border border-stone-200 rounded-2xl p-4 mb-4">
+      <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-3">Exam Timeline — Med Surg</p>
+
+      {nextExam && (
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-lg font-semibold text-stone-900">{nextExam.label}</p>
+            <p className="text-xs text-stone-500">{nextExam.chapters || (nextExam.retake ? 'Retake window' : '')}</p>
+          </div>
+          <div className="text-right">
+            <p className="mono text-2xl font-bold" style={{color: daysToNext <= 3 ? '#ef4444' : '#ec4899'}}>{daysToNext}d {hoursToNext}h</p>
+            {tripDays > 0 && (
+              <p className="mono text-[10px] text-amber-600 mt-0.5">{actualStudyDays} actual study days</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tripDays > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-3">
+          <p className="text-xs text-amber-800 font-medium">&#9888;&#65039; Trip: May 16-20 (Atlanta) — {tripDays} day{tripDays !== 1 ? 's' : ''} unavailable</p>
+        </div>
+      )}
+
+      {/* Timeline bar */}
+      <div className="relative h-8 bg-stone-100 rounded-full overflow-visible mb-2" style={{border: '1px solid var(--tl-border, #e7e5e4)'}}>
+        {/* Progress fill */}
+        <div className="absolute top-0 left-0 h-full rounded-full" style={{width: `${progress}%`, background: 'linear-gradient(90deg, #ec4899, #f472b6)'}} />
+
+        {/* Exam markers */}
+        {EXAM_SCHEDULE.map((exam, i) => {
+          const pos = ((new Date(exam.date) - semStart) / totalSpan) * 100;
+          const isPast = new Date(exam.date) < now;
+          const isNext = nextExam && exam.label === nextExam.label;
+          return (
+            <div key={i} className="absolute" style={{left: `${Math.min(pos, 98)}%`, top: '-2px', transform: 'translateX(-50%)'}}>
+              <div className="flex flex-col items-center" style={{width: '20px'}}>
+                <div style={{
+                  width: isNext ? 14 : exam.retake ? 6 : 10,
+                  height: isNext ? 14 : exam.retake ? 6 : 10,
+                  borderRadius: '50%',
+                  background: exam.completed ? '#22c55e' : isNext ? '#ec4899' : isPast ? '#94a3b8' : '#cbd5e1',
+                  border: isNext ? '2px solid #fff' : 'none',
+                  boxShadow: isNext ? '0 0 0 2px #ec4899' : 'none',
+                  marginTop: isNext ? '-1px' : exam.retake ? '5px' : '3px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '7px', color: '#fff', fontWeight: 700,
+                }}>
+                  {exam.completed && '✓'}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend row */}
+      <div className="flex items-center justify-between mt-1">
+        <div className="flex items-center gap-3 flex-wrap">
+          {EXAM_SCHEDULE.filter(e => !e.retake).map((exam, i) => {
+            const isPast = new Date(exam.date) < now;
+            return (
+              <div key={i} className="flex items-center gap-1">
+                <div style={{width: 6, height: 6, borderRadius: '50%', background: exam.completed ? '#22c55e' : isPast ? '#94a3b8' : '#ec4899'}} />
+                <span className="mono text-[8px] text-stone-500">
+                  {exam.label}{exam.completed ? ` ${exam.score}%` : ''}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
