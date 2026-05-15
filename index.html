@@ -245,14 +245,45 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
       <span class="accordion-chevron">&#9654;</span>
       <span class="accordion-title">Med Surg 1 — Exam 3</span>
       <span class="accordion-tag tag-progress">In Progress</span>
-      <span class="accordion-tag tag-count">4 exams</span>
+      <span class="accordion-tag tag-count">4 exams + 2 drills + guide</span>
     </div>
     <div class="accordion-body">
-      <div class="sub-label">Comprehensive Exams (Ch 16-17 so far &middot; More chapters added after lecture)</div>
+      <div class="sub-label">NLM Post-Lecture Drills (15Q each &middot; ChatGPT Drill Format)</div>
+      <a class="card" href="nlm-ch16-drill.html" data-exam-id="ms1-exam3-nlm-ch16-drill">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Ch 16 NLM Drill &mdash; Inflammation</div>
+            <div class="card-desc">15Q &middot; Professor analogies &middot; WBC differential &middot; Phagocytosis &middot; HLAs &middot; 3 SATA &middot; Test Clues &amp; Fast Rules</div>
+          </div>
+          <span class="badge" style="background:#2d0a2e;color:#f472b6">NLM &middot; Ch16</span>
+        </div>
+      </a>
+      <a class="card" href="nlm-ch17-drill.html" data-exam-id="ms1-exam3-nlm-ch17-drill">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Ch 17 NLM Drill &mdash; Allergy &amp; Immunity</div>
+            <div class="card-desc">15Q &middot; Type I-IV Hypersensitivity &middot; Anaphylaxis &middot; SLE &middot; HIV/AIDS &middot; 3 SATA &middot; Test Clues &amp; Fast Rules</div>
+          </div>
+          <span class="badge" style="background:#1a0a2e;color:#c084fc">NLM &middot; Ch17</span>
+        </div>
+      </a>
+
+      <div class="sub-label">Study Guides</div>
+      <a class="card" href="nlm-ch16-17-study-guide.html">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Ch 16-17 Study Guide</div>
+            <div class="card-desc">Vocab with word roots &middot; Lab values &middot; Hypersensitivity chart &middot; Fast Rules &middot; Traps &middot; Meds &middot; Professor emphasis</div>
+          </div>
+          <span class="badge" style="background:#052e16;color:#4ade80">Guide</span>
+        </div>
+      </a>
+
+      <div class="sub-label">Ch 16-17 Practice Exams (20Q each)</div>
       <a class="card" href="exam3-comprehensive.html" data-exam-id="ms1-exam3-comprehensive">
         <div class="card-top">
           <div>
-            <div class="card-title">Comprehensive v1 (Ch 16-17)</div>
+            <div class="card-title">Ch 16-17 Practice v1</div>
             <div class="card-desc">20 questions &middot; Immunity &middot; Inflammation &middot; Allergies &middot; HIV &middot; SLE &middot; Anaphylaxis</div>
           </div>
           <span class="badge ms1">MS1 &middot; E3</span>
@@ -261,7 +292,7 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
       <a class="card" href="exam3-comprehensive-v2.html" data-exam-id="ms1-exam3-comprehensive-v2">
         <div class="card-top">
           <div>
-            <div class="card-title">Comprehensive v2 (Ch 16-17)</div>
+            <div class="card-title">Ch 16-17 Practice v2</div>
             <div class="card-desc">20 NEW questions &middot; ANC &middot; Complement &middot; PrEP vs PEP &middot; Transplant rejection &middot; 3 SATA</div>
           </div>
           <span class="badge ms1">MS1 &middot; E3</span>
@@ -270,7 +301,7 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
       <a class="card" href="exam3-comprehensive-v3.html" data-exam-id="ms1-exam3-comprehensive-v3">
         <div class="card-top">
           <div>
-            <div class="card-title">Comprehensive v3 (Ch 16-17)</div>
+            <div class="card-title">Ch 16-17 Practice v3</div>
             <div class="card-desc">20 NEW questions &middot; IgM vs IgG &middot; NK cells &middot; Lupus nephritis &middot; Lyme disease &middot; 3 SATA</div>
           </div>
           <span class="badge ms1">MS1 &middot; E3</span>
@@ -279,13 +310,12 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
       <a class="card" href="exam3-comprehensive-v4.html" data-exam-id="ms1-exam3-comprehensive-v4">
         <div class="card-top">
           <div>
-            <div class="card-title">Comprehensive v4 (Ch 16-17)</div>
+            <div class="card-title">Ch 16-17 Practice v4</div>
             <div class="card-desc">20 NEW questions &middot; Microbiome &middot; Angioedema &middot; HIV viral load &middot; Chronic rejection &middot; 3 SATA</div>
           </div>
           <span class="badge ms1">MS1 &middot; E3</span>
         </div>
       </a>
-      <p class="accordion-note" style="padding-top:8px">More practice exams will be added as Ch 18-21 lectures happen.</p>
     </div>
   </div>
 
@@ -372,7 +402,9 @@ const examIds={
   'ms1-exam3-comprehensive':'exam3-comprehensive.html',
   'ms1-exam3-comprehensive-v2':'exam3-comprehensive-v2.html',
   'ms1-exam3-comprehensive-v3':'exam3-comprehensive-v3.html',
-  'ms1-exam3-comprehensive-v4':'exam3-comprehensive-v4.html'
+  'ms1-exam3-comprehensive-v4':'exam3-comprehensive-v4.html',
+  'ms1-exam3-nlm-ch16-drill':'nlm-ch16-drill.html',
+  'ms1-exam3-nlm-ch17-drill':'nlm-ch17-drill.html'
 };
 
 Object.keys(examIds).forEach(function(id){

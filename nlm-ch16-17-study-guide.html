@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 16-17 Study Guide — Inflammation, Allergy & Immunity</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.7;padding:1rem;min-height:100vh}
+h1,h2,h3,h4{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto;padding-bottom:4rem}
+
+/* Header */
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;margin-bottom:1.5rem}
+.header h1{font-size:2rem;color:#f8fafc;margin-bottom:.35rem}
+.header .subtitle{color:#94a3b8;font-size:.9rem;line-height:1.5}
+.header .accent{color:#f472b6}
+
+/* Chapter Sections */
+.chapter-block{margin-bottom:2rem}
+.chapter-header{background:linear-gradient(135deg,#1a0a2e 0%,#2d0a2e 100%);border:1px solid #ec4899;border-radius:12px;padding:1.25rem 1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s;user-select:none}
+.chapter-header:hover{border-color:#f472b6;background:linear-gradient(135deg,#1f0e35 0%,#350e35 100%)}
+.chapter-header h2{font-size:1.35rem;color:#f8fafc}
+.chapter-header .toggle-icon{font-size:1.5rem;color:#ec4899;transition:transform .3s;font-family:'DM Sans',sans-serif;font-weight:700;width:1.5rem;text-align:center}
+.chapter-header .toggle-icon.open{transform:rotate(45deg)}
+.chapter-content{display:none;padding:.5rem 0}
+.chapter-content.show{display:block}
+
+/* Subsection Headers */
+.subsection{margin-top:1.25rem}
+.subsection-header{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s;user-select:none}
+.subsection-header:hover{border-color:#475569;background:#253040}
+.subsection-header h3{font-size:1.05rem;color:#e2e8f0;display:flex;align-items:center;gap:.5rem}
+.subsection-header .sub-toggle{font-size:1.2rem;color:#94a3b8;transition:transform .3s;font-family:'DM Sans',sans-serif;font-weight:700;width:1.2rem;text-align:center}
+.subsection-header .sub-toggle.open{transform:rotate(45deg)}
+.subsection-content{display:none;padding:.75rem 0}
+.subsection-content.show{display:block}
+
+/* Vocabulary Cards */
+.vocab-card{background:#1a1f2e;border-left:4px solid #f472b6;border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
+.vocab-card .term{font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:600;color:#f472b6;margin-bottom:.25rem}
+.vocab-card .root{font-size:.8rem;color:#94a3b8;margin-bottom:.4rem;font-style:italic}
+.vocab-card .definition{font-size:.9rem;color:#cbd5e1;line-height:1.6}
+
+/* Professor Emphasis Cards */
+.prof-card{background:#2a0a0a;border-left:4px solid #ef4444;border-radius:0 10px 10px 0;padding:1.25rem;margin-bottom:.75rem}
+.prof-card .prof-flag{font-size:.75rem;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.prof-card .prof-title{font-size:1.05rem;font-weight:700;color:#fca5a5;margin-bottom:.5rem}
+.prof-card .prof-body{font-size:.9rem;color:#e2e8f0;line-height:1.7}
+.prof-card .prof-body em{color:#fca5a5;font-style:italic}
+.prof-card .prof-quote{background:#1a0505;border:1px solid #7f1d1d;border-radius:8px;padding:.6rem .9rem;margin:.5rem 0;font-size:.85rem;color:#fca5a5;font-style:italic}
+.prof-card .sub-point{margin-left:1rem;margin-top:.4rem;padding-left:.75rem;border-left:2px solid #7f1d1d}
+.prof-card .sub-point strong{color:#f8fafc}
+.prof-card ul{margin:.5rem 0 .5rem 1.25rem;list-style:disc}
+.prof-card li{margin-bottom:.3rem;font-size:.88rem;color:#e2e8f0}
+
+/* Fast Rule Cards */
+.rule-card{background:#052e16;border-left:4px solid #22c55e;border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
+.rule-card .rule-label{font-size:.7rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.rule-card .rule-body{font-size:.9rem;color:#bbf7d0;line-height:1.6}
+.rule-card .rule-body strong{color:#4ade80}
+.rule-card .rule-trigger{font-family:'IBM Plex Mono',monospace;color:#86efac;font-weight:600}
+
+/* Trap Cards */
+.trap-card{background:#2a1f00;border-left:4px solid #fbbf24;border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
+.trap-card .trap-label{font-size:.7rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.trap-card .trap-body{font-size:.9rem;color:#fde68a;line-height:1.6}
+.trap-card .trap-body strong{color:#fbbf24}
+
+/* Medication Cards */
+.med-card{background:#1a2332;border-left:4px solid #67e8f9;border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin-bottom:.75rem}
+.med-card .med-name{font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:600;color:#67e8f9;margin-bottom:.3rem}
+.med-card .med-body{font-size:.9rem;color:#cbd5e1;line-height:1.6}
+.med-card .med-body strong{color:#a5f3fc}
+
+/* Tables */
+.styled-table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;margin:.75rem 0;font-size:.85rem}
+.styled-table thead th{background:#ec4899;color:#fff;padding:.7rem .75rem;text-align:left;font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em}
+.styled-table tbody tr:nth-child(odd){background:#13181f}
+.styled-table tbody tr:nth-child(even){background:#0c0f14}
+.styled-table tbody td{padding:.65rem .75rem;border-bottom:1px solid #1e293b;color:#cbd5e1;vertical-align:top}
+.styled-table tbody td:first-child{color:#f472b6;font-weight:600;white-space:nowrap}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1e293b}
+
+/* Lab Value Cards */
+.lab-card{background:#13181f;border:1px solid #1e293b;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.75rem}
+.lab-card .lab-title{font-size:.85rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem;font-weight:600}
+.lab-card .lab-row{display:flex;justify-content:space-between;align-items:baseline;padding:.3rem 0;border-bottom:1px solid #1e293b;flex-wrap:wrap;gap:.25rem}
+.lab-card .lab-row:last-child{border-bottom:none}
+.lab-card .lab-name{color:#e2e8f0;font-size:.9rem;font-weight:500}
+.lab-card .lab-val{font-family:'IBM Plex Mono',monospace;color:#f472b6;font-size:.88rem;font-weight:600}
+
+/* Visual Concepts */
+.visual-card{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1.25rem;margin-bottom:.75rem}
+.visual-card .visual-title{font-size:.95rem;font-weight:700;color:#f472b6;margin-bottom:.4rem}
+.visual-card .visual-body{font-size:.9rem;color:#cbd5e1;line-height:1.7}
+.visual-card .visual-body em{color:#f9a8d4}
+
+/* Back to Top Button */
+.back-to-top{position:fixed;bottom:1.5rem;right:1.5rem;width:48px;height:48px;background:#ec4899;color:#fff;border:none;border-radius:50%;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 16px rgba(236,72,153,.4);transition:all .2s;opacity:0;pointer-events:none;z-index:100;display:flex;align-items:center;justify-content:center}
+.back-to-top.visible{opacity:1;pointer-events:auto}
+.back-to-top:hover{background:#db2777;transform:translateY(-2px);box-shadow:0 6px 20px rgba(236,72,153,.5)}
+
+/* Section count badges */
+.count-badge{background:#0c0f14;color:#94a3b8;font-size:.7rem;padding:.15rem .5rem;border-radius:99px;font-weight:500;margin-left:.5rem;font-family:'IBM Plex Mono',monospace}
+
+@media(max-width:600px){
+  .header h1{font-size:1.5rem}
+  .chapter-header{padding:1rem 1.15rem}
+  .chapter-header h2{font-size:1.15rem}
+  .subsection-header{padding:.85rem 1rem}
+  .subsection-header h3{font-size:.95rem}
+  .vocab-card,.prof-card,.rule-card,.trap-card,.med-card{padding:.85rem 1rem}
+  .styled-table{font-size:.78rem}
+  .styled-table thead th,.styled-table tbody td{padding:.5rem .55rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>Ch 16&ndash;17 Study Guide &mdash; <span class="accent">Inflammation, Allergy &amp; Immunity</span></h1>
+  <p class="subtitle">NotebookLM Post-Lecture Study Guide &middot; Professor-Emphasized Content</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 16 -->
+<!-- ============================================================ -->
+<div class="chapter-block">
+  <div class="chapter-header" onclick="toggleChapter(this)">
+    <h2>Chapter 16: Concepts of Inflammation and Immunity</h2>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="chapter-content">
+
+    <!-- 16 - Key Vocabulary -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Key Vocabulary <span class="count-badge">5 terms</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="vocab-card">
+          <div class="term">Pluripotent</div>
+          <div class="root">pluri- = many &middot; -potent = power</div>
+          <div class="definition">Stem cells in the bone marrow that have the potential to mature into any blood cell type.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Phagocytosis</div>
+          <div class="root">phago- = eat &middot; -cyte = cell &middot; -osis = process</div>
+          <div class="definition">The process of engulfing and destroying invaders or removing debris.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Leukocyte</div>
+          <div class="root">leuko- = white &middot; -cyte = cell</div>
+          <div class="definition">White blood cells (WBCs) that protect against invasion.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Erythrocyte</div>
+          <div class="root">erythro- = red &middot; -cyte = cell</div>
+          <div class="definition">Red blood cells.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Microbiome</div>
+          <div class="root">micro- = small &middot; -biome = life environment</div>
+          <div class="definition">Microorganisms of normal flora that coexist in and on the body.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 16 - Professor-Emphasized Concepts -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Professor-Emphasized Concepts <span class="count-badge">4 topics</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="prof-card">
+          <div class="prof-flag">DEFINITELY ON THE EXAM</div>
+          <div class="prof-title">Innate (Non-specific) vs. Adaptive (Specific) Immunity</div>
+          <div class="prof-body">
+            <div class="prof-quote">"I want to bang this into your head between the specific and non-specific."</div>
+            <div class="sub-point" style="margin-top:.75rem">
+              <strong>Innate (Non-Specific):</strong> You are born with it. It does not have memory.<br>
+              <em>Lecture Analogy:</em> If someone tells you to "count every car" on the road, that's non-specific. It reacts to any invader the same exact way.<br>
+              Examples: skin, mucous membranes, inflammation.
+            </div>
+            <div class="sub-point" style="margin-top:.75rem">
+              <strong>Adaptive (Specific):</strong> You adapt to it. It has memory (memory B cells).<br>
+              <em>Lecture Analogy:</em> If someone tells you to "count only the red cars," that is specific. It requires a previous exposure to create a specific antigen response.
+            </div>
+          </div>
+        </div>
+
+        <div class="prof-card">
+          <div class="prof-flag">DEFINITELY ON THE EXAM</div>
+          <div class="prof-title">Inflammation DOES NOT Equal Infection</div>
+          <div class="prof-body">
+            <em>Professor's Rule:</em> Inflammation is non-specific. You can have inflammation without an infection!<br><br>
+            <em>Lecture Examples:</em> A bee sting, getting hit with a hammer, or getting a charley horse all cause inflammation, but they are NOT infections.
+          </div>
+        </div>
+
+        <div class="prof-card">
+          <div class="prof-title">The 5 Cardinal Symptoms of Inflammation &amp; Why They Happen</div>
+          <div class="prof-body">
+            <ul>
+              <li><strong>Redness &amp; Warmth:</strong> Caused by blood rushing to the area (vasodilation).</li>
+              <li><strong>Swelling:</strong> Caused by the extra blood and fluid gathering.</li>
+              <li><strong>Pain &amp; Decreased Function:</strong> Swelling puts pressure on nerves and restricts movement.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="prof-card">
+          <div class="prof-title">Types of Acquired Immunity</div>
+          <div class="prof-body">
+            <div class="sub-point" style="margin-top:.25rem">
+              <strong>Natural Active:</strong> You get sick, your body fights it, you recover (e.g., getting the flu from a dorm roommate). Lasts a long time.
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Artificial Active:</strong> Vaccines. You are "stuck with a needle" with a fake/weak virus to trigger antibody production.
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Natural Passive:</strong> Antibodies passed from mom to baby (breast milk/placenta).
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Artificial Passive:</strong> Injected antibodies (e.g., Tetanus shot).<br>
+              <div class="prof-quote" style="margin-top:.4rem">"Please remember that part... passive immunity provides only immediate short-term protection" because your body didn't do the work.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Concepts -->
+        <div class="visual-card">
+          <div class="visual-title">Visual: HLA Barcodes</div>
+          <div class="visual-body">Human Leukocyte Antigens are proteins on your cells. The immune system scans them like a grocery store barcode. If it reads "self," it leaves it alone. If the barcode doesn't match perfectly, it attacks it as "non-self."</div>
+        </div>
+
+        <div class="visual-card">
+          <div class="visual-title">Visual: Antigen-Antibody Lock and Key</div>
+          <div class="visual-body"><em>Lecture Analogy:</em> Insulin acts as a key to open the cell door for glucose. Similarly, antibodies act as specific keys for specific antigen locks. If your body builds a key for "COVID A," that key perfectly locks and neutralizes COVID A. It might slightly fit "COVID B" if it hasn't mutated much, but it won't work at all for "COVID C."</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 16 - Lab Values -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Lab Values &mdash; WBC Differential</h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="lab-card">
+          <div class="lab-title">Normal WBC Count with Differential (Table 16.3)</div>
+          <div class="lab-row"><span class="lab-name">Total WBCs</span><span class="lab-val">5,000&ndash;10,000/mm&sup3;</span></div>
+          <div class="lab-row"><span class="lab-name">Segmented Neutrophils (Segs/Mature)</span><span class="lab-val">55&ndash;70% (2500&ndash;7000/mm&sup3;)</span></div>
+          <div class="lab-row"><span class="lab-name">Band Neutrophils (Bands/Immature)</span><span class="lab-val">5% (250&ndash;500/mm&sup3;)</span></div>
+          <div class="lab-row"><span class="lab-name">Lymphocytes</span><span class="lab-val">20&ndash;40% (1000&ndash;4000/mm&sup3;)</span></div>
+          <div class="lab-row"><span class="lab-name">Monocytes</span><span class="lab-val">2&ndash;8% (100&ndash;800/mm&sup3;)</span></div>
+          <div class="lab-row"><span class="lab-name">Eosinophils</span><span class="lab-val">1&ndash;4% (50&ndash;400/mm&sup3;)</span></div>
+          <div class="lab-row"><span class="lab-name">Basophils</span><span class="lab-val">0.5&ndash;1.0% (25&ndash;100/mm&sup3;)</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 16 - Fast Rules -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Fast Rules <span class="count-badge">6 rules</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">LEFT SHIFT (Bandemia)</span> &rarr; think <strong>Severe Infection/Sepsis</strong>. The bone marrow can't keep up and is dumping immature neutrophils (bands) that can't fight effectively.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">HIGH EOSINOPHILS</span> &rarr; think <strong>Parasitic infection or severe allergic reaction/asthma</strong>.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">LOW ANC (Absolute Neutrophil Count)</span> &rarr; think <strong>Immunocompromised</strong>. The patient is at high risk for fatal infection.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">IgE</span> &rarr; think <strong>"Eek! Allergies"</strong> (histamine release).</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">IgG</span> &rarr; think <strong>"General &amp; Gone"</strong> (past infection/long-term immunity).</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">IgM</span> &rarr; think <strong>"Me first"</strong> (new/recent infection).</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 16 - Common Exam Traps -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Common Exam Traps <span class="count-badge">2 traps</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="trap-card">
+          <div class="trap-label">Exam Trap</div>
+          <div class="trap-body"><strong>Trap:</strong> Thinking older adults will always show a high fever with infection.<br><strong>Reality:</strong> Older adults have a diminished immune response and may not mount a fever or typical leukocytosis; minor infections can quickly become undetected sepsis.</div>
+        </div>
+
+        <div class="trap-card">
+          <div class="trap-label">Exam Trap</div>
+          <div class="trap-body"><strong>Trap:</strong> Assuming passive immunity lasts forever.<br><strong>Reality:</strong> Passive immunity is temporary because the host didn't make the memory cells.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 17 -->
+<!-- ============================================================ -->
+<div class="chapter-block">
+  <div class="chapter-header" onclick="toggleChapter(this)">
+    <h2>Chapter 17: Allergy and Immunity Conditions</h2>
+    <span class="toggle-icon">+</span>
+  </div>
+  <div class="chapter-content">
+
+    <!-- 17 - Key Vocabulary -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Key Vocabulary <span class="count-badge">4 terms</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="vocab-card">
+          <div class="term">Anaphylaxis</div>
+          <div class="root">ana- = against/backward &middot; -phylaxis = protection</div>
+          <div class="definition">Widespread, life-threatening type I hypersensitivity reaction involving blood vessel dilation and bronchoconstriction.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Angioedema</div>
+          <div class="root">angio- = vessel &middot; edema = swelling</div>
+          <div class="definition">Severe type I reaction causing deep-tissue swelling of the face, lips, tongue, and neck.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Autoimmunity</div>
+          <div class="root">auto- = self</div>
+          <div class="definition">Inappropriate immune response where antibodies attack the body's own healthy tissues.</div>
+        </div>
+
+        <div class="vocab-card">
+          <div class="term">Retrovirus</div>
+          <div class="root">retro- = backward</div>
+          <div class="definition">A virus (like HIV) that uses RNA and the enzyme reverse transcriptase to hijack a human cell's DNA.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 17 - Professor-Emphasized Concepts -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Professor-Emphasized Concepts <span class="count-badge">4 topics</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="prof-card">
+          <div class="prof-flag">DEFINITELY ON THE EXAM</div>
+          <div class="prof-title">Anaphylaxis First-Line Action</div>
+          <div class="prof-body">
+            <em>Professor's Rule:</em> The absolute FIRST intervention for anaphylaxis is assessing the airway and giving <strong style="color:#fff">intramuscular epinephrine</strong>.<br><br>
+            Epinephrine immediately constricts blood vessels, improves cardiac output, and relaxes bronchioles.<br><br>
+            <strong style="color:#fca5a5">Do not give antihistamines first!</strong>
+          </div>
+        </div>
+
+        <div class="prof-card">
+          <div class="prof-title">Systemic Lupus Erythematosus (SLE) Management</div>
+          <div class="prof-body">
+            <ul>
+              <li>Major fatal complications are <strong>kidney failure (lupus nephritis)</strong> and cardiac tissue damage.</li>
+              <li><strong>Sun exposure induces flare-ups;</strong> patients must avoid the sun.</li>
+              <li>A classic sign is the <strong>"butterfly rash"</strong> across the nose and cheeks.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="prof-card">
+          <div class="prof-title">HIV Infection Stages &amp; Teaching</div>
+          <div class="prof-body">
+            <div class="sub-point" style="margin-top:.25rem">
+              <strong>Stage I (Acute):</strong> Initial symptoms are vague, presenting as <strong>flu-like symptoms</strong> (fever, sore throat, swollen lymph nodes) so people rarely suspect HIV.
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Stage III (AIDS):</strong> Diagnosed when CD4 count is &lt; 200 or the patient develops an opportunistic infection (e.g., Kaposi sarcoma, pneumocystis pneumonia, candidiasis).
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Transmission:</strong> Via blood, semen, vaginal secretions, and breast milk. Education on safe sex is imperative, even if using PrEP/PEP, as drug resistance can occur.
+            </div>
+          </div>
+        </div>
+
+        <div class="prof-card">
+          <div class="prof-title">Transplant Rejection Timing</div>
+          <div class="prof-body">
+            <div class="sub-point" style="margin-top:.25rem">
+              <strong>Hyperacute:</strong> Minutes to hours. Must remove the organ immediately.
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Acute:</strong> 1 week to 3 months. T-cells and NK cells actively attack. Treated with medications to save the organ.
+            </div>
+            <div class="sub-point" style="margin-top:.5rem">
+              <strong>Chronic:</strong> Months to years. Leads to scarring/fibrosis and eventual loss of organ function.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 17 - Lab Values -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Lab Values &mdash; CD4 &amp; SLE Diagnostics</h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="lab-card">
+          <div class="lab-title">CD4+ T-Cell Count</div>
+          <div class="lab-row"><span class="lab-name">Normal</span><span class="lab-val">800&ndash;1000 cells/mm&sup3;</span></div>
+          <div class="lab-row"><span class="lab-name">Stage III (AIDS)</span><span class="lab-val">&lt; 200 cells/mm&sup3;</span></div>
+        </div>
+
+        <div class="lab-card">
+          <div class="lab-title">SLE Diagnostics (Aggregate of Labs)</div>
+          <div class="lab-row"><span class="lab-name">ANA</span><span class="lab-val">Antinuclear Antibody</span></div>
+          <div class="lab-row"><span class="lab-name">ESR</span><span class="lab-val">Erythrocyte Sedimentation Rate</span></div>
+          <div class="lab-row"><span class="lab-name">CRP</span><span class="lab-val">C-Reactive Protein</span></div>
+          <div class="lab-row"><span class="lab-name">C3/C4</span><span class="lab-val">Complement Levels</span></div>
+          <div class="lab-row"><span class="lab-name">Anti-dsDNA</span><span class="lab-val">Anti-double-stranded DNA</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 17 - Hypersensitivity Types Chart -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Hypersensitivity Types Chart</h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="table-wrap">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Mechanism</th>
+                <th>Timing</th>
+                <th>Examples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Type I</td>
+                <td>Immediate / Allergic</td>
+                <td>IgE binds to mast cells, causing sudden histamine release.</td>
+                <td>Minutes to &lt; 1 hour</td>
+                <td>Peanut allergy, bee sting, anaphylaxis, asthma, allergic rhinitis.</td>
+              </tr>
+              <tr>
+                <td>Type II</td>
+                <td>Antibody-Mediated / Cytotoxic</td>
+                <td>Autoantibodies attack self-cells or foreign cells.</td>
+                <td>Hours to days</td>
+                <td>Blood transfusion reactions, hemolytic anemia.</td>
+              </tr>
+              <tr>
+                <td>Type III</td>
+                <td>Immune Complex</td>
+                <td>Antigen-antibody complexes form and lodge in small blood vessels (causing vasculitis).</td>
+                <td>4&ndash;10 days</td>
+                <td>Systemic Lupus Erythematosus (SLE), Rheumatoid Arthritis.</td>
+              </tr>
+              <tr>
+                <td>Type IV</td>
+                <td>Delayed (Cell-Mediated)</td>
+                <td>Sensitized T-cells release mediators and trigger macrophages. <em style="color:#fbbf24">No histamine involvement!</em></td>
+                <td>Delayed: 12&ndash;72 hours</td>
+                <td>Poison ivy (contact dermatitis), TB skin test, sarcoidosis.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 17 - Fast Rules -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Fast Rules <span class="count-badge">4 rules</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">ACE Inhibitors (blood pressure meds)</span> &rarr; think <strong>Angioedema</strong> risk. Bradykinin build-up can cause severe lip/facial swelling even years after starting the drug.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">flu-like symptoms + high risk behavior</span> &rarr; think <strong>Stage I Acute HIV</strong>.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">tick bite + bull's-eye rash</span> &rarr; think <strong>Lyme Disease</strong>. Lyme is an exaggerated immune response, <em>not</em> an autoimmune disorder.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-label">Fast Rule</div>
+          <div class="rule-body">If you see <span class="rule-trigger">long-term steroid use</span> &rarr; think <strong>Osteonecrosis (bone death)</strong> and increased risk for severe infections.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 17 - Common Exam Traps -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Common Exam Traps <span class="count-badge">3 traps</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="trap-card">
+          <div class="trap-label">Exam Trap</div>
+          <div class="trap-body"><strong>Trap:</strong> Thinking Lyme disease is autoimmune.<br><strong>Reality:</strong> It causes a massive inflammatory/immune response, but the antibodies target the spirochete (the tick bacteria), <em>not</em> your own tissues.</div>
+        </div>
+
+        <div class="trap-card">
+          <div class="trap-label">Exam Trap</div>
+          <div class="trap-body"><strong>Trap:</strong> Treating a Type IV Delayed Hypersensitivity (like Poison Ivy) with antihistamines.<br><strong>Reality:</strong> Type IV is mediated by T-Cells, <em>not</em> histamine (IgE). Corticosteroids are required for relief.</div>
+        </div>
+
+        <div class="trap-card">
+          <div class="trap-label">Exam Trap</div>
+          <div class="trap-body"><strong>Trap:</strong> Assuming antiretroviral therapy (ART) kills HIV.<br><strong>Reality:</strong> ART only controls replication/reduces viral load; it does not kill the virus.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 17 - Medication Quick Reference -->
+    <div class="subsection">
+      <div class="subsection-header" onclick="toggleSub(this)">
+        <h3>Medication Quick Reference <span class="count-badge">4 meds</span></h3>
+        <span class="sub-toggle">+</span>
+      </div>
+      <div class="subsection-content">
+
+        <div class="med-card">
+          <div class="med-name">Epinephrine</div>
+          <div class="med-body">First-line for anaphylaxis. Relaxes bronchiolar smooth muscle and constricts blood vessels to counter histamine.</div>
+        </div>
+
+        <div class="med-card">
+          <div class="med-name">Corticosteroids (Prednisone)</div>
+          <div class="med-body">Used for SLE flares and severe allergic reactions. <strong>Do not stop abruptly</strong> (causes adrenal crisis). Long-term use causes bone necrosis and immunosuppression.</div>
+        </div>
+
+        <div class="med-card">
+          <div class="med-name">Hydroxychloroquine</div>
+          <div class="med-body">Modifies immune response in SLE. <strong>Adverse effect check:</strong> Instruct patients to report vision changes/get eye exams.</div>
+        </div>
+
+        <div class="med-card">
+          <div class="med-name">Antiretroviral Therapy (ART)</div>
+          <div class="med-body">Combination therapy for HIV to prevent resistance. Must monitor <strong>Liver Function Tests (LFTs)</strong> because the liver metabolizes most of these drugs. Strict adherence is required.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&uarr;</button>
+
+<script>
+// Toggle chapter sections
+function toggleChapter(header) {
+  const content = header.nextElementSibling;
+  const icon = header.querySelector('.toggle-icon');
+  content.classList.toggle('show');
+  icon.classList.toggle('open');
+}
+
+// Toggle subsections
+function toggleSub(header) {
+  const content = header.nextElementSibling;
+  const icon = header.querySelector('.sub-toggle');
+  content.classList.toggle('show');
+  icon.classList.toggle('open');
+}
+
+// Back to Top button visibility
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 400) {
+    backToTop.classList.add('visible');
+  } else {
+    backToTop.classList.remove('visible');
+  }
+});
+</script>
+</body>
+</html>
