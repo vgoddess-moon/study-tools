@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprehensive Exam v4 — MS1 Exam 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+.container{max-width:900px;margin:0 auto}
+h1{font-family:'DM Serif Display',serif;font-size:2rem;text-align:center;margin-bottom:.25rem;color:#f8fafc}
+.subtitle{text-align:center;color:#94a3b8;font-size:.95rem;margin-bottom:1.5rem}
+.exam-info{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem 1.25rem;margin-bottom:2rem;font-size:.88rem;color:#94a3b8;text-align:center}
+.exam-info strong{color:#e2e8f0}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .4s ease;width:0%}
+.progress-text{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:1.5rem}
+.last-attempt{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem;margin-bottom:2rem;text-align:center;display:none}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#f472b6}
+.chapter-divider{display:flex;align-items:center;gap:.75rem;margin:2.5rem 0 1.5rem;padding:.5rem 0}
+.chapter-divider::before,.chapter-divider::after{content:'';flex:1;height:1px;background:#1e293b}
+.chapter-divider span{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#94a3b8;white-space:nowrap}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .3s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-incorrect{border-color:#ef4444}
+.q-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-number{font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:#64748b}
+.badge{font-size:.7rem;padding:.2rem .55rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch1{background:#2e0a2e;color:#f0abfc}
+.badge-ch2{background:#0c1e3a;color:#7dd3fc}
+.badge-ch3{background:#1a2e0a;color:#bef264}
+.badge-ch4{background:#2e1a0a;color:#fdba74}
+.badge-ch5{background:#1e1b4b;color:#a5b4fc}
+.badge-ch6{background:#2a0a1e;color:#fca5cf}
+.badge-ch7{background:#0a2e2e;color:#5eead4}
+.badge-ch8{background:#1a0a2e;color:#c084fc}
+.badge-ch9{background:#2a1f00;color:#fde68a}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-diff{font-size:.65rem;padding:.15rem .45rem;border-radius:99px;background:#1e293b;color:#64748b}
+.q-stem{font-size:1rem;margin-bottom:1rem;color:#f1f5f9}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt-btn{background:#1a1f2e;border:1px solid #1e293b;border-radius:10px;padding:.75rem 1rem;text-align:left;color:#cbd5e1;cursor:pointer;font-size:.92rem;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:flex-start;gap:.6rem}
+.opt-btn:hover:not(.locked){border-color:#ec4899;background:#1e2433}
+.opt-btn.selected{border-color:#ec4899;background:#1e2433;color:#f1f5f9}
+.opt-btn.locked{cursor:default}
+.opt-btn.correct-show{border-color:#22c55e;background:#0f2a1a}
+.opt-btn.incorrect-show{border-color:#ef4444;background:#2a0f0f}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:1.2rem;color:#ec4899}
+.sata-note{font-size:.78rem;color:#f472b6;margin-bottom:.75rem;font-style:italic}
+.submit-btn{background:linear-gradient(135deg,#ec4899,#f472b6);color:#fff;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;font-family:'DM Sans',sans-serif}
+.submit-btn:hover{transform:scale(1.03)}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.rationale-box{margin-top:1rem;padding:1rem;background:#0f1218;border:1px solid #1e293b;border-radius:10px;display:none}
+.rationale-box.show{display:block}
+.rationale-box h4{font-size:.82rem;color:#f472b6;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
+.rationale-box p{font-size:.88rem;color:#94a3b8;margin-bottom:.5rem}
+.rationale-box .opt-rat{font-size:.84rem;color:#64748b;padding:.4rem 0;border-bottom:1px solid #1e293b}
+.rationale-box .opt-rat:last-child{border-bottom:none}
+.rationale-box .opt-rat strong{color:#cbd5e1}
+.vocab-tip{margin-top:.75rem;padding:.75rem 1rem;background:#1a1520;border:1px solid #2d1f4e;border-radius:8px;font-size:.84rem;color:#c4b5fd;line-height:1.5}
+.vocab-tip::before{content:'Vocab Tip: ';font-weight:600}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:16px;padding:2rem;text-align:center;display:none}
+.score-card h2{font-family:'DM Serif Display',serif;font-size:1.8rem;color:#f8fafc;margin-bottom:.5rem}
+.score-pct{font-size:3rem;font-weight:700;background:linear-gradient(135deg,#ec4899,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:.5rem 0}
+.score-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin:1.5rem 0;text-align:left}
+.ch-score{background:#1a1f2e;border-radius:8px;padding:.6rem .8rem}
+.ch-score .ch-label{font-size:.75rem;color:#64748b;text-transform:uppercase}
+.ch-score .ch-val{font-size:1.1rem;font-weight:700;color:#e2e8f0}
+.restart-btn{margin-top:1.5rem;background:transparent;border:2px solid #ec4899;color:#f472b6;border-radius:10px;padding:.7rem 2rem;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.restart-btn:hover{background:#ec4899;color:#fff}
+@media(max-width:600px){body{padding:.5rem}h1{font-size:1.5rem}.q-card{padding:1rem}.score-breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+<h1>Comprehensive Exam v4</h1>
+<p class="subtitle">MS1 Exam 1 &middot; Chapters 1&ndash;9 &middot; 30 Questions</p>
+<div class="exam-info">
+<strong>Exam Format:</strong> This practice exam covers all professor-emphasized content from Chapters 1&ndash;9. Includes clinical scenarios, SATA, delegation, and trap questions. All-new clinical angles: nonmaleficence dilemmas, early warning scores, perfusion assessments, geriatric syndromes, transgender family dynamics, phantom limb pain, rehab discharge planning, grief support, and peri-op glucose management.
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div style="font-size:.82rem;color:#64748b;margin-bottom:.25rem">Last Attempt</div>
+<div class="score-val" id="lastScore">&mdash;</div>
+</div>
+<div class="progress-text" id="progressText">0 of 30 answered</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div id="quizBody"></div>
+<div class="score-card" id="scoreCard">
+<h2>Exam Complete</h2>
+<div class="score-pct" id="finalPct">&mdash;</div>
+<p id="finalMsg" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="score-breakdown" id="breakdown"></div>
+<button class="restart-btn" onclick="restartQuiz()">Retake Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam1-comprehensive-v4';
+const EXAM_LABEL='MS1 Exam 1 — Comprehensive v4 (30Q)';
+const questions=[
+// ═══ CHAPTER 1: Nonmaleficence, QSEN, Near-Miss Reporting ═══
+{id:1,chapter:1,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is caring for an elderly patient with end-stage renal failure who is not a candidate for dialysis. The physician orders aggressive IV fluid resuscitation for acute hypotension. The nurse recognizes that aggressive fluids in this patient could cause severe pulmonary edema and respiratory distress. Which ethical principle is the nurse applying when questioning this order?",
+options:[
+{letter:'A',text:'Beneficence — the nurse wants to ensure the treatment will benefit the patient',correct:false,rationale:'Beneficence focuses on doing good. While the nurse does want good outcomes, the core concern here is that the aggressive fluids could actively CAUSE HARM (pulmonary edema) in a patient without kidney function to excrete the excess fluid. The nurse is worried about causing harm, not just about doing good.'},
+{letter:'B',text:'Nonmaleficence — the nurse recognizes the intervention could cause more harm than the condition being treated',correct:true,rationale:'Nonmaleficence means "above all, do no harm." The nurse is applying this principle by recognizing that aggressive fluid resuscitation in a patient with no kidney function could cause iatrogenic pulmonary edema — potentially causing more suffering than the hypotension itself. Questioning harmful orders is a core nursing advocacy responsibility.'},
+{letter:'C',text:'Autonomy — the nurse should let the patient decide whether to receive the fluids',correct:false,rationale:'TRAP. While patient autonomy matters, this question is about the NURSE\'s ethical reasoning in questioning the order. The nurse is not debating patient choice — they are questioning whether the treatment itself will cause harm. The ethical principle driving the nurse\'s concern is nonmaleficence.'},
+{letter:'D',text:'Fidelity — the nurse must follow the physician\'s order because they have a duty of loyalty to the medical team',correct:false,rationale:'Fidelity means faithfulness to commitments, but a nurse\'s PRIMARY fidelity is to the PATIENT, not to the physician. Blindly following an order that could harm the patient violates the nurse\'s ethical and legal obligation to advocate for patient safety. Nurses must question harmful orders.'}
+],
+vocabTip:"Nonmaleficence = do no harm (non = not, mal = bad, ficence = doing). It is different from beneficence (doing good). Think: beneficence is adding something good, nonmaleficence is avoiding something bad. On exams, if the nurse is concerned that a treatment could HURT the patient more than help, the principle is nonmaleficence. Nurses have a legal duty to question orders they believe are harmful — 'the doctor ordered it' is never a defense."
+},
+{id:2,chapter:1,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse on a medical-surgical unit discovers that a patient was given the correct medication at the correct dose, but it was administered 2 hours late because the nurse was overwhelmed with a heavy patient load. The patient experienced no adverse effects from the delay. According to QSEN (Quality and Safety Education for Nurses), the nurse should:",
+options:[
+{letter:'A',text:'Document the medication as given at the correct time since no harm occurred and the dose was right',correct:false,rationale:'Falsifying documentation is NEVER acceptable, regardless of whether harm occurred. This violates the QSEN competency of safety and is also a legal violation. Documentation must always reflect actual events and actual times.'},
+{letter:'B',text:'Report the late administration through the facility\'s incident reporting system as a medication error',correct:true,rationale:'A medication given at the wrong time IS a medication error — even if no harm occurred. QSEN emphasizes a culture of safety where all errors are reported transparently to identify system problems. The heavy workload that caused this error is a system issue that needs to be addressed. Reporting is not punitive — it improves safety for all patients.'},
+{letter:'C',text:'Inform the charge nurse verbally but skip the incident report since no patient harm resulted',correct:false,rationale:'Verbal notification alone does not create a record that can be analyzed for system improvements. QSEN promotes systematic reporting so patterns can be identified. If multiple nurses are giving late medications due to staffing, the system needs to know — verbal reports alone do not capture this data.'},
+{letter:'D',text:'Do nothing because the medication was ultimately given and the patient was not harmed',correct:false,rationale:'A "no harm, no foul" approach directly contradicts QSEN safety principles. Near-misses and minor errors are learning opportunities. The staffing issue that caused the late administration could cause a serious error next time. Reporting allows the system to intervene before harm occurs.'}
+],
+vocabTip:"QSEN = Quality and Safety Education for Nurses. The 6 QSEN competencies: Patient-Centered Care, Teamwork & Collaboration, Evidence-Based Practice, Quality Improvement, Safety, and Informatics. Safety includes creating a just culture where errors are reported openly without fear of punishment. The goal is to fix SYSTEMS, not blame individuals. Wrong time = medication error, even if the right drug and right dose were given."
+},
+{id:3,chapter:1,difficulty:'medium',sata:false,trap:false,
+stem:"A pharmacy technician catches a prescribing error before the medication is dispensed to the floor — the physician ordered potassium chloride 40 mEq IV push instead of IV infusion. The technician alerts the pharmacist, who corrects the order. No medication reached the patient. This event is BEST classified as:",
+options:[
+{letter:'A',text:'A sentinel event requiring immediate root cause analysis and regulatory reporting',correct:false,rationale:'A sentinel event requires the error to REACH the patient and cause (or have potential for) serious harm. This error was intercepted before reaching the patient. While it was a dangerous prescribing error, the safety system (pharmacy check) worked as intended.'},
+{letter:'B',text:'A near-miss event that should still be reported to identify system vulnerabilities',correct:true,rationale:'A near miss is an event that COULD have caused harm but was caught before reaching the patient. IV push potassium chloride is lethal — it causes cardiac arrest. The pharmacy technician\'s catch prevented a potentially fatal error. Near-miss reporting is critical because it reveals system weaknesses that could lead to actual harm next time the safety net fails.'},
+{letter:'C',text:'A routine pharmacy intervention that does not require reporting because the system worked correctly',correct:false,rationale:'While the system DID work (the error was caught), near-miss events should still be reported. The fact that a physician wrote an order for a lethal administration route is a system vulnerability. What if the next technician misses it? Reporting helps identify why the prescribing error happened in the first place.'},
+{letter:'D',text:'A medication variance that only requires documentation in the patient\'s medical record',correct:false,rationale:'Since the medication never reached the patient, there is nothing to document in the patient\'s chart. However, the near-miss should be reported through the facility\'s safety reporting system so the prescribing error pattern can be analyzed and prevented.'}
+],
+vocabTip:"Near miss = an error that was caught BEFORE reaching the patient. Sentinel event = an error that DID reach the patient and caused (or could cause) death or serious harm. Think of near misses as free lessons — you learn what almost went wrong without anyone getting hurt. The Swiss Cheese Model explains why near-miss reporting matters: errors pass through multiple 'slices' of defense. Each near miss shows you where the holes in your cheese are."
+},
+
+// ═══ CHAPTER 2: Failure to Rescue, Early Warning Scores, RRT ═══
+{id:4,chapter:2,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is caring for a 58-year-old patient who is post-op day 1 after a hip replacement. At 0600, vitals are: T 99.2°F, HR 92, RR 22, BP 128/78, SpO2 94% on room air. At 1000, vitals are: T 100.8°F, HR 108, RR 26, BP 110/68, SpO2 91% on room air. The patient states, \"I just feel tired.\" The surgeon rounds at 1030 and documents \"stable post-op course.\" At 1400, vitals are: T 102.4°F, HR 124, RR 32, BP 88/54, SpO2 86%. The patient is now confused and diaphoretic. Which statement BEST describes this situation?",
+options:[
+{letter:'A',text:'The surgeon appropriately assessed the patient at 1030 and the decline after that point was unforeseeable',correct:false,rationale:'TRAP. The trend was already concerning at 1000: rising HR, rising temperature, dropping SpO2, dropping BP, and increasing RR. These were early warning signs of deterioration. The surgeon\'s "stable" note does NOT relieve the nurse of independent assessment and escalation responsibility.'},
+{letter:'B',text:'This is failure to rescue — the 1000 vital signs showed a clear trend of deterioration that warranted escalation before the patient reached a critical state',correct:true,rationale:'The 1000 vitals showed a worsening trend across ALL parameters: HR up 16, temp rising, RR increasing, BP dropping, SpO2 declining. An early warning score calculation at 1000 would have flagged this patient for immediate intervention. Waiting 4 more hours allowed progression to septic shock. The nurse should have escalated at 1000, regardless of the surgeon\'s later "stable" assessment.'},
+{letter:'C',text:'The nurse acted appropriately by deferring to the surgeon\'s expert clinical judgment at 1030',correct:false,rationale:'Nurses have an INDEPENDENT professional obligation to recognize and escalate deterioration. The surgeon may have had a different assessment at one point in time, but the nurse was observing a continuous worsening trend. Deferring to a physician without voicing clinical concerns is abandoning the patient advocacy role.'},
+{letter:'D',text:'The patient\'s decline was caused by the surgery itself and could not have been prevented by earlier intervention',correct:false,rationale:'Post-op complications like sepsis CAN be prevented or mitigated with early recognition and intervention (antibiotics, fluid resuscitation, source control). The entire concept of failure to rescue is that timely intervention changes outcomes. Earlier escalation at 1000 could have prevented the progression to shock.'}
+],
+vocabTip:"Early Warning Scores (EWS) use vital sign parameters to calculate a numerical score that triggers specific escalation responses. Parameters include HR, RR, BP, temperature, SpO2, and level of consciousness. Higher scores = sicker patient = faster escalation needed. The key exam concept: TRENDING vital signs matters more than any single set. A nurse who sees vitals getting worse over time MUST escalate — even if each individual set doesn\'t look alarming on its own."
+},
+{id:5,chapter:2,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse calculates a patient\'s Modified Early Warning Score (MEWS) and gets a score of 5, which meets the facility\'s threshold for activating the Rapid Response Team. However, the patient\'s primary nurse from the previous shift tells the current nurse, \"Oh, that patient always runs a little tachy and their blood pressure is always on the low side. Don\'t worry about it.\" What is the MOST appropriate action?",
+options:[
+{letter:'A',text:'Accept the previous nurse\'s assessment since they know the patient\'s baseline better',correct:false,rationale:'While understanding a patient\'s baseline is important, it does not override an objective scoring system designed to catch deterioration. The previous nurse\'s subjective reassurance cannot replace a validated clinical tool. Additionally, what is "normal" for one shift may represent a worsening trend.'},
+{letter:'B',text:'Activate the Rapid Response Team as indicated by the MEWS score and communicate the patient\'s baseline to the RRT upon arrival',correct:true,rationale:'When an objective early warning score meets the activation threshold, the nurse should activate the RRT. The patient\'s baseline information is valuable context for the RRT to consider during their assessment, but it should not delay or prevent activation. The RRT can then determine if the score reflects the patient\'s chronic state or acute deterioration.'},
+{letter:'C',text:'Reassess the patient in 30 minutes to see if the score improves before activating the RRT',correct:false,rationale:'Delaying RRT activation when the threshold is met contradicts the purpose of early warning systems. The system exists to prevent failure to rescue — waiting and watching negates that protection. If the patient\'s condition worsens in those 30 minutes, the delay could be the difference between recovery and a poor outcome.'},
+{letter:'D',text:'Document the MEWS score and notify the attending physician by phone instead of calling the RRT',correct:false,rationale:'When the MEWS threshold is met, the protocol calls for RRT activation, not just a physician phone call. The attending physician may not be immediately available, and the RRT provides rapid bedside evaluation with critical care expertise. Follow the protocol as designed.'}
+],
+vocabTip:"MEWS (Modified Early Warning Score) assigns points based on vital sign deviations: systolic BP, heart rate, respiratory rate, temperature, and AVPU consciousness level. Total score determines action: low score = routine monitoring, moderate score = increase frequency, high score = activate RRT. The system removes subjectivity — it doesn\'t matter what the previous nurse 'thinks.' The number drives the response. On exams, if the score says activate, you activate."
+},
+{id:6,chapter:2,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is caring for a post-operative patient. At 2200, the patient\'s vital signs are: HR 110, RR 28, BP 96/58, SpO2 90%, and the patient is restless and anxious. The nurse suspects the patient is hemorrhaging internally. What specific vital sign findings should the nurse communicate to the Rapid Response Team using SBAR?",
+options:[
+{letter:'A',text:'Situation: post-op patient deteriorating. Background: surgery today. Assessment: HR 110, RR 28, BP 96/58, SpO2 90%, restless, anxious, possible internal hemorrhage. Recommendation: request immediate bedside evaluation.',correct:true,rationale:'This uses the complete SBAR framework with specific, objective data. The nurse identifies the situation (deteriorating post-op patient), provides background (surgery today), gives a thorough assessment with all relevant vital signs AND clinical observations (restless, anxious), offers a clinical hypothesis (possible hemorrhage), and makes a clear recommendation (immediate evaluation). This communication is concise, complete, and actionable.'},
+{letter:'B',text:'Situation: I need you to come see my patient. Background: they had surgery. Assessment: vitals are a little off. Recommendation: please come when you can.',correct:false,rationale:'This communication is dangerously vague. "Vitals are a little off" does not convey urgency or allow the RRT to triage appropriately. "Come when you can" suggests the situation is not urgent. Effective SBAR requires SPECIFIC numbers, SPECIFIC clinical findings, and a CLEAR recommendation that matches the urgency.'},
+{letter:'C',text:'Situation: post-op patient. Background: surgery was this morning. Assessment: the patient doesn\'t look right to me. Recommendation: I think we should do something.',correct:false,rationale:'While nursing intuition ("doesn\'t look right") is valuable, SBAR communication must include objective data. The RRT needs numbers to prepare appropriate resources and interventions before arriving. "Do something" is not an actionable recommendation.'},
+{letter:'D',text:'Situation: possible code blue. Background: unknown surgical history. Assessment: patient is crashing. Recommendation: bring the crash cart.',correct:false,rationale:'This overstates the situation (the patient is not in cardiac arrest — they have a pulse and are responsive) and understates the assessment (no specific vitals provided). Calling a code blue for a deteriorating but conscious patient with a pulse is inappropriate. This is an RRT activation, not a code blue.'}
+],
+vocabTip:"SBAR = Situation, Background, Assessment, Recommendation. Think of it as telling a story in 30 seconds: WHAT is happening (situation), WHO is this patient (background), WHAT did you find (assessment — always include SPECIFIC vital signs and clinical findings), and WHAT do you think should happen next (recommendation). On exams, the best SBAR answer always has specific numbers, not vague descriptions. 'BP 96/58' beats 'blood pressure is low' every time."
+},
+
+// ═══ CHAPTER 3: Perfusion Assessments, DVT Risk, Incentive Spirometry ═══
+{id:7,chapter:3,difficulty:'medium',sata:false,trap:true,
+stem:"A nurse is assessing two patients. Patient A has capillary refill of 5 seconds, weak thready pedal pulses, and cool pale feet. Patient B has capillary refill of 1 second, bounding pedal pulses, and warm pink feet with 2+ pitting edema. Which interpretation is MOST accurate?",
+options:[
+{letter:'A',text:'Patient A has adequate arterial perfusion and Patient B has venous insufficiency',correct:false,rationale:'TRAP — this reverses the arterial assessment. Patient A\'s findings (slow cap refill, weak pulses, cool pale feet) indicate POOR arterial perfusion, not adequate. Patient B\'s warm, pink feet with bounding pulses and edema do suggest venous insufficiency, but the first half of this answer is wrong.'},
+{letter:'B',text:'Patient A has inadequate arterial perfusion and Patient B likely has venous insufficiency with fluid overload',correct:true,rationale:'Patient A: capillary refill >3 seconds = sluggish (normal is <3 sec), weak pulses and cool pale extremities = poor arterial blood flow TO the tissues. Patient B: rapid cap refill and bounding pulses = strong arterial flow, but pitting edema = fluid is getting TO the tissues but not draining back efficiently (venous return problem). Bounding pulses with edema can also indicate fluid overload.'},
+{letter:'C',text:'Both patients have arterial insufficiency presenting in different stages of progression',correct:false,rationale:'Patient B does NOT have arterial insufficiency. Bounding pulses, rapid cap refill, and warm pink skin indicate excellent arterial flow. The edema is a venous or fluid problem. Arterial insufficiency would show the OPPOSITE: weak pulses, slow cap refill, cool/pale skin — like Patient A.'},
+{letter:'D',text:'Patient A is normal for an elderly patient and Patient B has an acute DVT causing the edema',correct:false,rationale:'Patient A\'s findings are NOT normal at any age — capillary refill of 5 seconds and absent pulses are always concerning. While Patient B\'s edema could potentially be from DVT, the bilateral description and bounding pulses are more consistent with venous insufficiency or fluid overload than acute DVT (which is typically unilateral with pain and warmth).'}
+],
+vocabTip:"Capillary refill: press the nail bed, release, count seconds until pink returns. Normal = <3 seconds. Slow = poor arterial perfusion. Pulse quality: 0 = absent, 1+ = weak/thready, 2+ = normal, 3+ = bounding. Arterial problem signs: slow cap refill, weak/absent pulses, cool, pale, painful. Venous problem signs: edema, warm skin, may have bounding pulses (blood gets there but can\'t get back). Think: Arterial = delivery truck can\'t get there. Venous = delivery truck arrived but the return truck is stuck."
+},
+{id:8,chapter:3,difficulty:'medium',sata:true,trap:false,
+stem:"A nurse is assessing a 62-year-old patient who has been on bed rest for 5 days after abdominal surgery. Which findings increase this patient\'s risk for deep vein thrombosis (DVT)? (Select all that apply.)",
+options:[
+{letter:'A',text:'Prolonged immobility from 5 days of bed rest causing venous stasis',correct:true,rationale:'Immobility is a major component of Virchow\'s triad (venous stasis). When the leg muscles are not contracting (as in ambulation), blood pools in the deep veins of the legs, increasing clot formation risk. Five days of bed rest is significant immobility. This is why early ambulation and SCDs are ordered post-operatively.'},
+{letter:'B',text:'Recent major abdominal surgery causing hypercoagulability from tissue injury',correct:true,rationale:'Surgery triggers the clotting cascade as part of the body\'s wound healing response. This creates a systemic hypercoagulable state — the blood is "stickier" and more prone to clotting. Major abdominal surgery is particularly high risk. This is the second component of Virchow\'s triad (hypercoagulability).'},
+{letter:'C',text:'Age over 60, which is an independent risk factor for venous thromboembolism',correct:true,rationale:'Age >60 is a significant independent risk factor for DVT. Aging causes venous valve deterioration, decreased muscle mass (less venous pump action), and a natural shift toward a more hypercoagulable state. Combined with immobility and surgery, this patient has THREE major risk factors.'},
+{letter:'D',text:'Daily ambulation to the bathroom three times per day',correct:false,rationale:'Ambulation is a PROTECTIVE factor against DVT, not a risk factor. Walking activates the calf muscle pump, which propels venous blood upward and prevents stasis. However, this patient has been on bed rest for 5 days — if they WERE ambulating, their risk would be lower.'},
+{letter:'E',text:'Use of sequential compression devices (SCDs) on both lower extremities',correct:false,rationale:'SCDs are a PROTECTIVE intervention against DVT, not a risk factor. They mechanically mimic the calf muscle pump by intermittently compressing the legs, promoting venous return and preventing stasis. SCDs are part of DVT PREVENTION, not DVT risk.'}
+],
+vocabTip:"Virchow\'s Triad = the 3 factors that cause DVT: (1) Venous stasis — blood flow slows down (bed rest, immobility, long flights), (2) Endothelial injury — vessel wall damage (surgery, trauma, IV catheters), (3) Hypercoagulability — blood clots too easily (surgery, cancer, pregnancy, oral contraceptives, genetic conditions). If a patient has 1 factor, they\'re at risk. If they have 2-3 factors, they\'re at HIGH risk. This patient has all three: stasis (bed rest) + injury (surgery) + hypercoagulability (surgery + age)."
+},
+{id:9,chapter:3,difficulty:'easy',sata:false,trap:false,
+stem:"A nurse is teaching a postoperative patient how to use an incentive spirometer. The patient asks why they need to use it when they are breathing fine. Which response BEST explains the purpose of incentive spirometry?",
+options:[
+{letter:'A',text:'It prevents atelectasis by encouraging deep breathing that fully expands the alveoli, which tend to collapse after surgery due to shallow breathing from pain and anesthesia effects',correct:true,rationale:'After surgery, patients breathe shallowly due to incisional pain and residual anesthetic effects. Shallow breathing causes alveolar collapse (atelectasis), which reduces gas exchange and can lead to pneumonia. The incentive spirometer provides visual feedback to encourage sustained deep inhalation, which reopens collapsed alveoli and prevents post-operative pulmonary complications.'},
+{letter:'B',text:'It strengthens the respiratory muscles so the patient can be weaned off oxygen faster',correct:false,rationale:'The primary purpose is NOT respiratory muscle strengthening — it is preventing atelectasis by promoting alveolar expansion. While deep breathing does engage respiratory muscles, the incentive spirometer is a lung expansion device, not a strengthening tool.'},
+{letter:'C',text:'It monitors oxygen levels in the blood so the nurse can determine if supplemental oxygen is needed',correct:false,rationale:'The incentive spirometer does NOT measure oxygen levels. It measures inspiratory volume (how much air the patient inhales). Pulse oximetry measures SpO2. The incentive spirometer is a TREATMENT tool, not a monitoring device.'},
+{letter:'D',text:'It clears mucus from the airways by creating turbulent airflow that dislodges secretions',correct:false,rationale:'While deep breathing can help with secretion clearance, the primary purpose of incentive spirometry is lung EXPANSION (preventing atelectasis), not airway clearance. Coughing and suctioning are the primary interventions for mucus clearance.'}
+],
+vocabTip:"Incentive spirometer = deep breathing exercise with a visual coach. The patient inhales slowly and deeply to raise the indicator to the target volume, then holds the breath for 3-5 seconds (this keeps alveoli open). Use it 10 times per hour while awake. Post-op patients need it because: anesthesia depresses respiratory drive + pain causes splinting (shallow breathing) = alveoli collapse (atelectasis) = decreased gas exchange = pneumonia risk. Prevention is easier than treatment."
+},
+
+// ═══ CHAPTER 4: Medication-Induced Delirium, Fall Prevention, Geriatric Syndromes ═══
+{id:10,chapter:4,difficulty:'hard',sata:false,trap:true,
+stem:"An 84-year-old patient on a medical-surgical unit was alert and oriented on admission. Three days later, the patient is pulling at their IV line, seeing \"bugs on the wall,\" and has a fluctuating level of consciousness. The nurse reviews the medication list and notes that diphenhydramine (Benadryl) 50 mg was added 2 days ago for insomnia. Which connection should the nurse make?",
+options:[
+{letter:'A',text:'The visual hallucinations indicate the patient is developing dementia and needs a psychiatric consult',correct:false,rationale:'TRAP. This is ACUTE onset (3 days) in a patient who was oriented on admission. Dementia is chronic and progressive over months to years. Visual hallucinations with acute fluctuating confusion = delirium, not dementia. Always look for a reversible cause before assuming irreversible cognitive decline.'},
+{letter:'B',text:'The diphenhydramine likely triggered anticholinergic delirium in this elderly patient and the nurse should request discontinuation',correct:true,rationale:'Diphenhydramine is a potent anticholinergic medication on the Beers Criteria list (medications inappropriate for elderly patients). Anticholinergic side effects — confusion, hallucinations, agitation, urinary retention, dry mouth — are especially dangerous in the elderly. The timing (Benadryl started 2 days ago, delirium began shortly after) strongly suggests medication-induced delirium. The nurse should advocate for discontinuation and a safer sleep alternative.'},
+{letter:'C',text:'The patient is experiencing alcohol withdrawal and the Benadryl is coincidental',correct:false,rationale:'While alcohol withdrawal can cause delirium tremens with hallucinations, there is no history suggesting alcohol use. The much more likely explanation is the temporal relationship between starting an anticholinergic medication and developing delirium. Always consider the most probable cause — medication-induced delirium is extremely common in hospitalized elderly patients.'},
+{letter:'D',text:'The patient needs a higher dose of diphenhydramine to achieve better sleep and reduce the agitation',correct:false,rationale:'Increasing the dose of the medication that is CAUSING the delirium would be extremely dangerous. More anticholinergic medication = worse delirium. This could progress to anticholinergic toxicity (hyperthermia, seizures, cardiac arrhythmias). The drug should be STOPPED, not increased.'}
+],
+vocabTip:"Anticholinergic effects mnemonic — 'Hot as a hare (fever), Blind as a bat (dilated pupils), Dry as a bone (dry mouth/skin), Red as a beet (flushed), Mad as a hatter (confusion/hallucinations).' The Beers Criteria is a list of medications that are potentially inappropriate for adults 65+. Diphenhydramine is on that list because the elderly are extremely sensitive to its anticholinergic effects. On exams, if an elderly patient develops sudden confusion after starting a new medication — think drug-induced delirium first."
+},
+{id:11,chapter:4,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is conducting a fall risk assessment on an 78-year-old patient admitted for pneumonia. The patient takes amlodipine (a calcium channel blocker) for hypertension and reports occasional dizziness when standing up from a chair. The patient uses a cane at home but did not bring it to the hospital. The Morse Fall Scale score is 55 (high risk). Which nursing intervention is the HIGHEST priority?",
+options:[
+{letter:'A',text:'Place a yellow fall risk bracelet on the patient and ensure the call light is within reach',correct:false,rationale:'While these are appropriate fall precautions, they are not the highest PRIORITY. Identification (bracelet) and communication (call light) are important but passive measures. The priority should address the most immediate modifiable risk factor — the orthostatic hypotension that could cause an imminent fall.'},
+{letter:'B',text:'Implement orthostatic hypotension precautions: instruct the patient to sit on the edge of the bed before standing, rise slowly, and call for assistance with ambulation',correct:true,rationale:'The patient reports positional dizziness (orthostatic hypotension), likely worsened by the calcium channel blocker (amlodipine). This is the most immediate and modifiable fall risk. Teaching the patient to change positions gradually (dangle feet, rise slowly, wait for dizziness to pass) directly addresses the mechanism most likely to cause a fall. Assistance with ambulation compensates for the absent cane.'},
+{letter:'C',text:'Request a physical therapy consult for gait training and mobility assessment',correct:false,rationale:'A PT consult is appropriate but not the highest priority. PT consults may take hours to days to fulfill. The patient needs protection from falls NOW while awaiting PT evaluation. Immediate nursing interventions for the orthostatic hypotension risk should come first.'},
+{letter:'D',text:'Keep the patient on strict bed rest to eliminate the risk of falling',correct:false,rationale:'Bed rest in elderly patients causes rapid deconditioning, muscle wasting, pressure injuries, DVT, and pneumonia — all of which INCREASE fall risk and worsen outcomes. Immobilizing an elderly pneumonia patient is the opposite of evidence-based practice. Safe mobility with assistance is the standard of care.'}
+],
+vocabTip:"Orthostatic hypotension = BP drops when you stand up (ortho = standing, static = position, hypo = low, tension = pressure). Measured by taking BP lying, sitting, and standing — a drop of 20 mmHg systolic or 10 mmHg diastolic is positive. Common causes in elderly: medications (BP meds, diuretics, antidepressants), dehydration, autonomic dysfunction. Fall prevention priority order: (1) Address the most dangerous immediate risk, (2) Implement environmental safety, (3) Consult specialists. The Morse Fall Scale scores: 0-24 low risk, 25-44 moderate risk, 45+ high risk."
+},
+{id:12,chapter:4,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is caring for a 79-year-old patient who presents with unintentional weight loss of 20 pounds in 6 months, decreased grip strength, slow walking speed, self-reported exhaustion, and low physical activity. The nurse recognizes this cluster of findings as which geriatric syndrome?",
+options:[
+{letter:'A',text:'Frailty syndrome — a state of decreased physiological reserve that increases vulnerability to adverse health outcomes',correct:true,rationale:'This patient meets the Fried Frailty Phenotype criteria: (1) unintentional weight loss >10 lbs/year, (2) decreased grip strength, (3) slow gait speed, (4) self-reported exhaustion, (5) low physical activity. Having 3 or more of these 5 criteria = frail. Frailty predicts falls, hospitalizations, disability, and mortality. It is a distinct syndrome, not just "getting old."'},
+{letter:'B',text:'Sarcopenia — age-related muscle loss causing decreased strength and function',correct:false,rationale:'Sarcopenia (muscle loss) is ONE component of frailty, but frailty is a broader syndrome. This patient has multiple findings beyond just muscle loss — exhaustion, weight loss, and low activity. Sarcopenia contributes to frailty but does not encompass the full clinical picture described here.'},
+{letter:'C',text:'Failure to thrive — a nonspecific decline in elderly patients without an identifiable medical cause',correct:false,rationale:'Failure to thrive in the elderly is a general term for decline, but the specific 5-criteria pattern described here has a formal name: frailty syndrome. Using precise clinical terminology allows for standardized screening, intervention, and research. Failure to thrive is a less specific and less useful designation.'},
+{letter:'D',text:'Normal aging — these are expected physiological changes in a person approaching 80 years of age',correct:false,rationale:'These findings are NOT normal aging. While some decline occurs with age, the severity described (20 lb weight loss, exhaustion, very slow gait) represents pathological frailty, not normal senescence. Many 79-year-olds are NOT frail. Normalizing these findings would mean missing an opportunity to intervene and improve outcomes.'}
+],
+vocabTip:"Frailty Phenotype (Fried Criteria) — 5 measurable criteria: (1) Shrinking (unintentional weight loss), (2) Weakness (decreased grip strength), (3) Slowness (slow walking speed), (4) Exhaustion (self-reported), (5) Low activity. Score: 0 criteria = robust, 1-2 = pre-frail, 3+ = frail. Frailty is NOT inevitable aging — it is a clinical syndrome that can be screened for and intervened upon (exercise, nutrition, medication review). On exams, if you see this cluster of 5 findings in an elderly patient, the answer is frailty."
+},
+
+// ═══ CHAPTER 5: Family Resistance to Transgender Care, Hormone Therapy Labs ═══
+{id:13,chapter:5,difficulty:'medium',sata:false,trap:true,
+stem:"A 19-year-old transgender male (FtM) patient is admitted for an appendectomy. The patient\'s parents arrive and insist on calling the patient by their birth name, using she/her pronouns, and tell the nurse, \"We don\'t support this transgender nonsense — use the real name on the insurance card.\" The patient becomes visibly distressed. Which nursing action is MOST appropriate?",
+options:[
+{letter:'A',text:'Use the patient\'s preferred name and pronouns as documented in the chart, privately educate the parents about the importance of affirming care, and offer family support resources',correct:true,rationale:'The patient is 19 — a legal adult whose preferences take priority. The nurse must use the patient\'s preferred name and pronouns regardless of family objections. This is both ethical (respecting autonomy) and evidence-based (deadnaming and misgendering cause measurable psychological harm). Privately offering the family education and support resources is therapeutic without being confrontational.'},
+{letter:'B',text:'Use the legal name from the insurance card for all interactions since that is what the medical record officially shows',correct:false,rationale:'TRAP. Legal name for billing/insurance purposes is separate from how the patient is addressed in clinical interactions. Many EMR systems have fields for both legal and preferred names. Using the deadname (birth name) in clinical interactions causes harm and violates the patient\'s right to respectful, affirming care.'},
+{letter:'C',text:'Alternate between the preferred name and birth name depending on whether the parents are present in the room',correct:false,rationale:'Inconsistency is invalidating and harmful. Switching names based on who is in the room signals to the patient that their identity is negotiable or something to hide. It also undermines the nurse-patient therapeutic relationship by showing the nurse prioritizes family comfort over patient identity.'},
+{letter:'D',text:'Ask the patient to step out so the nurse can explain the situation to the parents without the patient present',correct:false,rationale:'The patient should not be excluded from conversations about their own care and identity. Sending the patient out to discuss them with their family is paternalistic and disempowering. The patient is an adult and should be central to all interactions regarding their care and identity.'}
+],
+vocabTip:"Key terms: Deadnaming = using a transgender person\'s birth name instead of their chosen name. This causes significant psychological distress and is associated with increased depression and suicidality. Affirming care = healthcare that respects and supports the patient\'s gender identity. For adult patients, their preferences ALWAYS take priority over family wishes. The nurse\'s role: advocate for the patient, use preferred name/pronouns, and offer family resources WITHOUT forcing acceptance."
+},
+{id:14,chapter:5,difficulty:'hard',sata:false,trap:false,
+stem:"A nurse is reviewing lab results for a transgender female (MtF) patient who has been on estrogen and spironolactone therapy for 18 months. Which lab finding would require the nurse to notify the provider immediately?",
+options:[
+{letter:'A',text:'Potassium level of 6.2 mEq/L (critical high) — spironolactone is a potassium-sparing diuretic that can cause life-threatening hyperkalemia',correct:true,rationale:'Spironolactone (used as an anti-androgen in MtF transition) is a potassium-sparing diuretic. It blocks aldosterone, which means the kidneys retain potassium instead of excreting it. A potassium of 6.2 is critically elevated (normal 3.5-5.0) and can cause fatal cardiac arrhythmias (peaked T waves, widened QRS, cardiac arrest). This requires IMMEDIATE notification and likely IV calcium gluconate, insulin/glucose, and possible kayexalate.'},
+{letter:'B',text:'Testosterone level lower than the male reference range',correct:false,rationale:'A low testosterone level is the DESIRED therapeutic effect. Spironolactone suppresses testosterone as part of feminizing hormone therapy. This lab result means the medication is working as intended.'},
+{letter:'C',text:'Prolactin level mildly elevated above the female reference range',correct:false,rationale:'Estrogen therapy commonly causes mild prolactin elevation. While this should be monitored (rare risk of prolactinoma), a mild elevation is expected and not an emergency. Significant elevation warrants further workup but not immediate notification.'},
+{letter:'D',text:'Hemoglobin of 13.5 g/dL, which is within the male reference range but above the female reference range',correct:false,rationale:'Hemoglobin values shift gradually with hormone therapy. A value of 13.5 is within normal limits for either reference range and is not dangerous. Over time on estrogen therapy, hemoglobin typically decreases toward the female reference range. This is not an emergency.'}
+],
+vocabTip:"Spironolactone in transgender care: used as an anti-androgen (blocks testosterone effects). The dangerous side effect = hyperkalemia (high potassium) because it is potassium-SPARING. Monitor potassium levels regularly. Critical potassium (>6.0) can cause cardiac arrest. Other labs to monitor in MtF patients on hormone therapy: liver function (estrogen is hepatotoxic at high doses), lipid panel (estrogen changes lipid profile), prolactin (estrogen stimulates prolactin), and blood glucose. Remember: spironolactone = potassium UP."
+},
+
+// ═══ CHAPTER 6: Phantom Limb Pain, Non-Pharm Interventions, Opioid Side Effect Management ═══
+{id:15,chapter:6,difficulty:'medium',sata:false,trap:true,
+stem:"A patient who had a below-knee amputation 3 days ago reports severe burning and cramping pain in the foot that was amputated. The patient is distressed and states, \"I know it sounds crazy, but my missing foot is on fire.\" Which response by the nurse is MOST therapeutic?",
+options:[
+{letter:'A',text:'Reassure the patient that the pain is not real since the foot is no longer there, and suggest a psychiatric consult for the unusual perception',correct:false,rationale:'TRAP. Phantom limb pain IS real — it is caused by reorganization of the somatosensory cortex and peripheral nerve signals from the residual limb. Telling the patient the pain is not real is dismissive, invalidating, and factually incorrect. Phantom limb pain is a well-documented neurological phenomenon, not a psychiatric disorder.'},
+{letter:'B',text:'Validate the patient\'s experience by explaining that phantom limb pain is a real neurological phenomenon, then implement ordered interventions including medications for neuropathic pain',correct:true,rationale:'The nurse should (1) validate — "What you\'re feeling is real and very common after amputation. It\'s called phantom limb pain." (2) educate — explain it is caused by the brain and nerves still sending signals as if the limb were present. (3) treat — phantom limb pain responds to neuropathic pain medications (gabapentin, pregabalin), mirror therapy, TENS, and sometimes tricyclic antidepressants. Standard opioids alone are often insufficient because this is neuropathic, not nociceptive pain.'},
+{letter:'C',text:'Administer the PRN IV morphine ordered for post-operative pain, as this should adequately address the phantom limb pain',correct:false,rationale:'Phantom limb pain is primarily NEUROPATHIC — it originates from nerve dysfunction, not tissue damage. While opioids may provide some relief, neuropathic pain often requires adjuvant medications (gabapentin, pregabalin, amitriptyline) that target nerve signaling pathways. Relying solely on opioids for phantom limb pain often leads to inadequate relief and unnecessary opioid escalation.'},
+{letter:'D',text:'Apply an ice pack to the residual limb to numb the nerve endings that are causing the phantom sensation',correct:false,rationale:'Applying ice to the stump may help with residual limb pain (pain at the surgical site) but does not effectively treat phantom limb pain, which originates from cortical reorganization in the brain, not from the stump itself. The pain signals are coming from the brain, not the end of the residual limb.'}
+],
+vocabTip:"Phantom limb pain = pain felt in a body part that has been amputated. It is REAL pain caused by the brain\'s somatosensory cortex still having a 'map' of the missing limb. Burning, cramping, and shooting sensations are typical. It is NEUROPATHIC pain (nerve-based), NOT nociceptive (tissue-based). Treatment: gabapentin/pregabalin (first-line), mirror therapy (tricks the brain using visual feedback), TENS, tricyclic antidepressants. Opioids alone are usually not enough. Key exam point: ALWAYS validate the patient\'s pain — phantom pain is not imaginary."
+},
+{id:16,chapter:6,difficulty:'easy',sata:true,trap:false,
+stem:"A patient with chronic back pain asks about non-pharmacological pain management to avoid increasing medications. Which interventions are appropriate to recommend? (Select all that apply.)",
+options:[
+{letter:'A',text:'Heat application (warm packs, heating pads) for muscle spasm relief',correct:true,rationale:'Heat relaxes muscle spasms and increases blood flow to tight tissues. Apply 15-20 minutes on, 20+ minutes off. Good for chronic and muscle-related pain.'},
+{letter:'B',text:'Guided imagery and deep breathing exercises for distraction and relaxation',correct:true,rationale:'Guided imagery activates the descending inhibitory pain pathway through distraction and relaxation. Cognitive-behavioral techniques are evidence-based for chronic pain management.'},
+{letter:'C',text:'Gentle stretching exercises as tolerated to maintain flexibility',correct:true,rationale:'Gentle stretching reduces muscle tension and maintains flexibility. Activity within pain tolerance is evidence-based for chronic back pain — movement is medicine.'},
+{letter:'D',text:'Apply ice continuously for 2 hours to numb the area, then immediately take a hot bath',correct:false,rationale:'Continuous ice for 2 hours causes frostbite and tissue damage — ice should be 15-20 minutes max. Rapid extreme temperature changes can cause vascular shock to tissues. Both duration and method are unsafe.'},
+{letter:'E',text:'Complete bed rest until the pain fully subsides before resuming any activity',correct:false,rationale:'Prolonged bed rest worsens chronic pain through deconditioning and muscle atrophy. Evidence supports gentle activity within pain tolerance, not immobilization.'}
+],
+vocabTip:"Non-pharmacological pain management categories: (1) Physical — heat, cold, massage, TENS, positioning, exercise/stretching. (2) Cognitive-behavioral — guided imagery, distraction, meditation, deep breathing, music therapy. (3) Complementary — acupuncture, aromatherapy, therapeutic touch. Heat = relaxes muscles, increases blood flow (good for chronic/muscle pain). Cold = decreases inflammation, numbs area (good for acute/inflammatory pain). Both should be applied 15-20 minutes on, 20+ minutes off. On exams, non-pharm interventions are ALWAYS part of the correct multimodal pain plan."
+},
+{id:17,chapter:6,difficulty:'medium',sata:false,trap:false,
+stem:"A patient has been receiving scheduled IV morphine every 4 hours for 3 days after major surgery. The patient has not had a bowel movement since surgery and reports abdominal distension and discomfort. The nurse should anticipate which intervention to manage this expected opioid side effect?",
+options:[
+{letter:'A',text:'Administer a scheduled stool softener (docusate) combined with a stimulant laxative (senna) as a prophylactic bowel regimen',correct:true,rationale:'Opioid-induced constipation (OIC) is the most common side effect of opioids and the ONLY side effect to which patients do NOT develop tolerance. It should be PREVENTED, not just treated after it occurs. A stool softener (docusate softens stool) combined with a stimulant laxative (senna stimulates peristalsis) is the standard prophylactic bowel regimen for any patient on scheduled opioids. Ideally, this should have been started when the morphine was ordered.'},
+{letter:'B',text:'Hold the morphine until the patient has a bowel movement to allow normal GI function to resume',correct:false,rationale:'Withholding pain medication to resolve constipation is not appropriate — it leaves the patient in uncontrolled pain. The correct approach is to treat BOTH the pain AND the constipation simultaneously. Pain medication and bowel regimen should be managed together.'},
+{letter:'C',text:'Increase dietary fiber intake and encourage the patient to drink more water — this should be sufficient',correct:false,rationale:'While fiber and hydration are generally good for bowel health, they are INSUFFICIENT for opioid-induced constipation. Opioids decrease GI motility by binding to mu receptors in the gut — fiber and water cannot overcome pharmacological paralysis of peristalsis. Active pharmacological intervention (laxatives) is needed.'},
+{letter:'D',text:'Wait to see if the constipation resolves on its own as the patient transitions to oral pain medication',correct:false,rationale:'OIC does not resolve spontaneously while the patient is still receiving opioids. Oral opioids cause the SAME constipation as IV opioids (actually sometimes worse because oral opioids pass directly through the GI tract). Waiting allows the problem to worsen and can lead to ileus, fecal impaction, or bowel obstruction.'}
+],
+vocabTip:"Opioid-induced constipation (OIC) = the ONE opioid side effect patients NEVER develop tolerance to. Tolerance develops to: sedation (days), nausea (days), respiratory depression (weeks), euphoria. But NOT constipation — it persists as long as the patient takes opioids. That\'s why bowel regimens must START when opioids start and CONTINUE as long as opioids continue. Standard regimen: docusate (softener) + senna (stimulant). For severe OIC: methylnaltrexone (Relistor) — an opioid antagonist that only works in the gut and doesn\'t reverse pain relief."
+},
+
+// ═══ CHAPTER 7: Discharge Planning, Functional Independence, Community Resources ═══
+{id:18,chapter:7,difficulty:'medium',sata:false,trap:false,
+stem:"A rehabilitation nurse is preparing a patient for discharge after a stroke that resulted in left-sided hemiparesis. The patient can transfer from bed to wheelchair with minimal assistance, feed themselves with an adaptive fork, but requires moderate assistance with bathing and dressing. Using the Functional Independence Measure (FIM), which discharge disposition is MOST appropriate?",
+options:[
+{letter:'A',text:'Discharge home with home health aide services for bathing/dressing assistance and outpatient occupational therapy to continue working toward independence',correct:true,rationale:'The patient demonstrates significant functional independence: independent transfers with minimal assist, independent feeding with adaptive equipment. The remaining deficits (bathing and dressing requiring moderate assistance) can be managed with home health aide visits. Outpatient OT will continue to work on increasing independence in ADLs. This patient is too functional for a skilled nursing facility but needs more support than fully independent home discharge.'},
+{letter:'B',text:'Transfer to a skilled nursing facility because the patient cannot perform all ADLs independently',correct:false,rationale:'This patient\'s functional level does not warrant SNF placement. They can transfer, eat independently, and only need moderate help with bathing/dressing. SNF is appropriate for patients who need 24-hour skilled nursing care or cannot participate safely in ADLs with community support. Over-institutionalizing patients leads to learned dependence and deconditioning.'},
+{letter:'C',text:'Discharge home without services since the patient can eat and transfer independently',correct:false,rationale:'While the patient is functional in some areas, they cannot safely bathe or dress without moderate assistance. Discharging without support services puts the patient at risk for falls (wet bathroom surfaces + hemiparesis) and skin breakdown (inability to dress wounds, apply compression, etc.). Services are needed for safety.'},
+{letter:'D',text:'Keep the patient in inpatient rehabilitation until they can perform all ADLs completely independently',correct:false,rationale:'Waiting for 100% independence before discharge is unrealistic for many stroke patients and is not a standard discharge criterion. The goal of rehabilitation is maximum functional independence, which may include the use of adaptive equipment and community support services — not perfection. Insurance will not cover continued inpatient rehab once the patient plateaus or reaches community-viable function.'}
+],
+vocabTip:"FIM (Functional Independence Measure) scores 18 activities on a scale of 1-7: 1 = total assistance, 2 = maximal assist, 3 = moderate assist, 4 = minimal assist (patient does 75%+), 5 = supervision, 6 = modified independence (uses device), 7 = complete independence. Discharge planning matches the FIM score to the appropriate level of care: high FIM = home, moderate FIM = home with services, low FIM = SNF or continued rehab. The goal is always the LEAST restrictive environment that is safe."
+},
+{id:19,chapter:7,difficulty:'easy',sata:false,trap:false,
+stem:"A nurse is performing discharge teaching for a patient with a new colostomy who lives alone. The patient expresses anxiety about managing the colostomy at home. Which community resource referral is MOST beneficial for this patient\'s long-term adjustment?",
+options:[
+{letter:'A',text:'Refer to a local ostomy support group and the United Ostomy Associations of America for peer support, education, and practical tips from people living with ostomies',correct:true,rationale:'Peer support groups connect the patient with others who have firsthand experience living with an ostomy. They provide practical tips (how to shower, travel, work, and socialize with an ostomy), emotional support, and normalization. The UOAA provides educational materials, local chapter connections, and a visitor program where trained ostomates visit new patients. This addresses the patient\'s anxiety through shared experience and community.'},
+{letter:'B',text:'Refer to a home health physical therapist to help with abdominal exercises and core strength',correct:false,rationale:'While physical activity is important, the patient\'s primary concern is anxiety about MANAGING the ostomy, not physical rehabilitation. A PT referral does not address the emotional and practical challenges of living alone with a new colostomy.'},
+{letter:'C',text:'Provide the patient with a detailed written manual about colostomy care and consider the teaching complete',correct:false,rationale:'Written materials are a supplement to teaching, not a replacement for hands-on support and emotional processing. A patient who lives alone and is anxious needs ongoing support systems, not just a manual. Reading about ostomy care is different from having someone to call when the pouch leaks at 2 AM.'},
+{letter:'D',text:'Suggest the patient hire a private duty nurse to manage the colostomy long-term',correct:false,rationale:'Hiring a private nurse for long-term colostomy management promotes dependence, not independence. The goal is for the patient to become self-sufficient in ostomy care. Self-management is achievable for most patients with proper education, practice, and support. A private nurse is neither necessary nor financially sustainable for routine colostomy care.'}
+],
+vocabTip:"Community resources are a key part of discharge planning. Types: (1) Support groups — peer-led groups for specific conditions (ostomy, stroke, amputation, cancer). (2) Home health services — skilled nursing, PT, OT, speech therapy, home health aides in the home. (3) Meals on Wheels — nutrition for homebound patients. (4) Area Agency on Aging — connects elderly patients with local services. (5) Durable medical equipment companies — supplies wheelchairs, hospital beds, ostomy supplies. On exams, the best community resource answer addresses the patient\'s SPECIFIC concern and promotes independence."
+},
+{id:20,chapter:7,difficulty:'hard',sata:false,trap:true,
+stem:"A patient in rehabilitation after a traumatic brain injury is being discharged. The nurse notes the patient has cognitive deficits including impaired short-term memory and difficulty with multi-step tasks. The patient insists on returning home alone and refuses all recommended services. The patient is alert, oriented, and has been determined to have decision-making capacity by the care team. What is the nurse\'s BEST action?",
+options:[
+{letter:'A',text:'Petition for guardianship to prevent the patient from making an unsafe decision',correct:false,rationale:'The patient has been determined to have decision-making capacity. You cannot seek guardianship over a patient who has capacity just because you disagree with their choice. Capacity means the patient understands the information, appreciates the consequences, can reason about options, and can communicate a choice. Having cognitive deficits does not automatically equal incapacity.'},
+{letter:'B',text:'Respect the patient\'s decision, thoroughly document the discharge education provided, ensure the patient understands the risks of refusing services, and provide written resource information the patient can access later if they change their mind',correct:true,rationale:'A patient with decision-making capacity has the right to refuse services — even if the healthcare team disagrees. The nurse\'s role is to ensure the patient makes an INFORMED decision by clearly explaining the risks of going home without support. Document thoroughly: what was taught, what was offered, what was refused, and that the patient verbalized understanding of risks. Providing resource information respects autonomy while leaving the door open.'},
+{letter:'C',text:'Refuse to discharge the patient because it would be unsafe and constitutes patient abandonment',correct:false,rationale:'TRAP. Refusing to discharge a patient who has capacity and wants to leave is false imprisonment. Patient abandonment occurs when a nurse discontinues care without ensuring appropriate handoff — it does not mean you must prevent patients from making autonomous decisions. Holding a patient against their will when they have capacity is both unethical and illegal.'},
+{letter:'D',text:'Call the patient\'s family to override the decision since the cognitive deficits make the patient vulnerable',correct:false,rationale:'Family cannot override the decisions of an adult patient who has decision-making capacity. Even with cognitive deficits, if the care team has determined the patient has capacity, the patient\'s wishes take priority. Involving family for support and education is appropriate, but they cannot make decisions FOR the patient.'}
+],
+vocabTip:"Decision-making capacity vs competence: CAPACITY is a clinical determination made by the healthcare team (can the patient understand, appreciate, reason, and communicate?). COMPETENCE is a legal determination made by a court. A patient with cognitive deficits CAN still have capacity. Having impaired memory does not automatically mean you lack the ability to make informed decisions. On exams, if the question states the patient 'has capacity' or 'has been determined to have decision-making capacity,' their autonomous choices MUST be respected — even if those choices seem unwise."
+},
+
+// ═══ CHAPTER 8: Family Grief Support, Cultural Death Practices, DNR Clarification ═══
+{id:21,chapter:8,difficulty:'easy',sata:false,trap:false,
+stem:"A patient has just died on the medical-surgical unit. The patient\'s adult daughter is sobbing uncontrollably and repeatedly saying, \"I should have visited more. This is my fault. I was a terrible daughter.\" Which nursing response is MOST therapeutic?",
+options:[
+{letter:'A',text:'Sit with the daughter, provide a comforting presence, and use reflective statements: \"You\'re feeling a lot of guilt right now. Tell me about your relationship with your parent.\"',correct:true,rationale:'This response provides therapeutic presence (sitting with, not avoiding), validates the emotion (naming the guilt without judging it), and opens the door for the daughter to process her feelings. Guilt is a normal component of grief. The nurse does not try to fix the guilt or argue against it — just creates space for the daughter to express and process. Active listening and reflective communication are the foundation of grief support.'},
+{letter:'B',text:'Say, \"Don\'t feel guilty — you did the best you could. Your parent knew you loved them.\"',correct:false,rationale:'While well-intentioned, this dismisses the daughter\'s feelings. Telling someone "don\'t feel guilty" invalidates their experience. The nurse is also making assumptions ("your parent knew you loved them") without knowing the actual relationship dynamic. Therapeutic communication allows the person to process their own feelings rather than being told how to feel.'},
+{letter:'C',text:'Give the daughter privacy by leaving the room and checking back in 30 minutes',correct:false,rationale:'Leaving a grieving family member alone immediately after a death can feel like abandonment. While privacy may eventually be needed, the nurse should first offer presence and assess the daughter\'s needs. The daughter\'s intense emotional expression suggests she needs support NOW, not isolation.'},
+{letter:'D',text:'Redirect the conversation to practical matters: \"We need to discuss funeral home arrangements and your parent\'s belongings.\"',correct:false,rationale:'Jumping to logistics immediately after death is insensitive and non-therapeutic. The daughter is in acute grief and needs emotional support first. Practical matters can wait until the daughter has had time to begin processing her loss. Forcing practicality during acute grief can feel cold and uncaring.'}
+],
+vocabTip:"Therapeutic communication with grieving families: DO — be present (physically sit with them), validate emotions (name what you observe without judging), use open-ended questions, allow silence, offer tissues/water/chaplain. DON\'T — say 'they\'re in a better place,' minimize feelings ('don\'t cry'), compare losses ('I know how you feel'), rush to practical matters, leave the person alone unless asked. Guilt is one of the most common grief responses — the nurse\'s job is not to eliminate it but to create a safe space to process it."
+},
+{id:22,chapter:8,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is caring for a dying patient whose family practices a faith tradition that requires the body to remain unwashed and untouched by non-family members after death. The hospital\'s standard post-mortem protocol includes bathing the body, removing all tubes, and tagging the body for transport to the morgue. Which action by the nurse demonstrates BEST practice?",
+options:[
+{letter:'A',text:'Follow the hospital\'s standard post-mortem protocol because it is required by policy regardless of cultural or religious preferences',correct:false,rationale:'Hospital policy does not override religious and cultural practices for post-mortem care. Culturally competent care extends beyond death. Standard protocols often include allowances for religious and cultural variations. Rigidly following a generic protocol when the family has specific faith-based needs is insensitive and may cause lasting harm to the family\'s grieving process.'},
+{letter:'B',text:'Collaborate with the family to modify the post-mortem care plan: ask what the family needs, accommodate their practices regarding body preparation, and document the culturally specific care plan',correct:true,rationale:'The nurse should ASK the family what their traditions require, ACCOMMODATE whenever possible (this may include having family members wash the body, leaving the body untouched for a specific period, special positioning, or calling a faith leader), and DOCUMENT the modified plan. Most facilities have policies allowing cultural modifications to post-mortem care. The nurse serves as the advocate and bridge between hospital systems and family needs.'},
+{letter:'C',text:'Ask the hospital chaplain to explain to the family that the hospital has rules that must be followed for infection control and legal purposes',correct:false,rationale:'Using the chaplain to enforce hospital rules misuses the chaplain\'s role. The chaplain should be a resource for spiritual support, not an enforcer of institutional policy. Additionally, post-mortem body washing is not an infection control requirement — it is a comfort measure that can be modified.'},
+{letter:'D',text:'Have the nursing assistant perform standard post-mortem care quickly before the family arrives to avoid the conflict entirely',correct:false,rationale:'Performing care against the family\'s wishes before they arrive is deceptive and deeply disrespectful. It violates the family\'s religious practices and destroys trust. This approach prioritizes the nurse\'s comfort (avoiding conflict) over the family\'s legitimate needs and rights.'}
+],
+vocabTip:"Cultural considerations in death and dying vary widely: some traditions require specific body positioning, washing only by family or same-gender individuals, facing a particular direction, burning incense, continuous prayer vigils, or keeping the body intact (no autopsy). The nurse\'s role: ASK (never assume), ACCOMMODATE (modify protocols when possible), ADVOCATE (communicate family needs to the team), DOCUMENT. On exams, the correct answer ALWAYS respects cultural practices and involves asking the family what they need."
+},
+{id:23,chapter:8,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is caring for a patient with a Do-Not-Resuscitate (DNR) order who is scheduled for a surgical procedure under general anesthesia. The surgeon tells the nurse, \"The DNR is automatically suspended during surgery — we resuscitate all patients in the OR.\" The anesthesiologist disagrees and says the DNR should be honored even in the OR. What is the nurse\'s MOST appropriate action?",
+options:[
+{letter:'A',text:'Follow the surgeon\'s direction since the surgeon is the lead physician for the procedure',correct:false,rationale:'The surgeon\'s statement about automatic DNR suspension is outdated and may not align with current standards. Modern guidelines (ANA, ASA) do NOT support blanket suspension of DNRs during surgery. The nurse should not simply defer to one physician when there is a clinical disagreement about a patient\'s end-of-life wishes.'},
+{letter:'B',text:'Facilitate a required reconsideration discussion where the patient (or surrogate) clarifies their resuscitation preferences specifically for the peri-operative period, and document the outcome',correct:true,rationale:'Current best practice (ANA and ASA guidelines) requires "required reconsideration" of advance directives before surgery. The patient or surrogate should discuss SPECIFIC scenarios: "If your heart stops during surgery due to anesthesia, do you want resuscitation? What about if it\'s related to your underlying condition?" This allows nuanced decision-making rather than blanket all-or-nothing approaches. The outcome is documented and communicated to the entire surgical team.'},
+{letter:'C',text:'Cancel the surgery until the providers reach an agreement about the DNR status',correct:false,rationale:'TRAP. The nurse does not have the authority to unilaterally cancel surgery, and provider disagreement alone is not grounds for cancellation. The correct approach is to facilitate the required reconsideration process with the PATIENT, whose wishes ultimately determine resuscitation status. The providers do not decide — the patient does.'},
+{letter:'D',text:'Honor the DNR as written because advance directives cannot be modified by healthcare providers under any circumstances',correct:false,rationale:'Advance directives CAN be modified — by the PATIENT or their authorized surrogate. The perioperative period is a unique context where the patient may have different preferences (e.g., they may want resuscitation for anesthesia-related arrest but not for their terminal disease). Required reconsideration gives the patient the opportunity to make context-specific decisions.'}
+],
+vocabTip:"Required reconsideration = a mandatory conversation before surgery where the DNR is reviewed in the specific context of anesthesia and surgery. Three possible outcomes: (1) Full DNR maintained — no resuscitation under any circumstances in the OR, (2) DNR suspended — full resuscitation during the procedure, (3) Partial/modified — resuscitate for anesthesia-related events but not for the underlying terminal condition. The key: the PATIENT (or surrogate) makes this decision, not the surgeon or anesthesiologist. On exams, the answer is always 'talk to the patient about their specific wishes.'"
+},
+
+// ═══ CHAPTER 9: Atelectasis Prevention, Paralytic Ileus, Blood Glucose, Surgical Site Infection ═══
+{id:24,chapter:9,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse auscultates a postoperative patient\'s lungs on day 1 after abdominal surgery and hears diminished breath sounds in the bilateral bases with fine crackles on deep inspiration. The patient\'s temperature is 100.2°F and SpO2 is 93% on room air. The patient reports pain with deep breathing. These findings are MOST consistent with:",
+options:[
+{letter:'A',text:'Post-operative atelectasis caused by shallow breathing secondary to incisional pain and residual anesthetic effects',correct:true,rationale:'Atelectasis is the #1 cause of fever in the first 24-48 hours after surgery. The mechanism: pain causes splinting (the patient avoids deep breaths to avoid pain) + anesthesia depresses respiratory drive + supine positioning allows dependent alveoli to collapse. Findings: diminished breath sounds (collapsed alveoli don\'t transmit sound), fine crackles on deep inspiration (collapsed alveoli popping open), low-grade fever (inflammatory response to collapsed tissue), and mild hypoxemia (less surface area for gas exchange).'},
+{letter:'B',text:'Hospital-acquired pneumonia from aspiration during intubation',correct:false,rationale:'Pneumonia typically presents later (48-72+ hours post-op) and with more severe findings: productive cough, purulent sputum, higher fever (>101.5°F), consolidation on chest X-ray, and elevated WBC. Day 1 findings with low-grade fever and fine crackles are more consistent with atelectasis. However, if atelectasis is not treated, it CAN progress to pneumonia.'},
+{letter:'C',text:'Pulmonary embolism from a DVT that formed during the surgical procedure',correct:false,rationale:'PE typically presents with sudden onset dyspnea, pleuritic chest pain, tachycardia, and anxiety. It does not characteristically cause bilateral basilar crackles. While PE is a post-op concern, the bilateral, symmetric findings here with the classic post-op context (pain, shallow breathing) point to atelectasis.'},
+{letter:'D',text:'Pleural effusion from fluid overload during the intraoperative period',correct:false,rationale:'Pleural effusion would cause decreased breath sounds but typically ABSENT crackles (fluid prevents air entry, so you hear nothing or dullness to percussion). Fine crackles suggest alveolar pathology (collapsed alveoli reopening), not pleural fluid. Also, effusion would not cause a low-grade fever in this timeframe.'}
+],
+vocabTip:"Post-op fever timeline — Wind (atelectasis, day 1-2), Water (UTI, day 3-5), Wound (surgical site infection, day 5-7), Walking (DVT/PE, day 5-7+), Wonder drugs (drug fever, any time). The first 'W' is WIND = atelectasis. Treatment: incentive spirometry (10x/hour while awake), cough and deep breathing exercises, early ambulation, adequate pain control (so the patient CAN take deep breaths), positioning (elevate HOB 30-45 degrees). Prevention is key — once atelectasis develops, it takes more effort to re-expand collapsed lung tissue."
+},
+{id:25,chapter:9,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is assessing a patient on post-operative day 3 after an open bowel resection. The patient reports increasing abdominal distension and nausea. On auscultation, the nurse notes absent bowel sounds in all four quadrants after listening for a full minute in each quadrant. The patient has not passed flatus or had a bowel movement since surgery. Which finding would MOST concern the nurse?",
+options:[
+{letter:'A',text:'The patient passed a small amount of flatus yesterday, which means bowel function is returning normally',correct:false,rationale:'TRAP. The question states the patient has NOT passed flatus since surgery. This answer contradicts the scenario. Read carefully on exams — trap answers sometimes introduce false information from outside the stem. Stick to the data given in the question.'},
+{letter:'B',text:'Absent bowel sounds for 4 full minutes combined with no flatus and increasing distension — this pattern is consistent with paralytic ileus requiring further evaluation',correct:true,rationale:'Paralytic ileus = the bowel stops moving after surgery (GI motility shuts down). Classic findings: absent bowel sounds (you must listen for at least 1 minute per quadrant — 4 minutes total — before documenting absent), abdominal distension (gas and fluid accumulate because nothing is moving through), nausea/vomiting, and no passage of flatus or stool. While some degree of ileus is expected after bowel surgery, day 3 with ABSENT sounds and increasing distension warrants provider notification and possible NG tube decompression.'},
+{letter:'C',text:'Absent bowel sounds are expected for up to 5 days after bowel surgery and no intervention is needed yet',correct:false,rationale:'While some decreased motility is expected, ABSENT bowel sounds with increasing distension and nausea on day 3 is concerning and should not be dismissed. Normal post-op return of bowel function follows a pattern: small bowel resumes in 24 hours, stomach in 24-48 hours, large bowel in 3-5 days. But ABSENT sounds with worsening symptoms is different from hypoactive sounds with gradual improvement.'},
+{letter:'D',text:'The distension is from swallowing air during eating and will resolve when the patient ambulates more',correct:false,rationale:'Swallowed air (aerophagia) causes mild distension, not the progressive distension seen with paralytic ileus. Additionally, a patient with no bowel sounds, no flatus, and nausea should NOT be eating. This pattern requires assessment for ileus, not a dismissive explanation.'}
+],
+vocabTip:"Paralytic ileus = the gut goes on strike after surgery. Causes: anesthesia, opioids, bowel manipulation during surgery, electrolyte imbalances (especially hypokalemia). Assessment: listen for bowel sounds 1 minute per quadrant (4 minutes total) before documenting absent. Signs: absent bowel sounds + distension + nausea/vomiting + no flatus/stool. Treatment: NPO, NG tube to low intermittent suction (decompress the distended bowel), IV fluids, correct electrolytes, ambulation (stimulates peristalsis), minimize opioids. Prevention: early ambulation, chewing gum (stimulates the cephalic phase of digestion), correcting electrolytes."
+},
+{id:26,chapter:9,difficulty:'hard',sata:false,trap:false,
+stem:"A nurse is caring for a diabetic patient who is 2 hours post-op after a coronary artery bypass graft. The patient\'s blood glucose is 268 mg/dL. The patient is NPO with IV fluids running. The surgeon has ordered an insulin drip protocol. Why is tight blood glucose control critical in the immediate post-operative period?",
+options:[
+{letter:'A',text:'Hyperglycemia impairs white blood cell function and wound healing, significantly increasing the risk of surgical site infections and anastomotic complications',correct:true,rationale:'Post-operative hyperglycemia (>180 mg/dL) is a significant risk factor for surgical site infections because elevated glucose impairs neutrophil phagocytosis (WBCs cannot engulf and kill bacteria effectively), impairs collagen synthesis (wounds heal poorly), promotes bacterial growth (glucose is food for bacteria), and causes microvascular damage (poor perfusion to healing tissues). This is why perioperative glucose control (target 140-180 mg/dL in most protocols) is a quality measure and surgical site infection prevention strategy.'},
+{letter:'B',text:'High blood sugar causes the patient to produce too much urine, leading to dehydration during a critical recovery period',correct:false,rationale:'While osmotic diuresis from hyperglycemia is real, it is not the PRIMARY reason for tight glucose control post-operatively. The main concern is the immune dysfunction and impaired wound healing. Dehydration can be managed with IV fluids — the infection risk cannot be as easily managed.'},
+{letter:'C',text:'The stress of surgery always causes temporary type 1 diabetes that must be treated with insulin until the pancreas recovers',correct:false,rationale:'Surgery does not cause type 1 diabetes. Surgical stress causes hyperglycemia through the release of counter-regulatory hormones (cortisol, epinephrine, glucagon) that increase hepatic glucose production and decrease insulin sensitivity. This is stress-induced hyperglycemia, not new-onset diabetes.'},
+{letter:'D',text:'Blood glucose above 200 mg/dL will interfere with the anesthesia drugs still in the patient\'s system',correct:false,rationale:'Hyperglycemia does not directly interact with anesthetic agents. The concern is not drug interaction but the physiological effects of elevated glucose on immune function and tissue repair during the critical healing period.'}
+],
+vocabTip:"Post-op glucose management: Target is typically 140-180 mg/dL (varies by protocol). Hyperglycemia impairs healing through: (1) neutrophil dysfunction (WBCs become sluggish), (2) impaired collagen synthesis (wounds can\'t rebuild), (3) bacterial fuel (glucose feeds bacteria), (4) microvascular damage (poor blood flow to tissues). The Surgical Care Improvement Project (SCIP) includes perioperative glucose control as a quality measure for reducing surgical site infections. On exams, hyperglycemia + post-op = infection risk."
+},
+{id:27,chapter:9,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is reviewing the Surgical Care Improvement Project (SCIP) measures for a patient scheduled for a total knee replacement. The patient\'s prophylactic antibiotic (cefazolin) is ordered to be given 45 minutes before the surgical incision. The nurse understands this timing is important because:",
+options:[
+{letter:'A',text:'The antibiotic must reach therapeutic tissue concentrations at the surgical site BEFORE the incision is made to prevent bacterial contamination during the procedure',correct:true,rationale:'SCIP guidelines require prophylactic antibiotics to be administered within 60 minutes of surgical incision (120 minutes for vancomycin/fluoroquinolones due to longer infusion times). The antibiotic must be circulating in the blood and present at adequate tissue levels at the moment the skin barrier is broken. If given too early, levels may drop below therapeutic before the procedure ends. If given too late (after incision), bacteria have already entered the wound without antibiotic opposition.'},
+{letter:'B',text:'The antibiotic needs time to kill any bacteria already present in the patient\'s bloodstream from pre-existing infections',correct:false,rationale:'Prophylactic antibiotics prevent new surgical wound contamination — they do not treat pre-existing infections. If a patient has an active infection, surgery may need to be postponed. Prophylaxis and treatment are different concepts with different goals.'},
+{letter:'C',text:'Giving the antibiotic before surgery allows the nurse to monitor for allergic reactions before the patient is under anesthesia',correct:false,rationale:'While monitoring for allergic reactions is always important, this is not the PRIMARY reason for the timing. The timing is driven by pharmacokinetics — the drug needs to reach effective tissue levels before the incision. Some prophylactic antibiotics are actually given in the OR during anesthesia preparation, showing that allergy monitoring is a secondary benefit.'},
+{letter:'D',text:'The antibiotic will be more effective if the patient receives it on an empty stomach from being NPO',correct:false,rationale:'Prophylactic surgical antibiotics are given IV, not orally. Intravenous medications go directly into the bloodstream regardless of stomach contents. NPO status has no effect on IV antibiotic absorption or effectiveness.'}
+],
+vocabTip:"SCIP antibiotic timing: give within 60 minutes before incision (120 minutes for vancomycin/fluoroquinolones). Discontinue within 24 hours after surgery (48 hours for cardiac surgery). The antibiotic must be at the right place (wound tissue), at the right time (when the incision opens), at the right level (therapeutic concentration). Think of it like putting on a raincoat BEFORE it starts raining — the protection has to be in place before the exposure. On exams, if the antibiotic was given 2 hours before surgery or after the incision was already made, the timing is WRONG."
+},
+{id:28,chapter:9,difficulty:'medium',sata:true,trap:false,
+stem:"A nurse is implementing surgical site infection (SSI) prevention measures for a patient preparing for abdominal surgery. Which interventions are evidence-based SSI prevention strategies? (Select all that apply.)",
+options:[
+{letter:'A',text:'Performing surgical skin preparation with chlorhexidine gluconate (CHG) rather than povidone-iodine, as CHG has superior sustained antimicrobial activity',correct:true,rationale:'CHG has been shown to be superior to povidone-iodine for surgical skin prep because it provides both immediate bactericidal activity and prolonged residual antimicrobial effect (it binds to the skin and continues killing bacteria for hours). Major studies have shown significantly lower SSI rates with CHG-based preparations.'},
+{letter:'B',text:'Maintaining perioperative normothermia with warming blankets, as hypothermia impairs immune function and increases SSI risk',correct:true,rationale:'Perioperative hypothermia (<36°C/96.8°F) causes vasoconstriction (reducing oxygen and immune cell delivery to the wound), impairs neutrophil function, and decreases collagen deposition. Forced-air warming blankets (Bair Hugger) are used to maintain normothermia. SCIP measures include temperature monitoring and maintenance during surgery.'},
+{letter:'C',text:'Shaving the surgical site with a razor the night before surgery to remove hair and reduce bacterial colonization',correct:false,rationale:'Razor shaving the night before creates micro-abrasions that become colonized with bacteria overnight, INCREASING SSI risk. If hair removal is necessary, it should be done with electric clippers (not a razor) immediately before surgery. The best practice is to NOT remove hair unless it will physically interfere with the incision. Razor shaving the night before is one of the MOST common wrong practices on SSI prevention exams.'},
+{letter:'D',text:'Maintaining blood glucose below 180 mg/dL in the perioperative period for both diabetic and non-diabetic patients',correct:true,rationale:'Glucose control is important for ALL surgical patients, not just diabetics. The stress response to surgery causes hyperglycemia even in non-diabetic patients. Maintaining glucose below 180 mg/dL improves immune function and wound healing. SCIP measures include glucose monitoring for cardiac surgery patients, and many facilities extend this to all surgeries.'},
+{letter:'E',text:'Administering prophylactic antibiotics for 7 days post-operatively to ensure complete bacterial eradication at the surgical site',correct:false,rationale:'Prolonged antibiotic use does NOT reduce SSI rates and INCREASES the risk of antibiotic-resistant organisms (MRSA, C. diff) and adverse drug reactions. SCIP guidelines recommend discontinuing prophylactic antibiotics within 24 hours after surgery (48 hours for cardiac surgery). More is NOT better with prophylactic antibiotics.'}
+],
+vocabTip:"SSI Prevention Bundle (SCIP measures): (1) Right antibiotic, right time (within 60 min before incision), right duration (stop within 24 hrs). (2) CHG skin prep (superior to betadine). (3) Clippers, not razors (or no hair removal). (4) Normothermia (keep patient warm — cold = bad immune function). (5) Glucose control (<180 mg/dL). (6) Appropriate oxygenation. Think of it as protecting a castle: you need the antibiotic army deployed before the gates open (incision), the walls clean (CHG), the defenses warm and well-fed (normothermia, glucose control), and no self-inflicted wounds (no razor nicks)."
+},
+{id:29,chapter:9,difficulty:'easy',sata:false,trap:false,
+stem:"A patient returns from surgery with a Jackson-Pratt (JP) drain in place near the surgical incision. The nurse notes that the drainage has changed from serosanguineous to thick, green, foul-smelling fluid on post-operative day 5. The patient\'s temperature is 101.8°F. These findings suggest:",
+options:[
+{letter:'A',text:'Normal progression of wound healing — drainage changes color and consistency as the wound heals',correct:false,rationale:'Normal wound drainage follows a pattern: sanguineous (bloody, first 24-48 hrs) → serosanguineous (pink/watery, days 2-4) → serous (clear yellow, later healing). GREEN, THICK, and FOUL-SMELLING drainage is NEVER normal. This is purulent drainage indicating INFECTION. Combined with fever on day 5, this is a surgical site infection.'},
+{letter:'B',text:'Surgical site infection requiring immediate notification of the surgeon, wound culture, and likely initiation of antibiotic therapy',correct:true,rationale:'Purulent (thick, green, foul-smelling) drainage from a surgical site combined with fever on post-op day 5 is classic for surgical site infection. This fits the "Wind, Water, Wound" timeline — wound infections typically manifest on days 5-7. The nurse should: notify the surgeon STAT, obtain wound culture and sensitivity (to guide antibiotic selection), monitor vital signs for sepsis, and anticipate antibiotic orders.'},
+{letter:'C',text:'A sign that the JP drain is malfunctioning and needs to be replaced with a new drain',correct:false,rationale:'The drain is functioning — it IS draining. The problem is not mechanical (drain failure) but biological (the wound is infected). Replacing the drain does not treat the infection. The character of the drainage (not the drain itself) is the concerning finding.'},
+{letter:'D',text:'A bile leak from the surgical site that is expected after abdominal surgery and will resolve on its own',correct:false,rationale:'Bile is green but does not have a foul smell and is thin in consistency. This drainage is thick and foul-smelling — consistent with purulent (pus) drainage from infection, not bile. Additionally, bile leaks are specific to hepatobiliary surgery, not all abdominal procedures.'}
+],
+vocabTip:"Wound drainage types: Serous = clear, yellow, watery (normal late healing). Sanguineous = red, bloody (normal first 24-48 hrs). Serosanguineous = pink, watery (normal days 2-4). Purulent = thick, green/yellow, foul-smelling (INFECTION — always abnormal). If you see purulent drainage on an exam, the answer involves: notify provider, culture the wound, and start antibiotics. Remember the fever timeline: Wind (day 1-2), Water (day 3-5), Wound (day 5-7), Walking (day 5+), Wonder drugs (any time)."
+},
+{id:30,chapter:9,difficulty:'medium',sata:false,trap:true,
+stem:"A nurse is preparing a patient for discharge on post-operative day 2 after a laparoscopic cholecystectomy. The patient asks, \"When can I take a bath and soak in the tub? I feel like a hot bath would help me relax.\" Which response by the nurse is MOST appropriate?",
+options:[
+{letter:'A',text:'A warm bath tonight would be fine since laparoscopic incisions are very small and heal quickly',correct:false,rationale:'TRAP. Even small laparoscopic incisions are open wounds that are vulnerable to bacterial contamination. Soaking in a bathtub exposes the incision to standing water containing skin bacteria, soap residue, and environmental contaminants. Immersion in water is generally not recommended until incisions are fully closed and any sutures/staples are removed — typically 1-2 weeks.'},
+{letter:'B',text:'You should shower instead of bathing — keep the incision areas clean and dry, pat dry gently after showering, and avoid submerging the incisions in water until your surgeon confirms they are fully healed at your follow-up visit',correct:true,rationale:'Showers are preferred over baths because water runs over and off the incision rather than pooling around it. Patients should: gently clean the area with mild soap, pat dry (not rub), avoid submerging incisions in baths, pools, or hot tubs until cleared by the surgeon (usually 2-4 weeks). This applies to ALL surgical incisions, including small laparoscopic port sites.'},
+{letter:'C',text:'You can take a bath as long as you keep the incision areas above the water line',correct:false,rationale:'Practically speaking, keeping abdominal laparoscopic incision sites above the water line in a bathtub is extremely difficult. Water splashes, the patient shifts position, and steam/condensation can reach the incisions. The safest and simplest instruction is to avoid baths entirely until incisions are healed and cleared by the surgeon.'},
+{letter:'D',text:'Apply waterproof adhesive bandages over the incisions and then you can take a bath safely',correct:false,rationale:'Waterproof bandages are not guaranteed to maintain a complete seal during bathtub soaking. Water can seep around edges, under adhesive, and through microscopic gaps. This gives the patient a false sense of security. The evidence-based recommendation remains: shower, don\'t soak, until cleared by the surgeon.'}
+],
+vocabTip:"Post-op incision care teaching: SHOWER = okay (water runs off), SOAK = not okay until cleared (standing water = infection risk). This applies to bathtubs, hot tubs, swimming pools, and lakes. Additional teaching points: do not pick at scabs or Steri-Strips (they fall off on their own), report signs of infection (redness, swelling, warmth, purulent drainage, fever, increased pain), avoid heavy lifting (usually >10 lbs) for the prescribed period, and follow up as scheduled. On exams, any answer suggesting it\'s okay to soak a fresh surgical incision is wrong."
+}
+];
+
+let answers={};
+let submitted={};
+
+function buildQuiz(){
+const body=document.getElementById('quizBody');
+body.innerHTML='';
+let currentCh=0;
+const chNames={1:'Ethics & Delegation',2:'Clinical Judgment',3:'Acid-Base & Vascular',4:'Older Adults',5:'Transgender Health',6:'Pain Management',7:'Rehab Concepts',8:'Palliative & End of Life',9:'Perioperative Care'};
+questions.forEach((q,idx)=>{
+if(q.chapter!==currentCh){
+currentCh=q.chapter;
+const div=document.createElement('div');
+div.className='chapter-divider';
+div.innerHTML=`<span>Chapter ${currentCh}: ${chNames[currentCh]}</span>`;
+body.appendChild(div);
+}
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>`;
+if(q.trap) badges+=` <span class="badge badge-trap">Trap</span>`;
+badges+=` <span class="badge-diff">${q.difficulty}</span>`;
+let html=`<div class="q-header"><span class="q-number">Q${idx+1}</span>${badges}</div>`;
+html+=`<p class="q-stem">${q.stem}</p>`;
+if(q.sata) html+=`<p class="sata-note">Select All That Apply</p>`;
+html+=`<div class="opts" id="opts-${q.id}">`;
+q.options.forEach(o=>{
+html+=`<button class="opt-btn" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${q.sata})"><span class="opt-letter">${o.letter}.</span><span>${o.text}</span></button>`;
+});
+html+=`</div>`;
+html+=`<button class="submit-btn" id="sub-${q.id}" onclick="submitQ(${q.id})" disabled>Submit Answer</button>`;
+html+=`<div class="rationale-box" id="rat-${q.id}">`;
+html+=`<h4>Rationale</h4>`;
+q.options.forEach(o=>{
+html+=`<div class="opt-rat"><strong>${o.letter}. ${o.correct?'✓ CORRECT':'✗ Incorrect'}:</strong> ${o.rationale}</div>`;
+});
+html+=`<div class="vocab-tip">${q.vocabTip}</div>`;
+html+=`</div>`;
+card.innerHTML=html;
+body.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(submitted[qId]) return;
+if(!answers[qId]) answers[qId]=[];
+if(isSata){
+const idx=answers[qId].indexOf(letter);
+if(idx>-1) answers[qId].splice(idx,1);
+else answers[qId].push(letter);
+}else{
+answers[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.toggle('selected',answers[qId].includes(o.letter));
+});
+document.getElementById(`sub-${qId}`).disabled=answers[qId].length===0;
+}
+
+function submitQ(qId){
+if(submitted[qId]) return;
+submitted[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[qId]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.add('locked');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${qId}`).classList.add('show');
+document.getElementById(`sub-${qId}`).disabled=true;
+updateProgress();
+saveState();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,600);
+}
+
+function updateProgress(){
+const count=Object.keys(submitted).length;
+document.getElementById('progressText').textContent=`${count} of ${questions.length} answered`;
+document.getElementById('progressBar').style.width=`${(count/questions.length)*100}%`;
+}
+
+function showScore(){
+let total=0;let chScores={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};let chTotals={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+questions.forEach(q=>{
+chTotals[q.chapter]++;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[q.id]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+if(isCorrect){total++;chScores[q.chapter]++;}
+});
+const pct=Math.round((total/questions.length)*100);
+document.getElementById('finalPct').textContent=`${pct}%`;
+document.getElementById('finalMsg').textContent=`${total} of ${questions.length} correct`;
+const bd=document.getElementById('breakdown');
+bd.innerHTML='';
+const chNames={1:'Ch 1 Ethics',2:'Ch 2 Clin Judg',3:'Ch 3 Acid-Base',4:'Ch 4 Older Adults',5:'Ch 5 Trans Health',6:'Ch 6 Pain',7:'Ch 7 Rehab',8:'Ch 8 Palliative',9:'Ch 9 Periop'};
+Object.keys(chScores).forEach(ch=>{
+bd.innerHTML+=`<div class="ch-score"><div class="ch-label">${chNames[ch]}</div><div class="ch-val">${chScores[ch]}/${chTotals[ch]}</div></div>`;
+});
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:total,total:questions.length,date:new Date().toISOString(),chapters:chScores};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+let history=JSON.parse(localStorage.getItem(EXAM_ID+'-history')||'[]');
+history.push(record);
+localStorage.setItem(EXAM_ID+'-history',JSON.stringify(history));
+const eh=JSON.parse(localStorage.getItem('examHistory')||'[]');
+eh.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:total,total:questions.length,topicBreakdown:chScores});
+localStorage.setItem('examHistory',JSON.stringify(eh.slice(-20)));
+}
+
+function restartQuiz(){
+answers={};submitted={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+updateProgress();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveState(){
+const state={answers,submitted};
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify(state));
+}
+
+function loadState(){
+const raw=localStorage.getItem(EXAM_ID+'-state');
+if(raw){
+const state=JSON.parse(raw);
+answers=state.answers||{};
+submitted=state.submitted||{};
+Object.keys(submitted).forEach(qId=>{
+const id=parseInt(qId);
+const q=questions.find(x=>x.id===id);
+if(!q)return;
+const userAns=answers[id]||[];
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${id}-${o.letter}`);
+if(!btn)return;
+btn.classList.add('locked');
+if(userAns.includes(o.letter)) btn.classList.add('selected');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${id}`);
+if(card) card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${id}`).classList.add('show');
+document.getElementById(`sub-${id}`).disabled=true;
+});
+updateProgress();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,300);
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const rec=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=`${rec.score}% (${rec.correct}/${rec.total})`;
+}
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

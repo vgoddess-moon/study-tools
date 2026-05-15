@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprehensive Exam v2 — MS1 Exam 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+.container{max-width:900px;margin:0 auto}
+h1{font-family:'DM Serif Display',serif;font-size:2rem;text-align:center;margin-bottom:.25rem;color:#f8fafc}
+.subtitle{text-align:center;color:#94a3b8;font-size:.95rem;margin-bottom:1.5rem}
+.exam-info{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem 1.25rem;margin-bottom:2rem;font-size:.88rem;color:#94a3b8;text-align:center}
+.exam-info strong{color:#e2e8f0}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .4s ease;width:0%}
+.progress-text{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:1.5rem}
+.last-attempt{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem;margin-bottom:2rem;text-align:center;display:none}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#f472b6}
+.chapter-divider{display:flex;align-items:center;gap:.75rem;margin:2.5rem 0 1.5rem;padding:.5rem 0}
+.chapter-divider::before,.chapter-divider::after{content:'';flex:1;height:1px;background:#1e293b}
+.chapter-divider span{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#94a3b8;white-space:nowrap}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .3s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-incorrect{border-color:#ef4444}
+.q-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-number{font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:#64748b}
+.badge{font-size:.7rem;padding:.2rem .55rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch1{background:#2e0a2e;color:#f0abfc}
+.badge-ch2{background:#0c1e3a;color:#7dd3fc}
+.badge-ch3{background:#1a2e0a;color:#bef264}
+.badge-ch4{background:#2e1a0a;color:#fdba74}
+.badge-ch5{background:#1e1b4b;color:#a5b4fc}
+.badge-ch6{background:#2a0a1e;color:#fca5cf}
+.badge-ch7{background:#0a2e2e;color:#5eead4}
+.badge-ch8{background:#1a0a2e;color:#c084fc}
+.badge-ch9{background:#2a1f00;color:#fde68a}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-diff{font-size:.65rem;padding:.15rem .45rem;border-radius:99px;background:#1e293b;color:#64748b}
+.q-stem{font-size:1rem;margin-bottom:1rem;color:#f1f5f9}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt-btn{background:#1a1f2e;border:1px solid #1e293b;border-radius:10px;padding:.75rem 1rem;text-align:left;color:#cbd5e1;cursor:pointer;font-size:.92rem;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:flex-start;gap:.6rem}
+.opt-btn:hover:not(.locked){border-color:#ec4899;background:#1e2433}
+.opt-btn.selected{border-color:#ec4899;background:#1e2433;color:#f1f5f9}
+.opt-btn.locked{cursor:default}
+.opt-btn.correct-show{border-color:#22c55e;background:#0f2a1a}
+.opt-btn.incorrect-show{border-color:#ef4444;background:#2a0f0f}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:1.2rem;color:#ec4899}
+.sata-note{font-size:.78rem;color:#f472b6;margin-bottom:.75rem;font-style:italic}
+.submit-btn{background:linear-gradient(135deg,#ec4899,#f472b6);color:#fff;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;font-family:'DM Sans',sans-serif}
+.submit-btn:hover{transform:scale(1.03)}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.rationale-box{margin-top:1rem;padding:1rem;background:#0f1218;border:1px solid #1e293b;border-radius:10px;display:none}
+.rationale-box.show{display:block}
+.rationale-box h4{font-size:.82rem;color:#f472b6;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
+.rationale-box p{font-size:.88rem;color:#94a3b8;margin-bottom:.5rem}
+.rationale-box .opt-rat{font-size:.84rem;color:#64748b;padding:.4rem 0;border-bottom:1px solid #1e293b}
+.rationale-box .opt-rat:last-child{border-bottom:none}
+.rationale-box .opt-rat strong{color:#cbd5e1}
+.vocab-tip{margin-top:.75rem;padding:.75rem 1rem;background:#1a1520;border:1px solid #2d1f4e;border-radius:8px;font-size:.84rem;color:#c4b5fd;line-height:1.5}
+.vocab-tip::before{content:'Vocab Tip: ';font-weight:600}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:16px;padding:2rem;text-align:center;display:none}
+.score-card h2{font-family:'DM Serif Display',serif;font-size:1.8rem;color:#f8fafc;margin-bottom:.5rem}
+.score-pct{font-size:3rem;font-weight:700;background:linear-gradient(135deg,#ec4899,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:.5rem 0}
+.score-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin:1.5rem 0;text-align:left}
+.ch-score{background:#1a1f2e;border-radius:8px;padding:.6rem .8rem}
+.ch-score .ch-label{font-size:.75rem;color:#64748b;text-transform:uppercase}
+.ch-score .ch-val{font-size:1.1rem;font-weight:700;color:#e2e8f0}
+.restart-btn{margin-top:1.5rem;background:transparent;border:2px solid #ec4899;color:#f472b6;border-radius:10px;padding:.7rem 2rem;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.restart-btn:hover{background:#ec4899;color:#fff}
+@media(max-width:600px){body{padding:.5rem}h1{font-size:1.5rem}.q-card{padding:1rem}.score-breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+<h1>Comprehensive Exam v2</h1>
+<p class="subtitle">MS1 Exam 1 &middot; Chapters 1&ndash;9 &middot; 30 Questions</p>
+<div class="exam-info">
+<strong>Exam Format:</strong> All-new clinical scenarios covering professor-emphasized content from Chapters 1&ndash;9. Includes delegation traps, ABG interpretation, the 3 D&rsquo;s, perioperative priorities, and more. Use this alongside v1 to maximize coverage.
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div style="font-size:.82rem;color:#64748b;margin-bottom:.25rem">Last Attempt</div>
+<div class="score-val" id="lastScore">&mdash;</div>
+</div>
+<div class="progress-text" id="progressText">0 of 30 answered</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div id="quizBody"></div>
+<div class="score-card" id="scoreCard">
+<h2>Exam Complete</h2>
+<div class="score-pct" id="finalPct">&mdash;</div>
+<p id="finalMsg" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="score-breakdown" id="breakdown"></div>
+<button class="restart-btn" onclick="restartQuiz()">Retake Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam1-comprehensive-v2';
+const EXAM_LABEL='MS1 Exam 1 — Comprehensive v2 (30Q)';
+const questions=[
+// ═══ CHAPTER 1: Ethical Principles & Delegation ═══
+{id:1,chapter:1,difficulty:'medium',sata:false,trap:true,
+stem:"A home health nurse arrives for a scheduled visit and finds the patient\'s spouse crying in the kitchen. The spouse says, \"I accidentally gave my husband his morning insulin twice. He\'s been sleeping for 2 hours and I can\'t wake him up. Please don\'t tell anyone — I\'ll lose my job as his caregiver.\" Which ethical principle should guide the nurse\'s PRIORITY action?",
+options:[
+{letter:'A',text:'Fidelity — the nurse should honor the spouse\'s trust and keep the information confidential to maintain the caregiving relationship',correct:false,rationale:'Fidelity means keeping promises and being faithful to commitments. While maintaining trust is important, fidelity NEVER overrides patient safety. The patient is unresponsive from a double insulin dose — this is a medical emergency. Keeping silent would constitute negligence.'},
+{letter:'B',text:'Veracity — the nurse must truthfully report and document the medication error to protect the patient from further harm',correct:true,rationale:'Veracity means truth-telling. The nurse is obligated to truthfully report and document all clinically relevant information. An unresponsive patient with a double insulin dose is a hypoglycemic emergency requiring immediate intervention (check glucose, administer glucagon/D50, call 911). Concealing a medication error that caused patient harm violates veracity, nonmaleficence, and the nurse\'s legal duty.'},
+{letter:'C',text:'Beneficence — the nurse should focus only on treating the hypoglycemia and not report the error since the spouse is emotionally distressed',correct:false,rationale:'Beneficence (doing good) absolutely requires treating the hypoglycemia, but it does NOT mean hiding the error. Failing to document and report means the patient\'s care team won\'t know about the overdose, leading to potential missed complications (rebound hypoglycemia, delayed effects). Partial beneficence that omits truth-telling is not truly beneficent.'},
+{letter:'D',text:'Justice — the nurse should treat this situation the same way they would treat any other medication error regardless of who administered it',correct:false,rationale:'Justice (fairness) is relevant but is not the PRIORITY principle here. The immediate priority is truth-telling (veracity) and emergency intervention. Justice would come into play later when determining how the error is handled in the system. Right now, the patient needs emergent care and honest documentation.'}
+],
+vocabTip:"Veracity = truth-telling. Fidelity = keeping promises. On exams, these two often compete. The rule: fidelity to a patient or family member NEVER overrides veracity when patient safety is at stake. If someone asks you to keep a secret that could harm the patient, the answer is always truth-telling. Also remember: veracity includes accurate documentation — charting what actually happened, not what someone wishes happened."
+},
+{id:2,chapter:1,difficulty:'hard',sata:true,trap:false,
+stem:"A charge nurse is making assignments at the start of shift. Which tasks can be safely delegated to the UAP? (Select all that apply.)",
+options:[
+{letter:'A',text:'Obtaining vital signs on a stable post-op day 2 patient',correct:true,rationale:'Vital signs on stable patients are routine data collection, appropriate for UAP delegation. The RN must still evaluate the data once reported and follow up on any abnormalities.'},
+{letter:'B',text:'Measuring and recording intake and output on all assigned patients',correct:true,rationale:'I&O measurement is routine data collection within UAP scope. The UAP measures and records; the RN evaluates the clinical significance of the fluid balance.'},
+{letter:'C',text:'Assisting a stable patient with ambulation using a walker',correct:true,rationale:'Assisting with ambulation of stable patients using established assistive devices is within UAP scope. The RN determines the activity order and evaluates tolerance; the UAP carries out the activity.'},
+{letter:'D',text:'Performing the initial head-to-toe assessment on a newly admitted patient',correct:false,rationale:'Initial assessment is an RN-only function (the A in EAT). Assessment requires clinical judgment to interpret findings and establish a baseline. UAPs collect data but do not assess.'},
+{letter:'E',text:'Teaching a diabetic patient how to self-administer insulin injections',correct:false,rationale:'Teaching is an RN-only function (the T in EAT). Initial patient education requires clinical judgment, assessment of learning readiness, and the ability to evaluate understanding. UAPs cannot teach.'}
+],
+vocabTip:"EAT = Evaluate, Assess, Teach — NEVER delegate these. UAPs can do routine data collection: vitals, I&O, weights, specimen collection, bathing, feeding, ambulation of stable patients. Think: if it requires clinical JUDGMENT, it stays with the RN. If it is a routine, standardized TASK with a predictable outcome on a STABLE patient, the UAP can do it. Also remember the 5 Rights of Delegation: Right Task, Right Circumstance, Right Person, Right Direction, Right Supervision."
+},
+{id:3,chapter:1,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse witnesses a colleague making a medication error. The colleague realizes the mistake immediately, checks on the patient (who is unharmed), but then says, \"Nobody saw it, so let\'s not fill out an incident report — it will just create problems for both of us.\" What is the MOST appropriate action by the witnessing nurse?",
+options:[
+{letter:'A',text:'Agree not to report the error since the patient was not harmed and it would damage the colleague\'s career',correct:false,rationale:'Even when no harm results, the error must be reported. Incident reports are not punitive tools — they drive systems improvement and identify patterns. Concealing errors undermines the safety culture and violates the nurse\'s ethical obligation to the organization and future patients.'},
+{letter:'B',text:'Use the SBAR format to communicate the event to the charge nurse and ensure an incident report is completed per facility policy',correct:true,rationale:'The witnessing nurse has a professional and legal obligation to report the error through proper channels. SBAR provides a structured, non-judgmental framework: Situation (medication error occurred), Background (what happened), Assessment (patient currently unharmed), Recommendation (incident report and monitoring). This protects the patient, supports a just culture, and allows systems-level improvement.'},
+{letter:'C',text:'Tell the colleague to self-report and drop the issue if the colleague refuses',correct:false,rationale:'While encouraging self-reporting is appropriate, the witnessing nurse cannot \"drop it\" if the colleague refuses. The obligation to report exists independently. If the colleague declines to report, the witnessing nurse must escalate through the chain of command.'},
+{letter:'D',text:'Report the colleague directly to the Board of Nursing for unsafe practice',correct:false,rationale:'Reporting to the Board of Nursing is for patterns of unsafe practice, impairment, or violations of the Nurse Practice Act — not a single witnessed error. The appropriate first step is internal reporting through the facility\'s incident reporting system and chain of command.'}
+],
+vocabTip:"SBAR = Situation, Background, Assessment, Recommendation. It is the gold-standard communication framework in healthcare. Use it for provider notifications, handoffs, and reporting concerns. On exams, if an answer choice uses structured communication (SBAR) while others skip the system, SBAR is usually correct. Also: incident reports are QUALITY IMPROVEMENT tools, not punishment. A \'just culture\' differentiates between human error (system fix), at-risk behavior (coaching), and reckless behavior (discipline)."
+},
+
+// ═══ CHAPTER 2: Clinical Judgment ═══
+{id:4,chapter:2,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse on a pediatric unit is caring for a 4-year-old with newly diagnosed Type 1 diabetes. The child\'s blood glucose is 340 mg/dL, and the provider has ordered an insulin drip. The nurse notices the child is lethargic, breathing rapidly and deeply, and the breath has a fruity odor. Using the CJMM, the nurse identifies these as signs of diabetic ketoacidosis. The nurse then determines that DKA is more urgent than the hyperglycemia alone and should be treated first. Which CJMM step is the nurse performing by ranking DKA as the top priority?",
+options:[
+{letter:'A',text:'Recognize Cues — identifying the clinical signs of lethargy, Kussmaul respirations, and fruity breath',correct:false,rationale:'Recognizing cues is step 1 — noticing the individual data points. The nurse already did this when observing the lethargy, deep rapid breathing, and fruity odor. The question asks about what comes AFTER recognition.'},
+{letter:'B',text:'Analyze Cues — connecting the signs to determine the patient is in DKA',correct:false,rationale:'Analyzing cues is step 2 — linking the data together to form a clinical picture (\"these signs together mean DKA\"). The nurse has already completed this step. The question asks about the RANKING decision.'},
+{letter:'C',text:'Prioritize Hypotheses — determining that DKA is the most life-threatening condition requiring immediate intervention',correct:true,rationale:'Prioritizing hypotheses is step 3 of the CJMM. The nurse has already recognized the cues (step 1) and analyzed them as DKA (step 2). Now the nurse is RANKING: DKA is more dangerous than simple hyperglycemia because it involves metabolic acidosis, dehydration, and potential for cardiac arrhythmias. This ranking of urgency is prioritizing hypotheses.'},
+{letter:'D',text:'Generate Solutions — planning the insulin drip, fluid resuscitation, and electrolyte monitoring',correct:false,rationale:'Generating solutions is step 4 — deciding WHAT to do. The nurse hasn\'t started planning interventions yet; they are still in the process of deciding which problem to address first. Planning comes after prioritizing.'}
+],
+vocabTip:"CJMM step 3 (Prioritize Hypotheses) is about RANKING, not identifying or connecting. Ask yourself: is the nurse NOTICING data (step 1), INTERPRETING data (step 2), RANKING problems by urgency (step 3), PLANNING interventions (step 4), DOING interventions (step 5), or CHECKING outcomes (step 6)? The word \'priority\' or \'most urgent\' in the stem is your clue that it\'s step 3."
+},
+{id:5,chapter:2,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is caring for a patient 1 day after total knee replacement. The patient rates pain at 4/10 at rest and 7/10 with movement. Physical therapy is scheduled in 30 minutes. The nurse checks the MAR and sees PRN oxycodone was last given 5 hours ago (ordered every 4-6 hours). The patient says, \"I don\'t want to be a bother — I\'ll just push through PT without it.\" Applying systems thinking, which response BEST demonstrates interprofessional collaboration?",
+options:[
+{letter:'A',text:'Respect the patient\'s decision and document that the patient declined pain medication before physical therapy',correct:false,rationale:'TRAP. While respecting patient decisions is important, the nurse has a responsibility to educate and advocate. A patient declining pain medication before PT due to not wanting to \"be a bother\" suggests a misunderstanding, not an informed refusal. Effective pain control enables participation in PT, which directly affects outcomes.'},
+{letter:'B',text:'Administer the oxycodone now, coordinate with physical therapy to delay the session by 30 minutes for medication onset, and communicate the pain management plan to the PT team',correct:true,rationale:'This demonstrates systems thinking and interprofessional collaboration: the nurse anticipates that unmanaged pain will limit PT participation, administers the PRN medication within the ordered window, coordinates timing with the PT team for optimal medication effect, and communicates across disciplines. This is a whole-systems approach to patient care.'},
+{letter:'C',text:'Call the provider to request a stronger pain medication since 7/10 pain with movement indicates inadequate pain control',correct:false,rationale:'The current PRN order may be adequate — it just hasn\'t been given. The oxycodone is available, within the ordered timeframe, and the patient hasn\'t taken it recently. Try the existing order first before requesting something stronger. Escalating without using available interventions is premature.'},
+{letter:'D',text:'Tell physical therapy to skip today\'s session because the patient is in too much pain',correct:false,rationale:'Canceling PT compromises the patient\'s recovery. Early mobilization after total knee replacement is critical for preventing complications and restoring function. The solution is managing the pain to ENABLE PT, not avoiding PT because of pain.'}
+],
+vocabTip:"Systems thinking = seeing how all the pieces connect. In this case: pain management affects PT participation, which affects recovery, which affects discharge timing. Interprofessional collaboration means the nurse doesn\'t work in a silo — they communicate with PT, adjust timing, and coordinate care. On exams, the best answer usually involves the nurse proactively bridging communication between team members rather than working independently or canceling activities."
+},
+{id:6,chapter:2,difficulty:'easy',sata:false,trap:false,
+stem:"A new graduate nurse asks the preceptor, \"What is the difference between clinical judgment and critical thinking?\" Which response by the preceptor is MOST accurate?",
+options:[
+{letter:'A',text:'They are identical concepts — both refer to the nurse\'s ability to pass the NCLEX using test-taking strategies',correct:false,rationale:'These are related but distinct concepts, and neither is about test-taking strategies. This trivializes both important cognitive skills.'},
+{letter:'B',text:'Critical thinking is the general cognitive process of analyzing information, while clinical judgment is the specific application of critical thinking to patient care decisions in nursing practice',correct:true,rationale:'Critical thinking is a broad cognitive skill used in all disciplines — analyzing, evaluating, and synthesizing information. Clinical judgment is the nursing-specific application: using critical thinking skills to observe patient data, interpret changes, prioritize problems, and make care decisions. All clinical judgment requires critical thinking, but not all critical thinking is clinical judgment.'},
+{letter:'C',text:'Clinical judgment is an innate talent that some nurses are born with, while critical thinking is a learned skill taught in school',correct:false,rationale:'Both clinical judgment and critical thinking are LEARNED skills that develop over time with education, practice, and experience. Clinical judgment is not an innate talent — it is built through deliberate practice and reflection. Novice nurses develop clinical judgment through clinical rotations and mentorship.'},
+{letter:'D',text:'Critical thinking is used only by advanced practice nurses, while clinical judgment is used by all nurses at the bedside',correct:false,rationale:'All nurses at all levels use both critical thinking and clinical judgment. A new graduate uses critical thinking when analyzing lab results and clinical judgment when deciding to call the provider. These are not limited by licensure level.'}
+],
+vocabTip:"Critical thinking = the engine (general reasoning skill). Clinical judgment = driving the car in traffic (applying that engine to real patient situations). The CJMM was developed specifically to measure how nurses apply clinical judgment. On exams, if a question asks about the relationship between these two concepts, remember: clinical judgment is the nursing-specific form of critical thinking applied at the bedside."
+},
+
+// ═══ CHAPTER 3: Acid-Base & Vascular ═══
+{id:7,chapter:3,difficulty:'hard',sata:false,trap:true,
+stem:"A patient with uncontrolled diabetes presents to the ED with confusion, rapid deep breathing (Kussmaul respirations), and a fruity breath odor. ABG results: pH 7.28, PaCO2 24 mmHg, HCO3 14 mEq/L. Which acid-base imbalance does this patient have?",
+options:[
+{letter:'A',text:'Respiratory alkalosis from the hyperventilation (Kussmaul respirations)',correct:false,rationale:'TRAP. The Kussmaul respirations are NOT the cause of the problem — they are the body\'s COMPENSATION. The lungs are blowing off CO2 (an acid) to try to raise the pH back to normal. The low PaCO2 of 24 confirms the lungs are working overtime, but look at the pH (7.28 = acidotic) and HCO3 (14 = low). The PRIMARY problem is metabolic.'},
+{letter:'B',text:'Metabolic acidosis with respiratory compensation from diabetic ketoacidosis',correct:true,rationale:'DKA produces ketoacids that consume bicarbonate (HCO3 drops to 14, well below normal 21-28), causing metabolic acidosis (pH 7.28, below 7.35). The body compensates by hyperventilating (Kussmaul respirations) to blow off CO2 (PaCO2 drops to 24, below normal 35-45). The pH is still acidotic, meaning compensation is partial — the lungs are helping but haven\'t fixed the problem yet.'},
+{letter:'C',text:'Mixed respiratory and metabolic acidosis from both lung and kidney failure',correct:false,rationale:'This is NOT mixed acidosis. In mixed acidosis, BOTH the PaCO2 would be HIGH (lungs failing) AND HCO3 would be LOW (kidneys failing). Here, PaCO2 is LOW because the lungs are compensating (working harder), not failing. The low PaCO2 is the respiratory system\'s attempt to fix the metabolic acidosis.'},
+{letter:'D',text:'Metabolic alkalosis from dehydration causing contraction alkalosis',correct:false,rationale:'Everything points to ACIDOSIS, not alkalosis. pH 7.28 is acidotic. HCO3 14 is low (base is depleted). The clinical picture (DKA) produces excess acid. Contraction alkalosis from dehydration would show elevated pH and elevated HCO3, which is the opposite of this patient\'s values.'}
+],
+vocabTip:"ABG interpretation shortcut: (1) Look at pH — acidotic (<7.35) or alkalotic (>7.45)? This patient: 7.28 = acidotic. (2) Look at PaCO2 — does it explain the pH? If pH is low and PaCO2 is HIGH, it\'s respiratory acidosis. If PaCO2 is LOW, the lungs are compensating, not causing it. (3) Look at HCO3 — does it explain the pH? HCO3 14 is LOW, matching the low pH = metabolic acidosis. The Kussmaul breathing TRAP: deep rapid breathing in DKA is compensation, NOT the primary problem."
+},
+{id:8,chapter:3,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is assessing a patient admitted with bilateral lower extremity edema. The patient has pitting edema rated 3+ in both legs, brown discoloration around the ankles (hemosiderin staining), and a shallow, irregularly shaped ulcer above the medial malleolus with moderate serous drainage. Which type of ulcer is this presentation MOST consistent with?",
+options:[
+{letter:'A',text:'Venous stasis ulcer — caused by chronic venous insufficiency and venous hypertension',correct:true,rationale:'Classic venous ulcer presentation: bilateral edema, hemosiderin staining (brown discoloration from iron deposits in leaking RBCs), located above the medial malleolus (the classic location), shallow and irregularly shaped, with moderate drainage. Venous ulcers result from blood pooling in the legs due to incompetent venous valves, causing tissue breakdown.'},
+{letter:'B',text:'Arterial ulcer — caused by peripheral arterial disease and inadequate blood supply',correct:false,rationale:'Arterial ulcers look different: they are typically found on the toes, feet, or lateral malleolus (NOT medial), have well-defined/punched-out borders, a pale/necrotic wound bed with minimal drainage, and the surrounding skin is pale, shiny, and hairless. There is no significant edema. This patient\'s presentation is the opposite.'},
+{letter:'C',text:'Diabetic neuropathic ulcer — caused by peripheral neuropathy and repetitive pressure on insensate feet',correct:false,rationale:'Diabetic ulcers typically occur on the plantar surface of the feet (pressure points like the ball of the foot or under the metatarsal heads) in patients with decreased sensation. They have a round, punched-out appearance with a callus ring. This patient\'s ulcer location (medial malleolus) and the venous insufficiency signs (edema, hemosiderin staining) point to venous, not diabetic.'},
+{letter:'D',text:'Pressure injury — caused by prolonged pressure over a bony prominence',correct:false,rationale:'Pressure injuries occur over bony prominences (sacrum, heels, ischial tuberosities) in patients with limited mobility. The medial malleolus can be a pressure point, but the bilateral edema and hemosiderin staining indicate the underlying cause is venous insufficiency, not pressure. The overall clinical picture matters.'}
+],
+vocabTip:"Venous vs Arterial ulcers — opposite presentations. VENOUS: edema, brown staining, medial malleolus, shallow/irregular, lots of drainage, skin is warm. Treatment: compression, elevation. ARTERIAL: no edema, pale/shiny skin, toes/lateral ankle, deep/punched-out, minimal drainage, skin is cool/hairless. Treatment: improve blood flow (NO compression — it makes arterial worse). Memory trick: Venous = Volume (lots of fluid/edema). Arterial = Absent (blood supply is absent)."
+},
+{id:9,chapter:3,difficulty:'medium',sata:false,trap:false,
+stem:"A patient with COPD is admitted with an exacerbation. The provider orders oxygen at 2 L/min via nasal cannula. The nursing student asks why the oxygen is set so low when the patient\'s SpO2 is only 88%. Which response by the nurse is MOST accurate?",
+options:[
+{letter:'A',text:'COPD patients have a hypoxic respiratory drive — giving too much oxygen can suppress their stimulus to breathe, leading to respiratory failure',correct:true,rationale:'In healthy people, rising CO2 triggers breathing. In chronic COPD, the body adapts to chronically elevated CO2 and switches to a hypoxic drive — low oxygen becomes the primary breathing stimulus. If you give high-flow oxygen and raise the O2 level too quickly, the body thinks \"oxygen is fine, no need to breathe\" and the respiratory rate drops dangerously. Target SpO2 for COPD patients is 88-92%, not 95-100%.'},
+{letter:'B',text:'High-flow oxygen is toxic to the lungs of COPD patients and will cause immediate pulmonary fibrosis',correct:false,rationale:'Oxygen toxicity is a real concern with prolonged high-concentration O2, but it develops over days, not immediately, and it affects ALL patients, not just COPD patients. The specific reason for low-flow O2 in COPD is the hypoxic drive concern, not acute oxygen toxicity.'},
+{letter:'C',text:'Low-flow oxygen is ordered only because the hospital is conserving oxygen supplies for more critically ill patients',correct:false,rationale:'Oxygen delivery is based on clinical need, not supply management. The low flow rate is a deliberate therapeutic decision based on the pathophysiology of COPD, not a resource allocation issue.'},
+{letter:'D',text:'COPD patients cannot absorb oxygen efficiently, so giving more would be wasteful and have no clinical benefit',correct:false,rationale:'COPD patients CAN absorb more oxygen — that\'s actually the problem. If they absorb too much and their SpO2 rises above their adapted baseline, it can suppress their drive to breathe. The concern is not about absorption efficiency; it\'s about what happens to respiratory drive when oxygen levels increase.'}
+],
+vocabTip:"COPD + Oxygen: target SpO2 of 88-92% (NOT 95-100% like everyone else). Why? Chronic CO2 retention means the body switched from a CO2 drive to a hypoxic (low O2) drive for breathing. Too much O2 = body stops trying to breathe = CO2 narcosis = respiratory arrest. This is why COPD patients get low-flow oxygen (1-2 L/NC). On exams, if a COPD patient has SpO2 of 89%, that may be their GOAL — don\'t panic and crank up the oxygen."
+},
+{id:10,chapter:3,difficulty:'easy',sata:false,trap:false,
+stem:"A nurse observes small, pinpoint red-purple spots scattered across a patient\'s chest and arms that do not blanch when pressed. The nurse documents these findings as:",
+options:[
+{letter:'A',text:'Petechiae — tiny non-blanching hemorrhagic spots caused by broken capillaries or low platelet count',correct:true,rationale:'Petechiae are pinpoint (1-2 mm), flat, non-blanching red-purple spots caused by bleeding under the skin from broken capillaries. Non-blanching is the key feature — pressing on them does NOT make them disappear because the blood is OUTSIDE the vessels (in the tissue). Common causes: thrombocytopenia (low platelets), clotting disorders, or capillary fragility.'},
+{letter:'B',text:'Purpura — large purple patches from extensive subcutaneous bleeding',correct:false,rationale:'Purpura are LARGER (3 mm to 1 cm) than petechiae and appear as purple patches. They are also non-blanching and caused by bleeding under the skin, but they are bigger. The question describes \"small, pinpoint\" spots, which is the definition of petechiae. Think: petechiae = pinpoint, purpura = patches.'},
+{letter:'C',text:'Ecchymosis — bruising from trauma to the tissue',correct:false,rationale:'Ecchymosis is a bruise — a larger (>1 cm) area of discoloration from blood collecting in tissue, usually from trauma. The question describes scattered pinpoint spots, not bruises. Ecchymosis is bigger and typically has an identifiable cause (trauma).'},
+{letter:'D',text:'Erythema — redness caused by increased blood flow that blanches with pressure',correct:false,rationale:'Erythema is redness that DOES blanch (turns white when pressed and returns to red when released) because the blood is still INSIDE the vessels. The question specifically states these spots do NOT blanch, ruling out erythema. Non-blanching = blood has leaked out of the vessels.'}
+],
+vocabTip:"Size matters for skin hemorrhages: Petechiae = pinpoint (<2 mm), Purpura = patches (3mm-1cm), Ecchymosis = bruises (>1 cm). The blanching test is critical: press on it — does it turn white? If YES (blanches) = blood is in the vessels (normal blood flow, like erythema). If NO (non-blanching) = blood has leaked OUT of the vessels (petechiae, purpura, ecchymosis). Non-blanching lesions always need investigation for bleeding disorders."
+},
+
+// ═══ CHAPTER 4: Older Adults ═══
+{id:11,chapter:4,difficulty:'hard',sata:false,trap:true,
+stem:"A 76-year-old patient admitted for a hip fracture has been oriented and stable for 3 days. On day 4, the patient becomes withdrawn, refuses meals, states \"I\'m a burden to everyone,\" cries frequently, and reports difficulty sleeping for the past 2 weeks even before hospitalization. The patient denies confusion and scores 28/30 on a mini-mental exam. This presentation is MOST consistent with:",
+options:[
+{letter:'A',text:'Delirium triggered by the stress of hospitalization and immobility',correct:false,rationale:'TRAP. Delirium is ACUTE confusion with fluctuating consciousness. This patient is NOT confused — they scored 28/30 on the cognitive exam and are oriented. The symptoms (withdrawal, hopelessness, crying, sleep disturbance, loss of appetite) are affective/mood symptoms, not cognitive symptoms. The 2-week history predating hospitalization also argues against delirium.'},
+{letter:'B',text:'Depression — characterized by persistent low mood, feelings of worthlessness, appetite changes, and sleep disturbance',correct:true,rationale:'This is a classic depression presentation in the elderly: persistent sadness, feelings of being a burden (worthlessness), crying spells, appetite loss, and insomnia lasting 2+ weeks. Importantly, cognition is INTACT (28/30 MMSE). Depression in the elderly is often underdiagnosed because it can be dismissed as \"normal aging\" or confused with dementia. It is the third D and it IS treatable.'},
+{letter:'C',text:'Early-stage dementia presenting with behavioral changes before obvious memory loss',correct:false,rationale:'While behavioral changes can precede memory loss in some dementias, this patient\'s MMSE of 28/30 is essentially normal, and the symptoms match a mood disorder, not a neurodegenerative disease. The sleep disturbance and feelings of being a burden are mood symptoms. Dementia would show progressive cognitive decline over months to years.'},
+{letter:'D',text:'Normal grief reaction to the loss of independence from the hip fracture',correct:false,rationale:'While grief about lost independence is normal, 2 weeks of persistent symptoms predating hospitalization, combined with statements like \"I\'m a burden,\" feelings of worthlessness, appetite loss, and sleep disturbance suggests clinical depression, not a simple adjustment reaction. Grief that reaches this severity and duration warrants depression screening and treatment.'}
+],
+vocabTip:"The 3 D\'s revisited — Depression edition. Depression in the elderly is SNEAKY: it can look like dementia (pseudodementia) OR be dismissed as normal sadness. Key differences: Depression = mood symptoms (hopelessness, worthlessness, guilt) with INTACT cognition when tested. Delirium = ACUTE confusion with fluctuating consciousness. Dementia = PROGRESSIVE cognitive decline. If an elderly patient says \'I\'m a burden\' and cognition is intact, screen for depression. It is TREATABLE — unlike dementia."
+},
+{id:12,chapter:4,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is conducting an alcohol screening on a 70-year-old patient admitted for recurrent falls. The nurse uses the CAGE questionnaire. Which set of questions correctly represents the CAGE tool?",
+options:[
+{letter:'A',text:'Have you felt you should Cut down on drinking? Have people Annoyed you by criticizing your drinking? Have you felt Guilty about your drinking? Have you needed an Eye-opener (drink first thing in the morning)?',correct:true,rationale:'CAGE is a validated 4-question screening tool: C = Cut down (felt the need to reduce), A = Annoyed (bothered by others\' criticism), G = Guilty (felt bad about drinking), E = Eye-opener (morning drinking to steady nerves or cure a hangover). Two or more \"yes\" answers indicate a need for further assessment. It is commonly used in older adults because alcohol abuse is underscreened in this population.'},
+{letter:'B',text:'How many Cans do you drink daily? At what Age did you start drinking? What is your Gender? How often do you drink to Excess?',correct:false,rationale:'This is not the CAGE questionnaire. CAGE is a specific validated screening tool with standardized questions about subjective experiences with alcohol (feeling the need to cut down, annoyance, guilt, and morning drinking), not about quantities, demographics, or frequency.'},
+{letter:'C',text:'Do you drink in your Car? Do you drink Alone? Do you drink in Groups? Do you drink Every day?',correct:false,rationale:'This is a fabricated tool. CAGE does not ask about drinking locations or social context. The real CAGE questions focus on the person\'s relationship with alcohol: desire to cut down, defensiveness about criticism, guilt, and physical dependence (eye-opener).'},
+{letter:'D',text:'How many Calories from alcohol daily? What is your Alcohol tolerance? What are your Genes/family history? What are the Effects on your health?',correct:false,rationale:'This is not a validated screening tool. CAGE is specifically about subjective experiences, not about caloric intake, tolerance, genetics, or health effects. The power of CAGE is its simplicity — four yes/no questions that can quickly identify problematic drinking patterns.'}
+],
+vocabTip:"CAGE = Cut down, Annoyed, Guilty, Eye-opener. Score: 2+ yes answers = positive screen, needs further assessment. Why it matters in older adults: (1) alcohol interacts dangerously with multiple medications, (2) alcohol increases fall risk, (3) alcohol abuse in the elderly is underdiagnosed because providers don\'t ask, (4) even small amounts are more dangerous in the elderly due to decreased liver metabolism and increased sensitivity. If an elderly patient has recurrent falls, ALWAYS screen for alcohol use."
+},
+{id:13,chapter:4,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is implementing the 4 M\'s framework for an 85-year-old patient who was admitted after a fall at home. The patient takes 14 medications, including two benzodiazepines prescribed by different providers. The nurse reviews the Beers Criteria list. Which action BEST addresses the \"Medication\" component of the 4 M\'s?",
+options:[
+{letter:'A',text:'Notify the provider about the duplicate benzodiazepine prescriptions and advocate for a comprehensive medication reconciliation to identify and deprescribe high-risk medications',correct:true,rationale:'The Medication component of the 4 M\'s specifically targets safe prescribing and deprescribing in older adults. Benzodiazepines are on the Beers Criteria list as potentially inappropriate medications (PIMs) for older adults because they increase fall risk, cause confusion, and contribute to oversedation. Having two from different providers suggests fragmented care. The nurse advocates for reconciliation and deprescribing.'},
+{letter:'B',text:'Add a third medication to counteract the side effects of the benzodiazepines',correct:false,rationale:'Adding medications to treat side effects of other medications is the opposite of the 4 M\'s Medication goal. This is the \"prescribing cascade\" — a dangerous pattern where side effects are treated with more drugs rather than removing the offending drug. The 4 M\'s emphasizes DEPRESCRIBING, not adding.'},
+{letter:'C',text:'Continue all current medications because they were prescribed by physicians and it is outside the nurse\'s scope to question prescriptions',correct:false,rationale:'Nurses have a professional obligation to question medications that may be harmful. Advocacy is a core nursing role. Blindly administering medications without critical evaluation — especially Beers Criteria drugs in the elderly — is not safe practice. The nurse should communicate concerns to the provider.'},
+{letter:'D',text:'Hold both benzodiazepines immediately without notifying the provider to prevent another fall',correct:false,rationale:'While the concern about fall risk is correct, the nurse cannot independently discontinue prescribed medications. Abrupt benzodiazepine withdrawal can cause seizures and other dangerous effects. The appropriate action is notifying the provider and advocating for a safe tapering plan.'}
+],
+vocabTip:"Beers Criteria = a list of medications that are potentially inappropriate for adults 65+. Common ones: benzodiazepines (fall risk, confusion), anticholinergics (delirium), long-acting sulfonylureas (hypoglycemia), NSAIDs (GI bleeding, kidney damage). Polypharmacy (5+ medications) is a huge problem in the elderly. The 4 M\'s Medication component says: review everything, deprescribe what\'s unnecessary or harmful, reconcile across providers. The nurse\'s role: identify, question, advocate."
+},
+
+// ═══ CHAPTER 5: Transgender Health ═══
+{id:14,chapter:5,difficulty:'medium',sata:false,trap:true,
+stem:"A female-to-male (FtM) transgender patient who has been on testosterone therapy for 3 years presents for a routine health visit. The patient has not had any surgical procedures. Which health screening should the nurse ensure is NOT omitted from this patient\'s care plan?",
+options:[
+{letter:'A',text:'Cervical cancer screening (Pap smear), because the patient retains the cervix, uterus, and ovaries despite testosterone therapy',correct:true,rationale:'FtM patients who have not had a hysterectomy still have a cervix and require Pap smear screening per standard guidelines. Testosterone therapy does NOT remove reproductive organs. Many FtM patients avoid gynecological care due to gender dysphoria, making it even more important for the nurse to sensitively ensure these screenings are completed. Screen based on anatomy present.'},
+{letter:'B',text:'Prostate cancer screening (PSA), because testosterone therapy stimulates prostate tissue growth',correct:false,rationale:'TRAP. FtM patients do not have a prostate gland. Testosterone therapy does not create prostate tissue. Prostate screening is relevant for MtF patients (who retain their prostate), not FtM patients. Remember: screen for organs the patient HAS, not organs associated with their gender identity.'},
+{letter:'C',text:'No sex-specific screenings are needed since testosterone therapy has masculinized the body and eliminated female-organ cancer risks',correct:false,rationale:'Testosterone therapy causes external masculinization (voice deepening, facial hair, body fat redistribution) but does NOT eliminate the cervix, uterus, ovaries, or breast tissue. Cancer risk for these organs remains. Skipping screenings because the patient \"looks male\" could miss life-threatening cancers.'},
+{letter:'D',text:'Testicular cancer screening, because testosterone therapy creates testicular tissue over time',correct:false,rationale:'Testosterone therapy does not create testes or testicular tissue. FtM patients do not develop testes regardless of hormone therapy duration. Testicular cancer screening is not applicable. Screening must be based on actual anatomy present, not hormone therapy effects.'}
+],
+vocabTip:"FtM (female-to-male) still has: cervix (unless hysterectomy), uterus, ovaries, breast tissue (unless top surgery). Still needs: Pap smears, breast/chest exams, ovarian cancer screening. Does NOT have: prostate, testes. MtF (male-to-female) still has: prostate. Still needs: prostate screening. May have breast tissue development from estrogen — breast screening guidelines may apply. The golden rule: screen based on ORGANS PRESENT, regardless of gender identity or hormones."
+},
+{id:15,chapter:5,difficulty:'easy',sata:false,trap:false,
+stem:"A transgender patient presents to the emergency department with chest pain. The triage nurse asks the patient\'s sex assigned at birth in front of the crowded waiting room. The patient becomes visibly upset and states they feel humiliated. Which aspect of culturally competent care did the nurse violate?",
+options:[
+{letter:'A',text:'Privacy and dignity — sensitive questions about gender identity and anatomy should be asked in a private setting, not in front of others',correct:true,rationale:'Asking about sex assigned at birth in a public area violates the patient\'s privacy and dignity. While this information may be medically relevant (for screening, lab interpretation, medication dosing), it should be obtained in a private triage area. Publicly disclosing a patient\'s transgender status can cause emotional harm, stigma, and may deter the patient from seeking future medical care.'},
+{letter:'B',text:'Autonomy — the nurse should never ask about sex assigned at birth because it is irrelevant to medical care',correct:false,rationale:'Sex assigned at birth CAN be medically relevant (lab reference ranges, anatomy-based screenings, medication metabolism). The violation was not in asking the question but in asking it publicly. In a private setting with a clear explanation of medical relevance, this question is appropriate and necessary for good care.'},
+{letter:'C',text:'Beneficence — the nurse was doing good by gathering necessary medical information for treatment',correct:false,rationale:'While gathering medical information is important (beneficence), the WAY it was done caused harm (violating nonmaleficence and dignity). Good intentions do not excuse poor execution. The information could have been gathered privately without causing humiliation.'},
+{letter:'D',text:'Justice — all patients should be asked the same questions in the same location regardless of gender identity',correct:false,rationale:'Justice means treating people fairly, not treating everyone identically. Fair care means adapting the approach to protect each patient\'s dignity. Asking sensitive questions publicly harms some patients more than others. Equitable care = asking sensitive questions in private for ALL patients, not just transgender patients.'}
+],
+vocabTip:"Culturally competent transgender care includes: (1) Use preferred name/pronouns, (2) Ask sensitive questions PRIVATELY, (3) Explain WHY you need the information (\"I\'m asking about sex assigned at birth because it helps me interpret your lab results accurately\"), (4) Never out someone in front of others, (5) Document sensitively. On exams, the answer that protects DIGNITY while still gathering necessary medical information is correct."
+},
+
+// ═══ CHAPTER 6: Pain Management ═══
+{id:16,chapter:6,difficulty:'medium',sata:false,trap:false,
+stem:"A patient with diabetic peripheral neuropathy reports constant burning, tingling, and \"electric shock\" sensations in both feet that keep them awake at night. The patient has been taking ibuprofen 800 mg three times daily with no relief. The nurse anticipates the provider will order which class of medication?",
+options:[
+{letter:'A',text:'An anticonvulsant such as gabapentin (Neurontin) or pregabalin (Lyrica), which targets neuropathic pain by stabilizing nerve membranes',correct:true,rationale:'Neuropathic pain (burning, tingling, electric shocks) responds poorly to traditional analgesics like NSAIDs and even opioids. First-line treatment includes anticonvulsants (gabapentin, pregabalin) that work by blocking voltage-gated calcium channels in overexcited nerve fibers, reducing abnormal pain signaling. This is why the ibuprofen failed — it targets inflammation (nociceptive pain), not nerve damage.'},
+{letter:'B',text:'A stronger NSAID such as ketorolac (Toradol) IV, since the oral ibuprofen dose was insufficient',correct:false,rationale:'NSAIDs target prostaglandin-mediated inflammation (nociceptive pain). Neuropathic pain is caused by nerve damage, not inflammation. A stronger NSAID will not work because the mechanism is wrong. Using ketorolac also carries significant risks: GI bleeding, kidney damage, and it is only approved for short-term use (5 days max).'},
+{letter:'C',text:'A long-acting opioid such as extended-release oxycodone for continuous pain control',correct:false,rationale:'Opioids are generally NOT first-line for neuropathic pain. While they can provide some relief, they are less effective for nerve pain than anticonvulsants or antidepressants, and they carry significant risks (dependence, respiratory depression, constipation). Guidelines recommend adjuvant medications first.'},
+{letter:'D',text:'A muscle relaxant such as cyclobenzaprine (Flexeril) to reduce the nerve spasms causing the pain',correct:false,rationale:'Neuropathic pain is not caused by muscle spasms. Muscle relaxants work on skeletal muscle tension and spasm, which is a completely different mechanism. The burning/tingling/shock sensations are from damaged nerve fibers firing abnormally, not from muscles contracting.'}
+],
+vocabTip:"Match the pain type to the drug class: NOCICEPTIVE pain (tissue damage — aching, throbbing, sharp) = NSAIDs, acetaminophen, opioids. NEUROPATHIC pain (nerve damage — burning, tingling, electric shocks, numbness) = anticonvulsants (gabapentin, pregabalin), antidepressants (duloxetine, amitriptyline), topical lidocaine. If the question describes burning/tingling/electric sensations and an NSAID isn\'t working, the answer is almost always an adjuvant medication like gabapentin."
+},
+{id:17,chapter:6,difficulty:'easy',sata:false,trap:true,
+stem:"A nurse is assessing a 3-year-old child who was brought to the ED after falling off a swing. The child is crying and holding the right arm. The parent says, \"She won\'t let anyone touch it.\" The nurse needs to assess pain. Which pain scale is MOST appropriate for this patient?",
+options:[
+{letter:'A',text:'The Numeric Rating Scale (NRS) 0-10 — ask the child to rate pain on a scale of zero to ten',correct:false,rationale:'The NRS requires abstract numerical reasoning that a 3-year-old cannot perform. Children typically cannot reliably use the 0-10 scale until age 8-10. Asking a crying 3-year-old to give a number is developmentally inappropriate and will not yield valid data.'},
+{letter:'B',text:'The FLACC scale (Face, Legs, Activity, Cry, Consolability) — a behavioral observation tool for preverbal or young children',correct:true,rationale:'The FLACC scale is a behavioral pain assessment tool designed for children ages 2 months to 7 years (or nonverbal patients). The nurse observes five categories: facial expression, leg position, activity/body movement, cry quality, and consolability. Each is scored 0-2 for a total of 0-10. No patient participation is required — the nurse observes and scores. This is ideal for a distressed 3-year-old.'},
+{letter:'C',text:'The Wong-Baker FACES scale — have the child point to the face that shows how much it hurts',correct:false,rationale:'TRAP. The FACES scale seems right for a child, but it requires the child to understand the concept of matching their internal experience to a visual representation. Most children cannot reliably use FACES until age 4-5. A crying, distressed 3-year-old holding an injured arm is unlikely to cooperate with pointing at faces. FLACC (behavioral observation) is more appropriate when the child cannot self-report.'},
+{letter:'D',text:'The Visual Analog Scale (VAS) — have the child mark a point on a line from \"no pain\" to \"worst pain\"',correct:false,rationale:'The VAS requires the abstract concept of mapping pain intensity to a spatial position on a line. This is beyond the cognitive ability of a 3-year-old. The VAS is appropriate for older children (8+) and adults who can understand the spatial representation.'}
+],
+vocabTip:"Pain scale selection by age/ability: FLACC = ages 2 months to 7 years (behavioral observation, no patient participation needed). Wong-Baker FACES = ages 4-5 and up (child points to a face). Numeric Rating Scale (0-10) = ages 8-10 and up (abstract numerical reasoning). VAS = older children/adults. FLACC is also used for nonverbal adults (intubated, cognitively impaired). On exams: if the patient CAN self-report, self-report is gold standard. If they CANNOT, use behavioral observation (FLACC)."
+},
+{id:18,chapter:6,difficulty:'medium',sata:false,trap:false,
+stem:"A patient has been taking oxycodone 10 mg every 6 hours for 3 weeks after a major surgery. The patient tells the nurse, \"I need to stop taking this because I heard you get addicted after a few weeks.\" The nurse\'s BEST response is:",
+options:[
+{letter:'A',text:'\"You may have developed physical dependence, which means your body adapted to the medication and you may experience withdrawal if stopped suddenly. This is NOT the same as addiction. Let\'s talk to your provider about a safe tapering plan.\"',correct:true,rationale:'After 2-3 weeks of regular opioid use, physical dependence is expected — the body adapts and withdrawal symptoms occur if the drug is stopped abruptly. This is a NORMAL physiological response, not addiction. Addiction involves compulsive use, craving, and continued use despite harm. The nurse educates about the distinction and advocates for a safe taper to avoid withdrawal symptoms (muscle aches, anxiety, diarrhea, insomnia).'},
+{letter:'B',text:'\"You\'re right to be concerned. Three weeks of opioid use means you are likely addicted. Stop taking it immediately and deal with any discomfort.\"',correct:false,rationale:'This is factually incorrect and dangerous. Three weeks of prescribed opioid use does not equal addiction. Stopping abruptly after regular use can cause severe withdrawal symptoms including tachycardia, hypertension, vomiting, and severe anxiety. This response demonstrates misunderstanding of dependence vs. addiction and could cause harm.'},
+{letter:'C',text:'\"Addiction only happens to people who take more than prescribed. As long as you follow the dosing schedule, you cannot become addicted.\"',correct:false,rationale:'This is false reassurance. While taking medications as prescribed reduces risk, addiction is a complex disease involving genetic, environmental, and psychological factors. Simply following a schedule does not eliminate risk. The nurse should provide accurate education about dependence, tolerance, and the real (but often overstated) risk of addiction with prescribed short-term use.'},
+{letter:'D',text:'\"Don\'t worry about it — just keep taking it as prescribed until the prescription runs out.\"',correct:false,rationale:'Dismissing the patient\'s concern is not therapeutic communication. The nurse should address the question, provide education about the difference between dependence and addiction, and collaborate with the provider on an appropriate plan for discontinuation. Patient concerns about medications should always be taken seriously.'}
+],
+vocabTip:"The three concepts patients (and nurses) confuse: TOLERANCE = need more drug for same effect (normal physiology). PHYSICAL DEPENDENCE = withdrawal if you stop suddenly (normal physiology after regular use). ADDICTION = compulsive use despite harm, loss of control, craving (a disease). A patient can be physically dependent WITHOUT being addicted. After 2-3 weeks of regular opioid use, physical dependence is expected. ALWAYS taper — never stop abruptly."
+},
+
+// ═══ CHAPTER 7: Rehab Concepts ═══
+{id:19,chapter:7,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is teaching energy conservation techniques to a patient with multiple sclerosis who reports severe fatigue that limits daily activities. Which instruction BEST demonstrates the principle of energy conservation?",
+options:[
+{letter:'A',text:'\"Complete all household chores in the morning when you have the most energy, then rest for the remainder of the day\"',correct:false,rationale:'Doing all tasks at once, even during peak energy times, leads to exhaustion and crashes. Energy conservation is about PACING and DISTRIBUTING activity throughout the day, not front-loading everything into one burst. This approach will likely cause a severe fatigue episode in the afternoon.'},
+{letter:'B',text:'\"Spread activities throughout the day with scheduled rest periods between tasks, sit instead of stand when possible, and prioritize which tasks matter most to you\"',correct:true,rationale:'Energy conservation principles: (1) PACE yourself — alternate activity with rest, (2) PLAN ahead — prioritize tasks and eliminate unnecessary ones, (3) POSITION — sit instead of stand, use assistive devices, keep frequently used items at arm level, (4) PRIORITIZE — decide what truly matters and delegate or skip what doesn\'t. This teaches the patient to budget their energy like a limited resource.'},
+{letter:'C',text:'\"Avoid all physical activity to preserve your energy for essential functions like eating and bathing\"',correct:false,rationale:'Complete inactivity leads to deconditioning, which actually WORSENS fatigue over time. Energy conservation is not about avoiding activity — it\'s about doing activities SMARTER. The goal is to maintain function and independence while managing fatigue, not to eliminate all activity.'},
+{letter:'D',text:'\"Push through the fatigue because giving in to it will only make it worse over time\"',correct:false,rationale:'\"Pushing through\" MS-related fatigue can trigger an exacerbation and cause prolonged recovery periods. Unlike normal tiredness, MS fatigue is neurological in origin and does not improve with willpower. Ignoring energy limits can worsen the condition. Respecting energy boundaries is therapeutic.'}
+],
+vocabTip:"Energy conservation = treating energy like a bank account with a fixed daily balance. You can\'t overdraft without consequences. The 4 P\'s: PACE (alternate activity and rest), PLAN (organize tasks in advance), POSITION (sit vs. stand, keep items accessible), PRIORITIZE (do what matters most, delegate or drop the rest). This applies to MS, heart failure, COPD, chronic fatigue, and any condition where energy is limited. On exams, the answer that describes pacing and planning is correct."
+},
+{id:20,chapter:7,difficulty:'hard',sata:false,trap:false,
+stem:"A patient with a spinal cord injury at C6 is being taught a bladder retraining program. The nurse explains that the goal is to establish a predictable voiding pattern. Which technique is MOST appropriate for this patient\'s bladder retraining?",
+options:[
+{letter:'A',text:'Intermittent catheterization on a scheduled basis (every 4-6 hours) combined with fluid management, gradually extending intervals as bladder capacity improves',correct:true,rationale:'For a C6 spinal cord injury (upper motor neuron lesion = spastic/reflex bladder), intermittent catheterization is the gold standard for bladder management. The schedule mimics normal voiding intervals. Fluid intake is timed (drinking more in the morning, restricting fluids 2 hours before bed) to make voiding predictable. As the patient learns triggering techniques (tapping the suprapubic area), catheterization intervals may be extended.'},
+{letter:'B',text:'Insert an indwelling Foley catheter permanently to prevent incontinence and avoid the inconvenience of intermittent catheterization',correct:false,rationale:'Long-term indwelling catheters are associated with high rates of UTI, bladder stones, urethral erosion, and even bladder cancer. They are NOT recommended for chronic bladder management in SCI. Intermittent catheterization has significantly lower infection rates and promotes bladder health. The slight inconvenience is far outweighed by the reduced complication rate.'},
+{letter:'C',text:'Restrict all fluids to less than 500 mL per day to minimize urine production and reduce the burden of bladder management',correct:false,rationale:'Severe fluid restriction causes dehydration, concentrated urine (increasing UTI and stone risk), and constipation. Patients with neurogenic bladders need ADEQUATE fluid intake (typically 1.5-2L/day) distributed strategically throughout the day. The goal is managing WHEN urine is produced, not eliminating production.'},
+{letter:'D',text:'Administer diuretics in the evening to flush the bladder before bedtime and prevent nighttime incontinence',correct:false,rationale:'Evening diuretics would increase nighttime urine production, causing more incontinence and sleep disruption. If diuretics are needed for other medical reasons, they should be given in the morning so the increased output occurs during waking hours when it can be managed with catheterization.'}
+],
+vocabTip:"Bladder retraining for SCI: Intermittent catheterization (IC) is the gold standard — it mimics normal voiding, reduces infection risk, and preserves bladder function. For UMN (spastic) bladder: IC + triggering techniques (suprapubic tapping). For LMN (flaccid) bladder: IC + Crede\'s maneuver (pressing on the bladder to manually express urine). Fluid management: drink most fluids during waking hours, restrict before bed. NEVER rely on long-term indwelling catheters if IC is possible."
+},
+{id:21,chapter:7,difficulty:'easy',sata:false,trap:false,
+stem:"A rehabilitation patient who had a stroke 1 week ago is started on a dysphagia diet after a speech therapy evaluation. The nurse is preparing to assist with the patient\'s first meal. Which action is MOST important before the patient begins eating?",
+options:[
+{letter:'A',text:'Position the patient upright at 90 degrees with the chin slightly tucked to protect the airway during swallowing',correct:true,rationale:'Proper positioning is the FIRST and MOST important safety measure for dysphagia. Upright at 90 degrees uses gravity to move the food bolus toward the esophagus. The chin tuck narrows the airway entrance and widens the esophageal opening, reducing aspiration risk. The patient should remain upright for at least 30-60 minutes after eating. This must happen BEFORE any food is given.'},
+{letter:'B',text:'Offer the patient a glass of thin water to test swallowing ability before starting the modified diet',correct:false,rationale:'Thin liquids are the HARDEST consistency to swallow safely for patients with dysphagia because they move quickly and unpredictably. The speech therapist has already evaluated and recommended a specific diet consistency. Giving unauthorized thin water could cause aspiration. Follow the prescribed diet exactly.'},
+{letter:'C',text:'Crush all medications and mix them into applesauce to administer with the meal',correct:false,rationale:'Not all medications can be crushed (extended-release, enteric-coated, and certain other formulations must not be crushed). The pharmacist must verify which medications can be crushed. Additionally, mixing medications with food can alter absorption and affect intake if the patient doesn\'t finish the applesauce.'},
+{letter:'D',text:'Encourage the patient to eat quickly while the food is warm to maintain appetite and motivation',correct:false,rationale:'Eating quickly is DANGEROUS for a patient with dysphagia. The patient should eat slowly, take small bites, and fully swallow before the next bite. Rushing increases aspiration risk. If food cools, it can be rewarmed. Safety always takes priority over meal temperature.'}
+],
+vocabTip:"Dysphagia safety: (1) Upright 90 degrees + chin tuck BEFORE eating, (2) Follow prescribed diet consistency exactly (thickened liquids, pureed, mechanical soft, etc.), (3) Small bites, slow pace, swallow completely between bites, (4) Stay upright 30-60 minutes AFTER eating, (5) Have suction equipment available, (6) Monitor for signs of aspiration: coughing, wet/gurgling voice, watery eyes during meals. Thin liquids are the MOST dangerous for dysphagia patients — never give unauthorized thin fluids."
+},
+
+// ═══ CHAPTER 8: Palliative & End of Life ═══
+{id:22,chapter:8,difficulty:'medium',sata:false,trap:true,
+stem:"A terminally ill patient with advanced lung cancer has a living will stating \"no extraordinary measures.\" The patient is currently conscious and oriented. The patient\'s adult child arrives and demands that the nurse ensure \"everything possible is done\" if the patient codes, including CPR and intubation. The patient overhears this and clearly states, \"I don\'t want that. My wishes haven\'t changed.\" Which action is legally and ethically correct?",
+options:[
+{letter:'A',text:'Follow the family\'s wishes because the adult child has the legal right to override a living will when present at the bedside',correct:false,rationale:'TRAP. Family members CANNOT override a conscious, competent patient\'s advance directive. The living will represents the patient\'s autonomous wishes. The adult child has no legal authority to change the patient\'s decisions while the patient is competent. A DPOAHC only has authority when the patient CANNOT speak for themselves.'},
+{letter:'B',text:'Honor the patient\'s stated wishes and the living will, documenting the conversation and offering to arrange a family meeting to address the child\'s concerns',correct:true,rationale:'The competent patient\'s wishes always take precedence. The living will is a legal document reflecting the patient\'s autonomous decision, and the patient has verbally reaffirmed those wishes. The nurse advocates for the patient while showing compassion for the family. A family meeting with the palliative care team can help the adult child understand and process the patient\'s decisions.'},
+{letter:'C',text:'Remove the living will from the chart temporarily until the family conflict is resolved by the ethics committee',correct:false,rationale:'Removing a legal document from the chart is inappropriate and potentially illegal. The living will remains valid and enforceable as long as the patient is competent and has not revoked it. Ethics committees can be consulted for guidance, but the document cannot be removed while deliberation occurs.'},
+{letter:'D',text:'Tell the patient to reconsider their wishes to reduce family stress and maintain family harmony',correct:false,rationale:'Pressuring a patient to change their advance directive to please family members violates autonomy. The nurse\'s role is to advocate for the PATIENT\'s wishes, not to mediate family dynamics by convincing the patient to change their mind. The patient has clearly stated their desires.'}
+],
+vocabTip:"Advance directives hierarchy: (1) A conscious, competent patient\'s verbal wishes are ALWAYS honored first, (2) The living will speaks when the patient cannot, (3) The DPOAHC makes decisions ONLY when the patient is unable to speak. Family members without DPOAHC designation have NO legal authority over a competent patient\'s care decisions. On exams: if the patient is conscious and oriented and says \'no,\' the answer is ALWAYS respect the patient — no matter what the family says."
+},
+{id:23,chapter:8,difficulty:'easy',sata:false,trap:false,
+stem:"A hospice nurse is working with a family whose loved one died 6 months ago. The surviving spouse describes crying daily, avoiding social gatherings, looking at old photos frequently, and stating, \"Some days I think I hear his voice calling me from the other room.\" The nurse understands this behavior MOST likely represents:",
+options:[
+{letter:'A',text:'Normal grief — these are expected manifestations of bereavement that may continue for months to years after the loss',correct:true,rationale:'All described behaviors fall within normal grief: crying, social withdrawal, reminiscing (looking at photos), and even auditory or visual experiences of the deceased (common in the first year of bereavement). Normal grief does not have a fixed timeline — it can last months to years. These experiences do not indicate pathology as long as the person is still functioning in basic daily life.'},
+{letter:'B',text:'Complicated/prolonged grief disorder requiring immediate psychiatric intervention',correct:false,rationale:'Complicated grief is diagnosed when grief significantly impairs functioning for an extended period (typically 12+ months) with inability to accept the death, intense bitterness, difficulty engaging in life, and feeling that life is meaningless. At 6 months, with the described symptoms, this is within normal grief parameters. Brief auditory experiences of the deceased are normal and do not indicate psychosis.'},
+{letter:'C',text:'Psychotic episode — hearing the deceased\'s voice indicates the spouse is experiencing auditory hallucinations requiring antipsychotic medication',correct:false,rationale:'Brief, transient sensory experiences of the deceased (hearing their voice, feeling their presence, smelling their cologne) are well-documented NORMAL grief phenomena, not psychosis. Up to 50% of bereaved spouses report these experiences. They are typically brief, the person recognizes the deceased is not actually there, and they often find the experience comforting rather than distressing.'},
+{letter:'D',text:'Pathological mourning — the spouse should have completed the stages of grief within 6 months',correct:false,rationale:'There is no set timeline for grief completion. The \"stages of grief\" (denial, anger, bargaining, depression, acceptance) are not a linear process with a deadline. People move through grief at their own pace, may revisit stages, and may never fully \"complete\" the process. Six months is still early in bereavement.'}
+],
+vocabTip:"Grief vs. Mourning: GRIEF = the internal emotional/psychological response to loss (what you FEEL). MOURNING = the outward expression of grief shaped by culture and customs (what you DO — wearing black, attending funerals, sitting shiva). Normal grief can include: crying, anger, guilt, loneliness, appetite changes, sleep disruption, sensing the deceased\'s presence. When does grief become \'complicated\'? When it persists beyond 12 months with inability to function. On exams: don\'t pathologize normal grief."
+},
+{id:24,chapter:8,difficulty:'hard',sata:true,trap:false,
+stem:"A nurse is caring for a patient in the final stages of life. The family is gathered and asking questions. Which statements by the nurse demonstrate accurate understanding of the dying process? (Select all that apply.)",
+options:[
+{letter:'A',text:'\"Your loved one may stop eating and drinking — this is a natural part of the dying process, and forcing food or fluids can cause discomfort and aspiration\"',correct:true,rationale:'Anorexia and decreased fluid intake are normal as the body shuts down. The GI tract slows, and the body cannot process food or fluids effectively. Forcing nutrition can cause nausea, vomiting, bloating, and aspiration. Mouth care with swabs and lip moisturizer provides comfort without the risks of oral intake.'},
+{letter:'B',text:'\"The skin on the knees and feet may become mottled (bluish-purple blotchy patches) — this indicates the circulation is slowing as the body prepares for death\"',correct:true,rationale:'Mottling (livedo reticularis) occurs as blood flow decreases to the extremities and is directed toward vital organs. It typically appears on the knees, feet, and hands first. It is one of the later signs of the dying process and often indicates death within hours to days. It is painless and does not require intervention.'},
+{letter:'C',text:'\"If your loved one develops a fever, we should transfer them to the ICU for IV antibiotics because fever always means a treatable infection\"',correct:false,rationale:'In the actively dying patient, fever can result from hypothalamic dysfunction as the brain shuts down, not necessarily from infection. Treating with IV antibiotics and ICU transfer is aggressive intervention that contradicts comfort-focused care. Fever in the dying patient can be managed with comfort measures: cool cloths, antipyretics if the patient can swallow, and removing excess blankets.'},
+{letter:'D',text:'\"You may notice breathing patterns change — there may be long pauses followed by deep breaths. This is called Cheyne-Stokes breathing and is expected near the end of life\"',correct:true,rationale:'Cheyne-Stokes respirations (crescendo-decrescendo pattern with apneic periods) are a common finding in the dying process as the brainstem respiratory center becomes less responsive. It can be distressing to watch but is not uncomfortable for the patient. Preparing the family for this pattern reduces anxiety and prevents unnecessary emergency calls.'},
+{letter:'E',text:'\"We need to continue checking vital signs every 2 hours and drawing blood to monitor organ function during this time\"',correct:false,rationale:'Frequent vital signs and blood draws are invasive, uncomfortable, and provide no benefit in actively dying patients. The information gained does not change the comfort plan. Discontinuing unnecessary monitoring and procedures is part of dignified end-of-life care. The focus shifts entirely to comfort and presence.'}
+],
+vocabTip:"Signs of imminent death (hours to days): Mottling of extremities, Cheyne-Stokes breathing, decreased/no urine output, cool extremities, death rattle (secretions), decreased consciousness, loss of appetite/thirst. The nurse\'s role: EDUCATE the family about what to expect, PROVIDE comfort measures (mouth care, repositioning, medications for symptom management), DISCONTINUE unnecessary interventions (labs, vitals, blood draws), and SUPPORT the family emotionally. The patient\'s comfort is the ONLY priority."
+},
+
+// ═══ CHAPTER 9: Perioperative Care ═══
+{id:25,chapter:9,difficulty:'hard',sata:false,trap:false,
+stem:"A patient undergoes a 4-hour abdominal surgery under general anesthesia. In the PACU, the patient\'s temperature is 94.8°F (34.9°C), oxygen saturation is 93% on 4L nasal cannula, and the patient is shivering intensely. The nurse recognizes that postoperative hypothermia is dangerous primarily because it:",
+options:[
+{letter:'A',text:'Increases oxygen consumption due to shivering, which stresses the cardiovascular system and can trigger cardiac arrhythmias in vulnerable patients',correct:true,rationale:'Shivering increases metabolic oxygen demand by 200-500%. In a patient already recovering from anesthesia with potential respiratory compromise (SpO2 93%), this massive increase in oxygen consumption can outstrip supply, leading to tissue hypoxia, lactic acidosis, and cardiac stress. Hypothermia also impairs platelet function (increasing bleeding), delays wound healing, increases surgical site infection risk, and prolongs drug metabolism.'},
+{letter:'B',text:'Causes immediate frostbite of the surgical wound, leading to tissue necrosis at the incision site',correct:false,rationale:'A core temperature of 94.8°F (34.9°C) is mild hypothermia, not frostbite. Frostbite occurs when tissue freezes (below 32°F/0°C), which does not happen in a controlled OR/PACU environment. The dangers of perioperative hypothermia are metabolic and physiological, not frostbite-related.'},
+{letter:'C',text:'Is simply a comfort issue that resolves on its own once the patient is covered with warm blankets',correct:false,rationale:'Perioperative hypothermia is NOT just a comfort issue — it is a significant patient safety concern. It increases SSI risk by 300%, impairs coagulation (more bleeding), increases cardiac events, prolongs drug effects, delays wound healing, and extends hospital stays. Active warming (forced-air warming blankets like Bair Hugger) is required, not just passive blankets.'},
+{letter:'D',text:'Accelerates anesthetic drug metabolism, causing the patient to wake up too quickly and experience emergence delirium',correct:false,rationale:'Hypothermia does the OPPOSITE — it SLOWS drug metabolism, prolonging the effects of anesthesia and muscle relaxants. This can delay emergence, prolong respiratory depression, and increase the need for mechanical ventilation. Patients who are cold metabolize drugs more slowly, not faster.'}
+],
+vocabTip:"Perioperative hypothermia complications: (1) Shivering increases O2 demand 200-500% (cardiac stress), (2) Impaired coagulation (more surgical bleeding), (3) 3x higher surgical site infection rate, (4) Prolonged drug metabolism (delayed wake-up), (5) Delayed wound healing. Prevention: warm IV fluids, forced-air warming blankets, warm OR environment (68-75°F). Treatment: active rewarming with Bair Hugger, warm IV fluids, warm humidified oxygen. On exams, hypothermia in the PACU is ALWAYS a priority concern."
+},
+{id:26,chapter:9,difficulty:'hard',sata:false,trap:true,
+stem:"During a routine surgical procedure, the circulating nurse counts surgical instruments before closure. The count reveals one lap sponge is missing. The surgeon states, \"I\'m confident nothing was left inside — let\'s just close and move on. The patient has been under anesthesia long enough.\" What is the nurse\'s MOST appropriate action?",
+options:[
+{letter:'A',text:'Defer to the surgeon\'s expertise and allow closure to proceed since the surgeon has direct visualization of the surgical field',correct:false,rationale:'TRAP. The surgeon\'s confidence does not replace a verified correct count. Retained surgical items are sentinel events that can cause infection, perforation, obstruction, and death. The nurse has an INDEPENDENT obligation to ensure patient safety. \"The surgeon said it\'s fine\" is never an acceptable reason to skip a safety protocol.'},
+{letter:'B',text:'Refuse to allow closure until the missing sponge is located, request an intraoperative X-ray if needed, and escalate through the chain of command if the surgeon insists on closing',correct:true,rationale:'The nurse is the patient\'s last line of defense for retained surgical items. A missing sponge count MUST be reconciled before closure. The nurse should: (1) recount all sponges, (2) search the field, drapes, floor, and trash, (3) request an intraoperative X-ray (radiopaque sponges are visible), (4) escalate to the charge nurse or surgical director if the surgeon refuses to comply. Patient safety is non-negotiable.'},
+{letter:'C',text:'Document that the surgeon was informed of the incorrect count and allow closure, placing the liability on the surgeon',correct:false,rationale:'Documentation alone does not protect the patient from a retained sponge. The nurse has an independent duty to act, not just document. \"I told the surgeon\" does not absolve the nurse of responsibility. Both the nurse and surgeon share accountability for surgical counts.'},
+{letter:'D',text:'Quickly close the incision and order a postoperative X-ray to check for the sponge after the patient is in recovery',correct:false,rationale:'Closing with a known count discrepancy and planning to X-ray afterward puts the patient at risk for a second surgery to retrieve the sponge. The time to find and remove the sponge is DURING the procedure when the abdomen is already open. Postoperative detection means reopening the patient — which carries its own risks.'}
+],
+vocabTip:"Surgical counts are a SAFETY PROTOCOL that CANNOT be overridden by surgeon preference. If the count is wrong, the incision stays open until it\'s reconciled. The nurse advocates for the patient even when pressured by authority figures. This is the same principle as failure to rescue — the nurse has an independent obligation regardless of what other team members say. Chain of command: if the surgeon refuses, escalate to charge nurse, then surgical director, then hospital administration. NEVER close with a missing item."
+},
+{id:27,chapter:9,difficulty:'medium',sata:true,trap:false,
+stem:"A nurse is completing the preoperative checklist for a patient scheduled for abdominal surgery in 1 hour. Which findings require the nurse to IMMEDIATELY notify the surgical team before the patient is transported to the OR? (Select all that apply.)",
+options:[
+{letter:'A',text:'The patient reports taking two aspirin this morning for a headache, which was not previously disclosed to the surgical team',correct:true,rationale:'Aspirin irreversibly inhibits platelet aggregation for the life of the platelet (7-10 days). Taking aspirin on the day of surgery significantly increases intraoperative bleeding risk. This was not previously known to the team, so the surgeon must be notified to decide whether to proceed, delay, or adjust the plan.'},
+{letter:'B',text:'The patient ate a bowl of oatmeal 3 hours ago because they \"didn\'t think it mattered\"',correct:true,rationale:'NPO guidelines require 6-8 hours for solid food before general anesthesia. Eating 3 hours ago is a serious NPO violation. A full stomach under anesthesia increases the risk of aspiration (vomiting and inhaling stomach contents into the lungs), which can cause aspiration pneumonia or death. The anesthesiologist MUST be notified — surgery will likely be delayed.'},
+{letter:'C',text:'The patient\'s potassium level drawn this morning is 6.1 mEq/L',correct:true,rationale:'Potassium of 6.1 mEq/L is critically elevated (normal 3.5-5.0). Hyperkalemia can cause fatal cardiac arrhythmias, especially under anesthesia. The anesthesiologist and surgeon must be notified immediately. Surgery should be delayed until potassium is corrected. This is a life-threatening lab value.'},
+{letter:'D',text:'The patient is anxious and asking questions about the recovery timeline',correct:false,rationale:'Preoperative anxiety is normal and expected. The nurse should provide reassurance, answer questions within scope, and offer to have the surgeon address specific concerns. Anxiety alone does not require notifying the surgical team or delaying surgery.'},
+{letter:'E',text:'The patient\'s hemoglobin is 13.2 g/dL (within normal limits)',correct:false,rationale:'A hemoglobin of 13.2 g/dL is within normal range and does not require urgent notification. A significantly low hemoglobin (e.g., <10 g/dL depending on the procedure and expected blood loss) would be more concerning.'}
+],
+vocabTip:"Pre-op checklist RED FLAGS that delay surgery: (1) NPO violation (aspiration risk), (2) Undisclosed anticoagulants/antiplatelets (bleeding risk), (3) Critical lab values (K+ >5.5, Na+ <130 or >150, glucose >400, platelets <50K), (4) Missing/incomplete surgical consent, (5) New onset symptoms (fever, chest pain, SOB), (6) Unverified allergies. The nurse is the LAST safety checkpoint. If ANYTHING doesn\'t look right — STOP and notify before transport. It is always better to delay a surgery than to operate on an unsafe patient."
+},
+{id:28,chapter:9,difficulty:'medium',sata:false,trap:false,
+stem:"A postoperative patient on day 2 after hip replacement surgery suddenly complains of sharp chest pain and shortness of breath. Heart rate is 118, respiratory rate is 28, SpO2 is 89% on room air, and the patient appears anxious and diaphoretic. The left calf is swollen and tender. The nurse suspects:",
+options:[
+{letter:'A',text:'Pulmonary embolism — likely originating from a deep vein thrombosis in the left leg that has traveled to the pulmonary vasculature',correct:true,rationale:'This is a classic PE presentation: sudden sharp chest pain, dyspnea, tachycardia, tachypnea, hypoxemia (SpO2 89%), anxiety, and diaphoresis in a postoperative patient with a swollen, tender calf (DVT source). Hip replacement is one of the highest-risk procedures for VTE. The clot formed in the deep leg veins, broke free, traveled through the venous system to the right heart, and lodged in the pulmonary arteries, blocking blood flow to the lungs.'},
+{letter:'B',text:'Myocardial infarction — from the stress of surgery causing acute coronary syndrome',correct:false,rationale:'While MI is possible postoperatively, the combination of sudden onset, pleuritic chest pain (sharp, worse with breathing), and a swollen tender calf strongly points to PE over MI. MI typically presents with substernal crushing/pressure pain, not sharp pain. The calf findings provide the clue to the DVT source.'},
+{letter:'C',text:'Atelectasis — from inadequate deep breathing and incentive spirometer use after surgery',correct:false,rationale:'Atelectasis typically causes gradual-onset, mild dyspnea and low-grade fever, not acute sharp chest pain, significant tachycardia, and severe hypoxemia. The severity and acuity of this presentation, combined with the calf findings, are far more concerning for PE than atelectasis.'},
+{letter:'D',text:'Anxiety attack — from postoperative stress causing hyperventilation and chest tightness',correct:false,rationale:'While anxiety can cause tachycardia and a sense of breathlessness, it does not cause true hypoxemia (SpO2 89%) or a swollen, tender calf. Anxiety is a diagnosis of exclusion in the postoperative setting. Always rule out life-threatening causes (PE, MI) before attributing symptoms to anxiety. Dismissing PE symptoms as anxiety can be fatal.'}
+],
+vocabTip:"DVT prophylaxis exists because of PE risk. Postoperative VTE prevention: SCDs, early ambulation, anticoagulants (enoxaparin/Lovenox, heparin). DVT signs: unilateral leg swelling, warmth, tenderness, positive Homans\' sign (unreliable). PE signs: sudden chest pain, dyspnea, tachycardia, hypoxemia, anxiety. NEVER massage a swollen calf — could dislodge the clot. Hip/knee replacement patients are at the HIGHEST risk for VTE. If a postop patient suddenly can\'t breathe and has a swollen leg, think PE until proven otherwise."
+},
+{id:29,chapter:9,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is monitoring a postoperative patient\'s surgical wound. On day 3, the nurse notes the incision edges are well-approximated, slightly pink, and have a thin line of dried serous drainage. There is no warmth, swelling, or purulent drainage. The nurse documents this wound as healing by:",
+options:[
+{letter:'A',text:'Primary intention — wound edges are surgically closed and approximated, healing with minimal scarring',correct:true,rationale:'Primary intention healing occurs when wound edges are brought together and closed (sutures, staples, Steri-Strips). The incision heals from edge to edge with minimal granulation tissue and a thin scar. Well-approximated edges with slight pinkness and thin serous drainage on day 3 is a normal, healthy surgical wound healing by primary intention.'},
+{letter:'B',text:'Secondary intention — the wound is filling in from the bottom with granulation tissue',correct:false,rationale:'Secondary intention healing occurs when a wound is LEFT OPEN (not surgically closed) and must fill in from the bottom up with granulation tissue. This applies to pressure ulcers, abscesses after I&D, or wounds too contaminated to close. This wound has approximated edges — it was surgically closed.'},
+{letter:'C',text:'Tertiary intention (delayed primary closure) — the wound was left open initially and closed later',correct:false,rationale:'Tertiary intention involves leaving a wound open initially (due to infection risk or contamination), treating it, then surgically closing it days later. There is no indication this wound was left open and closed later. The well-approximated edges from the start indicate primary closure.'},
+{letter:'D',text:'Abnormal healing — the serous drainage indicates possible wound infection requiring culture and antibiotics',correct:false,rationale:'Thin serous drainage (clear to pale yellow) on day 3 is NORMAL and expected. Abnormal drainage would be: purulent (thick, yellow/green = infection), sanguineous after day 2-3 (bright red = active bleeding), or excessive serosanguineous drainage. The absence of warmth, swelling, erythema, and purulent drainage indicates healthy healing, not infection.'}
+],
+vocabTip:"Wound healing types: PRIMARY = edges closed together (surgical incisions, lacerations sutured). Heals fast, minimal scar. SECONDARY = wound left open, fills from bottom up (pressure ulcers, abscesses). Heals slow, larger scar. TERTIARY = left open first, closed later (contaminated wounds that need treatment before closing). Normal drainage timeline: Sanguineous (bloody) days 0-2, Serosanguineous (pink) days 2-3, Serous (clear/yellow) days 3+. Purulent (pus) = INFECTION at any time."
+},
+{id:30,chapter:9,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is caring for a patient who developed malignant hyperthermia during surgery and was successfully treated with dantrolene. The patient is now in the ICU, stable, with a temperature of 99.2°F. The nurse knows that continued monitoring is critical because:",
+options:[
+{letter:'A',text:'Malignant hyperthermia can recur within 24-72 hours after initial treatment (recrudescence), requiring continued dantrolene availability and close monitoring of temperature, labs, and urine output',correct:true,rationale:'MH recrudescence (return of symptoms) occurs in approximately 25% of cases within 24-72 hours after initial treatment. The muscle damage from the episode can cause rhabdomyolysis (muscle breakdown), releasing myoglobin into the blood, which can damage the kidneys (myoglobinuria — dark/cola-colored urine). Monitoring includes: temperature q15-30min, CK levels (muscle damage), potassium (released from damaged muscle cells), urine output and color (renal function), and continued dantrolene availability.'},
+{letter:'B',text:'Dantrolene has a half-life of only 5 minutes, so the drug wears off almost immediately and the patient is unprotected',correct:false,rationale:'TRAP. Dantrolene has a half-life of approximately 5-8 HOURS, not minutes. IV dantrolene continues to provide muscle relaxation for hours after administration. However, because MH can recur, continued dosing may be needed for 24-48 hours. The concern is not that the drug wears off instantly but that the underlying susceptibility remains.'},
+{letter:'C',text:'The patient is now immune to future MH episodes since they survived the first one, but needs monitoring for unrelated surgical complications',correct:false,rationale:'MH susceptibility is GENETIC and lifelong. Surviving one episode does NOT confer immunity. The patient will be susceptible to MH with every future anesthetic exposure. The patient and family must be educated about this, and a MedAlert bracelet is recommended. Future anesthesia must use non-triggering agents.'},
+{letter:'D',text:'Malignant hyperthermia only affects the muscles during active anesthesia and has no systemic effects once the triggering agent is removed',correct:false,rationale:'MH has significant systemic effects that persist long after the trigger is removed: rhabdomyolysis (muscle breakdown releasing myoglobin, potassium, CK), hyperkalemia (can cause cardiac arrest), acute kidney injury (from myoglobin), disseminated intravascular coagulation (DIC), and multi-organ failure. The cascade of muscle damage continues even after dantrolene is given.'}
+],
+vocabTip:"MH post-treatment monitoring: Remember \'DRUM\' — Dantrolene continued (keep available for 48-72 hrs), Rhabdomyolysis watch (CK levels, myoglobin), Urine output (>1 mL/kg/hr, watch for dark cola-colored urine = myoglobin), Monitor vitals q15-30min (temp, HR, K+). Recrudescence = MH coming back. It happens in ~25% of cases. The patient is NOT safe just because the OR episode was treated. MH is a GENETIC condition — the patient is susceptible for LIFE. Family members should also be tested."
+}
+];
+
+let answers={};
+let submitted={};
+
+function buildQuiz(){
+const body=document.getElementById('quizBody');
+body.innerHTML='';
+let currentCh=0;
+const chNames={1:'Ethics & Delegation',2:'Clinical Judgment',3:'Acid-Base & Vascular',4:'Older Adults',5:'Transgender Health',6:'Pain Management',7:'Rehab Concepts',8:'Palliative & End of Life',9:'Perioperative Care'};
+questions.forEach((q,idx)=>{
+if(q.chapter!==currentCh){
+currentCh=q.chapter;
+const div=document.createElement('div');
+div.className='chapter-divider';
+div.innerHTML=`<span>Chapter ${currentCh}: ${chNames[currentCh]}</span>`;
+body.appendChild(div);
+}
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>`;
+if(q.trap) badges+=` <span class="badge badge-trap">Trap</span>`;
+badges+=` <span class="badge-diff">${q.difficulty}</span>`;
+let html=`<div class="q-header"><span class="q-number">Q${idx+1}</span>${badges}</div>`;
+html+=`<p class="q-stem">${q.stem}</p>`;
+if(q.sata) html+=`<p class="sata-note">Select All That Apply</p>`;
+html+=`<div class="opts" id="opts-${q.id}">`;
+q.options.forEach(o=>{
+html+=`<button class="opt-btn" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${q.sata})"><span class="opt-letter">${o.letter}.</span><span>${o.text}</span></button>`;
+});
+html+=`</div>`;
+html+=`<button class="submit-btn" id="sub-${q.id}" onclick="submitQ(${q.id})" disabled>Submit Answer</button>`;
+html+=`<div class="rationale-box" id="rat-${q.id}">`;
+html+=`<h4>Rationale</h4>`;
+q.options.forEach(o=>{
+html+=`<div class="opt-rat"><strong>${o.letter}. ${o.correct?'✓ CORRECT':'✗ Incorrect'}:</strong> ${o.rationale}</div>`;
+});
+html+=`<div class="vocab-tip">${q.vocabTip}</div>`;
+html+=`</div>`;
+card.innerHTML=html;
+body.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(submitted[qId]) return;
+if(!answers[qId]) answers[qId]=[];
+if(isSata){
+const idx=answers[qId].indexOf(letter);
+if(idx>-1) answers[qId].splice(idx,1);
+else answers[qId].push(letter);
+}else{
+answers[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.toggle('selected',answers[qId].includes(o.letter));
+});
+document.getElementById(`sub-${qId}`).disabled=answers[qId].length===0;
+}
+
+function submitQ(qId){
+if(submitted[qId]) return;
+submitted[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[qId]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.add('locked');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${qId}`).classList.add('show');
+document.getElementById(`sub-${qId}`).disabled=true;
+updateProgress();
+saveState();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,600);
+}
+
+function updateProgress(){
+const count=Object.keys(submitted).length;
+document.getElementById('progressText').textContent=`${count} of ${questions.length} answered`;
+document.getElementById('progressBar').style.width=`${(count/questions.length)*100}%`;
+}
+
+function showScore(){
+let total=0;let chScores={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};let chTotals={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+questions.forEach(q=>{
+chTotals[q.chapter]++;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[q.id]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+if(isCorrect){total++;chScores[q.chapter]++;}
+});
+const pct=Math.round((total/questions.length)*100);
+document.getElementById('finalPct').textContent=`${pct}%`;
+document.getElementById('finalMsg').textContent=`${total} of ${questions.length} correct`;
+const bd=document.getElementById('breakdown');
+bd.innerHTML='';
+const chNames={1:'Ch 1 Ethics',2:'Ch 2 Clin Judg',3:'Ch 3 Acid-Base',4:'Ch 4 Older Adults',5:'Ch 5 Trans Health',6:'Ch 6 Pain',7:'Ch 7 Rehab',8:'Ch 8 Palliative',9:'Ch 9 Periop'};
+Object.keys(chScores).forEach(ch=>{
+bd.innerHTML+=`<div class="ch-score"><div class="ch-label">${chNames[ch]}</div><div class="ch-val">${chScores[ch]}/${chTotals[ch]}</div></div>`;
+});
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:total,total:questions.length,date:new Date().toISOString(),chapters:chScores};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+let history=JSON.parse(localStorage.getItem(EXAM_ID+'-history')||'[]');
+history.push(record);
+localStorage.setItem(EXAM_ID+'-history',JSON.stringify(history));
+const eh=JSON.parse(localStorage.getItem('examHistory')||'[]');
+eh.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:total,total:questions.length,topicBreakdown:chScores});
+localStorage.setItem('examHistory',JSON.stringify(eh.slice(-20)));
+}
+
+function restartQuiz(){
+answers={};submitted={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+updateProgress();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveState(){
+const state={answers,submitted};
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify(state));
+}
+
+function loadState(){
+const raw=localStorage.getItem(EXAM_ID+'-state');
+if(raw){
+const state=JSON.parse(raw);
+answers=state.answers||{};
+submitted=state.submitted||{};
+Object.keys(submitted).forEach(qId=>{
+const id=parseInt(qId);
+const q=questions.find(x=>x.id===id);
+if(!q)return;
+const userAns=answers[id]||[];
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${id}-${o.letter}`);
+if(!btn)return;
+btn.classList.add('locked');
+if(userAns.includes(o.letter)) btn.classList.add('selected');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${id}`);
+if(card) card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${id}`).classList.add('show');
+document.getElementById(`sub-${id}`).disabled=true;
+});
+updateProgress();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,300);
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const rec=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=`${rec.score}% (${rec.correct}/${rec.total})`;
+}
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

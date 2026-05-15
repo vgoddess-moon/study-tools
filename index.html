@@ -83,7 +83,8 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
     <div class="accordion-header" onclick="toggleAccordion(this)">
       <span class="accordion-chevron">&#9654;</span>
       <span class="accordion-title">Med Surg 1 — Exam 1</span>
-      <span class="accordion-tag tag-complete">&#10003; 85%</span>
+      <span class="accordion-tag tag-complete">&#10003; Complete</span>
+      <span class="accordion-tag tag-count">4 exams</span>
     </div>
     <div class="accordion-body">
       <div class="sub-label">Comprehensive Exams (30Q &middot; Ch 1-9)</div>
@@ -92,6 +93,33 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
           <div>
             <div class="card-title">Comprehensive v1</div>
             <div class="card-desc">30 questions &middot; Ch 1-9 &middot; Ethics &middot; Delegation &middot; Pain &middot; Periop &middot; Rehab &middot; End of Life</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E1</span>
+        </div>
+      </a>
+      <a class="card" href="exam1-comprehensive-v2.html" data-exam-id="ms1-exam1-comprehensive-v2">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v2</div>
+            <div class="card-desc">30 NEW questions &middot; Ch 1-9 &middot; Different scenarios &middot; 3 SATA &middot; Trap badges</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E1</span>
+        </div>
+      </a>
+      <a class="card" href="exam1-comprehensive-v3.html" data-exam-id="ms1-exam1-comprehensive-v3">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v3</div>
+            <div class="card-desc">30 NEW questions &middot; Ch 1-9 &middot; All-new patients &middot; 3 SATA &middot; Vocab tips</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E1</span>
+        </div>
+      </a>
+      <a class="card" href="exam1-comprehensive-v4.html" data-exam-id="ms1-exam1-comprehensive-v4">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v4</div>
+            <div class="card-desc">30 NEW questions &middot; Ch 1-9 &middot; Unique clinical scenarios &middot; 3 SATA &middot; Full rationales</div>
           </div>
           <span class="badge ms1">MS1 &middot; E1</span>
         </div>
@@ -217,6 +245,7 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
       <span class="accordion-chevron">&#9654;</span>
       <span class="accordion-title">Med Surg 1 — Exam 3</span>
       <span class="accordion-tag tag-progress">In Progress</span>
+      <span class="accordion-tag tag-count">4 exams</span>
     </div>
     <div class="accordion-body">
       <div class="sub-label">Comprehensive Exams (Ch 16-17 so far &middot; More chapters added after lecture)</div>
@@ -225,6 +254,33 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
           <div>
             <div class="card-title">Comprehensive v1 (Ch 16-17)</div>
             <div class="card-desc">20 questions &middot; Immunity &middot; Inflammation &middot; Allergies &middot; HIV &middot; SLE &middot; Anaphylaxis</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E3</span>
+        </div>
+      </a>
+      <a class="card" href="exam3-comprehensive-v2.html" data-exam-id="ms1-exam3-comprehensive-v2">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v2 (Ch 16-17)</div>
+            <div class="card-desc">20 NEW questions &middot; ANC &middot; Complement &middot; PrEP vs PEP &middot; Transplant rejection &middot; 3 SATA</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E3</span>
+        </div>
+      </a>
+      <a class="card" href="exam3-comprehensive-v3.html" data-exam-id="ms1-exam3-comprehensive-v3">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v3 (Ch 16-17)</div>
+            <div class="card-desc">20 NEW questions &middot; IgM vs IgG &middot; NK cells &middot; Lupus nephritis &middot; Lyme disease &middot; 3 SATA</div>
+          </div>
+          <span class="badge ms1">MS1 &middot; E3</span>
+        </div>
+      </a>
+      <a class="card" href="exam3-comprehensive-v4.html" data-exam-id="ms1-exam3-comprehensive-v4">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Comprehensive v4 (Ch 16-17)</div>
+            <div class="card-desc">20 NEW questions &middot; Microbiome &middot; Angioedema &middot; HIV viral load &middot; Chronic rejection &middot; 3 SATA</div>
           </div>
           <span class="badge ms1">MS1 &middot; E3</span>
         </div>
@@ -304,13 +360,19 @@ if(upcoming.length>0){
 /* Score badges from localStorage */
 const examIds={
   'ms1-exam1-comprehensive':'exam1-comprehensive.html',
+  'ms1-exam1-comprehensive-v2':'exam1-comprehensive-v2.html',
+  'ms1-exam1-comprehensive-v3':'exam1-comprehensive-v3.html',
+  'ms1-exam1-comprehensive-v4':'exam1-comprehensive-v4.html',
   'ms1-exam2-comprehensive':'exam2-comprehensive.html',
   'ms1-exam2-comprehensive-v2':'exam2-comprehensive-v2.html',
   'ms1-exam2-comprehensive-v3':'exam2-comprehensive-v3.html',
   'ms1-exam2-professor-only':'exam2-professor-only.html',
   'ms1-exam2-weak-areas':'weak-areas-exam-1.html',
   'ms1-exam2-weak-areas-v2':'weak-areas-exam-2.html',
-  'ms1-exam3-comprehensive':'exam3-comprehensive.html'
+  'ms1-exam3-comprehensive':'exam3-comprehensive.html',
+  'ms1-exam3-comprehensive-v2':'exam3-comprehensive-v2.html',
+  'ms1-exam3-comprehensive-v3':'exam3-comprehensive-v3.html',
+  'ms1-exam3-comprehensive-v4':'exam3-comprehensive-v4.html'
 };
 
 Object.keys(examIds).forEach(function(id){

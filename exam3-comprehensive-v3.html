@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprehensive Exam v3 — MS1 Exam 3</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+.container{max-width:900px;margin:0 auto}
+h1{font-family:'DM Serif Display',serif;font-size:2rem;text-align:center;margin-bottom:.25rem;color:#f8fafc}
+.subtitle{text-align:center;color:#94a3b8;font-size:.95rem;margin-bottom:1.5rem}
+.exam-info{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem 1.25rem;margin-bottom:2rem;font-size:.88rem;color:#94a3b8;text-align:center}
+.exam-info strong{color:#e2e8f0}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .4s ease;width:0%}
+.progress-text{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:1.5rem}
+.last-attempt{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem;margin-bottom:2rem;text-align:center;display:none}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#f472b6}
+.chapter-divider{display:flex;align-items:center;gap:.75rem;margin:2.5rem 0 1.5rem;padding:.5rem 0}
+.chapter-divider::before,.chapter-divider::after{content:'';flex:1;height:1px;background:#1e293b}
+.chapter-divider span{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#94a3b8;white-space:nowrap}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .3s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-incorrect{border-color:#ef4444}
+.q-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-number{font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:#64748b}
+.badge{font-size:.7rem;padding:.2rem .55rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch16{background:#2d0a2e;color:#f472b6}
+.badge-ch17{background:#1a0a2e;color:#c084fc}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-diff{font-size:.65rem;padding:.15rem .45rem;border-radius:99px;background:#1e293b;color:#64748b}
+.q-stem{font-size:1rem;margin-bottom:1rem;color:#f1f5f9}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt-btn{background:#1a1f2e;border:1px solid #1e293b;border-radius:10px;padding:.75rem 1rem;text-align:left;color:#cbd5e1;cursor:pointer;font-size:.92rem;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:flex-start;gap:.6rem}
+.opt-btn:hover:not(.locked){border-color:#ec4899;background:#1e2433}
+.opt-btn.selected{border-color:#ec4899;background:#1e2433;color:#f1f5f9}
+.opt-btn.locked{cursor:default}
+.opt-btn.correct-show{border-color:#22c55e;background:#0f2a1a}
+.opt-btn.incorrect-show{border-color:#ef4444;background:#2a0f0f}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:1.2rem;color:#ec4899}
+.sata-note{font-size:.78rem;color:#f472b6;margin-bottom:.75rem;font-style:italic}
+.submit-btn{background:linear-gradient(135deg,#ec4899,#f472b6);color:#fff;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;font-family:'DM Sans',sans-serif}
+.submit-btn:hover{transform:scale(1.03)}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.rationale-box{margin-top:1rem;padding:1rem;background:#0f1218;border:1px solid #1e293b;border-radius:10px;display:none}
+.rationale-box.show{display:block}
+.rationale-box h4{font-size:.82rem;color:#f472b6;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
+.rationale-box p{font-size:.88rem;color:#94a3b8;margin-bottom:.5rem}
+.rationale-box .opt-rat{font-size:.84rem;color:#64748b;padding:.4rem 0;border-bottom:1px solid #1e293b}
+.rationale-box .opt-rat:last-child{border-bottom:none}
+.rationale-box .opt-rat strong{color:#cbd5e1}
+.vocab-tip{margin-top:.75rem;padding:.75rem 1rem;background:#1a1520;border:1px solid #2d1f4e;border-radius:8px;font-size:.84rem;color:#c4b5fd;line-height:1.5}
+.vocab-tip::before{content:'💡 Vocab Tip: ';font-weight:600}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:16px;padding:2rem;text-align:center;display:none}
+.score-card h2{font-family:'DM Serif Display',serif;font-size:1.8rem;color:#f8fafc;margin-bottom:.5rem}
+.score-pct{font-size:3rem;font-weight:700;background:linear-gradient(135deg,#ec4899,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:.5rem 0}
+.score-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin:1.5rem 0;text-align:left}
+.ch-score{background:#1a1f2e;border-radius:8px;padding:.6rem .8rem}
+.ch-score .ch-label{font-size:.75rem;color:#64748b;text-transform:uppercase}
+.ch-score .ch-val{font-size:1.1rem;font-weight:700;color:#e2e8f0}
+.restart-btn{margin-top:1.5rem;background:transparent;border:2px solid #ec4899;color:#f472b6;border-radius:10px;padding:.7rem 2rem;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.restart-btn:hover{background:#ec4899;color:#fff}
+@media(max-width:600px){body{padding:.5rem}h1{font-size:1.5rem}.q-card{padding:1rem}.score-breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+<h1>MS1 Exam 3 — Comprehensive v3</h1>
+<p class="subtitle">Chapters 16-17 · More chapters coming as lectures progress · 20 Questions · Version 3</p>
+<div class="exam-info">
+<strong>Exam Date: June 4, 2026</strong> · Clinical scenario-based questions covering Inflammation & Immunity (Ch 16) and Allergy & Immunity Conditions (Ch 17). Includes SATA, trap questions, and professor-emphasized content.
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div style="font-size:.82rem;color:#64748b;margin-bottom:.25rem">Last Attempt</div>
+<div class="score-val" id="lastScore">—</div>
+</div>
+<div class="progress-text" id="progressText">0 of 20 answered</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div id="quizBody"></div>
+<div class="score-card" id="scoreCard">
+<h2>Exam Complete</h2>
+<div class="score-pct" id="finalPct">—</div>
+<p id="finalMsg" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="score-breakdown" id="breakdown"></div>
+<button class="restart-btn" onclick="restartQuiz()">Retake Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-comprehensive-v3';
+const EXAM_LABEL='MS1 Exam 3 — Comprehensive v3 (20Q)';
+const questions=[
+// ═══ CHAPTER 16: Concepts of Inflammation and Immunity ═══
+{id:1,chapter:16,difficulty:'medium',sata:false,trap:false,
+stem:"A nursing student is studying immunoglobulins and asks, 'Which antibody is the LARGEST and the FIRST to respond when the body encounters a new pathogen for the first time?' Which antibody does the instructor identify?",
+options:[
+{letter:'A',text:'IgG — the most abundant antibody that crosses the placenta',correct:false,rationale:'IgG is the most abundant immunoglobulin in the blood (~75-80%) and the ONLY one that crosses the placenta, but it is NOT the first responder. IgG is produced during the SECONDARY (reexposure) immune response and provides long-term protection.'},
+{letter:'B',text:'IgM — the largest antibody and the first produced during a primary immune response',correct:true,rationale:'IgM is the LARGEST immunoglobulin (pentamer — 5 antibody units joined together) and the FIRST antibody produced when the body encounters a NEW antigen. It activates complement effectively but is too large to cross the placenta. After the initial response, the body class-switches to IgG for long-term memory.'},
+{letter:'C',text:'IgA — the antibody found in breast milk and mucosal secretions',correct:false,rationale:'IgA is found in secretions (saliva, tears, breast milk, GI/respiratory mucosa) and protects mucosal surfaces. It is NOT the first responder to new pathogens in the bloodstream — that role belongs to IgM.'},
+{letter:'D',text:'IgE — the antibody responsible for allergic reactions',correct:false,rationale:'IgE is the LEAST abundant immunoglobulin but is responsible for Type I hypersensitivity (allergic) reactions. It binds to mast cells and basophils, triggering histamine release upon allergen exposure. It is not the first responder to new infections.'}
+],
+vocabTip:"Antibody cheat sheet by what makes each one UNIQUE: IgM = BIGGEST (pentamer) and FIRST to show up at a new infection. IgG = MOST ABUNDANT, crosses placenta, long-term memory antibody (reexposure). IgA = SECRETORY — found in breast milk, saliva, tears, mucous membranes. IgE = ALLERGY antibody — triggers mast cells/basophils to release histamine. IgD = found on B-cell surfaces, helps activate B-cells (rarely tested)."
+},
+{id:2,chapter:16,difficulty:'medium',sata:false,trap:true,
+stem:"A patient tells the nurse, 'I had chickenpox as a child and my doctor says I\'m now immune to it. But my friend got the varicella vaccine and she\'s also immune. Is our immunity the same?' Which response by the nurse is MOST accurate?",
+options:[
+{letter:'A',text:'"Yes, both types produce identical immunity that lasts the same amount of time."',correct:false,rationale:'While both produce active immunity (the body makes its own antibodies), they are classified differently. Natural active immunity from actual disease may produce broader immune memory, though vaccine-induced immunity is highly effective. The KEY point is the classification difference, not effectiveness.'},
+{letter:'B',text:'"Your immunity is natural active — your body fought the real virus and made antibodies. Your friend\'s is artificial active — the vaccine triggered her body to make antibodies without getting sick. Both are active because your bodies made their own antibodies."',correct:true,rationale:'This correctly distinguishes the two subtypes of active immunity. Natural active = exposure to real pathogen (getting sick). Artificial active = exposure to weakened/killed pathogen or antigen via vaccination. In BOTH cases, the person\'s own immune system produces antibodies and memory cells. The word "active" means YOUR body did the work.'},
+{letter:'C',text:'"Your immunity is natural passive because you received it naturally by getting sick, while hers is artificial active from the vaccine."',correct:false,rationale:'TRAP — getting sick and recovering is ACTIVE, not passive. Passive means you received someone ELSE\'s antibodies. When you get chickenpox, YOUR body makes the antibodies (active effort). Natural passive would be a baby receiving mom\'s antibodies through breast milk.'},
+{letter:'D',text:'"Your friend\'s vaccine immunity is artificial passive because a doctor gave it to her, making it artificial."',correct:false,rationale:'Vaccines produce ACTIVE immunity, not passive. Even though a doctor administers the vaccine (artificial), the vaccine stimulates the patient\'s OWN immune system to produce antibodies. Artificial passive would be an injection of pre-formed antibodies (like immunoglobulin therapy).'}
+],
+vocabTip:"The 2x2 grid of immunity: NATURAL ACTIVE = get sick, recover, make your own antibodies (chickenpox as a kid). ARTIFICIAL ACTIVE = vaccine triggers YOUR body to make antibodies (flu shot). NATURAL PASSIVE = mom\'s antibodies transferred to baby via placenta/breast milk. ARTIFICIAL PASSIVE = injection of pre-made antibodies (tetanus immunoglobulin after a dirty wound). Key: Active = YOU made the antibodies. Passive = you BORROWED them. Natural = happened biologically. Artificial = medical intervention."
+},
+{id:3,chapter:16,difficulty:'medium',sata:false,trap:false,
+stem:"A new mother asks the nurse, 'How exactly does breastfeeding protect my baby from infections?' Which response by the nurse BEST explains the immunologic mechanism?",
+options:[
+{letter:'A',text:'"Breast milk contains your IgA antibodies that coat the baby\'s GI and respiratory mucosa, providing temporary natural passive immunity until the baby\'s own immune system matures."',correct:true,rationale:'Breast milk transfers the mother\'s secretory IgA antibodies to the infant. These antibodies coat mucosal surfaces (GI tract, respiratory tract) and provide a protective barrier against pathogens the mother has encountered. This is natural passive immunity — natural (biological process) and passive (baby receives pre-formed antibodies from mom, does not make them).'},
+{letter:'B',text:'"Breast milk stimulates the baby\'s immune system to produce its own antibodies, giving the baby natural active immunity."',correct:false,rationale:'Breast milk does NOT stimulate the baby to produce antibodies — it DELIVERS pre-formed maternal antibodies. The baby\'s immune system is not doing the work of creating these antibodies, which is why this is PASSIVE, not active immunity.'},
+{letter:'C',text:'"Breast milk contains white blood cells that permanently colonize the baby\'s bone marrow to produce lifelong immunity."',correct:false,rationale:'While breast milk does contain some immune cells, they do not colonize the baby\'s bone marrow or create permanent immunity. The protection from breast milk is TEMPORARY and fades after weaning as the maternal antibodies degrade.'},
+{letter:'D',text:'"Breast milk acts like a vaccine, teaching the baby\'s immune system to recognize specific pathogens."',correct:false,rationale:'Vaccines (artificial active immunity) stimulate the recipient to MAKE their own antibodies. Breast milk does not teach the baby\'s immune system — it provides ready-made antibodies. This is a passive transfer, not an active learning process.'}
+],
+vocabTip:"Breast milk immunity = NATURAL PASSIVE. Natural because it is a biological process (not a medical intervention). Passive because the baby RECEIVES mom\'s pre-made antibodies (baby\'s immune system did not make them). The main antibody in breast milk is secretory IgA — it coats the baby\'s gut and respiratory lining like a protective paint. This protection is TEMPORARY — it lasts only while breastfeeding and shortly after, because the borrowed antibodies eventually break down."
+},
+{id:4,chapter:16,difficulty:'hard',sata:false,trap:false,
+stem:"A patient undergoing chemotherapy asks why they are at risk for infections even though they don\'t feel sick. The nurse explains that chemotherapy destroys rapidly dividing cells, including stem cells in the bone marrow. Which statement BEST explains how bone marrow suppression increases infection risk?",
+options:[
+{letter:'A',text:'"Your bone marrow is where ALL blood cells — including white blood cells that fight infection — are produced from stem cells. Chemotherapy kills these stem cells, so fewer WBCs are made, leaving you unable to mount a normal immune response."',correct:true,rationale:'Hematopoietic stem cells in the bone marrow differentiate into ALL blood cell lines: WBCs (immune defense), RBCs (oxygen transport), and platelets (clotting). Chemotherapy targets rapidly dividing cells — cancer cells AND bone marrow stem cells. This leads to pancytopenia: neutropenia (infection risk), anemia (fatigue), and thrombocytopenia (bleeding risk). The WBC suppression is the direct link to infection vulnerability.'},
+{letter:'B',text:'"Chemotherapy destroys antibodies circulating in your blood, so you have no immune protection."',correct:false,rationale:'Chemotherapy does not directly destroy circulating antibodies. Antibodies (immunoglobulins) are proteins already in the blood and are not rapidly dividing cells. The problem is that the bone marrow cannot produce NEW immune cells to fight NEW infections.'},
+{letter:'C',text:'"Chemotherapy only affects red blood cells, and without enough oxygen delivery, your immune cells cannot function."',correct:false,rationale:'Chemotherapy affects ALL rapidly dividing cells in the bone marrow, not just RBCs. While anemia does occur, the primary infection risk comes from the loss of WBCs (especially neutrophils), not from oxygen delivery problems.'},
+{letter:'D',text:'"Your bone marrow produces only T-cells, and chemotherapy kills them before they mature."',correct:false,rationale:'Bone marrow produces ALL blood cell precursors, not just T-cells. T-cell precursors migrate from the bone marrow to the THYMUS to mature. Bone marrow is also where B-cells mature. The bone marrow is the origin of the entire hematopoietic system.'}
+],
+vocabTip:"Bone marrow = the FACTORY for all blood cells. Stem cells inside the bone marrow differentiate into three product lines: (1) WBCs (neutrophils, lymphocytes, monocytes — your army), (2) RBCs (oxygen trucks), (3) Platelets (repair patches for blood vessels). Chemo destroys the factory workers (stem cells), so ALL three product lines drop: low WBCs = infection risk (neutropenia), low RBCs = fatigue (anemia), low platelets = bleeding risk (thrombocytopenia). This is why chemo patients get CBC checks constantly."
+},
+{id:5,chapter:16,difficulty:'medium',sata:false,trap:true,
+stem:"A patient recovering from surgery has redness, warmth, and swelling around the incision site but has no fever, negative wound culture, and normal WBC count. The patient asks, 'Does this mean my wound is infected?' Which response by the nurse is MOST accurate?",
+options:[
+{letter:'A',text:'"Yes, redness, warmth, and swelling are always signs of infection. I\'ll contact the provider for antibiotics."',correct:false,rationale:'TRAP — redness, warmth, and swelling are signs of INFLAMMATION, which can occur WITHOUT infection. Automatically equating inflammation with infection leads to unnecessary antibiotic use. The negative culture and normal WBC support that this is a normal inflammatory healing response, not infection.'},
+{letter:'B',text:'"These are signs of inflammation, which is your body\'s normal healing response to the surgical trauma. Inflammation can occur WITHOUT infection — your negative culture and normal WBC support that this is healthy healing."',correct:true,rationale:'This is the key concept the professor emphasized: INFLAMMATION DOES NOT EQUAL INFECTION. Inflammation is a non-specific tissue response to ANY injury (surgery, trauma, burns, chemical irritation) — it does not require a pathogen. The cardinal signs (redness, warmth, swelling) reflect increased blood flow and vascular permeability as part of normal healing. Infection is only ONE possible trigger of inflammation.'},
+{letter:'C',text:'"The lab results must be wrong. You clearly have an infection based on the redness and swelling."',correct:false,rationale:'Dismissing negative lab results because of visible inflammation reflects the common misconception that inflammation always means infection. Clinical findings must be interpreted together with lab data, and inflammation without infection is extremely common post-surgery.'},
+{letter:'D',text:'"Inflammation only happens when bacteria are present, so you probably have an infection the culture missed."',correct:false,rationale:'This is factually incorrect. Inflammation is triggered by tissue damage from ANY cause — surgery, trauma, burns, chemical exposure, autoimmune processes, and yes, infection. Bacteria are only ONE of many possible triggers. Sterile inflammation (no pathogens) is a well-established concept.'}
+],
+vocabTip:"PROFESSOR EMPHASIS: Inflammation DOES NOT equal infection. This is one of the biggest misconceptions in nursing. Inflammation is a non-specific response to ANY tissue injury. Causes of inflammation WITHOUT infection: surgery, burns, fractures, chemical irritation, autoimmune disease, myocardial infarction. Infection is just ONE cause of inflammation. Think of it this way: all infections cause inflammation, but NOT all inflammation is caused by infection. Like all squares are rectangles, but not all rectangles are squares."
+},
+{id:6,chapter:16,difficulty:'hard',sata:false,trap:false,
+stem:"A nursing student asks, 'What exactly are cytokines?' The instructor provides an explanation. Which statement BEST describes the role of cytokines in the immune response?",
+options:[
+{letter:'A',text:'Cytokines are small signaling proteins released by immune cells that act as chemical messengers — they recruit other immune cells to the site of injury, regulate the intensity of the immune response, and coordinate communication between innate and adaptive immunity.',correct:true,rationale:'Cytokines are the immune system\'s communication network. They are small proteins secreted by various immune cells (macrophages, T-cells, etc.) that send signals to other cells. Types include interleukins (communication between WBCs), interferons (antiviral defense), tumor necrosis factor (inflammation/cell death), and colony-stimulating factors (stimulate bone marrow production). They do NOT kill pathogens directly — they coordinate the response.'},
+{letter:'B',text:'Cytokines are antibodies produced by B-cells that directly neutralize pathogens in the bloodstream.',correct:false,rationale:'Cytokines are NOT antibodies. Antibodies (immunoglobulins) are produced by B-cells/plasma cells and bind to specific antigens. Cytokines are signaling molecules — they tell other cells what to do but do not directly attack pathogens themselves.'},
+{letter:'C',text:'Cytokines are enzymes found in the complement system that punch holes in bacterial cell membranes.',correct:false,rationale:'The membrane attack complex (MAC) of the complement system punches holes in pathogen membranes, not cytokines. Cytokines are signaling proteins, not destructive enzymes. They communicate and coordinate rather than directly destroy.'},
+{letter:'D',text:'Cytokines are large structural proteins that form the physical barriers of innate immunity, such as skin and mucous membranes.',correct:false,rationale:'Skin and mucous membranes are physical barriers made of epithelial cells and structural proteins like keratin. Cytokines are small SIGNALING proteins, not structural proteins. They are chemical messengers, not physical barriers.'}
+],
+vocabTip:"Cytokines = the immune system\'s TEXT MESSAGES. They don\'t fight pathogens themselves — they send signals telling other cells where to go and what to do. Think of cytokines as the 911 dispatcher: they don\'t put out fires, but they tell the firefighters (WBCs) where the fire is and how many trucks to send. Key cytokine families: INTERLEUKINS = WBC-to-WBC messages. INTERFERONS = 'interfere' with viral replication. TNF (tumor necrosis factor) = promotes inflammation and can kill tumor cells. CSFs = tell bone marrow to make more WBCs."
+},
+{id:7,chapter:16,difficulty:'hard',sata:true,trap:false,
+stem:"A nurse is reviewing Natural Killer (NK) cell function with a study group. Which statements about NK cells are CORRECT? (Select all that apply.)",
+options:[
+{letter:'A',text:'NK cells can destroy cancer cells and virally infected cells on first encounter without prior sensitization or antigen presentation',correct:true,rationale:'This is the defining feature of NK cells — they are part of INNATE immunity and do NOT require prior exposure to a specific antigen. They recognize cells that are missing normal self-markers (MHC class I) or expressing stress signals, and kill them immediately. No antibodies or antigen presentation needed.'},
+{letter:'B',text:'NK cells are part of innate (non-specific) immunity, not adaptive immunity',correct:true,rationale:'NK cells belong to the innate immune system. Unlike T-cells and B-cells (adaptive immunity), NK cells do not need to be trained or sensitized to a specific antigen. They patrol the body and attack abnormal cells on sight.'},
+{letter:'C',text:'NK cells kill target cells by releasing perforin and granzymes, which punch holes in the target cell membrane and trigger apoptosis',correct:true,rationale:'NK cells use a "lethal hit" mechanism: perforin creates pores in the target cell membrane, and granzymes enter through those pores to activate programmed cell death (apoptosis). The target cell essentially self-destructs from the inside.'},
+{letter:'D',text:'NK cells require antibodies to be bound to the target cell before they can attack',correct:false,rationale:'NK cells can kill WITHOUT antibodies — that is their hallmark. However, they CAN also perform antibody-dependent cellular cytotoxicity (ADCC) when antibodies are present, which enhances their killing. The key point is that antibodies are NOT required.'},
+{letter:'E',text:'NK cells produce antibodies to tag pathogens for destruction by other immune cells',correct:false,rationale:'NK cells do NOT produce antibodies — that is the job of B-cells/plasma cells. NK cells are direct killers, not antibody producers. They detect and destroy abnormal cells through direct contact, not through antibody production.'}
+],
+vocabTip:"NK cells = your body\'s SECURITY CAMERAS with built-in weapons. They patrol 24/7 looking for two things: (1) cancer cells and (2) virus-infected cells. What makes them special: they kill on FIRST SIGHT — no training, no prior exposure, no antibodies needed. They check every cell\'s ID badge (MHC class I). If a cell is missing its badge or showing a stress signal, NK cells kill it immediately. Think: Natural Killer = naturally knows what to kill without being taught."
+},
+{id:8,chapter:16,difficulty:'easy',sata:false,trap:false,
+stem:"A patient with a parasitic worm infection has a CBC showing eosinophils at 9% (normal 1-4%). The nurse is teaching a student about eosinophil function. Which statement BEST describes the PRIMARY role of eosinophils?",
+options:[
+{letter:'A',text:'Eosinophils are specialized to fight PARASITIC infections by releasing toxic granules that damage the parasite\'s outer membrane, but they can also worsen allergic conditions like asthma.',correct:true,rationale:'Eosinophils are the body\'s anti-parasite specialists. They release major basic protein and other toxic granules onto the surface of parasites that are too large to be phagocytized. However, these same toxic chemicals cause tissue damage in allergic conditions — especially airway damage in asthma. This dual nature (helpful against parasites, harmful in allergies) is a key exam concept.'},
+{letter:'B',text:'Eosinophils are the first WBCs to arrive at bacterial infection sites and perform phagocytosis.',correct:false,rationale:'NEUTROPHILS are the first responders to bacterial infections, not eosinophils. Eosinophils specialize in parasites, not bacteria. While eosinophils can perform some phagocytosis, their primary mechanism is extracellular killing via toxic granule release.'},
+{letter:'C',text:'Eosinophils produce antibodies that coat parasites for destruction by other immune cells.',correct:false,rationale:'Eosinophils do NOT produce antibodies — that is the job of B-cells/plasma cells. Eosinophils are effector cells that directly attack parasites by releasing toxic granules onto the parasite surface.'},
+{letter:'D',text:'Eosinophils release histamine to cause vasodilation and attract other immune cells to the infection site.',correct:false,rationale:'BASOPHILS and mast cells are the primary histamine-releasing cells, not eosinophils. Eosinophils release toxic granule proteins (major basic protein, eosinophil cationic protein) that are directly damaging to parasites and tissues.'}
+],
+vocabTip:"EOSINOPHILS: the DOUBLE-EDGED SWORD of immune cells. GOOD role: they kill parasites (worms, flukes) by dumping toxic chemicals on them — like pouring acid on a bug. BAD role: in allergic asthma, those same toxic chemicals damage YOUR airway tissue, making asthma WORSE. Professor trap: a student might think 'more eosinophils = better protection in asthma.' WRONG — more eosinophils in asthma = more airway damage = worse disease. Elevated eosinophils on CBC: think parasites OR allergic conditions."
+},
+{id:9,chapter:16,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is explaining phagocytosis to a patient who asks, 'How exactly do my white blood cells eat the bacteria?' Which description MOST accurately explains the phagocytosis process in order?",
+options:[
+{letter:'A',text:'The phagocyte detects the pathogen via chemotaxis, engulfs it into a phagosome, fuses the phagosome with a lysosome to digest it, then expels the waste products — essentially tracking it, eating it, digesting it, and pooping it out.',correct:true,rationale:'Phagocytosis follows a specific sequence: (1) CHEMOTAXIS — the phagocyte detects chemical signals and migrates toward the pathogen (tracking it). (2) ENGULFMENT — the phagocyte surrounds and internalizes the pathogen in a phagosome (eating it). (3) DIGESTION — the phagosome fuses with a lysosome containing digestive enzymes, destroying the pathogen (digesting it). (4) EXOCYTOSIS — waste products are expelled from the cell (pooping it out). The professor\'s simplified version captures each step.'},
+{letter:'B',text:'The phagocyte releases antibodies that dissolve the bacteria externally, then absorbs the remaining nutrients.',correct:false,rationale:'Phagocytes do NOT release antibodies — B-cells/plasma cells produce antibodies. Phagocytosis is an INTRACELLULAR process: the pathogen is engulfed INSIDE the cell and digested internally, not dissolved externally.'},
+{letter:'C',text:'The phagocyte waits for the pathogen to die on its own, then cleans up the debris.',correct:false,rationale:'Phagocytes are ACTIVE hunters, not passive cleaners. They actively seek out, engulf, and destroy living pathogens. They also clean up debris, but their primary function against infection is active killing.'},
+{letter:'D',text:'The phagocyte punctures the pathogen with perforin, injects granzymes, and causes apoptosis.',correct:false,rationale:'The perforin/granzyme mechanism belongs to NK cells and cytotoxic T-cells, not phagocytes. Phagocytes use ENGULFMENT and ENZYMATIC DIGESTION (lysosomal enzymes), not the perforin/granzyme pathway.'}
+],
+vocabTip:"Phagocytosis in professor\'s words: 'TRACKS IT, EATS IT, SWALLOWS IT, POOPS IT OUT.' Scientific terms mapped: (1) Chemotaxis = tracks it (follows chemical breadcrumbs to the pathogen). (2) Engulfment = eats it (wraps around and internalizes the pathogen). (3) Phagolysosome fusion = swallows/digests it (lysosome dumps acid and enzymes on it). (4) Exocytosis = poops it out (expels the waste). Bonus: after digestion, macrophages can display pieces of the pathogen on their surface (antigen presentation) to activate T-cells — like showing the evidence to the detective."
+},
+{id:10,chapter:16,difficulty:'medium',sata:false,trap:true,
+stem:"A nursing student states, 'IgG must be the most important antibody for a first-time infection since it\'s the most abundant antibody in the blood.' Which correction by the instructor is MOST appropriate?",
+options:[
+{letter:'A',text:'"You\'re correct — IgG is both the most abundant and the first antibody produced during any immune response."',correct:false,rationale:'While IgG IS the most abundant, it is NOT the first produced. This is the trap — abundance does not equal first response. IgG dominates during REEXPOSURE (secondary response), not first exposure.'},
+{letter:'B',text:'"IgG is the most abundant antibody overall, but IgM is actually the FIRST antibody produced during a primary (first-time) immune response. IgG takes over during reexposure and provides long-term protection."',correct:true,rationale:'Critical distinction: IgM = first responder (primary response to new antigens), IgG = long-term defender (secondary/memory response upon reexposure). IgG is abundant because it accumulates from all the pathogens your body has previously encountered and remembered. During a BRAND NEW infection, IgM appears first, then the immune system class-switches to IgG for durable memory.'},
+{letter:'C',text:'"IgG and IgM are produced simultaneously during every immune response — there is no difference in timing."',correct:false,rationale:'There IS a clear timing difference. IgM peaks early (within days of first exposure) and then declines. IgG rises later and persists long-term. This sequential pattern is used diagnostically — elevated IgM suggests ACUTE/recent infection, while elevated IgG suggests past exposure or immunity.'},
+{letter:'D',text:'"IgG is only produced during allergic reactions, not during infections."',correct:false,rationale:'IgG is produced in response to infections and is the primary antibody of long-term immunity. The antibody class associated with allergic reactions is IgE, not IgG. IgG is the workhorse of anti-infection humoral immunity.'}
+],
+vocabTip:"IgM vs IgG timing trap: IgM = 'M for iMMediate' — first antibody made during a NEW infection. It is large (pentamer), activates complement well, but is short-lived. IgG = 'G for lonG-term' — takes over after IgM, provides lasting memory, is the MOST ABUNDANT antibody overall, and the ONLY one that crosses the placenta. Diagnostic clue: elevated IgM = current/recent infection. Elevated IgG = past infection or vaccination (immunity). This IgM-then-IgG pattern is called class switching."
+},
+// ═══ CHAPTER 17: Allergy and Immunity Conditions ═══
+{id:11,chapter:17,difficulty:'hard',sata:false,trap:false,
+stem:"A patient receives a tuberculin skin test (PPD) on Monday. The nurse instructs the patient to return in 48-72 hours to have the test read. The patient asks, 'Why do I have to wait so long? My friend had an allergy test and her results showed up in 15 minutes.' Which response by the nurse BEST explains the difference?",
+options:[
+{letter:'A',text:'"The TB skin test causes a Type IV delayed hypersensitivity reaction, which is mediated by T-cells, not antibodies. T-cells take 24-72 hours to migrate to the site and cause the induration you feel. Your friend\'s allergy test was a Type I immediate reaction mediated by IgE antibodies, which happens in minutes."',correct:true,rationale:'Type IV (delayed) hypersensitivity is the ONLY type mediated by T-cells rather than antibodies. T-cells must recognize the antigen, become activated, release cytokines, and recruit inflammatory cells to the injection site — this process takes 24-72 hours. In contrast, Type I (immediate) involves pre-formed IgE antibodies on mast cells that trigger histamine release within minutes of allergen exposure.'},
+{letter:'B',text:'"The TB test uses a weaker antigen that takes longer to work."',correct:false,rationale:'The delay is not due to antigen strength — it is due to a fundamentally different MECHANISM. Type IV reactions involve T-cell migration and activation, which is inherently slower than the antibody-mediated degranulation in Type I reactions.'},
+{letter:'C',text:'"Both tests work the same way, but TB just takes longer because the bacteria is slower growing."',correct:false,rationale:'The PPD does not contain live bacteria, and bacterial growth rate is irrelevant. The test works by injecting tuberculin protein under the skin to see if memory T-cells (from prior TB exposure) will mount a delayed inflammatory response at the site.'},
+{letter:'D',text:'"The TB test measures antibody levels in the skin, and antibodies take 48-72 hours to accumulate."',correct:false,rationale:'Type IV hypersensitivity does NOT involve antibodies at all — this is a key distinction. It is entirely T-cell mediated. The induration at the PPD site is caused by T-cell infiltration and cytokine release, not antibody accumulation.'}
+],
+vocabTip:"Type IV = DELAYED = T-CELLS = NO ANTIBODIES. This is the only hypersensitivity type that uses T-cells instead of antibodies. Classic examples: TB skin test (PPD, read at 48-72 hrs), contact dermatitis (poison ivy — rash appears 1-3 days after contact), transplant rejection. Memory: 'Type FOUR takes FOREVER' (24-72 hours). The delay happens because T-cells have to physically travel to the site and call in reinforcements — much slower than antibodies triggering instant histamine release in Type I."
+},
+{id:12,chapter:17,difficulty:'hard',sata:false,trap:false,
+stem:"A patient with blood type A receives a unit of type B blood by error. Within minutes, the patient develops fever, flank pain, dark urine, and hypotension. The nurse recognizes this as a hemolytic transfusion reaction. Which hypersensitivity type and mechanism does this represent?",
+options:[
+{letter:'A',text:'Type II cytotoxic hypersensitivity — the patient\'s pre-existing anti-B antibodies bind to the donor\'s type B red blood cells, activating complement and causing massive hemolysis (RBC destruction)',correct:true,rationale:'In a Type II reaction, antibodies (IgG or IgM) bind directly to antigens on CELL SURFACES and destroy those cells. A type A patient has naturally occurring anti-B antibodies. When type B blood is transfused, these antibodies immediately attack the donor RBCs, activate complement, and cause intravascular hemolysis. The destroyed RBCs release hemoglobin → hemoglobinuria (dark urine), flank pain (kidney damage from hemoglobin deposits), and systemic shock.'},
+{letter:'B',text:'Type I immediate hypersensitivity — IgE antibodies on mast cells react to the foreign blood, releasing histamine',correct:false,rationale:'Type I involves IgE and mast cell degranulation (allergic reactions). ABO transfusion reactions are Type II — they involve IgM/IgG antibodies attacking cell-surface antigens. While both can occur rapidly, the mechanism is fundamentally different: Type I = mast cell histamine release; Type II = antibody-mediated cell destruction.'},
+{letter:'C',text:'Type III immune complex hypersensitivity — antigen-antibody complexes deposit in the kidneys causing damage',correct:false,rationale:'Type III involves immune complexes depositing in tissues (like in SLE or serum sickness). In a hemolytic transfusion reaction, antibodies bind directly TO the cell surface (Type II), not forming free-floating complexes that deposit elsewhere.'},
+{letter:'D',text:'Type IV delayed hypersensitivity — T-cells attack the foreign blood cells over 48-72 hours',correct:false,rationale:'Type IV reactions take 24-72 hours and involve T-cells, not antibodies. This transfusion reaction occurred within MINUTES and is antibody-mediated, ruling out Type IV.'}
+],
+vocabTip:"Type II CYTOTOXIC = antibodies attack cells directly. Think 'TWO = antibodies TARGETING your OWN cells (or transfused cells).' The antibody lands on the cell surface like a guided missile, then complement blows up the cell. Classic Type II examples: hemolytic transfusion reaction (anti-A or anti-B destroys wrong-type RBCs), hemolytic disease of the newborn (Rh incompatibility), autoimmune hemolytic anemia, Goodpasture syndrome. Key feature: the target is always a CELL with antigens on its SURFACE."
+},
+{id:13,chapter:17,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is developing a care plan for a patient newly diagnosed with systemic lupus erythematosus (SLE). The patient is a 28-year-old woman who says, 'I feel like I can\'t do anything anymore. I don\'t want to see my friends because I\'m embarrassed about the rash on my face.' Which psychosocial nursing intervention is the HIGHEST priority?",
+options:[
+{letter:'A',text:'Encourage the patient to express her feelings and connect with a lupus support group to reduce social isolation, while teaching strategies to manage the facial rash (sunscreen, cosmetic coverage)',correct:true,rationale:'Social isolation is a major psychosocial concern for SLE patients, especially young women dealing with visible symptoms like the malar rash. The nurse should address BOTH the emotional component (validating feelings, preventing isolation, connecting with peers who understand) AND the practical component (sun avoidance/sunscreen to prevent flares, cosmetic strategies to improve confidence). Isolation worsens depression, which worsens disease outcomes.'},
+{letter:'B',text:'Tell the patient the rash will go away permanently with medication so she should not worry about it',correct:false,rationale:'This provides false reassurance. SLE is a chronic relapsing-remitting disease — the rash may improve with treatment but can recur during flares. Minimizing the patient\'s concerns does not address the psychosocial impact and may damage the therapeutic relationship.'},
+{letter:'C',text:'Recommend the patient avoid all social activities to prevent sun exposure that could trigger a flare',correct:false,rationale:'While sun avoidance IS important (UV light triggers SLE flares), recommending avoidance of ALL social activities promotes isolation and worsens psychosocial outcomes. The correct approach is to teach sun-protective strategies (sunscreen, protective clothing, avoiding peak sun hours) so the patient CAN maintain social connections.'},
+{letter:'D',text:'Focus exclusively on medication education since the rash is a physical problem, not a psychosocial one',correct:false,rationale:'The rash IS both physical and psychosocial. The patient has expressed embarrassment and social withdrawal — these are psychosocial concerns that directly affect quality of life and treatment adherence. Holistic nursing care addresses both dimensions.'}
+],
+vocabTip:"SLE PSYCHOSOCIAL CARE: The butterfly rash is often the most distressing symptom for young women with lupus because it is VISIBLE and affects self-image. Key nursing interventions: (1) Validate feelings — don\'t minimize. (2) Prevent social isolation — connect with support groups. (3) Teach sun avoidance strategies (sunscreen SPF 30+, protective clothing, avoid 10am-4pm sun) — UV light triggers flares AND worsens the rash. (4) Refer to counseling if depression screening is positive. SLE disproportionately affects women of childbearing age (15-44), making body image and social concerns especially significant."
+},
+{id:14,chapter:17,difficulty:'hard',sata:false,trap:true,
+stem:"A patient with SLE has been on high-dose prednisone for 6 years. The patient reports new-onset deep hip pain that worsens with weight-bearing. The nurse suspects osteonecrosis. Which explanation BEST describes why long-term steroid use causes this complication?",
+options:[
+{letter:'A',text:'"Long-term steroids (typically 5+ years) can compromise the blood supply to the bone, causing bone tissue to die (osteonecrosis/avascular necrosis). The hip is most commonly affected because of its reliance on a limited blood supply."',correct:true,rationale:'Osteonecrosis (avascular necrosis) is a well-known complication of long-term corticosteroid use. Steroids can cause fat cell enlargement within bone marrow, increasing intraosseous pressure, and may damage blood vessel walls — both reducing blood flow to the bone. Without adequate blood supply, bone tissue dies. The femoral head (hip) is the most common site due to its tenuous blood supply through a limited network of arteries.'},
+{letter:'B',text:'"Steroids cause osteoporosis, which is the same thing as osteonecrosis — the bones just get thinner."',correct:false,rationale:'TRAP — osteoporosis and osteonecrosis are DIFFERENT conditions. Osteoporosis = decreased bone density (bones become porous/fragile). Osteonecrosis = bone DEATH from loss of blood supply. While steroids can cause BOTH, they are distinct pathologies with different mechanisms. The deep hip pain with weight-bearing in this scenario points to osteonecrosis, not osteoporosis.'},
+{letter:'C',text:'"Steroids cause calcium deposits in the hip joint, leading to severe arthritis."',correct:false,rationale:'Steroids do not cause calcium deposition in joints. In fact, steroids tend to cause calcium LOSS from bones (contributing to osteoporosis). Osteonecrosis is caused by compromised blood supply, not calcium deposits.'},
+{letter:'D',text:'"This hip pain is likely from lupus arthritis, not the steroids. SLE always causes bone erosion in weight-bearing joints."',correct:false,rationale:'SLE arthritis is characteristically NON-EROSIVE (it causes pain but does not erode bone on X-ray — a key distinction from RA). New-onset deep hip pain in a patient on long-term steroids should raise suspicion for osteonecrosis as a steroid complication, not lupus arthritis.'}
+],
+vocabTip:"SLE + STEROIDS > 5 YEARS = think OSTEONECROSIS. Osteonecrosis (avascular necrosis) = bone DEATH because blood supply is cut off. NOT the same as osteoporosis (bone thinning). Think: OsteoNECROSIS = bone NECROSIS (death). OsteoPOROSIS = bone POROSITY (porous/thin). Steroids cause BOTH, but they are different problems. Most common site: femoral head (hip). Signs: deep aching pain that worsens with weight-bearing. This is tested because students confuse the two conditions."
+},
+{id:15,chapter:17,difficulty:'medium',sata:true,trap:false,
+stem:"A nurse is monitoring a patient with systemic lupus erythematosus (SLE) for organ involvement. Which assessment findings indicate possible lupus nephritis? (Select all that apply.)",
+options:[
+{letter:'A',text:'Proteinuria (3+ protein on urinalysis)',correct:true,rationale:'Lupus nephritis damages the glomerular filter, allowing protein to leak into urine. Proteinuria is one of the earliest and most important signs of kidney involvement in SLE.'},
+{letter:'B',text:'Elevated serum creatinine and BUN',correct:true,rationale:'When the kidneys are damaged by immune complex deposition, they lose the ability to filter waste products effectively. Rising creatinine and BUN indicate declining renal function.'},
+{letter:'C',text:'Peripheral edema and hypertension',correct:true,rationale:'Damaged kidneys retain sodium and water, leading to edema and hypertension. Nephrotic-range proteinuria also causes decreased oncotic pressure, worsening edema.'},
+{letter:'D',text:'Butterfly rash worsening across the cheeks',correct:false,rationale:'The malar (butterfly) rash is a dermatologic manifestation of SLE, not a sign of kidney involvement. While both can be present during a flare, the rash itself does not indicate nephritis.'},
+{letter:'E',text:'Decreased hemoglobin and hematocrit unrelated to bleeding',correct:false,rationale:'Anemia in SLE is typically caused by autoimmune hemolytic anemia (Type II hypersensitivity destroying RBCs) or chronic disease, not nephritis specifically. While severe CKD can cause anemia from decreased erythropoietin, this is a late finding, not an early nephritis indicator.'}
+],
+vocabTip:"LUPUS NEPHRITIS WARNING SIGNS: proteinuria (damaged filter leaks protein), elevated creatinine/BUN (kidneys failing to filter waste), edema (fluid retention), hypertension (sodium/water retention). Think of the glomerulus as a coffee filter — lupus pokes holes in it, so protein (coffee grounds) leaks through into the urine. Kidney involvement is one of the MOST SERIOUS complications of SLE and can progress to end-stage renal disease. Monitor UAs and kidney labs closely in ALL SLE patients."
+},
+{id:16,chapter:17,difficulty:'medium',sata:true,trap:false,
+stem:"A nurse is teaching a community health class about HIV transmission. Which statements about HIV transmission routes are CORRECT? (Select all that apply.)",
+options:[
+{letter:'A',text:'HIV is transmitted through unprotected sexual contact with an infected person (vaginal, anal, or oral sex)',correct:true,rationale:'Sexual contact is the most common transmission route worldwide. HIV is present in semen, vaginal secretions, and pre-seminal fluid. Anal sex carries the highest per-act risk due to the fragility of rectal mucosa, followed by vaginal sex. Oral sex carries a lower but non-zero risk.'},
+{letter:'B',text:'HIV can be transmitted by sharing contaminated needles or syringes during IV drug use',correct:true,rationale:'Needle sharing directly introduces infected blood into the new host\'s bloodstream. This is a highly efficient transmission route. Needle exchange programs and safe injection sites are public health strategies to reduce this risk.'},
+{letter:'C',text:'A pregnant mother with HIV can transmit the virus to her baby during pregnancy, delivery, or breastfeeding (perinatal transmission)',correct:true,rationale:'Without treatment, perinatal transmission rates are 15-45%. The virus can cross the placenta (in utero), transfer during delivery (exposure to blood/secretions), or pass through breast milk (postpartum). With proper ART during pregnancy and delivery, the risk drops to <1%.'},
+{letter:'D',text:'HIV is transmitted through casual contact such as hugging, shaking hands, sharing utensils, or using the same toilet',correct:false,rationale:'HIV is NOT transmitted through casual contact. The virus requires entry through mucous membranes, broken skin, or direct bloodstream access. It does not survive well outside the body and is not transmitted through intact skin, saliva (in normal quantities), sweat, tears, or urine. This misconception drives stigma.'},
+{letter:'E',text:'HIV is transmitted through mosquito bites, similar to malaria and Zika virus',correct:false,rationale:'HIV is NOT transmitted by mosquitoes or any other insect. The virus does not replicate inside mosquitoes and is digested in the insect\'s gut. Mosquito-borne diseases (malaria, Zika, dengue) involve pathogens that replicate WITHIN the mosquito — HIV does not.'}
+],
+vocabTip:"HIV transmission requires SPECIFIC BODY FLUIDS + an ENTRY POINT. Fluids that transmit: blood, semen, vaginal secretions, pre-seminal fluid, rectal fluids, breast milk. Fluids that do NOT transmit: saliva, sweat, tears, urine, feces (unless visibly bloody). Entry points: mucous membranes (vaginal, rectal, oral, penile), broken skin, direct bloodstream (needles). The three main routes: (1) Sexual contact, (2) Blood-to-blood (needles, transfusion), (3) Perinatal (mother to baby). Remember: CASUAL CONTACT DOES NOT TRANSMIT HIV — fighting stigma is part of nursing care."
+},
+{id:17,chapter:17,difficulty:'medium',sata:false,trap:false,
+stem:"A patient newly diagnosed with HIV asks, 'My doctor said if I take my medications perfectly and keep my viral load undetectable, I can\'t pass HIV to my sexual partner. Is that really true?' Which response by the nurse is MOST accurate?",
+options:[
+{letter:'A',text:'"Yes — this is called Treatment as Prevention (TasP). Research shows that when a person with HIV maintains an undetectable viral load through consistent ART, the risk of sexually transmitting HIV is effectively zero. This is summarized as U=U: Undetectable equals Untransmittable."',correct:true,rationale:'TasP (Treatment as Prevention) is supported by landmark studies (PARTNER, PARTNER2, HPTN 052) that found ZERO linked HIV transmissions from partners with sustained undetectable viral loads. U=U (Undetectable = Untransmittable) is endorsed by the CDC and WHO. This concept is critical for reducing stigma and motivating ART adherence.'},
+{letter:'B',text:'"That is not true — you can always transmit HIV regardless of your viral load, so you must use condoms forever."',correct:false,rationale:'This contradicts current evidence. While condoms provide additional protection and protect against other STIs, the U=U principle is well-established: sustained undetectable viral load through ART effectively eliminates the risk of sexual transmission. Providing incorrect information may undermine ART adherence motivation.'},
+{letter:'C',text:'"An undetectable viral load means the virus is completely gone from your body, so you are cured and no longer need medication."',correct:false,rationale:'CRITICAL ERROR — undetectable does NOT mean cured. The virus persists in latent reservoir cells. If ART is stopped, the virus will rebound. Undetectable means the viral load is too low to detect on standard tests (<20-50 copies/mL), NOT that the virus is eliminated.'},
+{letter:'D',text:'"TasP only works if both you AND your partner take HIV medications."',correct:false,rationale:'TasP works when the HIV-positive partner maintains an undetectable viral load. The HIV-negative partner does not need to take ART (though PrEP is an option for additional protection). TasP effectiveness is based on the POSITIVE partner\'s viral suppression, not the negative partner\'s medication use.'}
+],
+vocabTip:"TasP (Treatment as Prevention) and U=U (Undetectable = Untransmittable): When a person with HIV takes ART consistently and maintains an undetectable viral load, they CANNOT sexually transmit HIV. This is backed by studies with thousands of couples and zero transmissions. Key points: (1) Must be on ART consistently — missing doses lets virus rebound. (2) Undetectable does NOT mean cured — virus hides in reservoirs. (3) U=U applies to sexual transmission — needle sharing and perinatal routes still require other precautions. (4) This concept is a powerful motivator for ART adherence and reduces HIV stigma."
+},
+{id:18,chapter:17,difficulty:'hard',sata:false,trap:false,
+stem:"A patient with AIDS (CD4 count of 85 cells/mm3) presents with white patches in the mouth, difficulty swallowing, and retrosternal pain. The nurse suspects which opportunistic infection?",
+options:[
+{letter:'A',text:'Oral and esophageal candidiasis (thrush) — a fungal infection caused by Candida albicans that occurs when the immune system is severely compromised',correct:true,rationale:'Candidiasis is one of the most common opportunistic infections in AIDS patients. Oral thrush presents as creamy white patches on the tongue and buccal mucosa that can be scraped off, revealing red/bleeding tissue underneath. When it extends to the esophagus (esophageal candidiasis), it causes dysphagia (difficulty swallowing) and retrosternal/substernal chest pain. It occurs when CD4 counts drop below 200, indicating severe immunosuppression.'},
+{letter:'B',text:'Kaposi sarcoma lesions in the throat causing difficulty swallowing',correct:false,rationale:'Kaposi sarcoma presents as purple/dark-colored lesions on the skin or mucous membranes, not white patches. While KS can affect the oral cavity and GI tract, the description of white patches that cause difficulty swallowing is classic for candidiasis, not KS.'},
+{letter:'C',text:'Pneumocystis jirovecii pneumonia (PJP) spreading to the esophagus',correct:false,rationale:'PJP primarily affects the LUNGS (presenting with dry cough, dyspnea, and fever), not the esophagus. PJP does not typically present as white oral patches. While PJP is a major AIDS-defining illness, the symptom presentation here points to candidiasis.'},
+{letter:'D',text:'Streptococcal pharyngitis (strep throat) common in all patients regardless of immune status',correct:false,rationale:'Strep throat presents with a red, inflamed throat with possible exudates, not creamy white patches. Also, strep pharyngitis is a common community infection, not an opportunistic infection associated with AIDS. The key context here is the severely low CD4 count combined with characteristic white patches.'}
+],
+vocabTip:"AIDS OPPORTUNISTIC INFECTIONS to know: (1) CANDIDIASIS (thrush/esophageal) = white patches in mouth, painful swallowing — most common OI. (2) PJP (Pneumocystis jirovecii pneumonia) = dry cough, dyspnea, fever — most common cause of pneumonia in AIDS. (3) KAPOSI SARCOMA = purple/dark lesions on skin — caused by HHV-8. (4) TOXOPLASMOSIS = brain infection, headache, confusion, seizures — from undercooked meat or cat feces. These infections appear when CD4 drops below 200 because the immune system can no longer suppress organisms that are normally harmless."
+},
+{id:19,chapter:17,difficulty:'medium',sata:false,trap:false,
+stem:"A patient returns from a hiking trip in Connecticut and develops a circular, expanding 'bull\'s eye' rash on the calf, along with fever, headache, and fatigue 10 days after the trip. Two weeks later, the patient develops migratory joint pain in both knees and reports episodes of dizziness and palpitations. The nurse recognizes these as which stages of Lyme disease?",
+options:[
+{letter:'A',text:'The initial rash, fever, and fatigue represent Stage I (early localized — erythema migrans with flu-like symptoms). The joint pain and cardiac symptoms represent Stage II (early disseminated — the spirochete has spread to joints and the heart, causing dysrhythmias).',correct:true,rationale:'Lyme disease progresses in stages: Stage I (early localized, days-weeks after bite) = erythema migrans (bull\'s eye rash at bite site) + flu-like symptoms (fever, headache, myalgias, fatigue). Stage II (early disseminated, weeks-months) = the Borrelia spirochete has spread via the bloodstream to distant sites, causing migratory arthritis (especially large joints like knees), cardiac conduction abnormalities (AV block, dysrhythmias causing dizziness/palpitations), and possible neurological symptoms (Bell\'s palsy, meningitis).'},
+{letter:'B',text:'Both presentations are Stage I — all symptoms of Lyme disease occur simultaneously at the beginning.',correct:false,rationale:'Lyme disease follows a staged progression. Joint and cardiac involvement represent DISSEMINATION of the spirochete beyond the initial bite site and do not occur simultaneously with the initial rash. The timeline (weeks apart) supports Stage I then Stage II.'},
+{letter:'C',text:'The rash is Stage II and the joint pain is Stage III, since any rash indicates the disease has already disseminated.',correct:false,rationale:'The erythema migrans rash at the bite site is the hallmark of Stage I (localized). It appears at the site of the tick bite BEFORE dissemination occurs. Stage III is late/chronic Lyme, characterized by chronic arthritis and neurological changes occurring months to years later.'},
+{letter:'D',text:'These symptoms are not consistent with Lyme disease because Lyme disease only affects the skin.',correct:false,rationale:'Lyme disease is a multisystem illness. While Stage I is primarily dermatologic (the rash), the spirochete can disseminate to affect joints (arthritis), heart (conduction abnormalities), and nervous system (Bell\'s palsy, meningitis, neuropathy). Lyme disease is far more than a skin condition.'}
+],
+vocabTip:"LYME DISEASE STAGES: Stage I (EARLY LOCALIZED) = bull\'s eye rash (erythema migrans) at tick bite + flu-like symptoms (fever, headache, fatigue). Appears days to weeks after bite. Stage II (EARLY DISSEMINATED) = bacteria spread via blood → joint pain (especially KNEES), cardiac dysrhythmias (heart block, palpitations), Bell\'s palsy (facial droop). Weeks to months after bite. Stage III (LATE/CHRONIC) = chronic arthritis, encephalopathy, neuropathy. Months to years. PREVENTION: long sleeves and pants in wooded areas, light-colored clothing (see ticks easier), tuck pants into socks, inspect skin after outdoor activity, remove ticks within 24-48 hours."
+},
+{id:20,chapter:17,difficulty:'hard',sata:false,trap:true,
+stem:"A 22-year-old college student presents to the campus health center with a 5-day history of fever, sore throat, fatigue, myalgias, and a faint macular rash on the trunk. The student says, 'I went to a party two weeks ago where I had unprotected sex with someone I didn\'t know well. But this is obviously just the flu — can I get some Tamiflu?' Which clinical reasoning by the nurse is MOST appropriate?",
+options:[
+{letter:'A',text:'"The patient is right — these are classic flu symptoms. I\'ll recommend Tamiflu and follow up in a week."',correct:false,rationale:'TRAP — while these symptoms DO resemble the flu, the timeline (2 weeks after high-risk sexual exposure) and symptom cluster (fever, sore throat, myalgias, macular rash) are classic for ACUTE HIV INFECTION (acute retroviral syndrome). Accepting the patient\'s self-diagnosis without considering the exposure history is a dangerous clinical error.'},
+{letter:'B',text:'"These symptoms could be flu, but given the unprotected sexual encounter 2 weeks ago, I need to consider acute HIV infection. The symptoms are nearly identical — I should recommend HIV testing along with other workup rather than assuming this is influenza."',correct:true,rationale:'This demonstrates critical clinical reasoning. Acute HIV infection (Stage 1) presents 2-6 weeks after exposure with flu-like symptoms: fever, sore throat, lymphadenopathy, myalgias, and often a diffuse macular rash. This is the most MISSED diagnosis because patients and providers attribute symptoms to flu or mono. The high-risk exposure history is the RED FLAG that should trigger HIV testing. Early diagnosis allows immediate ART initiation and prevents unknowing transmission during the period of highest viral load.'},
+{letter:'C',text:'"Two weeks is too soon for any STI symptoms to appear. This is definitely just the flu."',correct:false,rationale:'This is incorrect. Acute HIV symptoms typically appear 2-6 weeks after exposure — the timeline fits perfectly. Many STIs also have incubation periods that could present at 2 weeks. Dismissing the timing as too early reflects a knowledge gap about acute HIV presentation.'},
+{letter:'D',text:'"Since the patient had unprotected sex, this is definitely HIV. I should inform the patient they are HIV-positive."',correct:false,rationale:'The nurse cannot diagnose HIV based on symptoms alone — laboratory testing is required (4th generation HIV test detecting p24 antigen + HIV antibodies). While suspicion is appropriate, definitive diagnosis requires testing. The nurse should recommend testing, not declare a diagnosis.'}
+],
+vocabTip:"BIGGEST HIV EXAM TRAP: Early HIV (acute retroviral syndrome) looks EXACTLY like the flu — fever, sore throat, fatigue, body aches, rash. It appears 2-6 weeks after exposure. This is why HIV is frequently MISSED at the acute stage. The professor emphasized: any patient with flu-like symptoms + recent high-risk exposure = THINK HIV AND TEST. During acute infection, viral load is at its HIGHEST and the patient is MOST infectious — yet they look like they just have the flu. Missing this diagnosis means missing the chance for early treatment AND allowing unknowing transmission to others."
+}
+];
+
+let answers={};
+let submitted={};
+
+function buildQuiz(){
+const body=document.getElementById('quizBody');
+body.innerHTML='';
+let currentCh=0;
+const chNames={16:'Concepts of Inflammation & Immunity',17:'Allergy & Immunity Conditions'};
+questions.forEach((q,idx)=>{
+if(q.chapter!==currentCh){
+currentCh=q.chapter;
+const div=document.createElement('div');
+div.className='chapter-divider';
+div.innerHTML=`<span>Chapter ${currentCh}: ${chNames[currentCh]}</span>`;
+body.appendChild(div);
+}
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>`;
+if(q.trap) badges+=` <span class="badge badge-trap">Trap</span>`;
+badges+=` <span class="badge-diff">${q.difficulty}</span>`;
+let html=`<div class="q-header"><span class="q-number">Q${idx+1}</span>${badges}</div>`;
+html+=`<p class="q-stem">${q.stem}</p>`;
+if(q.sata) html+=`<p class="sata-note">Select All That Apply</p>`;
+html+=`<div class="opts" id="opts-${q.id}">`;
+q.options.forEach(o=>{
+html+=`<button class="opt-btn" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${q.sata})"><span class="opt-letter">${o.letter}.</span><span>${o.text}</span></button>`;
+});
+html+=`</div>`;
+html+=`<button class="submit-btn" id="sub-${q.id}" onclick="submitQ(${q.id})" disabled>Submit Answer</button>`;
+html+=`<div class="rationale-box" id="rat-${q.id}">`;
+html+=`<h4>Rationale</h4>`;
+q.options.forEach(o=>{
+html+=`<div class="opt-rat"><strong>${o.letter}. ${o.correct?'✓ CORRECT':'✗ Incorrect'}:</strong> ${o.rationale}</div>`;
+});
+html+=`<div class="vocab-tip">${q.vocabTip}</div>`;
+html+=`</div>`;
+card.innerHTML=html;
+body.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(submitted[qId]) return;
+if(!answers[qId]) answers[qId]=[];
+if(isSata){
+const idx=answers[qId].indexOf(letter);
+if(idx>-1) answers[qId].splice(idx,1);
+else answers[qId].push(letter);
+}else{
+answers[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.toggle('selected',answers[qId].includes(o.letter));
+});
+document.getElementById(`sub-${qId}`).disabled=answers[qId].length===0;
+}
+
+function submitQ(qId){
+if(submitted[qId]) return;
+submitted[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[qId]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.add('locked');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${qId}`).classList.add('show');
+document.getElementById(`sub-${qId}`).disabled=true;
+updateProgress();
+saveState();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,600);
+}
+
+function updateProgress(){
+const count=Object.keys(submitted).length;
+document.getElementById('progressText').textContent=`${count} of ${questions.length} answered`;
+document.getElementById('progressBar').style.width=`${(count/questions.length)*100}%`;
+}
+
+function showScore(){
+let total=0;let chScores={16:0,17:0};let chTotals={16:0,17:0};
+questions.forEach(q=>{
+chTotals[q.chapter]++;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[q.id]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+if(isCorrect){total++;chScores[q.chapter]++;}
+});
+const pct=Math.round((total/questions.length)*100);
+document.getElementById('finalPct').textContent=`${pct}%`;
+document.getElementById('finalMsg').textContent=`${total} of ${questions.length} correct`;
+const bd=document.getElementById('breakdown');
+bd.innerHTML='';
+const chNames={16:'Ch 16 Inflammation',17:'Ch 17 Allergy/Immunity'};
+Object.keys(chScores).forEach(ch=>{
+bd.innerHTML+=`<div class="ch-score"><div class="ch-label">${chNames[ch]}</div><div class="ch-val">${chScores[ch]}/${chTotals[ch]}</div></div>`;
+});
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+// Save to localStorage
+const record={score:pct,correct:total,total:questions.length,date:new Date().toISOString(),chapters:chScores};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+let history=JSON.parse(localStorage.getItem(EXAM_ID+'-history')||'[]');
+history.push(record);
+localStorage.setItem(EXAM_ID+'-history',JSON.stringify(history));
+const eh=JSON.parse(localStorage.getItem('examHistory')||'[]');
+eh.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:total,total:questions.length,topicBreakdown:chScores});
+localStorage.setItem('examHistory',JSON.stringify(eh.slice(-20)));
+}
+
+function restartQuiz(){
+answers={};submitted={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+updateProgress();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveState(){
+const state={answers,submitted};
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify(state));
+}
+
+function loadState(){
+const raw=localStorage.getItem(EXAM_ID+'-state');
+if(raw){
+const state=JSON.parse(raw);
+answers=state.answers||{};
+submitted=state.submitted||{};
+Object.keys(submitted).forEach(qId=>{
+const id=parseInt(qId);
+const q=questions.find(x=>x.id===id);
+if(!q)return;
+const userAns=answers[id]||[];
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${id}-${o.letter}`);
+if(!btn)return;
+btn.classList.add('locked');
+if(userAns.includes(o.letter)) btn.classList.add('selected');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${id}`);
+if(card) card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${id}`).classList.add('show');
+document.getElementById(`sub-${id}`).disabled=true;
+});
+updateProgress();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,300);
+}
+// Show last attempt
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const rec=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=`${rec.score}% (${rec.correct}/${rec.total})`;
+}
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
