@@ -162,6 +162,7 @@ const LAUNCH_TASKS = [
 ];
 
 const todayISO = () => new Date().toISOString().split('T')[0];
+const tomorrowISO = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; };
 const todayKey = () => new Date().toDateString();
 
 const playChime = () => {
@@ -261,6 +262,7 @@ function Dashboard() {
   const [lastActive, setLastActive] = useState(null);
   const [history, setHistory] = useState([]);
   const [launchDone, setLaunchDone] = useState({});
+  const [launchOverrides, setLaunchOverrides] = useState({});
   const [todayLog, setTodayLog] = useState({ suggestions: {}, anki: [] });
   const [allLogs, setAllLogs] = useState({});
   const [addresses, setAddresses] = useState(DEFAULT_ADDRESSES);
@@ -332,6 +334,8 @@ function Dashboard() {
     if (f !== null) setFamily(f);
     const ld = storage.get('launchDone');
     if (ld) setLaunchDone(ld);
+    const lo = storage.get('launchOverrides');
+    if (lo) setLaunchOverrides(lo);
     const tl = storage.get(`log:${todayKey()}`);
     if (tl) setTodayLog(tl);
     const al = storage.get('allLogs');
@@ -485,8 +489,11 @@ function Dashboard() {
 
   const daysToLaunch = daysBetween(todayISO(), '2026-05-15');
   const launchStarted = daysToLaunch <= 0;
-  const todayLaunchTasks = LAUNCH_TASKS.filter(t => t.day === todayISO() && !launchDone[t.id]);
-  const upcomingLaunchTask = LAUNCH_TASKS.find(t => !launchDone[t.id] && daysBetween(todayISO(), t.day) >= 0);
+  // Use overridden dates if rescheduled, otherwise original day
+  const getTaskDay = (t) => launchOverrides[t.id] || t.day;
+  // Auto-rollover: past-due unchecked tasks show as today's tasks
+  const todayLaunchTasks = LAUNCH_TASKS.filter(t => !launchDone[t.id] && daysBetween(getTaskDay(t), todayISO()) >= 0);
+  const upcomingLaunchTask = LAUNCH_TASKS.find(t => !launchDone[t.id] && daysBetween(todayISO(), getTaskDay(t)) >= 0);
   const launchProgress = (Object.values(launchDone).filter(Boolean).length / LAUNCH_TASKS.length) * 100;
 
   // Default to study tab when exam mode active
@@ -596,6 +603,14 @@ function Dashboard() {
       if (task?.id === 'post1') showToast('YOU ARE A CREATOR 🚀', 3500);
       else showToast('Done! 🎯', 1500);
     }
+  };
+
+  // Reschedule a launch task to tomorrow (or a specific date)
+  const rescheduleLaunchTask = (id, newDay) => {
+    const u = { ...launchOverrides, [id]: newDay || tomorrowISO() };
+    setLaunchOverrides(u);
+    storage.set('launchOverrides', u);
+    showToast('Moved → ' + (newDay || 'tomorrow'), 1500);
   };
 
   const toggleSuggestion = (idx) => {
@@ -874,7 +889,7 @@ function Dashboard() {
 
             {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { studyStartRef.current = studyTimerSec > 0 ? Date.now() - (studyTimerSec * 1000) : Date.now(); setStudyTimer(true); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
-            {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} onToggle={toggleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
+            {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} launchOverrides={launchOverrides} onToggle={toggleLaunchTask} onReschedule={rescheduleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
 
             {tab === 'road' && <RoadView events={allEvents} customEvents={customEvents} onSaveEvent={(ev) => {
               let updated;
@@ -1899,7 +1914,7 @@ function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizL
 }
 
 // ============== LAUNCH VIEW ==============
-function LaunchView({ launchStarted, daysToLaunch, inAtlanta, examMode, nextExam, todayLaunchTasks, upcomingLaunchTask, launchDone, onToggle, launchProgress, checkin, products, revenue, onAddRevenue, contentIdeas, onAddContentIdea, onRemoveContentIdea, engagement, onAddEngagement }) {
+function LaunchView({ launchStarted, daysToLaunch, inAtlanta, examMode, nextExam, todayLaunchTasks, upcomingLaunchTask, launchDone, launchOverrides, onToggle, onReschedule, launchProgress, checkin, products, revenue, onAddRevenue, contentIdeas, onAddContentIdea, onRemoveContentIdea, engagement, onAddEngagement }) {
   const [showRevenueForm, setShowRevenueForm] = useState(false);
   const [revAmount, setRevAmount] = useState('');
   const [revNote, setRevNote] = useState('');
@@ -2122,15 +2137,20 @@ function LaunchView({ launchStarted, daysToLaunch, inAtlanta, examMode, nextExam
                   <button onClick={() => onToggle(t.id)} className="mt-0.5 shrink-0 text-xl">⭕</button>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-stone-900 leading-snug">{t.title}</p>
-                    <p className="mono text-[10px] uppercase tracking-wider text-stone-500 mt-0.5">{t.time} · {t.load}</p>
+                    <p className="mono text-[10px] uppercase tracking-wider text-stone-500 mt-0.5">{t.time} · {t.load}{launchOverrides && launchOverrides[t.id] ? ' · rescheduled' : ''}</p>
                   </div>
                 </div>
                 {t.desc && <p className="text-sm text-stone-600 leading-snug mb-3 ml-9">{t.desc}</p>}
-                {t.link && (
-                  <a href={t.link} target="_blank" rel="noopener noreferrer" className="ml-9 inline-flex items-center gap-1.5 bg-stone-900 text-stone-50 px-4 py-2 rounded-full text-xs font-medium">
-                    {t.linkLabel} ↗
-                  </a>
-                )}
+                <div className="flex items-center gap-2 ml-9">
+                  {t.link && (
+                    <a href={t.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 bg-stone-900 text-stone-50 px-4 py-2 rounded-full text-xs font-medium">
+                      {t.linkLabel} ↗
+                    </a>
+                  )}
+                  <button onClick={() => onReschedule(t.id)} className="inline-flex items-center gap-1 bg-stone-200 text-stone-700 px-3 py-2 rounded-full text-xs font-medium">
+                    → Tomorrow
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -2209,7 +2229,8 @@ function RoadView({ events, customEvents, onSaveEvent, onDeleteEvent }) {
 
   const renderEvent = (e, i) => {
     const s = typeStyle(e.type);
-    const d = new Date(e.date + 'T12:00:00');
+    const dateOnly = e.date.includes('T') ? e.date.split('T')[0] : e.date;
+    const d = new Date(dateOnly + 'T12:00:00');
     return (
       <div key={e.id || i} className={`${s.bg} ${s.border} border rounded-2xl p-3 flex items-start gap-3`}>
         <div className="text-xl shrink-0">{e.icon || s.icon}</div>
