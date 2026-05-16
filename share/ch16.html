@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 16 — Inflammation & Immunity</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+.container{max-width:720px;margin:0 auto}
+.header{text-align:center;padding:2rem 1rem 1.5rem}
+.header h1{font-size:1.75rem;font-weight:700;color:#f8fafc;margin-bottom:.35rem}
+.header p{color:#94a3b8;font-size:.9rem}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.correct{border-color:#22c55e}
+.q-card.incorrect{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-size:.75rem;font-weight:600;color:#64748b}
+.badge-sata{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:.95rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#ec4899;background:rgba(236,72,153,.1)}
+.opt.correct-show{border-color:#22c55e;background:rgba(34,197,94,.08)}
+.opt.wrong-show{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.opt.locked{cursor:default}
+.opt.locked:hover{border-color:#1e293b;background:#0c0f14}
+.opt.locked.selected{background:rgba(236,72,153,.1)}
+.opt.locked.correct-show{background:rgba(34,197,94,.08);border-color:#22c55e}
+.opt.locked.wrong-show{background:rgba(239,68,68,.08);border-color:#ef4444}
+.opt-letter{font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.1rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-check{background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-check:hover{background:#db2777}
+.btn-check:disabled{opacity:.4;cursor:not-allowed}
+.score-section{text-align:center;margin-top:2rem;display:none}
+.btn-score{background:#ec4899;color:#fff;border:none;border-radius:10px;padding:.85rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-score:hover{background:#db2777}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:1.5rem;display:none;text-align:center}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#ec4899;margin:.5rem 0}
+.score-card .score-detail{color:#94a3b8;font-size:.95rem}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1.25rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.header h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>Ch 16 &mdash; Inflammation &amp; Immunity</h1>
+<p>20 Questions &middot; Tap to answer &middot; Rationales for every option</p>
+</div>
+<div id="quizArea"></div>
+<div class="score-section" id="scoreSection">
+<button class="btn-score" onclick="showScore()">See My Score</button>
+<div class="score-card" id="scoreCard">
+<div class="big-score" id="finalScore">0/20</div>
+<p class="score-detail" id="finalPct"></p>
+<button class="btn-restart" onclick="restart()">Restart</button>
+</div>
+</div>
+</div>
+<script>
+const questions=[
+{id:1,sata:false,
+stem:"A patient presents to the urgent care clinic after severely spraining their ankle during a baseball game. The ankle is swollen, red, warm to the touch, and painful. The patient demands antibiotics, stating, \"It's red and swollen, so it must be infected.\" What is the nurse's best understanding of this physiological process?",
+options:[
+{letter:'A',text:'The patient has a local bacterial infection and requires a swab culture.',correct:false,rationale:'A sprained ankle is a closed tissue injury. There is no evidence of pathogenic invasion requiring antibiotics.'},
+{letter:'B',text:'Inflammation is a specific adaptive response to tissue trauma.',correct:false,rationale:'Inflammation is a non-specific (innate) defense, not a specific (adaptive) one.'},
+{letter:'C',text:'Inflammation can occur without infection and is a non-specific innate defense.',correct:true,rationale:'Inflammation is a non-specific tissue response to cellular injury (like a sprain) and does not always mean an infection is present.'},
+{letter:'D',text:'The patient\'s innate immune system has failed, allowing opportunistic pathogens to enter.',correct:false,rationale:'The innate immune system has not failed; the inflammation IS the innate immune system working appropriately.'}
+]},
+
+{id:2,sata:true,
+stem:"A patient suffers a deep laceration. Within hours, the site becomes warm, red, and swollen. Which of the following statements accurately describe the physiological causes of these cardinal signs of inflammation?",
+options:[
+{letter:'A',text:'Warmth is caused by increased blood flow (hyperemia) to the area.',correct:true,rationale:'Macrophages and mast cells release vasoactive amines that dilate arterioles, bringing more warm blood to the area.'},
+{letter:'B',text:'Swelling is caused by vasoconstriction of the local arterioles.',correct:false,rationale:'Swelling is caused by vasoDILATION and increased capillary permeability, allowing plasma to leak into tissues.'},
+{letter:'C',text:'Redness is a direct result of macrophages consuming necrotic tissue.',correct:false,rationale:'Redness is caused by hyperemia (increased blood flow), not phagocytosis.'},
+{letter:'D',text:'Edema forms a protective fluid cushion around the injury.',correct:true,rationale:'Edema protects the area from further injury by creating a cushion of fluid.'},
+{letter:'E',text:'Decreased function occurs due to tissue swelling and pain.',correct:true,rationale:'Pain and swelling physically restrict the mobility of the affected tissue.'}
+]},
+
+{id:3,sata:false,
+stem:"A healthy 22-year-old nursing student receives the varicella (chickenpox) vaccine prior to starting clinicals. Which type of immunity will this student develop?",
+options:[
+{letter:'A',text:'Natural active immunity',correct:false,rationale:'Natural active immunity occurs when a person is naturally exposed to the live pathogen, gets sick, and recovers.'},
+{letter:'B',text:'Artificial active immunity',correct:true,rationale:'Artificial active immunity (vaccine-induced) occurs when a weakened or killed form of a disease is injected. The host\'s body actively creates memory cells and antibodies without suffering the disease.'},
+{letter:'C',text:'Natural passive immunity',correct:false,rationale:'Natural passive immunity is the transfer of antibodies from mother to fetus/infant.'},
+{letter:'D',text:'Artificial passive immunity',correct:false,rationale:'Artificial passive immunity is injecting pre-made antibodies (like tetanus immune globulin) into a person.'}
+]},
+
+{id:4,sata:false,
+stem:"A patient is bitten by a stray dog and receives an injection of rabies immune globulin (pre-made antibodies) in the emergency department. The patient asks, \"Will this injection protect me from rabies for the rest of my life?\" What is the nurse's best response?",
+options:[
+{letter:'A',text:'"Yes, because your body will adapt to these antibodies and form long-term memory cells."',correct:false,rationale:'The patient\'s body did not make these antibodies, so it will not create memory cells.'},
+{letter:'B',text:'"Yes, this stimulates your cell-mediated immunity to permanently destroy the virus."',correct:false,rationale:'Immune globulins provide antibody-mediated (humoral) immunity, not cell-mediated immunity.'},
+{letter:'C',text:'"No, this provides immediate but short-term protection because your body will eventually eliminate these foreign antibodies."',correct:true,rationale:'Artificial passive immunity involves giving someone else\'s antibodies. The patient\'s immune system will recognize these as "non-self" and eventually destroy them — immediate but short-lived protection.'},
+{letter:'D',text:'"No, this only triggers the inflammatory response, which only lasts for 72 hours."',correct:false,rationale:'Immune globulins provide specific passive immunity, not just a non-specific inflammatory response.'}
+]},
+
+{id:5,sata:false,
+stem:"The nurse is reviewing the white blood cell (WBC) differential of a patient admitted with a severe bacterial infection. The lab report shows a normal total WBC count, but the segmented neutrophil count is extremely low, and the band neutrophil count is 18% (normal is ~5%). What is the nurse's best interpretation of these findings?",
+options:[
+{letter:'A',text:'The patient has a highly functioning immune system with excellent resistance.',correct:false,rationale:'A low segmented (mature) neutrophil count means low resistance to infection.'},
+{letter:'B',text:'The bone marrow is rapidly producing mature cells capable of intense phagocytosis.',correct:false,rationale:'Band cells are IMMATURE neutrophils. Only MATURE segmented neutrophils are capable of phagocytosis.'},
+{letter:'C',text:'The patient has a "left shift," indicating the bone marrow cannot keep up with the infection, placing them at high risk for sepsis.',correct:true,rationale:'A "left shift" (bandemia) means the bone marrow is exhausted and releasing immature band cells into the blood, indicating a severe, overwhelming infection and high risk for sepsis.'},
+{letter:'D',text:'The patient is experiencing a mild, localized allergic reaction.',correct:false,rationale:'Eosinophils and basophils, not neutrophils, elevate during allergic reactions.'}
+]},
+
+{id:6,sata:false,
+stem:"During the cellular ingestion phase of the immune response, a macrophage encounters an invading bacterium. Which specific immune system mechanism acts as a \"universal product code\" to help the macrophage determine if the bacterium is \"self\" or \"non-self\"?",
+options:[
+{letter:'A',text:'Human Leukocyte Antigens (HLAs)',correct:true,rationale:'HLAs are the unique surface proteins acting as a barcode. Immune cells scan these to differentiate between self cells and non-self invaders.'},
+{letter:'B',text:'Pluripotent stem cells',correct:false,rationale:'Pluripotent stem cells are undifferentiated cells in the bone marrow.'},
+{letter:'C',text:'Prostaglandins',correct:false,rationale:'Prostaglandins are mediators of inflammation, not cellular barcodes.'},
+{letter:'D',text:'Immunoglobulin E (IgE)',correct:false,rationale:'IgE is an antibody primarily associated with allergic reactions and parasite defense.'}
+]},
+
+{id:7,sata:false,
+stem:"An 84-year-old patient is brought to the clinic by a family member who states, \"He has been very confused and restless today.\" The patient's temperature is 98.2°F (36.8°C), and his total WBC count is 6,000/mm³ (normal). Based on the concepts of immunosenescence, what is the nurse's priority action?",
+options:[
+{letter:'A',text:'Discharge the patient, as the normal temperature and WBC count rule out infection.',correct:false,rationale:'Older adults often do not mount a fever or leukocytosis during acute infections due to immunosenescence.'},
+{letter:'B',text:'Assess the patient for other signs of a hidden infection, such as dehydration or urinary tract involvement.',correct:true,rationale:'Due to age-related changes in immunity, older adults may have severe infections without a fever or elevated WBCs. Acute confusion (delirium) is often the first sign of infection in the elderly.'},
+{letter:'C',text:'Administer broad-spectrum antibiotics immediately for presumed sepsis.',correct:false,rationale:'Assessment and cultures must be done before administering antibiotics.'},
+{letter:'D',text:'Prepare the patient for a bone marrow biopsy to assess for stem cell failure.',correct:false,rationale:'This is an extreme and unnecessary intervention for suspected infection in an older adult.'}
+]},
+
+{id:8,sata:false,
+stem:"A patient is admitted with a parasitic worm infestation. Which specific leukocyte does the nurse expect to be significantly elevated in the patient's WBC differential?",
+options:[
+{letter:'A',text:'Basophils',correct:false,rationale:'Basophils release vasoactive amines (histamine) for general inflammation and allergic reactions.'},
+{letter:'B',text:'Macrophages',correct:false,rationale:'Macrophages are primarily for phagocytosis of bacteria and cellular debris.'},
+{letter:'C',text:'Eosinophils',correct:true,rationale:'Eosinophils are most active against infestations of parasitic larvae. They also increase during allergic responses.'},
+{letter:'D',text:'Cytotoxic T-cells',correct:false,rationale:'Cytotoxic T-cells selectively attack virally infected cells and cancer cells.'}
+]},
+
+{id:9,sata:true,
+stem:"The professor uses the analogy of \"counting only red cars\" to describe the Adaptive Immune System. Which of the following characteristics accurately describe the Adaptive Immune System?",
+options:[
+{letter:'A',text:'It provides a rapid, immediate response upon first exposure to a pathogen.',correct:false,rationale:'The innate system is rapid and immediate. The adaptive system takes time to respond upon FIRST exposure.'},
+{letter:'B',text:'It requires prior exposure to an antigen to generate a targeted response.',correct:true,rationale:'Adaptive immunity is specific and requires sensitization to a specific antigen.'},
+{letter:'C',text:'It utilizes T-lymphocytes and B-lymphocytes.',correct:true,rationale:'B-cells (Antibody-Mediated) and T-cells (Cell-Mediated) are the key players in adaptive immunity.'},
+{letter:'D',text:'It includes physical barriers like the skin and mucous membranes.',correct:false,rationale:'Skin and mucous membranes are part of the innate, non-specific immune system.'},
+{letter:'E',text:'It generates long-term memory cells for sustained immunity.',correct:true,rationale:'Adaptive immunity creates memory cells (B-memory and T-memory) for long-lasting protection.'}
+]},
+
+{id:10,sata:false,
+stem:"A patient is diagnosed with a viral infection. Which specific cells conduct \"seek and destroy\" missions to directly kill virally infected cells without needing prior sensitization?",
+options:[
+{letter:'A',text:'Natural Killer (NK) cells',correct:true,rationale:'NK cells have direct cytotoxic effects to non-selectively seek and destroy abnormal self-cells (cancer cells and virally infected cells) without needing prior sensitization.'},
+{letter:'B',text:'Helper T-cells',correct:false,rationale:'Helper T-cells secrete cytokines to organize the immune response but do not directly kill cells.'},
+{letter:'C',text:'Plasma cells',correct:false,rationale:'Plasma cells secrete antibodies (AMI).'},
+{letter:'D',text:'Band neutrophils',correct:false,rationale:'Band neutrophils are immature and incapable of killing/phagocytosis.'}
+]},
+
+{id:11,sata:false,
+stem:"In Antibody-Mediated Immunity (AMI), which cell is responsible for actively manufacturing and secreting the antibodies that specifically fit the invading antigen?",
+options:[
+{letter:'A',text:'Memory B-cells',correct:false,rationale:'Memory cells remain sensitized for future exposures but do not actively secrete antibodies during the initial fight.'},
+{letter:'B',text:'Plasma cells',correct:true,rationale:'Once a B-lymphocyte is sensitized, it divides into a memory cell and a plasma cell. The plasma cell is the factory that secretes huge amounts of specific antibodies to neutralize the antigen.'},
+{letter:'C',text:'Macrophages',correct:false,rationale:'Macrophages perform phagocytosis and present the antigen.'},
+{letter:'D',text:'Cytotoxic T-cells',correct:false,rationale:'Cytotoxic T-cells deliver "lethal hits" to infected cells (CMI); they do not make antibodies.'}
+]},
+
+{id:12,sata:false,
+stem:"A patient develops severe anaphylaxis after a bee sting. The patient's airways constrict, and they develop severe edema. Which leukocyte is primarily responsible for the rapid release of histamine and vasoactive amines that cause this vascular leak syndrome?",
+options:[
+{letter:'A',text:'Neutrophils',correct:false,rationale:'Neutrophils are responsible for phagocytizing bacteria.'},
+{letter:'B',text:'Regulator T-cells',correct:false,rationale:'Regulator T-cells calm the immune response down and maintain self-tolerance.'},
+{letter:'C',text:'Basophils',correct:true,rationale:'Basophils (and tissue mast cells) degranulate and release histamine, kinins, and heparin. This dilates arterioles, increases capillary permeability, and causes massive fluid shifts (edema).'},
+{letter:'D',text:'Erythrocytes',correct:false,rationale:'Erythrocytes are red blood cells that carry oxygen; they are not leukocytes.'}
+]},
+
+{id:13,sata:false,
+stem:"The complement system is activated during a patient's immune response to a bacterial invasion. What is the primary role of these 20 inactive plasma proteins once they are stimulated?",
+options:[
+{letter:'A',text:'They convert arachidonic acid into prostaglandins to cause a fever.',correct:false,rationale:'The cyclooxygenase (COX) enzyme converts arachidonic acid to prostaglandins.'},
+{letter:'B',text:'They form a Membrane Attack Complex (MAC) on the antigen to enhance phagocytosis.',correct:true,rationale:'The complement proteins act as enzymes that stick to the antigen and form a MAC, making phagocytosis by macrophages and neutrophils much more efficient.'},
+{letter:'C',text:'They produce colony-stimulating factor (CSF) to increase bone marrow production.',correct:false,rationale:'Macrophages secrete colony-stimulating factor (CSF).'},
+{letter:'D',text:'They present the antigen to virgin B-lymphocytes.',correct:false,rationale:'Macrophages and Helper T-cells present antigens to B-cells.'}
+]},
+
+{id:14,sata:true,
+stem:"A nurse is caring for a patient recovering from a major surgical incision. Which of the following are primary functions of macrophages?",
+options:[
+{letter:'A',text:'Nonspecific phagocytosis of cellular debris and invaders.',correct:true,rationale:'Macrophages engulf and digest invaders and clean up debris (innate immunity).'},
+{letter:'B',text:'Secreting cytokines to attract other immune cells to the site.',correct:true,rationale:'Macrophages secrete pro-inflammatory cytokines to call other white blood cells to the area.'},
+{letter:'C',text:'Processing and presenting antigens to helper T-cells.',correct:true,rationale:'Macrophages "mark" the invader and present the antigen to helper T-cells to trigger the adaptive immune response.'},
+{letter:'D',text:'Secreting large quantities of Immunoglobulin G (IgG).',correct:false,rationale:'Plasma cells (from B-cells) secrete antibodies/IgG.'},
+{letter:'E',text:'Puncturing holes in virally infected cells without prior sensitization.',correct:false,rationale:'Natural Killer (NK) cells puncture holes in virally infected cells without prior sensitization.'}
+]},
+
+{id:15,sata:false,
+stem:"During phagocytosis, at which step do opsonins (like dead neutrophils and antibodies) coat the target cell, making it easier for the macrophage to stick to it?",
+options:[
+{letter:'A',text:'Exposure/Invasion',correct:false,rationale:'Exposure is the initial entry of the pathogen.'},
+{letter:'B',text:'Attraction',correct:false,rationale:'Attraction is when chemotaxins draw the WBC to the area.'},
+{letter:'C',text:'Adherence',correct:true,rationale:'Adherence is the step where the phagocytic cell binds to the target. Opsonins coat the target like glue, making it much easier for the macrophage to adhere to the invader.'},
+{letter:'D',text:'Degradation',correct:false,rationale:'Degradation is the final step where enzymes digest the engulfed target.'}
+]},
+
+// --- 5 additional questions from exam3 comprehensive ---
+
+{id:16,sata:false,
+stem:"A mother asks the nurse why her newborn needs a hepatitis B vaccine if she is breastfeeding and passing her antibodies to the baby. Which response by the nurse is MOST accurate?",
+options:[
+{letter:'A',text:'"Breast milk antibodies provide natural passive immunity, which is temporary. The vaccine stimulates artificial active immunity, which provides long-term protection."',correct:true,rationale:'Breast milk = natural passive (borrowed IgA antibodies that fade). Vaccine = artificial active (baby\'s own immune system learns to make antibodies). Both are needed — passive covers NOW, active covers LATER.'},
+{letter:'B',text:'"Breast milk provides artificial passive immunity that does not cover hepatitis B specifically."',correct:false,rationale:'Breast milk is NATURAL passive, not artificial passive. Artificial passive immunity is injection of pre-formed antibodies.'},
+{letter:'C',text:'"Breast milk provides natural active immunity, but it only lasts for a few months."',correct:false,rationale:'Breast milk is passive, NOT active. The baby did not make those antibodies; the mother made them and transferred them.'},
+{letter:'D',text:'"Vaccines are only needed if the mother is not breastfeeding, since breast milk provides complete immunity."',correct:false,rationale:'Breast milk provides partial, temporary protection. It does NOT provide complete immunity and cannot replace vaccination.'}
+]},
+
+{id:17,sata:true,
+stem:"A nurse is reviewing the three stages of the inflammatory response with a study group. Which descriptions correctly match each stage?",
+options:[
+{letter:'A',text:'Stage I (vascular) — blood vessels constrict briefly, then dilate; vascular permeability increases, allowing plasma to leak into tissues.',correct:true,rationale:'Stage I is the vascular response: brief vasoconstriction followed by vasodilation, increased permeability, and plasma leakage causing warmth, redness, and swelling.'},
+{letter:'B',text:'Stage II (cellular exudate) — white blood cells migrate to the area via chemotaxis; neutrophils arrive first and begin phagocytosis.',correct:true,rationale:'Stage II involves cellular migration. Neutrophils are the FIRST responders (arrive within hours), followed by macrophages.'},
+{letter:'C',text:'Stage III (tissue repair) — new blood vessels form and granulation tissue fills the wound; fibroblasts lay down collagen.',correct:true,rationale:'Stage III is repair/healing — angiogenesis, granulation tissue formation, and collagen deposition rebuild the damaged area.'},
+{letter:'D',text:'Stage I (vascular) — T-cells and B-cells are activated to produce a targeted immune response.',correct:false,rationale:'T-cell and B-cell activation is part of the ADAPTIVE immune response, not Stage I of inflammation. Stage I is rapid and non-specific.'},
+{letter:'E',text:'Stage II (cellular exudate) — macrophages arrive first, followed by neutrophils 24-48 hours later.',correct:false,rationale:'The order is REVERSED. Neutrophils arrive FIRST (within hours) because they are the most abundant WBC.'}
+]},
+
+{id:18,sata:false,
+stem:"A patient with allergic asthma has a CBC showing eosinophils at 8% (normal 1-4%). The patient asks, \"Aren't eosinophils supposed to help fight things? So having more should be better for my asthma, right?\" Which response by the nurse is BEST?",
+options:[
+{letter:'A',text:'"Actually, elevated eosinophils can make your asthma WORSE — they release inflammatory chemicals that cause bronchospasm and airway damage."',correct:true,rationale:'In allergic asthma, eosinophils release toxic granules that damage airway epithelium and worsen bronchospasm. More eosinophils = MORE inflammation = WORSE asthma.'},
+{letter:'B',text:'"You\'re right — eosinophils help protect your lungs, so the higher count means your body is fighting the asthma effectively."',correct:false,rationale:'While eosinophils do fight parasites, in asthma they are PART OF THE PROBLEM — they drive the allergic inflammatory cascade.'},
+{letter:'C',text:'"Eosinophils only fight parasites and have no role in asthma at all."',correct:false,rationale:'Eosinophils are heavily involved in asthma. They are a major driver of eosinophilic airway inflammation.'},
+{letter:'D',text:'"The eosinophil count is unrelated to your asthma — it is probably from a parasitic infection."',correct:false,rationale:'In a patient with known allergic asthma, the eosinophilia is almost certainly related to the allergic/asthmatic inflammatory response.'}
+]},
+
+{id:19,sata:false,
+stem:"A patient asks the nurse to explain HLA proteins. Which statement BEST describes the clinical significance of HLA proteins?",
+options:[
+{letter:'A',text:'"HLA proteins are like a unique barcode on your cells that lets your immune system distinguish YOUR cells (self) from foreign cells (non-self). This is why organ transplants require HLA matching."',correct:true,rationale:'HLA proteins sit on cell surfaces and act as the immune system\'s ID system. Every person has a unique HLA pattern. Your immune system attacks anything with a DIFFERENT pattern — basis for transplant rejection.'},
+{letter:'B',text:'"HLA proteins are antibodies that circulate in the blood to identify and destroy bacteria."',correct:false,rationale:'HLA proteins are NOT antibodies. They are cell-surface proteins (antigens). Antibodies are produced by B-cells and circulate in plasma.'},
+{letter:'C',text:'"HLA proteins are only found on red blood cells and determine blood type."',correct:false,rationale:'HLA proteins are found on virtually ALL nucleated cells. Blood type is determined by ABO antigens on red blood cells — a separate system.'},
+{letter:'D',text:'"HLA proteins are produced only when an infection is present to help the immune system fight the pathogen."',correct:false,rationale:'HLA proteins are ALWAYS present on your cells from birth. They are constitutively expressed, not produced in response to infection.'}
+]},
+
+{id:20,sata:false,
+stem:"A nurse is explaining the complement system to a new graduate. Which description MOST accurately explains complement system function?",
+options:[
+{letter:'A',text:'A group of approximately 20 inactive plasma proteins that, when activated in a cascade, enhance immune cell actions by promoting inflammation, opsonization, and direct cell lysis.',correct:true,rationale:'The complement system consists of ~20 inactive proteins. When activated, they cascade to: promote inflammation, coat pathogens for easier phagocytosis (opsonization), and form the membrane attack complex (MAC) to lyse pathogen membranes.'},
+{letter:'B',text:'A collection of active enzymes in the liver that filter toxins and bacteria from the bloodstream.',correct:false,rationale:'Complement proteins are INACTIVE until triggered. They are not liver enzymes, though the liver does produce many complement proteins.'},
+{letter:'C',text:'Specialized T-cells that complement B-cell activity during antibody production.',correct:false,rationale:'The complement system is not cellular — it consists of proteins, not cells. "Complement" refers to how these proteins enhance the actions of antibodies and immune cells.'},
+{letter:'D',text:'Cytokines released by macrophages that directly kill all types of pathogens.',correct:false,rationale:'Complement proteins are NOT cytokines. They are a separate system of plasma proteins that enhance immune responses through a cascade pathway.'}
+]}
+];
+
+let selections={};
+let checked={};
+let totalAnswered=0;
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+totalAnswered=0;
+selections={};
+checked={};
+document.getElementById('scoreSection').style.display='none';
+document.getElementById('scoreCard').style.display='none';
+
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');
+card.className='q-card';
+card.id='qcard-'+q.id;
+const isSata=q.sata===true;
+const sataBadge=isSata?'<span class="badge-sata">Select All That Apply</span>':'';
+card.innerHTML=`
+<div class="q-top">
+<span class="q-num">Q${idx+1} of 20</span>
+${sataBadge}
+</div>
+<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`
+<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-check" id="btn-${q.id}" onclick="checkAnswer(${q.id})">Check Answer</button>
+`;
+area.appendChild(card);
+});
+}
+
+function toggleOpt(qId,letter,isSata){
+if(checked[qId])return;
+if(!selections[qId])selections[qId]=[];
+if(isSata){
+const idx=selections[qId].indexOf(letter);
+if(idx>-1)selections[qId].splice(idx,1);
+else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const el=document.getElementById('opt-'+qId+'-'+o.letter);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function checkAnswer(qId){
+if(checked[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+checked[qId]=true;
+totalAnswered++;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId]||[];
+const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
+
+q.options.forEach(o=>{
+const el=document.getElementById('opt-'+qId+'-'+o.letter);
+el.classList.add('locked');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';
+});
+
+const card=document.getElementById('qcard-'+qId);
+card.classList.add(isCorrect?'correct':'incorrect');
+const btn=document.getElementById('btn-'+qId);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+
+if(totalAnswered===questions.length){
+document.getElementById('scoreSection').style.display='block';
+document.getElementById('scoreSection').scrollIntoView({behavior:'smooth'});
+}
+}
+
+function showScore(){
+let correct=0;
+questions.forEach(q=>{
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;
+});
+const pct=Math.round((correct/20)*100);
+document.getElementById('finalScore').textContent=correct+'/20';
+document.getElementById('finalPct').textContent=pct+'%';
+document.getElementById('scoreCard').style.display='block';
+}
+
+function restart(){
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

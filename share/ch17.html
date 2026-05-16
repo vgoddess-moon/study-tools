@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 17 — Allergy & Immunity Conditions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+.container{max-width:720px;margin:0 auto;padding-bottom:3rem}
+.header{text-align:center;padding:2rem 1rem 1.5rem}
+.header h1{font-size:1.75rem;font-weight:700;color:#f8fafc;margin-bottom:.35rem}
+.header .subtitle{color:#94a3b8;font-size:.9rem}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.correct{border-color:#22c55e}
+.q-card.incorrect{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-size:.8rem;font-weight:700;color:#64748b}
+.badge-sata{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:.95rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.7rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#ec4899;background:#2d0a2e}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt.disabled{cursor:default;pointer-events:none}
+.opt-letter{font-size:.8rem;font-weight:600;color:#64748b;min-width:1.2rem;margin-top:.1rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-check{background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-check:hover{background:#db2777}
+.btn-check:disabled{opacity:.4;cursor:not-allowed}
+.score-section{display:none;text-align:center;background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem}
+.score-section h2{font-size:1.3rem;font-weight:700;color:#f8fafc;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#ec4899;margin:.5rem 0}
+.score-detail{color:#94a3b8;font-size:.9rem}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1.25rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+.btn-score{display:none;margin:2rem auto 0;background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.7rem 2rem;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-score:hover{background:#db2777}
+@media(max-width:600px){.q-card{padding:1rem}.header h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>Ch 17 &mdash; Allergy &amp; Immunity Conditions</h1>
+<p class="subtitle">20 Questions &middot; Tap to answer &middot; Rationales for every option</p>
+</div>
+<div id="quizArea"></div>
+<button class="btn-score" id="btnScore" onclick="showScore()">See My Score</button>
+<div class="score-section" id="scoreSection">
+<h2>Your Score</h2>
+<div class="big-score" id="finalScore">0/20</div>
+<p class="score-detail" id="finalPct"></p>
+<button class="btn-restart" onclick="restart()">Restart</button>
+</div>
+</div>
+<script>
+const questions=[
+{id:1,sata:false,stem:'A nurse is assessing a patient who develops acute shortness of breath, facial swelling, and urticaria immediately after being examined by a provider wearing latex gloves. The nurse recognizes this presentation as which type of hypersensitivity reaction?',options:[{letter:'A',text:'Type I Hypersensitivity',correct:true,rationale:'Type I hypersensitivity is an immediate, IgE-mediated allergic reaction that causes the release of histamine from mast cells, leading to symptoms like urticaria, angioedema, and bronchoconstriction. Latex allergy is a classic example of a Type I reaction.'},{letter:'B',text:'Type II Hypersensitivity',correct:false,rationale:'Type II (cytotoxic) reactions involve antibodies attacking self-cells or foreign cells, such as in hemolytic transfusion reactions.'},{letter:'C',text:'Type III Hypersensitivity',correct:false,rationale:'Type III (immune complex) reactions involve excess antigen-antibody complexes lodging in small blood vessels, seen in conditions like Lupus and Rheumatoid Arthritis.'},{letter:'D',text:'Type IV Hypersensitivity',correct:false,rationale:'Type IV (delayed) reactions occur 12-72 hours after exposure and are T-cell mediated, such as poison ivy or a TB skin test.'}]},
+{id:2,sata:false,stem:'A 28-year-old female patient with Systemic Lupus Erythematosus (SLE) reports a sudden, severe exacerbation of her joint pain and a worsening of her dry, scaly facial rash. Which patient statement indicates the most likely trigger for this flare-up?',options:[{letter:'A',text:'"I stopped taking my daily antihistamine medication last week."',correct:false,rationale:'Antihistamines are used for Type I allergic reactions and pruritus, not to prevent SLE flares.'},{letter:'B',text:'"I spent the entire weekend at the beach without a hat."',correct:true,rationale:'Exposure to ultraviolet (UV) rays and direct sun exposure is a major trigger that exacerbates all aspects of SLE, including the characteristic butterfly (malar) rash and systemic inflammation.'},{letter:'C',text:'"I recently started eating a gluten-free diet."',correct:false,rationale:'Gluten is not listed as a trigger for SLE exacerbations.'},{letter:'D',text:'"I have been sleeping exactly 8 hours every night."',correct:false,rationale:'Adequate rest is actually encouraged to manage the chronic fatigue associated with SLE.'}]},
+{id:3,sata:false,stem:'A patient with hypertension presents to the emergency department with a severely swollen lower lip, tongue, and difficulty swallowing after taking their newly prescribed lisinopril (an ACE inhibitor). What is the nurse\'s priority action?',options:[{letter:'A',text:'Administer intravenous diphenhydramine immediately.',correct:false,rationale:'While antihistamines might be used adjunctively in allergic reactions, they are not the immediate priority when the airway is compromised by angioedema.'},{letter:'B',text:'Stop the reaction by administering oral corticosteroids.',correct:false,rationale:'Corticosteroids do not work immediately and are not the first-line priority for an acute airway emergency.'},{letter:'C',text:'Ensure airway adequacy and prepare for possible intubation.',correct:true,rationale:'This patient is experiencing angioedema, a severe deep-tissue Type I reaction often triggered by ACE inhibitors. Because edema can rapidly obstruct the airway and cause asphyxiation, the priority nursing action is to ensure airway adequacy and prepare for intubation.'},{letter:'D',text:'Switch the patient\'s medication to an NSAID.',correct:false,rationale:'NSAIDs are another common trigger for angioedema and should be avoided.'}]},
+{id:4,sata:false,stem:'A patient receiving intravenous antibiotics suddenly complains of a feeling of impending doom. The nurse observes widespread urticaria, stridor, and a blood pressure drop to 80/50 mm Hg. What is the very first pharmacological intervention the nurse should implement?',options:[{letter:'A',text:'Administer intravenous corticosteroids.',correct:false,rationale:'Corticosteroids are given to prevent the late recurrence of symptoms, but they are not effective immediately and are not the first-line drug.'},{letter:'B',text:'Administer intramuscular epinephrine.',correct:true,rationale:'The patient is exhibiting anaphylaxis. Intramuscular epinephrine is the first priority intervention because it rapidly reverses systemic vasodilation and bronchoconstriction, counteracting the deadly effects of histamine.'},{letter:'C',text:'Administer inhaled albuterol.',correct:false,rationale:'Albuterol may be given to treat bronchospasm, but epinephrine is the absolute first-line systemic treatment.'},{letter:'D',text:'Administer intravenous diphenhydramine.',correct:false,rationale:'Antihistamines (like diphenhydramine) are secondary, adjunctive therapies used for itching and urticaria; they do not reverse life-threatening anaphylactic shock.'}]},
+{id:5,sata:false,stem:'A patient with a history of chronic HIV infection comes to the clinic with severe fatigue, a chronic cough, and white patches in their mouth. Laboratory results reveal a CD4+ T-cell count of 180 cells/mm³. The nurse understands these findings indicate which of the following?',options:[{letter:'A',text:'The patient is in Stage I (Acute) HIV infection.',correct:false,rationale:'Stage I acute infection presents with vague, viral, flulike symptoms (swollen lymph nodes, fever), not profound CD4 drop and opportunistic infections.'},{letter:'B',text:'The patient has progressed to Stage III (AIDS).',correct:true,rationale:'Stage III (AIDS) is diagnosed when the CD4+ count falls below 200 cells/mm³ and/or the patient develops opportunistic infections (such as oral candidiasis/thrush).'},{letter:'C',text:'The patient\'s HIV is well-controlled by antiretroviral therapy.',correct:false,rationale:'A CD4 count below 200 cells/mm³ indicates profound immunosuppression, not well-controlled disease.'},{letter:'D',text:'The patient is experiencing immune reconstitution inflammatory syndrome (IRIS).',correct:false,rationale:'IRIS occurs shortly after starting cART when a rising CD4 count causes the immune system to hyperreact to previously undetected infections; it is not simply the presence of a low CD4 count and thrush.'}]},
+{id:6,sata:false,stem:'A patient presents to the urgent care clinic with severe, blistering contact dermatitis 48 hours after hiking and accidentally touching poison ivy. Which specific immune response is responsible for this delayed tissue damage?',options:[{letter:'A',text:'Histamine release from mast cells mediated by IgE.',correct:false,rationale:'This describes a Type I (immediate) hypersensitivity reaction, which occurs within minutes.'},{letter:'B',text:'Autoantibodies attacking self-cells attached to foreign proteins.',correct:false,rationale:'This describes a Type II (cytotoxic) hypersensitivity reaction.'},{letter:'C',text:'Immune complexes lodging in small blood vessels causing inflammation.',correct:false,rationale:'This describes a Type III (immune complex) hypersensitivity reaction.'},{letter:'D',text:'Sensitized T-cells releasing chemical mediators and activating macrophages.',correct:true,rationale:'Contact dermatitis from poison ivy is a classic Type IV (delayed or cell-mediated) hypersensitivity reaction. It occurs 12-72 hours after exposure when sensitized T-cells release chemical mediators that trigger macrophages to cause delayed inflammation.'}]},
+{id:7,sata:false,stem:'Thirty minutes after returning from the operating room for a kidney transplant, a patient rapidly develops widespread clotting and ischemic necrosis in the new organ. The healthcare team identifies this as hyperacute rejection. What is the only effective intervention for this complication?',options:[{letter:'A',text:'Administer a massive dose of intravenous corticosteroids.',correct:false,rationale:'Corticosteroids and immunosuppressants are used to manage acute rejection (which happens 1 week to months later).'},{letter:'B',text:'Immediate removal of the transplanted organ.',correct:true,rationale:'Hyperacute rejection occurs within minutes to hours of transplantation due to preexisting antibodies causing immediate clotting and necrosis. The only treatment is immediate removal of the organ.'},{letter:'C',text:'Begin continuous plasmapheresis to remove autoantibodies.',correct:false,rationale:'Plasmapheresis is sometimes used for Type II reactions like Goodpasture syndrome, but cannot salvage a hyperacutely rejected, necrotic organ.'},{letter:'D',text:'Start targeted monoclonal antibody therapy.',correct:false,rationale:'Monoclonal antibodies are used to prevent or manage acute/chronic rejection, not hyperacute rejection.'}]},
+{id:8,sata:false,stem:'A patient with a 5-year history of Systemic Lupus Erythematosus (SLE) reports chronic fatigue and that their urine has recently become persistently foamy. Based on the pathophysiology of SLE, which specific complication should the nurse be most concerned about?',options:[{letter:'A',text:'Myasthenia gravis',correct:false,rationale:'Myasthenia gravis is a separate selective autoimmune disorder.'},{letter:'B',text:'Lupus nephritis',correct:true,rationale:'In SLE, immune complexes commonly lodge in the glomeruli of the kidneys, causing glomerulonephritis. Persistent proteinuria (which makes urine appear foamy) is a key indicator of lupus nephritis and chronic kidney disease, which is a leading cause of death in SLE.'},{letter:'C',text:'Retinal vasculopathy',correct:false,rationale:'Retinopathy is a major complication of antimalarial drug therapy (hydroxychloroquine) used to treat SLE, not specifically the cause of foamy urine.'},{letter:'D',text:'Kaposi sarcoma',correct:false,rationale:'Kaposi sarcoma is an opportunistic cancer associated with Stage III HIV (AIDS), not SLE.'}]},
+{id:9,sata:false,stem:'A patient with HIV is prescribed combination antiretroviral therapy (cART). The patient asks the nurse, "Is it okay if I occasionally miss a dose on the weekends?" What is the most important teaching point the nurse should provide?',options:[{letter:'A',text:'"Missing doses gives your liver a safe break from the heavy metabolism of the drugs."',correct:false,rationale:'While ART drugs are metabolized by the liver, missing doses is never recommended.'},{letter:'B',text:'"Taking a double dose on Monday will safely make up for the missed weekend doses."',correct:false,rationale:'Patients should not double-dose to make up for missed medications.'},{letter:'C',text:'"Missing doses can lead to drug-resistant HIV, making your medications ineffective."',correct:true,rationale:'Antiretroviral drugs must be taken exactly as prescribed. Missing doses promotes viral replication and the rapid mutation/development of drug-resistant HIV, meaning the current drug regimen will no longer work.'},{letter:'D',text:'"Missing a dose is fine as long as your CD4+ count remains above 500 cells/mm³."',correct:false,rationale:'Adherence is required regardless of the current CD4 count to keep the viral load suppressed.'}]},
+{id:10,sata:false,stem:'The nurse is reviewing the chart of a patient diagnosed with a Type III (Immune Complex) hypersensitivity reaction. Which of the following conditions is the best example of this specific type of immune response?',options:[{letter:'A',text:'Allergic asthma',correct:false,rationale:'Allergic asthma is a Type I (immediate) hypersensitivity reaction.'},{letter:'B',text:'Hemolytic anemia',correct:false,rationale:'Hemolytic anemia is a Type II (cytotoxic) hypersensitivity reaction.'},{letter:'C',text:'Rheumatoid arthritis',correct:true,rationale:'Type III hypersensitivity occurs when excess antigen-antibody complexes form and lodge in small blood vessels or joints, triggering inflammation. Most autoimmune disorders, including Rheumatoid Arthritis and Systemic Lupus Erythematosus (SLE), are Type III reactions.'},{letter:'D',text:'Positive Tuberculosis (TB) skin test',correct:false,rationale:'A positive TB skin test is a Type IV (delayed cell-mediated) hypersensitivity reaction.'}]},
+{id:11,sata:true,stem:'A patient arrives at the emergency department with severe anaphylaxis after accidentally consuming peanuts. The patient is hypotensive with a blood pressure of 75/40 mm Hg and is exhibiting stridor. Which of the following actions should the nurse include in the immediate emergency care plan?',options:[{letter:'A',text:'Administer intramuscular epinephrine immediately.',correct:true,rationale:'IM Epinephrine is the absolute first-line intervention to reverse systemic vasodilation and bronchoconstriction.'},{letter:'B',text:'Elevate the head of the bed to 45 degrees to help with breathing.',correct:false,rationale:'The nurse should not elevate the head of the bed to 45 degrees if severe hypotension is present; instead, keeping the patient recumbent with legs elevated improves venous return to the heart during hypovolemic shock.'},{letter:'C',text:'Apply oxygen to maintain adequate gas exchange.',correct:true,rationale:'Applying oxygen helps maintain gas exchange during respiratory compromise.'},{letter:'D',text:'Administer a rapid intravenous infusion of normal saline.',correct:true,rationale:'Rapid infusion of normal saline is required to treat the profound hypotension caused by massive vasodilation.'},{letter:'E',text:'Delay the administration of antihistamines until all respiratory symptoms resolve.',correct:false,rationale:'Antihistamines (like diphenhydramine) should not be delayed; they are given as adjunctive therapy concurrently to treat itching and urticaria.'}]},
+{id:12,sata:true,stem:'A nurse is providing self-management education to a female patient newly diagnosed with Systemic Lupus Erythematosus (SLE) who is starting on oral corticosteroids and hydroxychloroquine. Which teaching points must the nurse include?',options:[{letter:'A',text:'"You will need to schedule frequent eye examinations while taking hydroxychloroquine."',correct:true,rationale:'Hydroxychloroquine (an antimalarial) can cause toxicity to retinal cells leading to irreversible vision loss. Frequent eye exams (every 6 months) are mandatory.'},{letter:'B',text:'"Limit your exposure to direct sunlight and wear protective clothing outdoors."',correct:true,rationale:'Ultraviolet (UV) light is a major trigger for SLE exacerbations, so strict sun avoidance is a priority intervention.'},{letter:'C',text:'"You should stop taking your corticosteroids immediately if you develop a fever."',correct:false,rationale:'Corticosteroids must never be stopped abruptly because it can cause a life-threatening adrenal crisis; the dose must be tapered.'},{letter:'D',text:'"Avoid crowds and people who are sick, as your medications reduce your immune system\'s ability to fight infection."',correct:true,rationale:'Both the disease process of SLE and the immunosuppressive drugs (corticosteroids) put the patient at a high risk for opportunistic infections, so they must avoid ill contacts.'},{letter:'E',text:'"Expect the rash on your face to result in permanent, thick scarring once it heals."',correct:false,rationale:'The rashes associated with SLE (such as the malar/butterfly rash) are initially nonscarring.'}]},
+{id:13,sata:true,stem:'A patient with HIV is being assessed in the clinic. Their CD4+ T-cell count has steadily declined and is currently 150 cells/mm³. The nurse understands that this patient is at high risk for opportunistic infections. Which of the following conditions are considered AIDS-defining opportunistic infections?',options:[{letter:'A',text:'Pneumocystis jirovecii pneumonia (PCP)',correct:true,rationale:'PCP is a very common opportunistic fungal infection that occurs in Stage III HIV (AIDS).'},{letter:'B',text:'Contact dermatitis',correct:false,rationale:'Contact dermatitis is a Type IV hypersensitivity reaction to a topical irritant (e.g., poison ivy), not an AIDS-defining opportunistic infection.'},{letter:'C',text:'Kaposi sarcoma',correct:true,rationale:'Kaposi sarcoma is an opportunistic cancer highly associated with Stage III HIV.'},{letter:'D',text:'Toxoplasmosis encephalitis',correct:true,rationale:'Toxoplasmosis encephalitis is a protozoan opportunistic infection acquired from cat feces or undercooked meat that severely affects immunocompromised patients in Stage III.'},{letter:'E',text:'Mycobacterium avium complex (MAC)',correct:true,rationale:'MAC is a nontuberculous mycobacterial infection that commonly causes systemic illness in Stage III AIDS.'}]},
+{id:14,sata:false,stem:'A hospitalized patient receiving an infusion of packed red blood cells begins to experience chills, fever, shortness of breath, and severe lower back pain. The nurse recognizes this as an ABO incompatibility causing the patient\'s antibodies to attack the foreign blood cells. Which type of hypersensitivity reaction is occurring?',options:[{letter:'A',text:'Type I (Anaphylactic)',correct:false,rationale:'Type I is an immediate IgE-mediated response to allergens like pollen or bee venom.'},{letter:'B',text:'Type II (Cytotoxic)',correct:true,rationale:'Type II (Cytotoxic-Mediated) hypersensitivity occurs when autoantibodies attack self-cells or foreign cells (such as in a hemolytic transfusion reaction or drug-induced hemolytic anemia).'},{letter:'C',text:'Type III (Immune Complex)',correct:false,rationale:'Type III is immune complex mediated (e.g., Lupus, Rheumatoid Arthritis).'},{letter:'D',text:'Type IV (Delayed)',correct:false,rationale:'Type IV is delayed T-cell mediated (e.g., TB skin test, contact dermatitis).'}]},
+{id:15,sata:false,stem:'A patient reports to the clinic with a distinct "bull\'s-eye" rash, low-grade fever, and muscle aches three weeks after a camping trip in a heavily wooded area. The nurse suspects Lyme disease. Which collaborative intervention should the nurse anticipate next?',options:[{letter:'A',text:'Administration of systemic monoclonal antibodies.',correct:false,rationale:'Monoclonal antibodies are used to suppress the immune system in autoimmune disorders like SLE or for transplant rejection, not for an active bacterial spirochete infection.'},{letter:'B',text:'Preparation for immediate surgical excision of the rash.',correct:false,rationale:'Surgical excision is not indicated for the erythema migrans rash associated with Lyme disease.'},{letter:'C',text:'Initiation of antibiotic therapy such as doxycycline.',correct:true,rationale:'Lyme disease is caused by the spirochete Borrelia burgdorferi transmitted by deer ticks. In stage 1 (early localized disease with the bull\'s-eye rash), prompt treatment with antibiotics such as doxycycline, amoxicillin, or cefuroxime is required to clear the infection and prevent chronic inflammatory complications.'},{letter:'D',text:'Application of a topical corticosteroid cream.',correct:false,rationale:'Topical corticosteroids might be used for contact dermatitis but will not eradicate the spirochete causing Lyme disease.'}]},
+{id:16,sata:true,stem:'A patient is experiencing anaphylaxis after a bee sting. The nurse prepares to administer epinephrine IM. Which statements about epinephrine\'s mechanism in anaphylaxis are CORRECT?',options:[{letter:'A',text:'Constricts blood vessels, raising blood pressure and reducing tissue edema',correct:true,rationale:'Alpha-adrenergic effects of epinephrine cause vasoconstriction → increased BP and reduced vascular permeability → less edema/swelling. This counteracts the vasodilation and hypotension of anaphylaxis.'},{letter:'B',text:'Relaxes bronchial smooth muscle, opening the airways',correct:true,rationale:'Beta-2 adrenergic effects cause bronchodilation → opens the constricted airways in anaphylaxis. This is critical because bronchospasm is a major cause of death in anaphylaxis.'},{letter:'C',text:'Improves cardiac output and contractility',correct:true,rationale:'Beta-1 adrenergic effects increase heart rate and contractility → improved cardiac output. This combats the cardiovascular collapse of anaphylactic shock.'},{letter:'D',text:'Directly neutralizes the allergen (bee venom) in the bloodstream',correct:false,rationale:'Epinephrine does NOT neutralize or destroy allergens. It counteracts the EFFECTS of the immune response (vasodilation, bronchospasm, cardiac depression) but does nothing to the allergen itself.'},{letter:'E',text:'Prevents the late-phase allergic response, eliminating the need for observation',correct:false,rationale:'Epinephrine does NOT prevent the biphasic (late-phase) reaction that can occur 4-8 hours later. This is why patients must be OBSERVED for at least 4-6 hours after anaphylaxis. Corticosteroids (not epi) are given to help prevent the late recurrence.'}]},
+{id:17,sata:true,stem:'A 32-year-old female patient is being evaluated for systemic lupus erythematosus (SLE). Which findings would the nurse expect?',options:[{letter:'A',text:'Butterfly (malar) rash across the cheeks and nose',correct:true,rationale:'The butterfly rash is a hallmark of SLE — a flat or raised erythematous rash across both cheeks and the bridge of the nose, sparing the nasolabial folds. It is photosensitive (worsened by sun exposure).'},{letter:'B',text:'Positive ANA (antinuclear antibody) test',correct:true,rationale:'ANA is positive in >95% of SLE patients. However, ANA alone is NOT diagnostic — it is sensitive but not specific (also positive in RA, scleroderma, and even some healthy people).'},{letter:'C',text:'Joint pain and arthritis WITHOUT bone erosion on X-ray',correct:true,rationale:'SLE causes inflammatory arthritis that is painful but NON-EROSIVE (unlike RA which erodes bone). This is a key distinguishing feature.'},{letter:'D',text:'A single diagnostic blood test that confirms SLE definitively',correct:false,rationale:'There is NO single test that confirms SLE. Diagnosis requires a combination of clinical criteria and lab findings (ANA, anti-dsDNA, complement levels, ESR/CRP).'},{letter:'E',text:'Elevated complement levels (C3/C4) during disease flares',correct:false,rationale:'Complement levels (C3/C4) are LOW during SLE flares, not elevated. SLE consumes complement through immune complex formation. Low complement = active disease.'}]},
+{id:18,sata:false,stem:'A patient returns from a camping trip with a circular, target-shaped "bull\'s eye" rash on the thigh. The patient is worried about autoimmune disease. Which response by the nurse is MOST accurate?',options:[{letter:'A',text:'"This looks like Lyme disease, which IS an autoimmune condition where your body attacks its own joints."',correct:false,rationale:'Lyme disease is NOT autoimmune. The antibodies produced in Lyme disease target the Borrelia burgdorferi spirochete (the bacteria), NOT the body\'s own tissues.'},{letter:'B',text:'"This bull\'s eye rash is characteristic of Lyme disease. It is an INFECTIOUS disease caused by a tick-borne bacterium, not an autoimmune condition."',correct:true,rationale:'Lyme disease is caused by Borrelia burgdorferi, transmitted via Ixodes (deer) tick bite. The erythema migrans (bull\'s eye) rash is the Stage I hallmark. It is INFECTIOUS, not autoimmune.'},{letter:'C',text:'"The bull\'s eye rash is a normal skin reaction to any insect bite and does not require treatment."',correct:false,rationale:'The erythema migrans rash is NOT a normal reaction — it is pathognomonic for Lyme disease and requires antibiotic treatment (doxycycline). Untreated Lyme progresses to joint, cardiac, and neurological complications.'},{letter:'D',text:'"This rash indicates lupus (SLE). The circular pattern is similar to the butterfly rash."',correct:false,rationale:'The bull\'s eye/target rash of Lyme is distinct from the butterfly (malar) rash of SLE. The butterfly rash is on the FACE (cheeks and nose bridge). Lyme\'s erythema migrans appears at the tick bite site.'}]},
+{id:19,sata:false,stem:'A patient newly diagnosed with HIV asks the nurse, "My CD4 count is 450 cells/mm³. How bad is that?" Which response BEST interprets the CD4 count for this patient?',options:[{letter:'A',text:'"A healthy CD4 count is 800-1000. At 450, your immune system is weakened but still functional. You are in the chronic stage of HIV. With ART medication adherence, many people maintain this level for years."',correct:true,rationale:'CD4 of 450 indicates immune suppression but not AIDS (which is defined as CD4 <200). The patient is likely in the chronic/clinical latency stage. With proper ART adherence, viral load can become undetectable and CD4 counts can stabilize or even rise.'},{letter:'B',text:'"Your CD4 count is normal. There is nothing to worry about at this time."',correct:false,rationale:'CD4 of 450 is NOT normal — healthy is 800-1000. Dismissing a below-normal count fails to educate the patient about the importance of ART adherence.'},{letter:'C',text:'"A CD4 count below 500 means you have AIDS. You need immediate hospitalization."',correct:false,rationale:'AIDS is defined as CD4 <200, NOT <500. At 450, the patient does not have AIDS. Hospitalization is not indicated for this CD4 level alone.'},{letter:'D',text:'"CD4 counts don\'t matter anymore since ART medications can cure HIV."',correct:false,rationale:'ART does NOT cure HIV. ART controls viral replication but does not eliminate the virus from reservoir cells. CD4 monitoring remains critical.'}]},
+{id:20,sata:false,stem:'A nursing student states, "Since ART drugs kill HIV, patients only need to take them until their viral load becomes undetectable, and then they can stop." Which correction by the instructor is MOST appropriate?',options:[{letter:'A',text:'"You\'re partly right — ART kills HIV, but patients need to take the medications for at least 2 years before stopping."',correct:false,rationale:'ART does NOT kill HIV at all. It blocks steps in the viral replication cycle. The virus persists in reservoir cells indefinitely. No duration of treatment leads to eradication.'},{letter:'B',text:'"ART does NOT kill HIV — it only controls viral replication. Patients must take ART for life, because stopping allows the virus to rebound from reservoir cells."',correct:true,rationale:'ART blocks the HIV life cycle (binding, fusion, reverse transcription, integration, replication, assembly, budding) but does NOT destroy virus already integrated into host DNA. Reservoir cells harbor latent HIV indefinitely. Undetectable viral load means the drugs are working — NOT that the virus is gone.'},{letter:'C',text:'"ART kills HIV, but patients should continue medication indefinitely as a precaution against reinfection."',correct:false,rationale:'ART does not kill HIV. The reason for lifelong therapy is not reinfection risk but the persistence of HIV in latent reservoirs within the patient\'s own cells.'},{letter:'D',text:'"Once viral load is undetectable, the patient is cured and no longer needs to take ART or see an infectious disease specialist."',correct:false,rationale:'Undetectable does NOT mean cured. The virus is suppressed, not eliminated. Stopping ART leads to rapid viral rebound from reservoir cells.'}]}
+];
+
+let selections={};
+let checked={};
+let totalChecked=0;
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');
+card.className='q-card';
+card.id='qcard-'+q.id;
+const sataBadge=q.sata?'<span class="badge-sata">Select All That Apply</span>':'';
+card.innerHTML=`
+<div class="q-top"><span class="q-num">Q${idx+1}</span>${sataBadge}</div>
+<div class="q-stem">${q.stem}${q.sata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggle(${q.id},'${o.letter}')">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-check" id="btn-${q.id}" onclick="check(${q.id})">Check Answer</button>`;
+area.appendChild(card);
+});
+}
+
+function toggle(qId,letter){
+if(checked[qId])return;
+const q=questions.find(x=>x.id===qId);
+if(!selections[qId])selections[qId]=[];
+if(q.sata){
+const i=selections[qId].indexOf(letter);
+if(i>-1)selections[qId].splice(i,1);else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+q.options.forEach(o=>{
+const el=document.getElementById('opt-'+qId+'-'+o.letter);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function check(qId){
+if(checked[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+checked[qId]=true;
+totalChecked++;
+const q=questions.find(x=>x.id===qId);
+const corrects=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId];
+const isCorrect=corrects.length===sel.length&&corrects.every(l=>sel.includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById('opt-'+qId+'-'+o.letter);
+el.classList.add('disabled');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter))el.classList.add('wrong-show');
+document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';
+});
+const card=document.getElementById('qcard-'+qId);
+card.classList.add(isCorrect?'correct':'incorrect');
+const btn=document.getElementById('btn-'+qId);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+if(totalChecked===questions.length){
+document.getElementById('btnScore').style.display='block';
+}
+}
+
+function showScore(){
+let correct=0;
+questions.forEach(q=>{
+if(!checked[q.id])return;
+const corrects=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(corrects.length===sel.length&&corrects.every(l=>sel.includes(l)))correct++;
+});
+const pct=Math.round((correct/questions.length)*100);
+document.getElementById('finalScore').textContent=correct+'/'+questions.length;
+document.getElementById('finalPct').textContent=pct+'%';
+document.getElementById('scoreSection').style.display='block';
+document.getElementById('btnScore').style.display='none';
+document.getElementById('scoreSection').scrollIntoView({behavior:'smooth'});
+}
+
+function restart(){
+selections={};checked={};totalChecked=0;
+document.getElementById('scoreSection').style.display='none';
+document.getElementById('btnScore').style.display='none';
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
