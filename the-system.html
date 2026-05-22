@@ -190,10 +190,14 @@ const AFFIRMATION = "I finish nursing school with ease and confidence. My mind i
 const GROUNDING = "I release what is not mine. I remain grounded, clear, and protected.";
 const MIRROR = "I already am the version of me I am becoming. My future is pulling me toward it now. I move with confidence, peace, and divine timing.";
 const PROTECTION = "I release what is not mine. I remain grounded, clear, and protected. I am here to give and receive only what is meant for me.";
+const AFFIRMATION_HOW = "Write by hand, repeatedly, for the full 5–10 min. Don't type it — handwriting reinforces the belief in your nervous system. Aim for 10–15 reps or fill the page. Write slowly and let each word land.";
+const AFFIRMATION_555 = "Financial freedom is mine. I live in abundance, I give lavishly, live freely, I travel first class, money always finds its way to me, and I want for nothing.";
+const NEXT_NEW_MOON_555 = "June 25, 2026";
+const NOTE_555 = "55× each day for 5 days, starting on the new moon (that night = Day 1). Write slowly — picture the first-class seat, the destination, the peace of not checking a price tag. The emotion is what activates it.";
 
 const MORNING_ITEMS = [
   { key: 'grounding', label: 'Grounding statement', sub: 'Hand on chest, 3 slow breaths' },
-  { key: 'affirmation', label: 'Affirmation scripting', sub: 'Write it by hand · 5–10 min' },
+  { key: 'affirmation', label: 'Affirmation scripting', sub: 'By hand · 10–15× · don’t type' },
   { key: 'movement', label: 'Movement', sub: 'Walk, stretch, dance · 10–20 min' },
   { key: 'frequency', label: 'Frequency / breathwork', sub: '528Hz or 432Hz, or 5 deep breaths' },
 ];
@@ -1604,7 +1608,7 @@ function RitualCheckRow({ done, label, sub, onToggle }) {
   );
 }
 
-function ScriptDrop({ label, text }) {
+function ScriptDrop({ label, text, how }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="mt-1">
@@ -1612,7 +1616,10 @@ function ScriptDrop({ label, text }) {
         {open ? `hide ${label} ▲` : `show ${label} ▼`}
       </button>
       {open && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 text-sm italic text-stone-700 leading-relaxed">“{text}”</div>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 leading-relaxed">
+          {how && <p className="text-xs text-stone-500 not-italic mb-2">{how}</p>}
+          <p className="text-sm italic text-stone-700">“{text}”</p>
+        </div>
       )}
     </div>
   );
@@ -1663,7 +1670,7 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
           <RitualCheckRow key={it.key} done={!!ritualToday.morning[it.key]} label={it.label} sub={it.sub} onToggle={() => toggleMorning(it.key)} />
         ))}
         <ScriptDrop label="grounding statement" text={GROUNDING} />
-        <ScriptDrop label="affirmation" text={AFFIRMATION} />
+        <ScriptDrop label="affirmation" text={AFFIRMATION} how={AFFIRMATION_HOW} />
       </div>
 
       {/* Today's journal prompt */}
@@ -1688,7 +1695,7 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
           <RitualCheckRow key={it.key} done={!!ritualToday.evening[it.key]} label={it.label} sub={it.sub} onToggle={() => toggleEvening(it.key)} />
         ))}
         <ScriptDrop label="mirror scripting" text={MIRROR} />
-        <ScriptDrop label="affirmation" text={AFFIRMATION} />
+        <ScriptDrop label="affirmation" text={AFFIRMATION} how={AFFIRMATION_HOW} />
       </div>
 
       {/* Non-negotiable habits */}
@@ -1712,11 +1719,16 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
         </button>
         {showMoon && (
           <div className="mt-3 text-sm text-stone-700 space-y-2">
-            {moon.age < 14.77 ? (
+            {(moon.nearNew || (!moon.nearFull && moon.age < 14.77)) ? (
               <React.Fragment>
                 <p className="mono text-[9px] uppercase tracking-wider text-amber-700">New Moon → set intentions</p>
-                <p>Light a candle. Write: <em>“This new moon I am calling in…”</em> then 3–5 intentions as if already true. Do the <strong>555 method</strong> (top intention ×55, 5 days). Close: <em>“This or something better is on its way to me.”</em></p>
-                <p className="text-xs text-stone-500">Examples: “I am confident and focused in nursing school.” · “I am financially growing with ease.” · “I trust my intuition completely.”</p>
+                <p>Light a candle. Write: <em>“This new moon I am calling in…”</em> then 3–5 intentions as if already true. Do the <strong>555 method</strong>: start the night of the new moon (Day 1), write your affirmation 55× a day for 5 days straight, slowly. Close: <em>“This or something better is on its way to me.”</em></p>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <span className="mono text-[9px] uppercase tracking-wider text-amber-700 block mb-1">Official 555 · Financial Freedom · next new moon {NEXT_NEW_MOON_555}</span>
+                  <p className="text-sm italic text-stone-700">“{AFFIRMATION_555}”</p>
+                  <p className="text-xs text-stone-500 mt-2 not-italic">{NOTE_555}</p>
+                </div>
+                <p className="text-xs text-stone-500">Other intentions: “I am confident and focused in nursing school.” · “I am financially growing with ease.” · “I trust my intuition completely.”</p>
               </React.Fragment>
             ) : (
               <React.Fragment>
