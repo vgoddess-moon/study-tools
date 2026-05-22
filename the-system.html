@@ -258,7 +258,19 @@ function Dashboard() {
   const [tab, setTab] = useState('today');
   const [checkin, setCheckin] = useState(null);
   const [products, setProducts] = useState([]);
-  const [streak, setStreak] = useState(0);
+  const [streak, setStreak] = useState(() => {
+    const h = storage.get('history');
+    if (!h || !h.length) { const s = storage.get('streak'); return s || 0; }
+    const dates = h.map(x => x.date).filter(Boolean);
+    let count = 0;
+    let d = new Date();
+    for (let i = 0; i < 60; i++) {
+      if (dates.includes(d.toDateString())) count++;
+      else if (i > 0) break;
+      d = new Date(d.getTime() - 86400000);
+    }
+    return count;
+  });
   const [lastActive, setLastActive] = useState(null);
   const [history, setHistory] = useState([]);
   const [launchDone, setLaunchDone] = useState({});
@@ -322,10 +334,19 @@ function Dashboard() {
     if (c) setCheckin(c);
     const p = storage.get('products');
     if (p) setProducts(p);
-    const s = storage.get('streak');
-    if (s !== null) setStreak(s);
     const h = storage.get('history');
-    if (h) setHistory(h);
+    if (h) {
+      setHistory(h);
+      const dates = h.map(x => x.date).filter(Boolean);
+      let count = 0;
+      let d = new Date();
+      for (let i = 0; i < 60; i++) {
+        if (dates.includes(d.toDateString())) count++;
+        else if (i > 0) break;
+        d = new Date(d.getTime() - 86400000);
+      }
+      setStreak(count);
+    }
     const l = storage.get('lastActive');
     if (l) setLastActive(l);
     const a = storage.get(`ate:${todayKey()}`);
@@ -525,17 +546,26 @@ function Dashboard() {
     return areas;
   }, [quizLog]);
 
+  const computeStreak = (h) => {
+    const dates = h.map(x => x.date).filter(Boolean);
+    let count = 0;
+    let d = new Date();
+    for (let i = 0; i < 60; i++) {
+      if (dates.includes(d.toDateString())) count++;
+      else if (i > 0) break;
+      d = new Date(d.getTime() - 86400000);
+    }
+    return count;
+  };
+
   const saveCheckin = (data) => {
     const full = { ...data, date: todayKey(), timestamp: Date.now() };
     setCheckin(full);
-    const yesterday = new Date(Date.now() - 86400000).toDateString();
-    let s = streak;
-    if (lastActive === yesterday) s = streak + 1;
-    else if (lastActive !== todayKey()) s = 1;
-    setStreak(s);
     setLastActive(todayKey());
     const h = [...history.filter(x => x.date !== todayKey()), full].slice(-30);
     setHistory(h);
+    const s = computeStreak(h);
+    setStreak(s);
     storage.set(`checkin:${todayKey()}`, full);
     storage.set('streak', s);
     storage.set('lastActive', todayKey());
