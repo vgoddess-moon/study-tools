@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 18-19 Vocab & Labs Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#ec4899}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-vocab{background:#1a1a0a;color:#fbbf24}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fbbf24;background:#1a1a0a}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#fbbf24;color:#0c0f14;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#f59e0b}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #fbbf24;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#fde68a;line-height:1.5}
+.vocab-tip strong{color:#fbbf24}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#fbbf24;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 18-19 Vocab &amp; Labs</h1>
+<p class="subtitle">Cancer &amp; Infection &middot; Terminology, Labs, Meds &middot; 25 Questions</p>
+</div>
+<div class="exam-info">25 questions testing vocabulary definitions, medical terminology roots, lab values, and medication categories from Chapters 18 &amp; 19.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Vocab Quiz Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<button class="btn-restart" onclick="restartQuiz()">Restart Quiz</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-nlm-ch18-19-vocab';
+const EXAM_LABEL='Ch 18-19 Vocab & Labs (25Q)';
+const questions=[
+{id:1,sata:false,stem:'The suffix "-sarcoma" indicates a malignant tumor arising from which tissue type?',
+options:[
+{letter:'A',text:'Epithelial or glandular tissue',correct:false,rationale:'-carcinoma is the suffix for malignant epithelial/glandular tumors (e.g., adenocarcinoma).'},
+{letter:'B',text:'Connective tissue (bone, muscle, fat)',correct:true,rationale:'-sarcoma indicates a malignant tumor of connective tissues. Examples: osteosarcoma (bone), liposarcoma (fat), rhabdomyosarcoma (skeletal muscle).'},
+{letter:'C',text:'Nerve tissue',correct:false,rationale:'Nerve tissue tumors use the prefix neuro- (e.g., neurosarcoma), but -sarcoma itself refers to connective tissue origin.'},
+{letter:'D',text:'Lymphoid tissue',correct:false,rationale:'Lymphoid malignancies are called lymphomas, not sarcomas.'}
+],vocabTip:'<strong>Term:</strong> -sarcoma<br><strong>Definition:</strong> Suffix for malignant tumors of connective tissue<br><strong>Test Clue:</strong> Bone/muscle/fat + malignant = sarcoma; Gland/epithelial + malignant = carcinoma'},
+
+{id:2,sata:false,stem:'A cancer cell biopsy report states the tumor is "Grade 4 / Anaplastic." This means:',
+options:[
+{letter:'A',text:'The cells are well-differentiated and closely resemble normal parent tissue.',correct:false,rationale:'Well-differentiated is Grade 1 — the cells still look like their parent tissue.'},
+{letter:'B',text:'The cells have lost all resemblance to normal tissue and have no recognizable characteristics.',correct:true,rationale:'Anaplasia (G4) means complete loss of differentiation — the cells bear no resemblance to normal tissue. This indicates the most aggressive, poorly differentiated cancer.'},
+{letter:'C',text:'The cancer has metastasized to at least 3 lymph nodes.',correct:false,rationale:'Grading evaluates cell appearance/differentiation, not lymph node spread. Lymph nodes are part of the N in TNM staging.'},
+{letter:'D',text:'The tumor has a low mitotic index and slow doubling time.',correct:false,rationale:'G4 anaplastic tumors typically have HIGH mitotic index and fast doubling time — they are the most aggressive.'}
+],vocabTip:'<strong>Term:</strong> Anaplasia / Grade 4<br><strong>Definition:</strong> Complete loss of differentiation — no normal cell characteristics remain<br><strong>Test Clue:</strong> G1 = looks normal; G4 = looks nothing like parent tissue = most aggressive'},
+
+{id:3,sata:false,stem:'In the TNM classification system, what does the "N" represent?',
+options:[
+{letter:'A',text:'Neoplasm size in centimeters',correct:false,rationale:'Tumor size is represented by T (Tumor), not N.'},
+{letter:'B',text:'Number of metastatic sites',correct:false,rationale:'Distant metastasis is represented by M (Metastasis), not N.'},
+{letter:'C',text:'Node — the extent of lymph node involvement',correct:true,rationale:'TNM: T = Tumor size, N = Node (lymph node involvement), M = Metastasis (distant spread).'},
+{letter:'D',text:'Nadir count of white blood cells',correct:false,rationale:'Nadir is a chemotherapy side effect term, not part of the TNM staging system.'}
+],vocabTip:'<strong>Term:</strong> TNM Classification<br><strong>Definition:</strong> T = Tumor size, N = Node involvement, M = Metastasis<br><strong>Test Clue:</strong> This system describes the anatomic extent of solid tumors'},
+
+{id:4,sata:false,stem:'Which term describes the period after chemotherapy when WBC and platelet counts are at their lowest level?',
+options:[
+{letter:'A',text:'Nadir',correct:true,rationale:'Nadir is the lowest point of bone marrow suppression, typically occurring 7-10 days after chemotherapy administration. This is when infection and bleeding risk are highest.'},
+{letter:'B',text:'Extravasation',correct:false,rationale:'Extravasation is the leakage of vesicant drugs into subcutaneous tissue — unrelated to blood counts.'},
+{letter:'C',text:'Virulence',correct:false,rationale:'Virulence refers to how strong/dangerous a pathogen is — a Ch 19 infection term.'},
+{letter:'D',text:'Communicability',correct:false,rationale:'Communicability describes how easily a pathogen spreads — not related to blood cell counts.'}
+],vocabTip:'<strong>Term:</strong> Nadir<br><strong>Definition:</strong> Lowest point of bone marrow suppression post-chemo (usually 7-10 days)<br><strong>Test Clue:</strong> Lowest WBC/platelets = highest infection + bleeding risk'},
+
+{id:5,sata:false,stem:'A patient\'s serum calcium is 12.8 mg/dL. The normal upper limit for calcium is:',
+options:[
+{letter:'A',text:'8.5 mg/dL',correct:false,rationale:'8.5 is the approximate lower limit of normal calcium, not the upper limit.'},
+{letter:'B',text:'10.5 mg/dL',correct:true,rationale:'Normal calcium upper limit is 10.5 mg/dL. A value of 12.8 indicates hypercalcemia, which in a cancer patient suggests bone metastasis stimulating osteoclast activity.'},
+{letter:'C',text:'13.5 mg/dL',correct:false,rationale:'13.5 is already significantly elevated and would represent moderate-to-severe hypercalcemia.'},
+{letter:'D',text:'15.0 mg/dL',correct:false,rationale:'15.0 would represent critical/life-threatening hypercalcemia.'}
+],vocabTip:'<strong>Term:</strong> Hypercalcemia<br><strong>Definition:</strong> Calcium above 10.5 mg/dL; in cancer = bone metastasis stimulating osteoclasts<br><strong>Test Clue:</strong> Bone cancer + high calcium → osteoclast activity breaking down bone'},
+
+{id:6,sata:false,stem:'Which chemotherapy drug category is known for causing cardiotoxicity with a lifetime maximum dose limitation?',
+options:[
+{letter:'A',text:'Alkylating agents (cyclophosphamide)',correct:false,rationale:'Alkylating agents require aggressive hydration but are primarily associated with hemorrhagic cystitis, not cardiotoxicity.'},
+{letter:'B',text:'Antitumor antibiotics (doxorubicin)',correct:true,rationale:'Antitumor antibiotics like doxorubicin have a lifetime maximum dose due to cumulative cardiotoxicity that can cause irreversible heart failure.'},
+{letter:'C',text:'Antimitotics (vincristine)',correct:false,rationale:'Antimitotics are primarily associated with peripheral neuropathy, not cardiotoxicity.'},
+{letter:'D',text:'Topoisomerase inhibitors (irinotecan)',correct:false,rationale:'Topoisomerase inhibitors are primarily associated with severe diarrhea.'}
+],vocabTip:'<strong>Term:</strong> Antitumor antibiotics<br><strong>Definition:</strong> Chemo drugs that damage DNA/RNA synthesis (doxorubicin, bleomycin)<br><strong>Test Clue:</strong> "Lifetime max dose" + "cardiotoxicity" = antitumor antibiotics'},
+
+{id:7,sata:false,stem:'The prefix "osteo-" refers to which body tissue?',
+options:[
+{letter:'A',text:'Fat/adipose tissue',correct:false,rationale:'Fat tissue uses the prefix lipo- (liposarcoma).'},
+{letter:'B',text:'Bone',correct:true,rationale:'Osteo- = bone. Osteosarcoma = malignant bone tumor. Osteoclast = bone-destroying cell.'},
+{letter:'C',text:'Skeletal muscle',correct:false,rationale:'Skeletal muscle uses the prefix rhabdo- (rhabdomyosarcoma).'},
+{letter:'D',text:'Cartilage',correct:false,rationale:'Cartilage uses the prefix chondro- (chondrosarcoma).'}
+],vocabTip:'<strong>Term:</strong> Osteo-<br><strong>Definition:</strong> Prefix meaning bone<br><strong>Test Clue:</strong> Osteo = bone; Lipo = fat; Rhabdo = skeletal muscle; Chondro = cartilage'},
+
+{id:8,sata:false,stem:'Which term describes the genomes of all microorganisms that naturally coexist in and on a person?',
+options:[
+{letter:'A',text:'Virulence',correct:false,rationale:'Virulence describes how dangerous/strong a pathogen is.'},
+{letter:'B',text:'Communicability',correct:false,rationale:'Communicability describes how easily a pathogen spreads between people.'},
+{letter:'C',text:'Microbiome',correct:true,rationale:'The microbiome is the collection of genomes from all normal flora (bacteria, fungi, etc.) that naturally live in and on the human body without causing harm.'},
+{letter:'D',text:'Pathogenicity',correct:false,rationale:'Pathogenicity is the ability of a microorganism to produce disease — opposite of harmless coexistence.'}
+],vocabTip:'<strong>Term:</strong> Microbiome<br><strong>Definition:</strong> Genomes of all normal flora naturally coexisting in/on a person<br><strong>Test Clue:</strong> "Normal flora" + "naturally present" = microbiome'},
+
+{id:9,sata:false,stem:'A platelet count below which value indicates risk of spontaneous, uncontrollable bleeding?',
+options:[
+{letter:'A',text:'100,000/mm³',correct:false,rationale:'100,000 is slightly below normal but typically does not cause spontaneous bleeding.'},
+{letter:'B',text:'50,000/mm³',correct:false,rationale:'Below 50,000 indicates bleeding risk from minor trauma, but not spontaneous uncontrollable bleeding.'},
+{letter:'C',text:'20,000/mm³',correct:true,rationale:'Platelet count below 20,000/mm³ indicates severe thrombocytopenia where spontaneous and uncontrollable bleeding may occur without any trauma.'},
+{letter:'D',text:'5,000/mm³',correct:false,rationale:'While critically dangerous, the threshold for spontaneous hemorrhage risk is below 20,000.'}
+],vocabTip:'<strong>Term:</strong> Severe Thrombocytopenia<br><strong>Definition:</strong> Platelets below 20,000 = spontaneous hemorrhage risk; below 50,000 = bleeding from minor trauma<br><strong>Test Clue:</strong> &lt;50K = bruise easily; &lt;20K = bleed spontaneously'},
+
+{id:10,sata:true,stem:'Which of the following are classified as MDROs (Multidrug-Resistant Organisms)?',
+options:[
+{letter:'A',text:'MRSA (Methicillin-resistant Staphylococcus aureus)',correct:true,rationale:'MRSA does not respond to methicillin or other penicillin-based drugs.'},
+{letter:'B',text:'VRE (Vancomycin-resistant Enterococcus)',correct:true,rationale:'VRE is normal intestinal flora that has become resistant to vancomycin treatment.'},
+{letter:'C',text:'CRE (Carbapenem-resistant Enterobacteriaceae)',correct:true,rationale:'CRE (Klebsiella, E. coli) is resistant to carbapenems due to protective enzymes.'},
+{letter:'D',text:'E. coli causing a standard UTI responsive to Bactrim',correct:false,rationale:'If the organism responds to standard antibiotics, it is NOT multi-drug resistant.'}
+],vocabTip:'<strong>Term:</strong> MDROs<br><strong>Definition:</strong> Microorganisms resistant to one or more classes of antimicrobial drugs<br><strong>Test Clue:</strong> The big three: MRSA, VRE, CRE'},
+
+{id:11,sata:false,stem:'An elevated ESR (erythrocyte sedimentation rate) indicates:',
+options:[
+{letter:'A',text:'The specific organism causing infection has been identified.',correct:false,rationale:'Culture and Sensitivity identifies the specific organism, not ESR.'},
+{letter:'B',text:'The presence of inflammation or infection in the body (nonspecific marker).',correct:true,rationale:'ESR is a nonspecific marker — elevated levels indicate inflammation or infection is present but do NOT identify the specific cause.'},
+{letter:'C',text:'The patient\'s neutrophil count is critically low.',correct:false,rationale:'WBC with differential measures neutrophil counts, not ESR.'},
+{letter:'D',text:'The patient has developed antimicrobial resistance.',correct:false,rationale:'ESR does not measure drug resistance — it measures inflammatory response.'}
+],vocabTip:'<strong>Term:</strong> ESR (Erythrocyte Sedimentation Rate)<br><strong>Definition:</strong> Nonspecific blood test indicating inflammation/infection when elevated<br><strong>Test Clue:</strong> "Elevated ESR" = something inflammatory is happening (but doesn\'t tell you WHAT)'},
+
+{id:12,sata:false,stem:'Colony-stimulating factors like filgrastim are used to stimulate bone marrow recovery. Their most common side effect is:',
+options:[
+{letter:'A',text:'Severe diarrhea',correct:false,rationale:'Severe diarrhea is the hallmark side effect of topoisomerase inhibitors (irinotecan).'},
+{letter:'B',text:'Bone pain',correct:true,rationale:'The professor repeated multiple times: the most common side effect of colony-stimulating factors is BONE PAIN because the drug forces rapid bone marrow cell production.'},
+{letter:'C',text:'Cardiotoxicity',correct:false,rationale:'Cardiotoxicity is associated with antitumor antibiotics (doxorubicin), not CSFs.'},
+{letter:'D',text:'Peripheral neuropathy',correct:false,rationale:'Peripheral neuropathy is associated with antimitotics (vincristine, paclitaxel), not CSFs.'}
+],vocabTip:'<strong>Term:</strong> Colony-Stimulating Factors (filgrastim/Neupogen)<br><strong>Definition:</strong> Supportive therapy to recover bone marrow after chemo-induced myelosuppression<br><strong>Test Clue:</strong> CSF + side effect = BONE PAIN (marrow working overtime)'},
+
+{id:13,sata:false,stem:'Which term describes the practice of grouping patients infected with the same pathogen into the same room?',
+options:[
+{letter:'A',text:'Quarantine',correct:false,rationale:'Quarantine separates EXPOSED (potentially infected) people to monitor for disease development.'},
+{letter:'B',text:'Standard precautions',correct:false,rationale:'Standard precautions are baseline measures used for ALL patients regardless of infection status.'},
+{letter:'C',text:'Cohorting',correct:true,rationale:'Cohorting groups patients with the SAME confirmed pathogen together to conserve isolation resources and prevent cross-contamination with different organisms.'},
+{letter:'D',text:'Reverse isolation',correct:false,rationale:'Reverse isolation protects an immunocompromised patient FROM the environment.'}
+],vocabTip:'<strong>Term:</strong> Cohorting<br><strong>Definition:</strong> Grouping/rooming patients with the same pathogen together<br><strong>Test Clue:</strong> "Same bug, same room" = cohorting'},
+
+{id:14,sata:false,stem:'What does "communicability" mean in the context of infectious disease?',
+options:[
+{letter:'A',text:'How severe the disease symptoms are.',correct:false,rationale:'Severity of disease is described by virulence, not communicability.'},
+{letter:'B',text:'How easily a pathogen spreads from one person to another.',correct:true,rationale:'Communicability = the ability of a pathogen to be transmitted between people. High communicability = spreads easily (measles); low communicability = hard to spread (tetanus).'},
+{letter:'C',text:'How long the pathogen can survive on surfaces.',correct:false,rationale:'Surface survival relates to fomite transmission, not communicability specifically.'},
+{letter:'D',text:'How quickly the pathogen reproduces inside the host.',correct:false,rationale:'Reproduction rate relates to pathogenicity and virulence, not communicability.'}
+],vocabTip:'<strong>Term:</strong> Communicability<br><strong>Definition:</strong> How easily a pathogen spreads person to person<br><strong>Test Clue:</strong> Virulence = how DANGEROUS; Communicability = how CONTAGIOUS'},
+
+{id:15,sata:false,stem:'Which infection type arises from the patient\'s OWN normal flora moving to an abnormal location?',
+options:[
+{letter:'A',text:'Exogenous infection',correct:false,rationale:'Exogenous infections come from OUTSIDE the patient (HCW hands, contaminated equipment, other patients).'},
+{letter:'B',text:'Endogenous infection',correct:true,rationale:'Endogenous infection occurs when normal flora moves to the wrong anatomical location. Example: E. coli (normal GI flora) entering the urinary tract or a surgical wound.'},
+{letter:'C',text:'Iatrogenic infection',correct:false,rationale:'Iatrogenic means caused by medical treatment — it can be either endogenous or exogenous in origin.'},
+{letter:'D',text:'Community-associated infection',correct:false,rationale:'Community-associated describes WHERE infection was acquired (outside hospital), not the source mechanism.'}
+],vocabTip:'<strong>Term:</strong> Endogenous vs Exogenous infection<br><strong>Definition:</strong> Endogenous = own flora in wrong place; Exogenous = outside source<br><strong>Test Clue:</strong> "Patient\'s own bacteria" = endogenous; "HCW hands/contaminated equipment" = exogenous'},
+
+{id:16,sata:false,stem:'The process by which bacteria physically contact other bacteria and transfer genetic resistance information is called:',
+options:[
+{letter:'A',text:'Conjugation',correct:true,rationale:'Conjugation is the direct transfer of genetic material (plasmids containing resistance genes) between bacteria through physical contact. This is how resistance "spreads" between organisms.'},
+{letter:'B',text:'Phagocytosis',correct:false,rationale:'Phagocytosis is immune cells engulfing pathogens — an immune defense, not bacterial communication.'},
+{letter:'C',text:'Metastasis',correct:false,rationale:'Metastasis is cancer cells spreading to distant organs — a cancer term, not an infection term.'},
+{letter:'D',text:'Anaplasia',correct:false,rationale:'Anaplasia is the loss of cell differentiation in cancer cells.'}
+],vocabTip:'<strong>Term:</strong> Conjugation<br><strong>Definition:</strong> Bacteria transfer resistance genes through physical contact<br><strong>Test Clue:</strong> "Bacteria getting smart" + "sharing information" = conjugation'},
+
+{id:17,sata:false,stem:'A temperature above which threshold in a neutropenic patient is considered a critical sign of infection requiring immediate action?',
+options:[
+{letter:'A',text:'99.0°F (37.2°C)',correct:false,rationale:'99.0 is a low-grade temperature that may be insignificant in a non-neutropenic patient.'},
+{letter:'B',text:'100.4°F (38°C)',correct:true,rationale:'Any temperature above 100.4°F (38°C) in a neutropenic patient is a critical emergency sign of sepsis and must be reported immediately — these patients cannot mount a normal fever response.'},
+{letter:'C',text:'101.5°F (38.6°C)',correct:false,rationale:'Waiting until 101.5 in a neutropenic patient delays critical intervention. The threshold is 100.4.'},
+{letter:'D',text:'103.0°F (39.4°C)',correct:false,rationale:'A neutropenic patient may never reach 103 because they lack the WBCs to generate a high fever.'}
+],vocabTip:'<strong>Term:</strong> Neutropenic fever threshold<br><strong>Definition:</strong> Temp above 100.4°F (38°C) in neutropenic patient = emergency/possible sepsis<br><strong>Test Clue:</strong> Neutropenic + ANY fever above 100.4 = act immediately'},
+
+{id:18,sata:false,stem:'Which drug is the standard first-line IV treatment for HA-MRSA?',
+options:[
+{letter:'A',text:'Methicillin',correct:false,rationale:'MRSA is by definition RESISTANT to methicillin — it will not work.'},
+{letter:'B',text:'Vancomycin',correct:true,rationale:'IV vancomycin is the standard first-line treatment for HA-MRSA. Other options include oral linezolid and IV ceftaroline fosamil.'},
+{letter:'C',text:'Amoxicillin',correct:false,rationale:'Amoxicillin is a penicillin-based drug — MRSA is resistant to all penicillin-based antibiotics.'},
+{letter:'D',text:'Azithromycin (Z-pack)',correct:false,rationale:'Z-packs are macrolide antibiotics used for respiratory infections and are not effective against MRSA.'}
+],vocabTip:'<strong>Term:</strong> MRSA treatment drugs<br><strong>Definition:</strong> IV vancomycin (first-line), oral linezolid, IV ceftaroline fosamil<br><strong>Test Clue:</strong> "Methicillin-RESISTANT" = cannot use penicillins; use vancomycin'},
+
+{id:19,sata:true,stem:'Which chemotherapy drug categories are correctly matched with their primary dose-limiting side effects?',
+options:[
+{letter:'A',text:'Antimitotics (paclitaxel, vincristine) → Peripheral neuropathy',correct:true,rationale:'Antimitotics interfere with microtubules and have high risk for CIPN (peripheral neuropathy).'},
+{letter:'B',text:'Alkylating agents (cyclophosphamide, cisplatin) → Require aggressive hydration',correct:true,rationale:'Alkylating agents can cause hemorrhagic cystitis and nephrotoxicity, requiring aggressive hydration.'},
+{letter:'C',text:'Topoisomerase inhibitors (irinotecan) → Severe diarrhea',correct:true,rationale:'Topoisomerase inhibitors cause dose-limiting severe diarrhea as their hallmark side effect.'},
+{letter:'D',text:'Antimetabolites (5-FU) → Cardiotoxicity with lifetime max dose',correct:false,rationale:'Cardiotoxicity with lifetime maximum dose is associated with antitumor ANTIBIOTICS (doxorubicin), not antimetabolites.'}
+],vocabTip:'<strong>Term:</strong> Chemo drug categories and side effects<br><strong>Definition:</strong> Each category has signature toxicities<br><strong>Test Clue:</strong> Neuropathy=antimitotics; Hydration needed=alkylating; Diarrhea=topoisomerase; Cardiotoxic=antitumor antibiotics'},
+
+{id:20,sata:false,stem:'The term "neoadjuvant" in chemotherapy means the drugs are given:',
+options:[
+{letter:'A',text:'After surgery to kill remaining cancer cells.',correct:false,rationale:'After surgery = ADJUVANT (add-on). The prefix "ad-" means "to/toward" the surgical result.'},
+{letter:'B',text:'Before surgery to shrink the tumor and improve surgical outcomes.',correct:true,rationale:'NEO = new/before. Neoadjuvant chemotherapy is given BEFORE surgery to reduce tumor size and make it more operable.'},
+{letter:'C',text:'Instead of surgery as a curative standalone treatment.',correct:false,rationale:'While chemo can sometimes be the primary treatment, "neoadjuvant" specifically means BEFORE a planned surgery.'},
+{letter:'D',text:'Concurrently with radiation therapy only.',correct:false,rationale:'Concurrent chemoradiation exists but is a separate concept from neoadjuvant sequencing.'}
+],vocabTip:'<strong>Term:</strong> Neoadjuvant vs Adjuvant<br><strong>Definition:</strong> Neo = BEFORE surgery (shrink tumor); Adjuvant = AFTER surgery (kill remaining cells)<br><strong>Test Clue:</strong> Neo = new/first/before; Ad = add-on/after'},
+
+{id:21,sata:false,stem:'An infection that is acquired in the hospital and was NOT present or incubating at admission is called:',
+options:[
+{letter:'A',text:'Endemic infection',correct:false,rationale:'Endemic describes a predictable rate of infection in a population/region, not hospital-acquired.'},
+{letter:'B',text:'Health care-associated infection (HAI)',correct:true,rationale:'HAI = any infection acquired in the inpatient setting that was not present or incubating at the time of admission. If it appears after 48-72 hours, the hospital "owns" it.'},
+{letter:'C',text:'Community-associated infection',correct:false,rationale:'Community-associated infections develop OUTSIDE healthcare facilities.'},
+{letter:'D',text:'Opportunistic infection',correct:false,rationale:'Opportunistic infections take advantage of weakened immunity but can occur anywhere, not specifically hospital-acquired.'}
+],vocabTip:'<strong>Term:</strong> HAI (Health Care-Associated Infection)<br><strong>Definition:</strong> Infection acquired in hospital, not present at admission; hospital "owns" it after 48-72 hrs<br><strong>Test Clue:</strong> "Developed after admission" + "not incubating on arrival" = HAI'},
+
+{id:22,sata:false,stem:'Which term describes the leakage of a vesicant chemotherapy drug into surrounding subcutaneous tissue?',
+options:[
+{letter:'A',text:'Infiltration',correct:false,rationale:'Infiltration is a general term for IV fluid leaking into tissue. Extravasation specifically refers to vesicant/irritant drug leakage causing tissue damage.'},
+{letter:'B',text:'Extravasation',correct:true,rationale:'Extravasation is the dangerous leakage of a vesicant IV drug into subcutaneous tissue, causing severe tissue pain, damage, infection, and loss.'},
+{letter:'C',text:'Phlebitis',correct:false,rationale:'Phlebitis is inflammation of a vein, not drug leakage into tissue.'},
+{letter:'D',text:'Thrombosis',correct:false,rationale:'Thrombosis is blood clot formation inside a vessel.'}
+],vocabTip:'<strong>Term:</strong> Extravasation<br><strong>Definition:</strong> Vesicant drug leaks from IV into subcutaneous tissue → severe tissue damage<br><strong>Test Clue:</strong> "Burning at IV site" + "vesicant" = extravasation → STOP immediately'},
+
+{id:23,sata:false,stem:'Directly Observed Therapy (DOT) is commonly used for which disease?',
+options:[
+{letter:'A',text:'MRSA wound infections',correct:false,rationale:'MRSA is treated with IV vancomycin or oral linezolid without DOT requirements.'},
+{letter:'B',text:'Tuberculosis (TB)',correct:true,rationale:'DOT requires a healthcare worker to directly watch the patient swallow every dose. It is most commonly used for TB to ensure adherence and prevent the development of drug-resistant TB strains.'},
+{letter:'C',text:'Urinary tract infections',correct:false,rationale:'UTIs are treated with standard oral antibiotics without requiring direct observation.'},
+{letter:'D',text:'Seasonal influenza',correct:false,rationale:'Influenza is treated with antivirals (oseltamivir) without DOT.'}
+],vocabTip:'<strong>Term:</strong> DOT (Directly Observed Therapy)<br><strong>Definition:</strong> HCW watches patient swallow every dose to ensure compliance<br><strong>Test Clue:</strong> "Must observe each dose" + TB = DOT'},
+
+{id:24,sata:true,stem:'Which precaution types require specific PPE beyond standard precautions? Match correctly:',
+options:[
+{letter:'A',text:'Airborne → N95/PAPR + negative pressure room (TB, measles, varicella)',correct:true,rationale:'Airborne pathogens remain suspended in air and require N95/PAPR respirators and monitored negative airflow rooms.'},
+{letter:'B',text:'Droplet → Surgical mask within 3-6 feet (flu, pertussis, meningitis)',correct:true,rationale:'Droplet pathogens travel short distances via talking/sneezing and only require a surgical mask when within 3-6 feet.'},
+{letter:'C',text:'Contact → Gown and gloves (MRSA, VRE, C. diff, scabies)',correct:true,rationale:'Contact pathogens spread through direct touch or contaminated surfaces, requiring gown and gloves.'},
+{letter:'D',text:'Airborne → Surgical mask only, no special room needed (COVID-19)',correct:false,rationale:'Airborne precautions require BOTH an N95/PAPR AND a negative pressure room. A surgical mask alone is insufficient for airborne pathogens.'}
+],vocabTip:'<strong>Term:</strong> Transmission-Based Precautions<br><strong>Definition:</strong> Airborne (N95 + negative pressure), Droplet (surgical mask), Contact (gown + gloves)<br><strong>Test Clue:</strong> Know which diseases fall under each category'},
+
+{id:25,sata:false,stem:'The prefix "adeno-" in adenocarcinoma refers to which tissue type?',
+options:[
+{letter:'A',text:'Bone tissue',correct:false,rationale:'Bone uses the prefix osteo- (osteosarcoma).'},
+{letter:'B',text:'Epithelial glands',correct:true,rationale:'Adeno- = gland. Adenocarcinoma = malignant tumor of glandular/epithelial tissue. This is one of the most common cancer types.'},
+{letter:'C',text:'Blood vessels',correct:false,rationale:'Blood vessels use the prefix hemangio- (hemangiosarcoma).'},
+{letter:'D',text:'Smooth muscle',correct:false,rationale:'Smooth muscle uses the prefix leiomyo- (leiomyosarcoma).'}
+],vocabTip:'<strong>Term:</strong> Adeno-<br><strong>Definition:</strong> Prefix meaning epithelial glands<br><strong>Test Clue:</strong> Adeno = gland; Hemangio = blood vessel; Leiomyo = smooth muscle; Rhabdo = skeletal muscle'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+const isSata=q.sata===true;
+const sataBadge=isSata?'<span class="badge badge-sata">SATA</span>':'';
+card.innerHTML=`
+<div class="q-top">
+<span class="q-num">Q${idx+1}</span>
+<span class="badge badge-vocab">VOCAB</span>
+${sataBadge}
+</div>
+<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`
+<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-submit" id="btn-${q.id}" onclick="submitQ(${q.id})">Submit Answer</button>
+<div class="vocab-tip" id="tip-${q.id}"><strong>Vocab Card:</strong> ${q.vocabTip}</div>
+`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(answered[qId])return;
+if(!selections[qId])selections[qId]=[];
+if(isSata){
+const idx=selections[qId].indexOf(letter);
+if(idx>-1)selections[qId].splice(idx,1);
+else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function submitQ(qId){
+if(answered[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.style.cursor='default';
+if(o.correct)el.classList.add('correct-show');
+else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;
+document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();
+saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){
+const pct=(Object.keys(answered).length/questions.length)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function showScore(){
+let totalCorrect=0;
+questions.forEach(q=>{
+if(answered[q.id]){
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))totalCorrect++;
+}
+});
+const pct=Math.round((totalCorrect/questions.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';
+document.getElementById('finalText').textContent=`${totalCorrect} of ${questions.length} correct`;
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:totalCorrect,total:questions.length,date:new Date().toLocaleDateString()};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:totalCorrect,total:questions.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){
+answered={};
+selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+}
+
+function saveState(){
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));
+}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){
+const state=JSON.parse(saved);
+answered=state.answered||{};
+selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{
+const q=questions.find(x=>x.id==qId);
+if(!q)return;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId]||[];
+const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+if(sel.includes(o.letter))el.classList.add('selected');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+el.style.cursor='default';
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+});
+updateProgress();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const r=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=r.score+'%';
+document.getElementById('lastDate').textContent=r.date;
+}
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 19 NLM Drill — Infection</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#ec4899}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .3s}
+.chapter-divider{display:flex;align-items:center;gap:.75rem;margin:2.5rem 0 1.25rem;padding:.5rem 0}
+.chapter-divider::before,.chapter-divider::after{content:'';flex:1;height:1px;background:#1e293b}
+.chapter-divider span{color:#94a3b8;font-size:.8rem;font-weight:500;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch19{background:#0a1a1e;color:#67e8f9}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#ec4899;background:#2d0a2e}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#db2777}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #67e8f9;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#a5f3fc;line-height:1.5}
+.vocab-tip strong{color:#67e8f9}
+.trap-callout{background:#2a1f00;border:1px solid #92400e;border-radius:8px;padding:.6rem .9rem;margin-top:.75rem;display:none;font-size:.8rem;color:#fbbf24}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#ec4899;margin:.5rem 0}
+.chapter-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1.5rem 0;text-align:left}
+.ch-box{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem}
+.ch-box .ch-label{font-size:.7rem;text-transform:uppercase;color:#64748b;margin-bottom:.25rem}
+.ch-box .ch-score{font-size:1.1rem;font-weight:700}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}.chapter-breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 19 NLM Drill &mdash; Infection</h1>
+<p class="subtitle">Chapter 19 &middot; NotebookLM Post-Lecture Drill &middot; 20 Questions</p>
+</div>
+<div class="exam-info">20 professor-emphasized questions from Chapter 19 lecture materials. Each question includes rationale for ALL options, Test Clues, and Fast Rules.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Exam Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="chapter-breakdown" id="chapterBreakdown"></div>
+<button class="btn-restart" onclick="restartQuiz()">Restart Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-nlm-ch19-drill';
+const EXAM_LABEL='Ch 19 NLM Drill — Infection (20Q)';
+const questions=[
+{id:1,chapter:19,difficulty:'easy',sata:false,trap:false,
+stem:'A nursing student asks the professor, "What is the difference between virulence and communicability?" A patient in room 4 has a pathogen with HIGH virulence but LOW communicability. What does the nurse understand about this organism?',
+options:[
+{letter:'A',text:'It spreads easily between patients but causes only mild symptoms.',correct:false,rationale:'This describes HIGH communicability and LOW virulence — the opposite of what is described.'},
+{letter:'B',text:'It causes severe disease but does not spread easily from person to person.',correct:true,rationale:'High virulence = very dangerous/damaging pathogen. Low communicability = does not spread easily between people. Think of tetanus — extremely dangerous but you cannot catch it from another person.'},
+{letter:'C',text:'It is part of the patient\'s normal microbiome and poses no threat.',correct:false,rationale:'The microbiome consists of normal flora. A highly virulent organism is NOT part of the normal, harmless microbiome.'},
+{letter:'D',text:'It requires airborne precautions due to its ability to remain suspended in air.',correct:false,rationale:'Airborne precautions relate to the route/method of transmission, not virulence. Low communicability means it does NOT spread easily.'}
+],vocabTip:'What This Was Testing: Virulence vs. Communicability definitions. Test Clue: "How dangerous" vs "How easily it spreads." Fast Rule: If you see [virulence] → think [severity/danger]; [communicability] → think [ease of spread].'},
+
+{id:2,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient is admitted with pneumonia. The culture results will not return for 48 hours. The provider orders a broad-spectrum antibiotic immediately. A new nurse asks, "Why not wait for the culture results to give the right drug?" What is the best explanation?',
+options:[
+{letter:'A',text:'Broad-spectrum antibiotics are more effective than targeted drugs.',correct:false,rationale:'Targeted therapy based on culture and sensitivity is MORE effective. Broad-spectrum is a temporary bridge.'},
+{letter:'B',text:'The culture and sensitivity test takes 24-48 hours, and delaying treatment could allow the infection to progress to sepsis.',correct:true,rationale:'The professor emphasized that cultures identify the specific organism and which antibiotics kill it, but results take 24-48 hours. Patients cannot safely wait, so broad-spectrum coverage is started immediately and narrowed once results return.'},
+{letter:'C',text:'Cultures are only needed for patients in the ICU.',correct:false,rationale:'Cultures are indicated for any patient with a suspected infection to guide targeted therapy.'},
+{letter:'D',text:'Broad-spectrum antibiotics will prevent antimicrobial resistance.',correct:false,rationale:'Overuse of broad-spectrum antibiotics is actually one of the CAUSES of antimicrobial resistance.'}
+],vocabTip:'What This Was Testing: Culture & Sensitivity purpose and timing. Test Clue: "24-48 hours for results." Fast Rule: If you see [C&S] → think [identifies organism + effective drug; broad-spectrum is bridge until results].'},
+
+{id:3,chapter:19,difficulty:'medium',sata:false,trap:true,
+stem:'A nurse is caring for a patient diagnosed with Clostridium difficile (C. diff) infection. The patient has severe watery diarrhea. Before entering the room, the nurse uses alcohol-based hand rub (ABHR) and puts on gloves and gown. What is the priority concern with this nurse\'s actions?',
+options:[
+{letter:'A',text:'The nurse should have used a surgical mask instead of just gloves and gown.',correct:false,rationale:'C. diff requires Contact Precautions (gown + gloves), not droplet precautions. A mask is not required.'},
+{letter:'B',text:'Alcohol-based hand rub does NOT kill C. difficile spores; the nurse must wash with soap and water.',correct:true,rationale:'The professor explicitly emphasized that ABHR does NOT kill C. diff spores. Only mechanical friction with soap and water removes the spores. This is a common trap — students assume ABHR works for everything.'},
+{letter:'C',text:'The nurse should have donned sterile gloves rather than clean gloves.',correct:false,rationale:'Contact precautions require clean (non-sterile) gloves, not sterile surgical gloves.'},
+{letter:'D',text:'Gown and gloves are unnecessary because C. diff is only spread through the airborne route.',correct:false,rationale:'C. diff is spread by DIRECT CONTACT, not airborne. Gown and gloves are required.'}
+],vocabTip:'What This Was Testing: ABHR limitations — C. diff exception. Test Clue: "C. difficile" + "alcohol-based hand rub." Fast Rule: If you see [C. diff] → think [soap and water ONLY; ABHR does NOT kill spores].'},
+
+{id:4,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient develops a urinary tract infection (UTI) on day 4 of hospitalization. The infection was not present on admission. The nurse documents this as which type of infection?',
+options:[
+{letter:'A',text:'Community-associated infection',correct:false,rationale:'Community-associated infections develop OUTSIDE the healthcare facility in the general population.'},
+{letter:'B',text:'Health care-associated infection (HAI)',correct:true,rationale:'An HAI is any infection acquired in the inpatient setting that was NOT present or incubating at the time of admission. The professor emphasized that if it shows up after 48-72 hours, the hospital "owns" it.'},
+{letter:'C',text:'Endogenous infection from normal flora',correct:false,rationale:'While a UTI can be endogenous (E. coli from GI tract), the classification being asked about is HAI vs. community-acquired — and this one is HAI because it developed in the hospital.'},
+{letter:'D',text:'Iatrogenic infection requiring incident reporting only',correct:false,rationale:'Iatrogenic means caused by medical treatment. While HAIs can be iatrogenic, the correct classification term is health care-associated infection.'}
+],vocabTip:'What This Was Testing: HAI definition and the 48-72 hour rule. Test Clue: "Day 4 of hospitalization" + "not present on admission." Fast Rule: If you see [infection developing after 48-72 hours in hospital] → think [HAI — the hospital owns it].'},
+
+{id:5,chapter:19,difficulty:'hard',sata:true,trap:false,
+stem:'The professor explains that antimicrobial resistance is a growing crisis. Which of the following actions contribute to the development of antimicrobial-resistant organisms?',
+options:[
+{letter:'A',text:'A provider prescribes azithromycin (Z-pack) for a patient with a viral upper respiratory infection.',correct:true,rationale:'Antibiotics do NOT work on viruses. Prescribing them inappropriately exposes bacteria to sub-lethal doses, allowing survivors to develop resistance.'},
+{letter:'B',text:'A patient stops taking their antibiotic after 3 days because they feel better, saving the remaining pills "for next time."',correct:true,rationale:'The professor emphasized nonadherence — stopping pills early leaves surviving bacteria that are stronger and more resistant.'},
+{letter:'C',text:'A nurse administers the full 10-day course of antibiotics as prescribed.',correct:false,rationale:'Completing the full course PREVENTS resistance by killing all susceptible organisms. This is the correct practice.'},
+{letter:'D',text:'A provider prescribes an inadequate dose of antibiotics for a patient\'s body weight.',correct:true,rationale:'Inadequate dosing exposes bacteria to sub-lethal amounts of the drug, allowing them to survive and develop resistance mechanisms.'},
+{letter:'E',text:'A nurse performs hand hygiene between every patient encounter.',correct:false,rationale:'Hand hygiene PREVENTS the spread of resistant organisms — it does not cause resistance.'}
+],vocabTip:'What This Was Testing: Causes of antimicrobial resistance. Test Clue: "Wrong drug," "wrong dose," "stopped early." Fast Rule: If you see [antimicrobial resistance causes] → think [wrong drug choice, inadequate dosing, nonadherence].'},
+
+{id:6,chapter:19,difficulty:'hard',sata:false,trap:false,
+stem:'A nurse is teaching a microbiology concept to a group of students: "When bacteria survive an antibiotic, they can physically touch other bacteria and transfer their genetic resistance information." What is this process called?',
+options:[
+{letter:'A',text:'Phagocytosis',correct:false,rationale:'Phagocytosis is the process by which immune cells engulf and destroy pathogens.'},
+{letter:'B',text:'Conjugation',correct:true,rationale:'Conjugation is the process where surviving resistant bacteria physically contact other bacteria and transfer genetic material (plasmids) that teach the recipient how to defeat antibiotics. The professor described bacteria as "getting smart" through this process.'},
+{letter:'C',text:'Opsonization',correct:false,rationale:'Opsonization is when antibodies coat a pathogen to enhance phagocytosis.'},
+{letter:'D',text:'Lysis',correct:false,rationale:'Lysis is the destruction/rupture of a cell membrane.'}
+],vocabTip:'What This Was Testing: Conjugation — how bacteria spread resistance. Test Clue: "Physical contact between bacteria," "transfer genetic information." Fast Rule: If you see [bacteria sharing resistance information] → think [Conjugation].'},
+
+{id:7,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient with HA-MRSA is in a private room on contact precautions. The nurse is assigning rooms for a new admission who also has MRSA. The charge nurse suggests placing both MRSA patients in the same room. What is this practice called?',
+options:[
+{letter:'A',text:'Reverse isolation',correct:false,rationale:'Reverse isolation protects an immunocompromised patient FROM the environment (like neutropenic precautions).'},
+{letter:'B',text:'Cohorting',correct:true,rationale:'Cohorting is the practice of grouping/rooming patients who are colonized or infected with the exact SAME pathogen in the same room. This conserves private rooms for patients with different organisms.'},
+{letter:'C',text:'Standard precautions',correct:false,rationale:'Standard precautions are baseline infection control used for ALL patients regardless of diagnosis.'},
+{letter:'D',text:'Quarantine',correct:false,rationale:'Quarantine separates people who were EXPOSED to a disease to see if they become ill. It does not mean grouping infected patients together.'}
+],vocabTip:'What This Was Testing: Cohorting definition. Test Clue: "Placing patients with the same pathogen together." Fast Rule: If you see [same bug, same room] → think [Cohorting].'},
+
+{id:8,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient with a wound infection has culture results showing the organism is susceptible to IV vancomycin, oral linezolid, and IV ceftaroline fosamil. The nurse understands this patient most likely has which organism?',
+options:[
+{letter:'A',text:'Vancomycin-resistant Enterococcus (VRE)',correct:false,rationale:'VRE by definition does NOT respond to vancomycin. If the organism IS susceptible to vancomycin, it is not VRE.'},
+{letter:'B',text:'Methicillin-resistant Staphylococcus aureus (MRSA)',correct:true,rationale:'The professor emphasized that MRSA is susceptible to IV vancomycin, oral linezolid, and IV ceftaroline fosamil. This is the standard treatment triad for MRSA.'},
+{letter:'C',text:'Carbapenem-resistant Enterobacteriaceae (CRE)',correct:false,rationale:'CRE includes Klebsiella and E. coli resistant to carbapenems — it has a different susceptibility profile than MRSA.'},
+{letter:'D',text:'Clostridium difficile',correct:false,rationale:'C. diff is a GI pathogen causing diarrhea, not wound infections, and is treated differently (oral vancomycin or FMT).'}
+],vocabTip:'What This Was Testing: MRSA drug susceptibility. Test Clue: "IV vancomycin, oral linezolid, IV ceftaroline fosamil." Fast Rule: If you see [vancomycin + linezolid + ceftaroline] → think [MRSA treatment].'},
+
+{id:9,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A community health nurse is educating a group of healthy college students about Community-Associated MRSA (CA-MRSA). Which teaching point is MOST important?',
+options:[
+{letter:'A',text:'"CA-MRSA only affects people who have been recently hospitalized."',correct:false,rationale:'CA-MRSA specifically affects healthy, NON-hospitalized people. HA-MRSA is the healthcare-associated form.'},
+{letter:'B',text:'"Frequent hand hygiene, avoiding large crowds, and good overall hygiene are your best prevention."',correct:true,rationale:'The professor emphasized teaching frequent handwashing, avoiding large crowds, and maintaining good overall hygiene as the primary prevention for CA-MRSA in the community.'},
+{letter:'C',text:'"You need to take prophylactic antibiotics before attending sporting events."',correct:false,rationale:'Prophylactic antibiotics are NOT recommended for CA-MRSA prevention and would contribute to resistance.'},
+{letter:'D',text:'"CA-MRSA is only transmitted through airborne droplets in enclosed spaces."',correct:false,rationale:'MRSA (both HA and CA forms) is spread by CONTACT, not airborne transmission.'}
+],vocabTip:'What This Was Testing: CA-MRSA prevention in healthy populations. Test Clue: "Community," "healthy," "non-hospitalized." Fast Rule: If you see [CA-MRSA prevention] → think [hand hygiene, avoid crowds, good hygiene].'},
+
+{id:10,chapter:19,difficulty:'easy',sata:false,trap:false,
+stem:'A nursing instructor asks, "What is the NUMBER ONE infection control intervention we teach?" What is the correct answer?',
+options:[
+{letter:'A',text:'Wearing N95 respirators for all patient interactions.',correct:false,rationale:'N95 masks are only required for airborne precautions (TB, measles, varicella), not all interactions.'},
+{letter:'B',text:'Hand hygiene — washing with soap and water for 15-30 seconds.',correct:true,rationale:'The professor emphasized this multiple times: hand hygiene is the #1 infection control method. Wash with soap and water for 15-30 seconds.'},
+{letter:'C',text:'Administering prophylactic antibiotics to all admitted patients.',correct:false,rationale:'Prophylactic antibiotics for all patients would massively contribute to antimicrobial resistance.'},
+{letter:'D',text:'Placing all patients in private rooms with negative pressure airflow.',correct:false,rationale:'Negative pressure rooms are reserved specifically for airborne precautions, not standard care.'}
+],vocabTip:'What This Was Testing: #1 infection control method. Test Clue: "Number one," "most important," "first priority" in infection control. Fast Rule: If you see [most important infection control] → think [HAND HYGIENE — soap and water, 15-30 seconds].'},
+
+{id:11,chapter:19,difficulty:'medium',sata:false,trap:true,
+stem:'A post-surgical patient develops a wound infection. The culture grows E. coli. The surgeon states, "This is not surprising — the patient had a ruptured appendix during surgery." The nurse identifies this as which type of infection?',
+options:[
+{letter:'A',text:'Exogenous infection from contaminated surgical instruments.',correct:false,rationale:'Exogenous infections come from OUTSIDE sources (HCW hands, contaminated equipment). The E. coli came from the patient\'s own ruptured appendix.'},
+{letter:'B',text:'Health care-associated infection (HAI) from poor hand hygiene.',correct:false,rationale:'While this is technically an HAI, the mechanism is endogenous — the patient\'s own GI flora contaminated the surgical field.'},
+{letter:'C',text:'Endogenous infection from the patient\'s own normal flora moving to the wrong location.',correct:true,rationale:'E. coli is normal GI flora. When the appendix ruptured, it released E. coli into the peritoneal space and wound — a classic endogenous infection where the patient\'s own flora causes disease by moving to an abnormal location.'},
+{letter:'D',text:'A community-acquired infection that was incubating before admission.',correct:false,rationale:'The infection resulted from a surgical event (ruptured appendix), not something incubating pre-admission.'}
+],vocabTip:'What This Was Testing: Endogenous vs. Exogenous infection — the trap is confusing source. Test Clue: "Patient\'s own flora" + "wrong location." Fast Rule: If you see [own flora moves to wrong place] → think [Endogenous]; [outside source like HCW hands] → think [Exogenous].'},
+
+{id:12,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'The local health department reports that this year\'s flu season is following a predictable pattern consistent with historical data for the region. This pattern of infection is classified as which scope of transmission?',
+options:[
+{letter:'A',text:'Pandemic',correct:false,rationale:'A pandemic is worldwide spread across multiple countries (like COVID-19).'},
+{letter:'B',text:'Epidemic',correct:false,rationale:'An epidemic occurs when infections EXCEED what was expected in a specific area.'},
+{letter:'C',text:'Endemic',correct:true,rationale:'Endemic means a relatively high and predictable rate of infection in a particular population or region. The seasonal flu following its expected pattern is the classic example of endemic disease.'},
+{letter:'D',text:'Outbreak',correct:false,rationale:'An outbreak implies a sudden increase beyond normal expectations, similar to an epidemic but often more localized.'}
+],vocabTip:'What This Was Testing: Endemic vs. Epidemic vs. Pandemic. Test Clue: "Predictable," "expected rate," "consistent with history." Fast Rule: If you see [predictable/expected] → Endemic; [more than expected locally] → Epidemic; [global spread] → Pandemic.'},
+
+{id:13,chapter:19,difficulty:'hard',sata:false,trap:false,
+stem:'A patient with a severe C. difficile infection has failed multiple rounds of antibiotics. The gastroenterologist recommends fecal microbiota transplantation (FMT). The patient\'s family asks what this procedure does. What is the nurse\'s best explanation?',
+options:[
+{letter:'A',text:'"It introduces a powerful antibiotic directly into the colon to kill the bacteria."',correct:false,rationale:'FMT does NOT introduce antibiotics. The antibiotics already failed — that is why FMT is being used.'},
+{letter:'B',text:'"It transplants healthy donor stool into your lower GI tract to restore the normal flora that C. diff has destroyed."',correct:true,rationale:'FMT restores the healthy normal flora (microbiome) to the lower GI tract. Once healthy bacteria are reestablished, they outcompete C. diff and prevent its overgrowth.'},
+{letter:'C',text:'"It surgically removes the infected portion of the colon."',correct:false,rationale:'FMT is a non-surgical transplant procedure, not a surgical resection.'},
+{letter:'D',text:'"It vaccinates you against future C. diff infections permanently."',correct:false,rationale:'FMT is not a vaccine and does not provide permanent immunity. Reinfection can occur.'}
+],vocabTip:'What This Was Testing: Fecal Microbiota Transplantation (FMT) purpose. Test Clue: "C. diff failed antibiotics," "restore normal flora." Fast Rule: If you see [C. diff + failed antibiotics + FMT] → think [restores healthy gut flora to outcompete C. diff].'},
+
+{id:14,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient with active tuberculosis (TB) is being treated with a multi-drug regimen. The nurse visits the patient\'s home daily to watch them swallow each dose. This practice is called:',
+options:[
+{letter:'A',text:'Directly Observed Therapy (DOT)',correct:true,rationale:'DOT requires a healthcare worker to directly observe and validate that the patient takes every single dose. It is commonly used for TB to prevent nonadherence and the development of drug-resistant TB.'},
+{letter:'B',text:'Therapeutic drug monitoring',correct:false,rationale:'Therapeutic drug monitoring involves checking blood levels of a drug to ensure therapeutic range, not watching the patient take it.'},
+{letter:'C',text:'Patient-centered medication reconciliation',correct:false,rationale:'Medication reconciliation is comparing a patient\'s medication list across care settings, not directly observing dose administration.'},
+{letter:'D',text:'Prophylactic isolation therapy',correct:false,rationale:'This is not a real clinical term in this context.'}
+],vocabTip:'What This Was Testing: Directly Observed Therapy (DOT). Test Clue: "Watching patient take every dose," "TB compliance." Fast Rule: If you see [HCW watches patient swallow pills] → think [DOT — used for TB].'},
+
+{id:15,chapter:19,difficulty:'hard',sata:true,trap:false,
+stem:'A nurse is reviewing the plan of care for a patient with VRE (Vancomycin-Resistant Enterococcus) in a semi-private room. Which nursing interventions are appropriate for this patient?',
+options:[
+{letter:'A',text:'Place the patient on Contact Precautions with gown and gloves.',correct:true,rationale:'VRE requires Contact Precautions — gown and gloves for any direct contact or contact with environmental surfaces.'},
+{letter:'B',text:'Use dedicated equipment (stethoscope, BP cuff) that stays in the room.',correct:true,rationale:'VRE can live on surfaces for days to weeks. Dedicated equipment prevents cross-contamination to other patients.'},
+{letter:'C',text:'Place the patient in a negative-pressure airborne isolation room.',correct:false,rationale:'Negative pressure rooms are for AIRBORNE precautions (TB, measles). VRE is spread by contact, not air.'},
+{letter:'D',text:'Clean environmental surfaces thoroughly, as VRE can survive on surfaces for days to weeks.',correct:true,rationale:'The professor emphasized that VRE is highly resilient and can live on surfaces for extended periods, infecting future patients who contact those surfaces.'},
+{letter:'E',text:'Administer IV vancomycin as the first-line treatment.',correct:false,rationale:'VRE is by definition RESISTANT to vancomycin — vancomycin will not work against this organism.'}
+],vocabTip:'What This Was Testing: VRE precautions and characteristics. Test Clue: "Vancomycin-resistant" + "lives on surfaces for days/weeks." Fast Rule: If you see [VRE] → think [Contact Precautions, dedicated equipment, aggressive surface cleaning, vancomycin will NOT work].'},
+
+{id:16,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient has a fever of 103.2°F and is diaphoretic. The nurse is managing the fever. Which action addresses the PRIORITY in fever management?',
+options:[
+{letter:'A',text:'Apply ice bags and a cooling blanket immediately.',correct:false,rationale:'External cooling addresses the symptom (temperature) but not the underlying cause. It is supportive, not the priority.'},
+{letter:'B',text:'Administer the prescribed antimicrobial to eliminate the causative microorganism.',correct:true,rationale:'The professor emphasized that the priority in fever management is to eliminate the underlying cause — you must destroy the causative microorganism with antimicrobials. Lowering temperature alone without treating the infection is treating the symptom, not the cause.'},
+{letter:'C',text:'Administer acetaminophen for patient comfort.',correct:false,rationale:'Antipyretics manage the symptom (fever) but do not address the root cause (the pathogen). Comfort is important but not the PRIORITY.'},
+{letter:'D',text:'Restrict all oral fluids to prevent aspiration.',correct:false,rationale:'Fluids should be INCREASED, not restricted. Fever causes fluid loss through perspiration and rapid evaporation.'}
+],vocabTip:'What This Was Testing: Priority in fever management. Test Clue: "Priority," "fever management." Fast Rule: If you see [fever management priority] → think [kill the bug with antimicrobials FIRST]; supportive care (cooling, antipyretics, fluids) is secondary.'},
+
+{id:17,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse draws blood cultures and notes the provider also ordered an ESR (erythrocyte sedimentation rate). The student nurse asks what an elevated ESR indicates. The nurse explains:',
+options:[
+{letter:'A',text:'"It specifically identifies which antibiotic will kill the organism."',correct:false,rationale:'Culture and Sensitivity (C&S) identifies the effective antibiotic, not ESR.'},
+{letter:'B',text:'"It measures the patient\'s blood glucose response to infection."',correct:false,rationale:'ESR has nothing to do with blood glucose.'},
+{letter:'C',text:'"It indicates the presence of inflammation or infection in the body — it is a nonspecific marker."',correct:true,rationale:'The professor explicitly said to know what ESR is and its significance. An elevated ESR indicates that inflammation or infection is present, but it does not identify the specific cause — it is a nonspecific marker.'},
+{letter:'D',text:'"It counts the number of neutrophils to determine immune function."',correct:false,rationale:'The WBC differential with ANC counts neutrophils, not the ESR.'}
+],vocabTip:'What This Was Testing: ESR significance. Test Clue: "Erythrocyte sedimentation rate," "elevated." Fast Rule: If you see [elevated ESR] → think [inflammation/infection is present — nonspecific marker].'},
+
+{id:18,chapter:19,difficulty:'hard',sata:false,trap:false,
+stem:'A patient in the ICU develops septic shock. The nurse understands that septic shock is characterized by which combination of clinical findings?',
+options:[
+{letter:'A',text:'Infection, dehydration, and tachycardia.',correct:false,rationale:'While tachycardia may be present, the defining triad is infection + organ dysfunction + body system malfunction, not simple dehydration.'},
+{letter:'B',text:'Infection, organ dysfunction, and at least one body system malfunctioning simultaneously.',correct:true,rationale:'The professor defined septic shock as sepsis-induced distributive shock with three things happening at once: active infection + organ dysfunction + at least one body system failing.'},
+{letter:'C',text:'Fever above 104°F, hypotension, and elevated WBC count.',correct:false,rationale:'These are individual signs that may be present, but the definition of septic shock is the triad of infection + organ dysfunction + system malfunction.'},
+{letter:'D',text:'Bacteremia only, without hemodynamic instability.',correct:false,rationale:'Bacteremia alone (bacteria in blood) without organ dysfunction is NOT septic shock — it is a precursor that can progress to sepsis and then septic shock.'}
+],vocabTip:'What This Was Testing: Septic shock definition. Test Clue: "Sepsis-induced distributive shock." Fast Rule: If you see [septic shock] → think [infection + organ dysfunction + body system malfunction = three things at once].'},
+
+{id:19,chapter:19,difficulty:'hard',sata:true,trap:false,
+stem:'The professor discusses bioterrorism agents. Which of the following are the three main biological threats emphasized in the textbook?',
+options:[
+{letter:'A',text:'Anthrax (often transmitted via mail)',correct:true,rationale:'Anthrax is one of the three main bioterrorism agents. It can be weaponized as spores and historically has been mailed.'},
+{letter:'B',text:'Smallpox',correct:true,rationale:'Smallpox is a key bioterrorism concern because the general population is no longer routinely vaccinated.'},
+{letter:'C',text:'Plague (lowest survival rate)',correct:true,rationale:'Plague has the lowest survival rate of the three main agents, making it an extremely dangerous biological weapon.'},
+{letter:'D',text:'Influenza A (H1N1)',correct:false,rationale:'H1N1 is a pandemic influenza strain, not a bioterrorism agent. It spreads naturally, not through intentional weaponization.'},
+{letter:'E',text:'Clostridium difficile',correct:false,rationale:'C. diff is an HAI and community infection, not a bioterrorism agent.'}
+],vocabTip:'What This Was Testing: The three bioterrorism agents from the textbook. Test Clue: "Bioterrorism," "biological weapons." Fast Rule: If you see [bioterrorism agents] → think [Anthrax (mailed), Smallpox, Plague (lowest survival)].'},
+
+{id:20,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse is caring for a patient on droplet precautions. A family member arrives to visit. Which instruction is MOST appropriate for the visitor?',
+options:[
+{letter:'A',text:'"You must wear an N95 respirator that has been fit-tested."',correct:false,rationale:'N95 respirators are for AIRBORNE precautions (TB, measles, varicella), not droplet precautions.'},
+{letter:'B',text:'"Wear a surgical mask — it protects you, the one wearing it — plus hand hygiene and do not visit if you have an active cough or fever."',correct:true,rationale:'The professor emphasized visitor protection for droplet precautions: surgical mask (protects the wearer), hand hygiene, gowns/gloves, and do NOT visit if you have an active cough or fever.'},
+{letter:'C',text:'"No visitors are permitted for patients on transmission-based precautions."',correct:false,rationale:'Visitors ARE permitted but must follow protective guidelines. There is no blanket ban on visitors.'},
+{letter:'D',text:'"Just use alcohol-based hand rub before and after the visit — no other precautions needed."',correct:false,rationale:'Hand hygiene alone is insufficient for droplet precautions. A mask is required when within 3-6 feet of the patient.'}
+],vocabTip:'What This Was Testing: Visitor protection on transmission-based precautions. Test Clue: "Droplet precautions," "visitor," "surgical mask protects the wearer." Fast Rule: If you see [visitor + droplet precautions] → think [surgical mask (protects wearer), hand hygiene, no visit if sick].'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+let currentChapter=0;
+const chapterNames={19:'Ch 19 Infection'};
+questions.forEach((q,idx)=>{
+if(q.chapter!==currentChapter){
+currentChapter=q.chapter;
+const div=document.createElement('div');
+div.className='chapter-divider';
+div.innerHTML=`<span>Chapter ${currentChapter}: ${chapterNames[currentChapter]}</span>`;
+area.appendChild(div);
+}
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+const isSata=q.sata===true;
+const trapBadge=q.trap?'<span class="badge badge-trap">TRAP</span>':'';
+const sataBadge=isSata?'<span class="badge badge-sata">SATA</span>':'';
+card.innerHTML=`
+<div class="q-top">
+<span class="q-num">Q${idx+1}</span>
+<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>
+${trapBadge}${sataBadge}
+</div>
+<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`
+<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-submit" id="btn-${q.id}" onclick="submitQ(${q.id})">Submit Answer</button>
+<div class="vocab-tip" id="tip-${q.id}"><strong>Vocab Tip:</strong> ${q.vocabTip}</div>
+${q.trap?`<div class="trap-callout" id="trap-${q.id}">&#9888; TRAP QUESTION: This question tests a common misconception. Read the rationale carefully!</div>`:''}
+`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(answered[qId])return;
+if(!selections[qId])selections[qId]=[];
+if(isSata){
+const idx=selections[qId].indexOf(letter);
+if(idx>-1)selections[qId].splice(idx,1);
+else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function submitQ(qId){
+if(answered[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.style.cursor='default';
+if(o.correct)el.classList.add('correct-show');
+else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;
+document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();
+saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){
+const pct=(Object.keys(answered).length/questions.length)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function showScore(){
+const chScores={19:0};
+const chTotals={19:0};
+const chNames={19:'Ch 19 Infection'};
+const chColors={19:'#67e8f9'};
+questions.forEach(q=>{
+chTotals[q.chapter]++;
+if(answered[q.id]){
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))chScores[q.chapter]++;
+}
+});
+let totalCorrect=0,totalQ=0;
+[19].forEach(ch=>{totalCorrect+=chScores[ch];totalQ+=chTotals[ch];});
+const pct=Math.round((totalCorrect/totalQ)*100);
+document.getElementById('finalScore').textContent=pct+'%';
+document.getElementById('finalText').textContent=`${totalCorrect} of ${totalQ} correct`;
+const bd=document.getElementById('chapterBreakdown');
+bd.innerHTML='';
+[19].forEach(ch=>{
+const box=document.createElement('div');
+box.className='ch-box';
+box.innerHTML=`<div class="ch-label">${chNames[ch]}</div><div class="ch-score" style="color:${chColors[ch]}">${chScores[ch]}/${chTotals[ch]}</div>`;
+bd.appendChild(box);
+});
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:totalCorrect,total:totalQ,date:new Date().toLocaleDateString(),chapters:{19:{correct:chScores[19],total:chTotals[19]}}};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:totalCorrect,total:totalQ,topicBreakdown:{19:{correct:chScores[19],total:chTotals[19]}}});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){
+answered={};
+selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+}
+
+function saveState(){
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));
+}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){
+const state=JSON.parse(saved);
+answered=state.answered||{};
+selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{
+const q=questions.find(x=>x.id==qId);
+if(!q)return;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId]||[];
+const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+if(sel.includes(o.letter))el.classList.add('selected');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+el.style.cursor='default';
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+});
+updateProgress();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const r=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=r.score+'%';
+document.getElementById('lastDate').textContent=r.date;
+}
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
