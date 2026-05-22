@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 18-19 Practice Exam — Cancer & Infection</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#ec4899}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .3s}
+.chapter-divider{display:flex;align-items:center;gap:.75rem;margin:2.5rem 0 1.25rem;padding:.5rem 0}
+.chapter-divider::before,.chapter-divider::after{content:'';flex:1;height:1px;background:#1e293b}
+.chapter-divider span{color:#94a3b8;font-size:.8rem;font-weight:500;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch18{background:#1a0a1e;color:#f472b6}
+.badge-ch19{background:#0a1a1e;color:#67e8f9}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#ec4899;background:#2d0a2e}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#db2777}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #f472b6;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#f9a8d4;line-height:1.5}
+.vocab-tip strong{color:#f472b6}
+.trap-callout{background:#2a1f00;border:1px solid #92400e;border-radius:8px;padding:.6rem .9rem;margin-top:.75rem;display:none;font-size:.8rem;color:#fbbf24}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#ec4899;margin:.5rem 0}
+.chapter-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1.5rem 0;text-align:left}
+.ch-box{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem}
+.ch-box .ch-label{font-size:.7rem;text-transform:uppercase;color:#64748b;margin-bottom:.25rem}
+.ch-box .ch-score{font-size:1.1rem;font-weight:700}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}.chapter-breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 18-19 Practice Exam</h1>
+<p class="subtitle">Cancer &amp; Infection &middot; 20 Mixed Questions &middot; 10 per Chapter</p>
+</div>
+<div class="exam-info">Mixed practice exam covering Ch 18 (Cancer) and Ch 19 (Infection). All-new scenarios not found in the chapter drills. Includes chapter-breakdown scoring, 3 SATA, and 2 trap questions.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Exam Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="chapter-breakdown" id="chapterBreakdown"></div>
+<button class="btn-restart" onclick="restartQuiz()">Restart Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-ch18-19-practice';
+const EXAM_LABEL='Ch 18-19 Practice Exam — Cancer & Infection (20Q)';
+const questions=[
+{id:1,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A patient receiving cisplatin chemotherapy has a serum creatinine that increased from 1.0 to 2.4 mg/dL over the past 48 hours. The nurse recognizes this finding as:',
+options:[
+{letter:'A',text:'An expected response to cisplatin that will self-resolve without intervention.',correct:false,rationale:'Nephrotoxicity from cisplatin is expected but requires intervention — aggressive hydration before, during, and after administration is the standard of care.'},
+{letter:'B',text:'Nephrotoxicity — a known dose-limiting toxicity of platinum-based agents requiring aggressive hydration.',correct:true,rationale:'Cisplatin is highly nephrotoxic. Rising creatinine signals kidney damage. Prevention includes aggressive IV hydration (often 1-2L NS before infusion) and monitoring I&O.'},
+{letter:'C',text:'Tumor lysis syndrome requiring emergent dialysis.',correct:false,rationale:'TLS presents with hyperkalemia, hyperuricemia, hyperphosphatemia, and hypocalcemia — not isolated creatinine elevation after cisplatin.'},
+{letter:'D',text:'A sign of dehydration from nausea/vomiting that will improve with antiemetics alone.',correct:false,rationale:'While N/V can contribute to dehydration, the magnitude of creatinine rise with cisplatin indicates direct nephrotoxic damage, not simple dehydration.'}
+],vocabTip:'What This Was Testing: Cisplatin = nephrotoxic. Test Clue: "Platinum agent," "creatinine rising." Fast Rule: If you see [cisplatin/carboplatin] → think [kidneys, aggressive hydration, I&O monitoring].'},
+
+{id:2,chapter:18,difficulty:'hard',sata:false,trap:true,
+stem:'A patient with lung cancer asks, "My tumor marker came back normal after my last chemo cycle. Does that mean I\'m cured?" The nurse\'s best response is:',
+options:[
+{letter:'A',text:'"Yes — a normal tumor marker means no detectable cancer cells remain in your body."',correct:false,rationale:'Tumor markers can be normal despite residual disease. They are not diagnostic tools and have limited sensitivity.'},
+{letter:'B',text:'"Tumor markers are used to monitor treatment response over time, not to confirm cure. We use imaging and clinical assessment together."',correct:true,rationale:'Tumor markers track trends in treatment response. A single normal value does NOT confirm cure — markers can be normal with residual microscopic disease. Multiple data points (imaging, markers, clinical findings) are used together.'},
+{letter:'C',text:'"We need to repeat the test in 24 hours to confirm accuracy before making any conclusions."',correct:false,rationale:'While serial monitoring is appropriate, repeating in 24 hours is not standard practice. Tumor markers are trended over cycles, not hours.'},
+{letter:'D',text:'"Tumor markers are only useful for screening — they cannot track treatment response."',correct:false,rationale:'The opposite — tumor markers are NOT used for screening (poor sensitivity/specificity) but ARE used to monitor treatment response over time.'}
+],vocabTip:'What This Was Testing: Tumor markers = monitoring tool, NOT diagnostic/cure confirmation. Test Clue: "Does this mean I\'m cured," "marker came back normal." Fast Rule: If you see [tumor marker normal] → think [trend monitoring only — not proof of cure].'},
+
+{id:3,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A patient receiving doxorubicin (Adriamycin) asks why the nurse is checking their heart function before each cycle. The nurse explains that this drug carries a risk of:',
+options:[
+{letter:'A',text:'Hepatotoxicity that presents as jaundice and elevated liver enzymes.',correct:false,rationale:'While some chemo drugs are hepatotoxic, doxorubicin\'s signature toxicity is cardiotoxicity — not liver damage.'},
+{letter:'B',text:'Cumulative, irreversible cardiotoxicity that requires ejection fraction monitoring.',correct:true,rationale:'Doxorubicin has a lifetime maximum dose due to cumulative cardiotoxicity. MUGA scans or echocardiograms track ejection fraction. Damage is dose-dependent and irreversible.'},
+{letter:'C',text:'Pulmonary fibrosis requiring baseline and serial PFTs.',correct:false,rationale:'Pulmonary fibrosis is associated with bleomycin, not doxorubicin. Bleomycin requires pulmonary function monitoring.'},
+{letter:'D',text:'Peripheral neuropathy that affects fine motor skills.',correct:false,rationale:'Peripheral neuropathy is characteristic of vincristine and taxanes — not doxorubicin. Think "vinca = vincristine = nerves."'}
+],vocabTip:'What This Was Testing: Doxorubicin (Adriamycin) = cardiotoxic. Test Clue: "Heart function," "ejection fraction," "lifetime dose." Fast Rule: If you see [doxorubicin/Adriamycin] → think [heart, MUGA scan, cumulative dose limit].'},
+
+{id:4,chapter:18,difficulty:'hard',sata:true,
+stem:'A patient is experiencing tumor lysis syndrome (TLS) 48 hours after starting chemotherapy for acute leukemia. Which lab findings does the nurse expect? (Select all that apply.)',
+options:[
+{letter:'A',text:'Hyperkalemia',correct:true,rationale:'Cell lysis releases intracellular potassium into the blood. K+ is the primary intracellular cation — massive cell death = massive K+ release.'},
+{letter:'B',text:'Hypercalcemia',correct:false,rationale:'TLS causes HYPOcalcemia, not hypercalcemia. The released phosphorus binds calcium, pulling it out of circulation. Hypercalcemia is a separate oncologic emergency.'},
+{letter:'C',text:'Hyperuricemia',correct:true,rationale:'Rapid cell death releases purines that are metabolized to uric acid. Elevated uric acid can crystallize in renal tubules, causing acute kidney injury.'},
+{letter:'D',text:'Hyperphosphatemia',correct:true,rationale:'Intracellular phosphorus floods the blood as cells lyse. The elevated phosphorus binds serum calcium, causing secondary hypocalcemia.'}
+],vocabTip:'What This Was Testing: TLS lab profile = hyperkalemia, hyperuricemia, hyperphosphatemia, HYPOcalcemia. Test Clue: "After starting chemo," "acute leukemia," "cell lysis." Fast Rule: If you see [TLS] → think [3 HYPERs (K, uric acid, phos) + 1 HYPO (Ca)].'},
+
+{id:5,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse is caring for a patient with a sealed radiation implant (brachytherapy) for cervical cancer. Which action demonstrates correct radiation safety?',
+options:[
+{letter:'A',text:'Spending 45 minutes at bedside providing detailed patient education.',correct:false,rationale:'Violates TIME principle. Nurses should limit time near sealed sources — keep visits brief (30 min/shift maximum). Provide education from a distance or before implant placement.'},
+{letter:'B',text:'Assigning the same nurse to this patient for all shifts to build rapport.',correct:false,rationale:'Violates the principle of limiting exposure. Staff should rotate to distribute radiation exposure among multiple caregivers.'},
+{letter:'C',text:'Providing care efficiently from the greatest distance possible while maintaining safety.',correct:true,rationale:'Radiation safety = Time (minimize), Distance (maximize), Shielding (use when available). The nurse maximizes distance and minimizes time at bedside while still providing necessary care.'},
+{letter:'D',text:'Using a lead-lined container to pick up the implant if it becomes dislodged.',correct:false,rationale:'NEVER pick up a dislodged implant with hands — use long-handled forceps to place it in the lead container. This minimizes both contact time and proximity.'}
+],vocabTip:'What This Was Testing: Brachytherapy nursing care — Time, Distance, Shielding. Test Clue: "Sealed implant," "radiation safety." Fast Rule: If you see [brachytherapy/sealed source] → think [Time (limit), Distance (maximize), Shielding (lead)].'},
+
+{id:6,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse notices that 3 patients on the same medical-surgical unit developed Clostridioides difficile (C. diff) infections within one week. All 3 patients were on broad-spectrum antibiotics. The nurse identifies this cluster as:',
+options:[
+{letter:'A',text:'A pandemic — since C. diff is spreading beyond the expected geographic range.',correct:false,rationale:'Pandemic = worldwide spread beyond all expected boundaries. Three cases on one unit is localized, not global.'},
+{letter:'B',text:'An endemic infection — since C. diff is always present on hospital units.',correct:false,rationale:'Endemic = constant, expected presence in a region. While C. diff exists in hospitals, a cluster of 3 cases above baseline represents something more.'},
+{letter:'C',text:'An epidemic/outbreak — since the number of cases exceeds the expected baseline for this unit.',correct:true,rationale:'Epidemic (outbreak) = occurrence of disease above the expected frequency in a defined area. Three cases in one week on one unit exceeds the normal baseline, making this an outbreak requiring investigation.'},
+{letter:'D',text:'Colonization — since all 3 patients are asymptomatic carriers who don\'t need treatment.',correct:false,rationale:'The question states they developed C. diff INFECTIONS, meaning symptomatic disease — not asymptomatic colonization.'}
+],vocabTip:'What This Was Testing: Endemic vs. Epidemic vs. Pandemic. Test Clue: "Cluster," "above expected," "same unit." Fast Rule: Endemic = expected baseline; Epidemic = above baseline in one area; Pandemic = worldwide.'},
+
+{id:7,chapter:19,difficulty:'medium',sata:false,trap:true,
+stem:'A nursing student asks why the hospital uses soap and water instead of alcohol-based hand rub (ABHR) for patients with C. difficile. The instructor explains that ABHR is ineffective because:',
+options:[
+{letter:'A',text:'C. diff bacteria are resistant to all chemical disinfectants.',correct:false,rationale:'C. diff is not resistant to ALL disinfectants — bleach-based solutions are effective. The issue is specifically with alcohol.'},
+{letter:'B',text:'C. diff forms spores that alcohol cannot penetrate or destroy.',correct:true,rationale:'C. difficile forms endospores as a survival mechanism. Alcohol cannot break through the spore coat. Only friction (soap + water) physically removes spores from hands, and bleach kills them on surfaces.'},
+{letter:'C',text:'Alcohol evaporates too quickly to kill any healthcare-associated pathogens.',correct:false,rationale:'ABHR is highly effective against most pathogens (including MRSA, VRE). The issue is specifically C. diff spores — not all HAI organisms.'},
+{letter:'D',text:'C. diff is a virus, and alcohol only works against bacteria.',correct:false,rationale:'C. diff is a gram-positive, spore-forming BACTERIUM — not a virus. Alcohol works against many bacteria; the problem is the spore form specifically.'}
+],vocabTip:'What This Was Testing: C. diff = spore-forming → ABHR ineffective → use SOAP AND WATER. Test Clue: "ABHR," "C. diff," "ineffective." Fast Rule: If you see [C. diff hand hygiene] → think [soap and water ONLY — alcohol cannot kill spores].'},
+
+{id:8,chapter:19,difficulty:'hard',sata:false,trap:false,
+stem:'A patient is admitted with fever, productive cough, and infiltrates on chest X-ray. They were hospitalized 5 days ago for an unrelated surgery. The nurse documents this pneumonia as:',
+options:[
+{letter:'A',text:'Community-acquired pneumonia (CAP) since symptoms began before the current admission.',correct:false,rationale:'Even though the patient is being readmitted, the pneumonia developed AFTER a previous hospitalization (within 48-72 hours rule window of the prior stay). The exposure was nosocomial.'},
+{letter:'B',text:'A healthcare-associated infection (HAI) since the infection developed more than 48-72 hours after the previous hospitalization.',correct:true,rationale:'HAI (nosocomial infection) = infection that develops 48-72+ hours after admission to a healthcare facility. This patient was hospitalized 5 days ago — the pneumonia was likely acquired during that stay and is now manifesting.'},
+{letter:'C',text:'An opportunistic infection since the patient is immunocompromised from surgery.',correct:false,rationale:'Opportunistic infections occur in immunocompromised patients (HIV, transplant). Recent surgery alone does not make this "opportunistic" — it is healthcare-associated due to timing.'},
+{letter:'D',text:'A secondary infection since it occurred after the primary surgical procedure.',correct:false,rationale:'While technically a "secondary" problem, the correct clinical classification is HAI because it relates to the healthcare setting exposure, which drives infection prevention interventions.'}
+],vocabTip:'What This Was Testing: HAI (nosocomial) = 48-72 hour rule. Test Clue: "Hospitalized X days ago," "develops after admission." Fast Rule: If you see [infection developing 48-72+ hours after hospital admission] → think [HAI/nosocomial].'},
+
+{id:9,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A patient with breast cancer is scheduled for neoadjuvant chemotherapy. The patient asks, "Why am I getting chemo BEFORE surgery instead of after?" The nurse explains:',
+options:[
+{letter:'A',text:'"Neoadjuvant therapy is given first to shrink the tumor, making surgical removal easier or possible."',correct:true,rationale:'Neoadjuvant = treatment given BEFORE the primary treatment (usually surgery). Goal: reduce tumor size to make surgery less extensive, convert inoperable tumors to operable, or allow breast conservation instead of mastectomy.'},
+{letter:'B',text:'"Your surgeon prefers to remove any remaining cancer cells after chemotherapy has eliminated most of them."',correct:false,rationale:'This describes the rationale for adjuvant (post-surgical) therapy, not neoadjuvant. Neoadjuvant specifically aims to shrink the tumor BEFORE the operation.'},
+{letter:'C',text:'"Chemotherapy before surgery eliminates the need for radiation therapy afterward."',correct:false,rationale:'Neoadjuvant chemo does not eliminate the need for radiation. Treatment modalities are determined independently based on staging and tumor characteristics.'},
+{letter:'D',text:'"Neoadjuvant means the cancer has already metastasized, so surgery alone won\'t be curative."',correct:false,rationale:'Neoadjuvant does NOT mean metastatic disease. It means pre-surgical treatment to improve surgical outcomes. Metastatic disease may require systemic therapy for different reasons.'}
+],vocabTip:'What This Was Testing: Neoadjuvant = BEFORE primary treatment; Adjuvant = AFTER. Test Clue: "Before surgery," "shrink tumor." Fast Rule: If you see [neo-] prefix → think [before/new]. Neoadjuvant = before. Adjuvant = after.'},
+
+{id:10,chapter:19,difficulty:'medium',sata:true,
+stem:'The infection control nurse is educating staff about multidrug-resistant organisms (MDROs). Which organisms are correctly classified as MDROs? (Select all that apply.)',
+options:[
+{letter:'A',text:'MRSA (Methicillin-resistant Staphylococcus aureus)',correct:true,rationale:'MRSA is resistant to all beta-lactam antibiotics (penicillins, cephalosporins). It is one of the most common MDROs in healthcare settings.'},
+{letter:'B',text:'VRE (Vancomycin-resistant Enterococcus)',correct:true,rationale:'VRE is resistant to vancomycin, which is normally the drug of last resort for gram-positive infections. Treatment options are very limited.'},
+{letter:'C',text:'CRE (Carbapenem-resistant Enterobacteriaceae)',correct:true,rationale:'CRE is resistant to carbapenems — the "last line" antibiotics for gram-negative infections. CDC has classified CRE as an "urgent threat" due to extremely limited treatment options.'},
+{letter:'D',text:'Group A Streptococcus (strep throat)',correct:false,rationale:'Group A Strep remains susceptible to penicillin and is NOT classified as an MDRO. It is a common community-acquired infection with straightforward antibiotic treatment.'}
+],vocabTip:'What This Was Testing: MDRO identification — MRSA, VRE, CRE, ESBL. Test Clue: "Resistant," "multidrug." Fast Rule: If you see [MDRO] → think [MRSA, VRE, CRE, ESBL — all require Contact Precautions].'},
+
+{id:11,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A patient undergoing chemotherapy has a white blood cell count of 1,200/mm³ with an absolute neutrophil count (ANC) of 400. The nurse implements:',
+options:[
+{letter:'A',text:'Standard precautions only — the WBC is only slightly below normal.',correct:false,rationale:'An ANC of 400 is severely neutropenic (below 500). This patient is at extreme risk for infection and needs protective isolation, not just standard precautions.'},
+{letter:'B',text:'Neutropenic precautions: private room, no fresh flowers/fruit, strict hand hygiene, assess for subtle infection signs.',correct:true,rationale:'ANC <500 = severe neutropenia. Neutropenic precautions protect the immunocompromised patient: private room, no fresh flowers/standing water (harbor Aspergillus), no raw fruits/vegetables, mask for staff with any respiratory symptoms, monitor for subtle signs (fever may be the ONLY sign).'},
+{letter:'C',text:'Droplet precautions with surgical mask within 3 feet of the patient.',correct:false,rationale:'Droplet precautions protect OTHERS from the patient\'s infection. This patient is not infectious — they need PROTECTION from environmental organisms.'},
+{letter:'D',text:'Contact precautions with gown and gloves for all patient interactions.',correct:false,rationale:'Contact precautions are used for patients with infections like MRSA, VRE, or C. diff. This patient needs protective (reverse) isolation — protecting THEM from others.'}
+],vocabTip:'What This Was Testing: Nadir/neutropenia management — ANC <500 = severe. Test Clue: "ANC 400," "WBC low," "chemotherapy." Fast Rule: If you see [ANC <500] → think [severe neutropenia, protective isolation, fever = medical emergency].'},
+
+{id:12,chapter:19,difficulty:'hard',sata:false,trap:false,
+stem:'A nurse is caring for a patient on airborne precautions for pulmonary tuberculosis. Which room setup is required?',
+options:[
+{letter:'A',text:'Private room with positive-pressure airflow and HEPA filtration.',correct:false,rationale:'POSITIVE pressure is used for immunocompromised patients (protective isolation). TB requires NEGATIVE pressure to prevent contaminated air from escaping into the hallway.'},
+{letter:'B',text:'Private room with negative-pressure airflow and N95 respirator for anyone entering.',correct:true,rationale:'Airborne precautions require: negative-pressure room (air flows IN, not out), door closed, N95 respirator (not surgical mask) for all who enter. TB, measles, and varicella require airborne precautions.'},
+{letter:'C',text:'Semi-private room with a curtain divider and surgical mask for the patient.',correct:false,rationale:'Airborne precautions require a PRIVATE room — never semi-private. A curtain does nothing to contain airborne particles that travel on air currents.'},
+{letter:'D',text:'Private room with the door open to increase ventilation and dilute airborne particles.',correct:false,rationale:'The door must remain CLOSED in a negative-pressure room. Opening the door defeats the negative-pressure system and allows contaminated air to escape.'}
+],vocabTip:'What This Was Testing: Airborne precautions — negative pressure, N95, closed door. Test Clue: "TB," "airborne," "room setup." Fast Rule: Airborne (TB, measles, varicella) = N95 + negative pressure + door closed. Droplet = surgical mask + 3 feet.'},
+
+{id:13,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse notices a chemotherapy drug is infusing and the patient reports burning pain at the IV site with swelling. The site is cool with no blood return. The nurse\'s FIRST action is:',
+options:[
+{letter:'A',text:'Apply warm compresses to the site to promote absorption of the drug.',correct:false,rationale:'Warm compresses are only used for specific vesicants (vinca alkaloids). Applying warmth to the wrong vesicant can worsen tissue damage. The FIRST action is always to stop the infusion.'},
+{letter:'B',text:'Stop the infusion immediately and aspirate residual drug from the catheter.',correct:true,rationale:'Extravasation protocol: 1) STOP the infusion immediately 2) aspirate any residual drug 3) leave the needle in place briefly to aspirate 4) apply the appropriate antidote (warm vs. cold depends on the drug). Never flush — it pushes more vesicant into tissue.'},
+{letter:'C',text:'Slow the infusion rate and elevate the extremity.',correct:false,rationale:'NEVER slow a vesicant infusion when extravasation is suspected — STOP it completely. Continuing to infuse at any rate forces more drug into tissue causing further necrosis.'},
+{letter:'D',text:'Flush the line with normal saline to dilute the concentration of the drug.',correct:false,rationale:'NEVER flush during extravasation — this pushes more vesicant into subcutaneous tissue, dramatically increasing the area of tissue damage and necrosis.'}
+],vocabTip:'What This Was Testing: Extravasation = STOP first, then aspirate. Test Clue: "Burning," "swelling," "no blood return," "cool site." Fast Rule: If you see [extravasation] → think [STOP infusion → aspirate → antidote]. Never flush, never continue.'},
+
+{id:14,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse is educating a patient about the correct sequence of donning (putting on) personal protective equipment (PPE) for Contact + Droplet precautions. What is the correct order?',
+options:[
+{letter:'A',text:'Gown → Mask → Goggles → Gloves',correct:true,rationale:'Donning order: Gown first (covers body), then Mask/respirator (protects airway), then Goggles/face shield (protects eyes), then Gloves LAST (go over gown cuffs to create seal). Memory: "Going My Great Grandmother\'s" = Gown, Mask, Goggles, Gloves.'},
+{letter:'B',text:'Gloves → Gown → Mask → Goggles',correct:false,rationale:'Gloves go on LAST, not first. If you glove first, you contaminate your gloves while donning other equipment, defeating the purpose.'},
+{letter:'C',text:'Mask → Goggles → Gown → Gloves',correct:false,rationale:'While the mask-goggles portion is correct relative to each other, the gown must go on FIRST before facial protection.'},
+{letter:'D',text:'Gown → Gloves → Mask → Goggles',correct:false,rationale:'Gloves must go on LAST to cover the gown cuffs and create a complete barrier. Putting gloves on before the mask means touching your face with contaminated gloves during mask application.'}
+],vocabTip:'What This Was Testing: PPE donning order. Test Clue: "Correct sequence," "putting on." Fast Rule: DON = Gown → Mask → Goggles → Gloves. DOFF (remove) = Gloves → Goggles → Gown → Mask (reverse, gloves FIRST off because most contaminated).'},
+
+{id:15,chapter:18,difficulty:'hard',sata:true,
+stem:'A patient with advanced cancer is admitted with confusion, polyuria, constipation, and a serum calcium of 13.2 mg/dL. The nurse anticipates which interventions for hypercalcemia of malignancy? (Select all that apply.)',
+options:[
+{letter:'A',text:'Aggressive IV normal saline hydration (200-300 mL/hr).',correct:true,rationale:'First-line treatment: NS hydration dilutes calcium and promotes renal calcium excretion. Typical rate 200-300 mL/hr initially to rehydrate and enhance calciuresis.'},
+{letter:'B',text:'Administration of IV bisphosphonates (pamidronate or zoledronic acid).',correct:true,rationale:'Bisphosphonates inhibit osteoclast activity, reducing calcium release from bone. They are the mainstay of treatment for hypercalcemia of malignancy but take 24-72 hours for full effect.'},
+{letter:'C',text:'Fluid restriction to 1000 mL/day to prevent fluid overload.',correct:false,rationale:'Fluid RESTRICTION would worsen hypercalcemia by concentrating calcium. The treatment is aggressive HYDRATION — the opposite of restriction.'},
+{letter:'D',text:'Administration of loop diuretics (furosemide) AFTER adequate hydration.',correct:true,rationale:'Loop diuretics promote calcium excretion in urine — but ONLY after the patient is adequately hydrated. Giving furosemide to a dehydrated patient worsens calcium concentration.'}
+],vocabTip:'What This Was Testing: Hypercalcemia of malignancy — an oncologic emergency. Test Clue: "Confusion, polyuria, constipation, Ca 13.2." Fast Rule: Hypercalcemia Sx = "Bones, Stones, Moans, Groans." Treatment = hydrate first → then bisphosphonates + loop diuretics.'},
+
+{id:16,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A patient\'s blood culture returns positive for MRSA bacteremia. The nurse anticipates the provider will prescribe:',
+options:[
+{letter:'A',text:'Amoxicillin — a broad-spectrum penicillin effective against most Staphylococcus.',correct:false,rationale:'MRSA is resistant to ALL beta-lactams including penicillins (amoxicillin), cephalosporins, and carbapenems. This is what "methicillin-resistant" means.'},
+{letter:'B',text:'Vancomycin IV — the primary treatment for serious MRSA infections.',correct:true,rationale:'Vancomycin is the first-line treatment for MRSA bacteremia and serious MRSA infections. It requires trough levels to ensure therapeutic dosing and prevent nephrotoxicity/ototoxicity.'},
+{letter:'C',text:'Azithromycin — a macrolide antibiotic that covers gram-positive organisms.',correct:false,rationale:'Macrolides have limited activity against MRSA and are NOT appropriate for bacteremia. Serious bloodstream infections require IV bactericidal agents like vancomycin.'},
+{letter:'D',text:'Metronidazole (Flagyl) — effective against resistant gram-positive infections.',correct:false,rationale:'Metronidazole is primarily effective against anaerobes and is the treatment for C. difficile — NOT MRSA. MRSA is an aerobic gram-positive organism.'}
+],vocabTip:'What This Was Testing: MRSA treatment = vancomycin (IV for serious infections). Test Clue: "MRSA," "bacteremia," "resistant." Fast Rule: MRSA → vancomycin IV (monitor troughs). CA-MRSA skin infections → TMP-SMX or doxycycline PO.'},
+
+{id:17,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A patient\'s pathology report reads: "T2 N1 M0 — Stage IIB invasive ductal carcinoma." The nurse interprets N1 as:',
+options:[
+{letter:'A',text:'The tumor has not invaded nearby structures (non-invasive).',correct:false,rationale:'The "T" describes tumor size/invasion. "N" specifically describes lymph NODE involvement, not tumor invasion.'},
+{letter:'B',text:'Cancer has spread to 1-3 regional lymph nodes.',correct:true,rationale:'In TNM staging: N = Nodes. N0 = no node involvement, N1 = spread to regional lymph nodes (typically 1-3 axillary nodes for breast cancer). Node involvement significantly affects staging and treatment decisions.'},
+{letter:'C',text:'No distant metastasis has been detected.',correct:false,rationale:'No distant metastasis is "M0" — not N1. The M in TNM describes Metastasis to distant sites.'},
+{letter:'D',text:'The tumor is Grade 1 (well-differentiated).',correct:false,rationale:'TNM staging is separate from grading. Grade refers to how abnormal cells look microscopically. N1 refers to lymph node status, not cellular differentiation.'}
+],vocabTip:'What This Was Testing: TNM staging system — T(umor size), N(ode involvement), M(etastasis). Test Clue: "N1," "pathology report." Fast Rule: T = Tumor size/extent; N = Nodes (0-3); M = Metastasis (0 or 1). Higher numbers = worse.'},
+
+{id:18,chapter:19,difficulty:'hard',sata:false,trap:false,
+stem:'The charge nurse receives a notification that a patient admitted 6 hours ago has tested positive for active pulmonary tuberculosis. The patient has been in a standard semi-private room. The charge nurse\'s PRIORITY action is:',
+options:[
+{letter:'A',text:'Immediately move the patient to a negative-pressure airborne isolation room.',correct:true,rationale:'Priority is containment. Active pulmonary TB requires immediate airborne precautions: negative-pressure room, closed door, N95 for all entering. Every minute in a standard room exposes the roommate and staff to airborne Mycobacterium tuberculosis.'},
+{letter:'B',text:'Place a surgical mask on the patient and contact infection control by the end of the shift.',correct:false,rationale:'While masking the patient is appropriate during transport, the PRIORITY is room change to negative-pressure. Waiting until end of shift to contact infection control delays critical exposure investigation.'},
+{letter:'C',text:'Administer the first dose of isoniazid (INH) before transferring the patient.',correct:false,rationale:'While TB treatment is important, the priority is ISOLATION to prevent further exposure. Starting medication does not immediately make the patient non-infectious — this takes 2-3 weeks of effective therapy.'},
+{letter:'D',text:'Notify the roommate that they were exposed but reassure them TB is not easily transmitted.',correct:false,rationale:'TB IS easily transmitted via airborne droplet nuclei. The priority is isolating the source, then conducting exposure investigation. The roommate will need TB testing (typically at 8-12 weeks post-exposure).'}
+],vocabTip:'What This Was Testing: TB exposure response — isolate FIRST. Test Clue: "Active TB," "standard room," "priority." Fast Rule: Active TB in wrong room → MOVE TO NEGATIVE PRESSURE IMMEDIATELY. Then notify infection control, then exposure investigation.'},
+
+{id:19,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:'A patient asks, "What is the difference between a benign tumor and a malignant one?" The nurse\'s BEST explanation is:',
+options:[
+{letter:'A',text:'"Benign tumors grow slowly, stay in one place with a capsule, and do not invade other tissues. Malignant tumors grow rapidly, lack a capsule, and can spread to distant sites."',correct:true,rationale:'Key differences: Benign = encapsulated, slow-growing, well-differentiated, localized, non-invasive. Malignant = unencapsulated, rapid growth, poorly differentiated, invasive, can metastasize to distant sites.'},
+{letter:'B',text:'"Benign means it will never become cancer. Malignant means it has already metastasized."',correct:false,rationale:'Benign tumors CAN potentially transform to malignant (though rare). Malignant does NOT mean it has already metastasized — it means it has the POTENTIAL to invade and spread.'},
+{letter:'C',text:'"The only difference is size — benign tumors are small and malignant ones are large."',correct:false,rationale:'Size alone does not determine benign vs. malignant. Some benign tumors grow very large (uterine fibroids). The distinction is about cellular behavior, not size.'},
+{letter:'D',text:'"Benign tumors never need treatment, while malignant tumors always require chemotherapy."',correct:false,rationale:'Benign tumors may need removal if they compress vital structures (brain meningioma). Not all malignant tumors require chemo — some are treated with surgery alone or radiation.'}
+],vocabTip:'What This Was Testing: Benign vs. Malignant characteristics. Test Clue: "Difference," "benign vs. malignant." Fast Rule: Benign = capsule, slow, stays put, well-differentiated. Malignant = no capsule, fast, invades, can metastasize.'},
+
+{id:20,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:'A nurse is caring for a post-surgical patient who develops a fever of 101.8°F (38.8°C) on post-op day 3. The nurse assesses the patient and finds erythema, warmth, and purulent drainage at the surgical incision. The nurse identifies this as a:',
+options:[
+{letter:'A',text:'Normal inflammatory response that does not require intervention in the first 72 hours post-surgery.',correct:false,rationale:'While low-grade fever in the first 24-48 hours can be from surgical inflammation, fever at day 3 WITH purulent drainage and erythema is NOT normal — it indicates active infection.'},
+{letter:'B',text:'Surgical site infection (SSI) — a type of healthcare-associated infection requiring culture and antibiotic therapy.',correct:true,rationale:'SSI = infection at or near the surgical incision within 30 days of surgery (or 90 days if implant). Signs: fever, erythema, warmth, purulent drainage. This is classified as a HAI because it resulted from the healthcare procedure.'},
+{letter:'C',text:'Dehiscence with secondary contamination requiring emergent return to the OR.',correct:false,rationale:'Dehiscence is wound separation/opening — not described here. Purulent drainage and erythema indicate infection, not mechanical wound failure.'},
+{letter:'D',text:'A community-acquired infection since the patient likely brought the bacteria from home.',correct:false,rationale:'Infections related to surgical procedures performed in healthcare settings are HAIs, not community-acquired — even if the patient\'s own skin flora is the causative organism.'}
+],vocabTip:'What This Was Testing: SSI as a type of HAI. Test Clue: "Post-op day 3," "surgical incision," "purulent drainage." Fast Rule: Infection at surgical site within 30 days = SSI = HAI. Signs = redness, warmth, drainage, fever.'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+let currentChapter=0;
+const chapterNames={18:'Ch 18 — Cancer',19:'Ch 19 — Infection'};
+questions.forEach((q,idx)=>{
+if(q.chapter!==currentChapter){
+currentChapter=q.chapter;
+const div=document.createElement('div');
+div.className='chapter-divider';
+div.innerHTML=`<span>${chapterNames[currentChapter]}</span>`;
+area.appendChild(div);
+}
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+const isSata=q.sata===true;
+const trapBadge=q.trap?'<span class="badge badge-trap">TRAP</span>':'';
+const sataBadge=isSata?'<span class="badge badge-sata">SATA</span>':'';
+card.innerHTML=`
+<div class="q-top">
+<span class="q-num">Q${idx+1}</span>
+<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>
+${trapBadge}${sataBadge}
+</div>
+<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`
+<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-submit" id="btn-${q.id}" onclick="submitQ(${q.id})">Submit Answer</button>
+<div class="vocab-tip" id="tip-${q.id}"><strong>Vocab Tip:</strong> ${q.vocabTip}</div>
+${q.trap?`<div class="trap-callout" id="trap-${q.id}">&#9888; TRAP QUESTION: This question tests a common misconception. Read the rationale carefully!</div>`:''}
+`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(answered[qId])return;
+if(!selections[qId])selections[qId]=[];
+if(isSata){
+const idx=selections[qId].indexOf(letter);
+if(idx>-1)selections[qId].splice(idx,1);
+else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function submitQ(qId){
+if(answered[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.style.cursor='default';
+if(o.correct)el.classList.add('correct-show');
+else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;
+document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();
+saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){
+const pct=(Object.keys(answered).length/questions.length)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function showScore(){
+const chScores={18:0,19:0};
+const chTotals={18:0,19:0};
+const chNames={18:'Ch 18 Cancer',19:'Ch 19 Infection'};
+const chColors={18:'#f472b6',19:'#67e8f9'};
+questions.forEach(q=>{
+chTotals[q.chapter]++;
+if(answered[q.id]){
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))chScores[q.chapter]++;
+}
+});
+let totalCorrect=0,totalQ=0;
+[18,19].forEach(ch=>{totalCorrect+=chScores[ch];totalQ+=chTotals[ch];});
+const pct=Math.round((totalCorrect/totalQ)*100);
+document.getElementById('finalScore').textContent=pct+'%';
+document.getElementById('finalText').textContent=`${totalCorrect} of ${totalQ} correct`;
+const bd=document.getElementById('chapterBreakdown');
+bd.innerHTML='';
+[18,19].forEach(ch=>{
+const box=document.createElement('div');
+box.className='ch-box';
+box.innerHTML=`<div class="ch-label">${chNames[ch]}</div><div class="ch-score" style="color:${chColors[ch]}">${chScores[ch]}/${chTotals[ch]}</div>`;
+bd.appendChild(box);
+});
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:totalCorrect,total:totalQ,date:new Date().toLocaleDateString(),chapters:{18:{correct:chScores[18],total:chTotals[18]},19:{correct:chScores[19],total:chTotals[19]}}};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:totalCorrect,total:totalQ,topicBreakdown:{18:{correct:chScores[18],total:chTotals[18]},19:{correct:chScores[19],total:chTotals[19]}}});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){
+answered={};
+selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+}
+
+function saveState(){
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));
+}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){
+const state=JSON.parse(saved);
+answered=state.answered||{};
+selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{
+const q=questions.find(x=>x.id==qId);
+if(!q)return;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId]||[];
+const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+if(sel.includes(o.letter))el.classList.add('selected');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+el.style.cursor='default';
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+});
+updateProgress();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const r=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=r.score+'%';
+document.getElementById('lastDate').textContent=r.date;
+}
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
