@@ -129,7 +129,7 @@ const LIFE_EVENTS = [
   { date: '2026-05-18', type: 'travel', label: 'Atlanta Day 2', detail: 'Spa Land + Fun Spot', icon: '💆🏽‍♀️' },
   { date: '2026-05-19', type: 'concert', label: 'Don Toliver — VIP', detail: 'State Farm Arena 7:30pm', icon: '🎤' },
   { date: '2026-05-20', type: 'travel', label: 'Drive back from ATL', detail: 'Brunch + return', icon: '🚗' },
-  { date: '2026-05-23', type: 'event', label: 'Wedding', detail: 'Port Saint Lucie', icon: '💍' },
+  { date: '2026-05-23T20:00:00', type: 'event', label: 'Wedding', detail: 'Port Saint Lucie · 8pm', icon: '💍' },
   { date: '2026-05-25', type: 'holiday', label: 'Memorial Day', detail: '', icon: '🇺🇸' },
   { date: '2026-06-05', type: 'event', label: "Keke's Birthday + Cousin's Grad", detail: 'Fri · Black & White · 7:30pm', icon: '🎂🎓' },
   { date: '2026-06-19', type: 'holiday', label: 'Juneteenth', detail: '', icon: '✊🏾' },
@@ -161,8 +161,16 @@ const LAUNCH_TASKS = [
   { id: 'post1', day: '2026-06-10', phase: 'Launch', title: 'POST FIRST VIDEO 🚀', time: '15 min', load: 'Low brain', desc: 'TikTok native scheduler. 7-10pm. THE DAY YOU BECOME A CREATOR.', link: '', linkLabel: '' },
 ];
 
-const todayISO = () => new Date().toISOString().split('T')[0];
-const tomorrowISO = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; };
+const _pad2 = (n) => String(n).padStart(2, '0');
+const _isoLocal = (d) => `${d.getFullYear()}-${_pad2(d.getMonth() + 1)}-${_pad2(d.getDate())}`;
+const todayISO = () => _isoLocal(new Date());
+const tomorrowISO = () => { const d = new Date(); d.setDate(d.getDate() + 1); return _isoLocal(d); };
+// Parse a date string in LOCAL time. A bare 'YYYY-MM-DD' is otherwise read as UTC
+// midnight, which lands on the previous evening in US time zones.
+const parseLocalDate = (s) => {
+  if (typeof s === 'string' && s.length === 10 && s.indexOf('T') === -1) return new Date(s + 'T00:00:00');
+  return new Date(s);
+};
 const todayKey = () => new Date().toDateString();
 
 // Consecutive-day streak from a list of toDateString() dates, counting back from today.
@@ -262,12 +270,12 @@ const playChime = () => {
   } catch(e) {}
 };
 const daysBetween = (d1, d2) => {
-  const a = new Date(d1); const b = new Date(d2);
+  const a = parseLocalDate(d1); const b = parseLocalDate(d2);
   a.setHours(0,0,0,0); b.setHours(0,0,0,0);
   return Math.round((b - a) / 86400000);
 };
 const formatETA = (date) => {
-  const diff = new Date(date) - new Date();
+  const diff = parseLocalDate(date) - new Date();
   if (diff < 0) return 'now';
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
