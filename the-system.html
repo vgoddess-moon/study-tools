@@ -1604,8 +1604,21 @@ function RitualCheckRow({ done, label, sub, onToggle }) {
   );
 }
 
+function ScriptDrop({ label, text }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-1">
+      <button onClick={() => setOpen(o => !o)} className="mono text-[10px] uppercase tracking-wider text-amber-700">
+        {open ? `hide ${label} ▲` : `show ${label} ▼`}
+      </button>
+      {open && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 text-sm italic text-stone-700 leading-relaxed">“{text}”</div>
+      )}
+    </div>
+  );
+}
+
 function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prompt }) {
-  const [showAffirm, setShowAffirm] = useState(false);
   const [showProtect, setShowProtect] = useState(false);
   const [showMoon, setShowMoon] = useState(moon.nearNew || moon.nearFull);
   const [jtext, setJtext] = useState(ritualToday.journal || '');
@@ -1649,10 +1662,8 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
         {MORNING_ITEMS.map(it => (
           <RitualCheckRow key={it.key} done={!!ritualToday.morning[it.key]} label={it.label} sub={it.sub} onToggle={() => toggleMorning(it.key)} />
         ))}
-        <button onClick={() => setShowAffirm(s => !s)} className="mono text-[10px] uppercase tracking-wider text-amber-700 mt-1">{showAffirm ? 'hide affirmation ▲' : 'show affirmation ▼'}</button>
-        {showAffirm && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 text-sm italic text-stone-700 leading-relaxed">“{AFFIRMATION}”</div>
-        )}
+        <ScriptDrop label="grounding statement" text={GROUNDING} />
+        <ScriptDrop label="affirmation" text={AFFIRMATION} />
       </div>
 
       {/* Today's journal prompt */}
@@ -1676,10 +1687,8 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
         {EVENING_ITEMS.map(it => (
           <RitualCheckRow key={it.key} done={!!ritualToday.evening[it.key]} label={it.label} sub={it.sub} onToggle={() => toggleEvening(it.key)} />
         ))}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 text-sm italic text-stone-700 leading-relaxed">
-          <span className="mono text-[9px] uppercase tracking-wider text-amber-700 not-italic block mb-1">mirror scripting</span>
-          “{MIRROR}”
-        </div>
+        <ScriptDrop label="mirror scripting" text={MIRROR} />
+        <ScriptDrop label="affirmation" text={AFFIRMATION} />
       </div>
 
       {/* Non-negotiable habits */}
