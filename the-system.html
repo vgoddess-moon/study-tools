@@ -165,6 +165,85 @@ const todayISO = () => new Date().toISOString().split('T')[0];
 const tomorrowISO = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; };
 const todayKey = () => new Date().toDateString();
 
+// Consecutive-day streak from a list of toDateString() dates, counting back from today.
+const streakFromDateList = (dates) => {
+  let count = 0;
+  let d = new Date();
+  for (let i = 0; i < 90; i++) {
+    if (dates.includes(d.toDateString())) count++;
+    else if (i > 0) break;
+    d = new Date(d.getTime() - 86400000);
+  }
+  return count;
+};
+
+// ============== RITUAL PLAN DATA (Vivian's Ritual & Routine Plan) ==============
+const AFFIRMATION = "I finish nursing school with ease and confidence. My mind is calm, focused, and protected. I am guided toward success every day. Fear leaves my body and strength replaces it. Everything works out in my favor.";
+const GROUNDING = "I release what is not mine. I remain grounded, clear, and protected.";
+const MIRROR = "I already am the version of me I am becoming. My future is pulling me toward it now. I move with confidence, peace, and divine timing.";
+const PROTECTION = "I release what is not mine. I remain grounded, clear, and protected. I am here to give and receive only what is meant for me.";
+
+const MORNING_ITEMS = [
+  { key: 'grounding', label: 'Grounding statement', sub: 'Hand on chest, 3 slow breaths' },
+  { key: 'affirmation', label: 'Affirmation scripting', sub: 'Write it by hand · 5–10 min' },
+  { key: 'movement', label: 'Movement', sub: 'Walk, stretch, dance · 10–20 min' },
+  { key: 'frequency', label: 'Frequency / breathwork', sub: '528Hz or 432Hz, or 5 deep breaths' },
+];
+const EVENING_ITEMS = [
+  { key: 'dream', label: 'Dream journal prep', sub: 'One question for your subconscious' },
+  { key: 'mirror', label: 'Mirror scripting', sub: 'Low light, hand on chest · 3–5 min' },
+  { key: 'evAffirm', label: 'Evening affirmation', sub: 'Write the affirmation once more' },
+  { key: 'sleep', label: 'Protect your sleep', sub: 'No draining content 30 min before bed' },
+];
+const HABITS = [
+  'Affirmations morning + night',
+  'Move your body in some way',
+  'Journal at least one prompt',
+  'Protect your sleep',
+  'Dream journal by the bed',
+  "Don't check if it's 'working' — trust it",
+  'Avoid draining environments',
+  'Keep routine + structure',
+];
+// JS getDay(): 0=Sun … 6=Sat
+const JOURNAL_PROMPTS = {
+  0: { theme: 'Reflection', q: 'What did I learn about myself this week? What am I proud of, even if it was small?' },
+  1: { theme: 'Clarity', q: 'What do I want to feel by the end of this week? What would help me get there?' },
+  2: { theme: 'Fear Release', q: 'What fear showed up today? Is this my intuition or my anxiety talking? What does each one feel like in my body?' },
+  3: { theme: 'Gratitude & Evidence', q: 'What is already working in my life right now, even if it’s small?' },
+  4: { theme: 'Purpose', q: 'How does what I’m doing right now connect to the healer I’m becoming?' },
+  5: { theme: 'Nervous System Check-in', q: 'Did I absorb anyone else’s energy this week? What do I need to release before the weekend?' },
+  6: { theme: 'Manifestation', q: 'Describe your life in 2029 as if it’s already happened. Where are you working? How do you feel? What does your day look like?' },
+};
+const OPP_WINDOWS = [
+  { start: '2026-04-29', end: '2026-10-01', pct: 78, themes: 'Confidence · manifestation · career · networking' },
+  { start: '2027-08-13', end: '2027-12-15', pct: 86, themes: 'Graduation · career breakthrough · financial growth · mentorship' },
+  { start: '2029-01-01', end: '2032-12-31', pct: 91, themes: 'Financial stability · independence · long-term wealth' },
+];
+const activeOppWindow = () => {
+  const n = Date.now();
+  return OPP_WINDOWS.find(w => n >= new Date(w.start).getTime() && n <= new Date(w.end + 'T23:59:59').getTime());
+};
+// Moon phase from synodic month since a known new moon (2000-01-06 18:14 UTC).
+const moonInfo = () => {
+  const synodic = 29.53058867;
+  const knownNew = Date.UTC(2000, 0, 6, 18, 14, 0);
+  let age = ((Date.now() - knownNew) / 86400000) % synodic;
+  if (age < 0) age += synodic;
+  let phase, emoji;
+  if (age < 1.5 || age > synodic - 1.5) { phase = 'New Moon'; emoji = '🌑'; }
+  else if (age < 6.5) { phase = 'Waxing Crescent'; emoji = '🌒'; }
+  else if (age < 8.5) { phase = 'First Quarter'; emoji = '🌓'; }
+  else if (age < 13.5) { phase = 'Waxing Gibbous'; emoji = '🌔'; }
+  else if (age < 16) { phase = 'Full Moon'; emoji = '🌕'; }
+  else if (age < 21.5) { phase = 'Waning Gibbous'; emoji = '🌖'; }
+  else if (age < 23.5) { phase = 'Last Quarter'; emoji = '🌗'; }
+  else { phase = 'Waning Crescent'; emoji = '🌘'; }
+  const nearNew = age < 2 || age > synodic - 2;
+  const nearFull = Math.abs(age - synodic / 2) < 2;
+  return { age, phase, emoji, nearNew, nearFull };
+};
+
 const playChime = () => {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -308,6 +387,9 @@ function Dashboard() {
   // Meditation state
   const [meditationLog, setMeditationLog] = useState([]);
   const [mindfulStreak, setMindfulStreak] = useState(0);
+  // Ritual state
+  const [ritualToday, setRitualToday] = useState({ morning: {}, evening: {}, habits: {}, journal: '' });
+  const [ritualStreak, setRitualStreak] = useState(0);
   // Pomodoro
   const [pomodoro, setPomodoro] = useState(null); // null | 'work' | 'break'
   const [pomodoroSec, setPomodoroSec] = useState(0);
@@ -381,6 +463,10 @@ function Dashboard() {
     if (ml) setMeditationLog(ml);
     const ms = storage.get('mindfulStreak');
     if (ms !== null) setMindfulStreak(ms);
+    const rt = storage.get(`ritual:${todayKey()}`);
+    if (rt) setRitualToday(rt);
+    const rh = storage.get('ritualHistory');
+    if (rh) setRitualStreak(streakFromDateList(rh));
     const ce = storage.get('customEvents');
     if (ce) setCustomEvents(ce);
     let eh = storage.get('examHistory') || [];
@@ -781,6 +867,21 @@ function Dashboard() {
     showToast('Mindful moment logged 🧘', 1500);
   };
 
+  // Ritual: persist today's data and keep a history of active days for the streak
+  const updateRitual = (next, toast) => {
+    setRitualToday(next);
+    storage.set(`ritual:${todayKey()}`, next);
+    let hist = storage.get('ritualHistory') || [];
+    if (!hist.includes(todayKey())) {
+      hist = [...hist, todayKey()].slice(-90);
+      storage.set('ritualHistory', hist);
+    }
+    const s = streakFromDateList(hist);
+    setRitualStreak(s);
+    storage.set('ritualStreak', s);
+    if (toast) showToast(toast, 1500);
+  };
+
   // Pomodoro
   const startPomodoro = () => {
     setPomodoro('work');
@@ -835,6 +936,7 @@ function Dashboard() {
   // Tab list varies based on exam mode
   const tabs = [
     { id: 'today', label: 'Today' },
+    { id: 'ritual', label: 'Ritual' },
     { id: 'study', label: 'Study' },
     { id: 'launch', label: 'Launch' },
     { id: 'road', label: 'Road' },
@@ -917,6 +1019,8 @@ function Dashboard() {
 
             {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
+            {tab === 'ritual' && <RitualView ritualToday={ritualToday} onUpdate={updateRitual} ritualStreak={ritualStreak} moon={moonInfo()} oppWindow={activeOppWindow()} prompt={JOURNAL_PROMPTS[new Date().getDay()]} />}
+
             {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { studyStartRef.current = studyTimerSec > 0 ? Date.now() - (studyTimerSec * 1000) : Date.now(); setStudyTimer(true); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
             {tab === 'launch' && <LaunchView launchStarted={launchStarted} daysToLaunch={daysToLaunch} inAtlanta={inAtlanta} examMode={examMode} nextExam={nextExam} todayLaunchTasks={todayLaunchTasks} upcomingLaunchTask={upcomingLaunchTask} launchDone={launchDone} launchOverrides={launchOverrides} onToggle={toggleLaunchTask} onReschedule={rescheduleLaunchTask} launchProgress={launchProgress} checkin={checkin} products={products} revenue={revenue} onAddRevenue={addRevenue} contentIdeas={contentIdeas} onAddContentIdea={addContentIdea} onRemoveContentIdea={removeContentIdea} engagement={engagement} onAddEngagement={addEngagement} />}
@@ -936,7 +1040,7 @@ function Dashboard() {
               storage.set('customEvents', updated);
             }} />}
             {tab === 'pipe' && <PipelineView products={products} onAdd={() => setShowAdd(true)} onAdvance={advance} onDelete={del} examMode={examMode} inAtlanta={inAtlanta} />}
-            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} examHistory={examHistory} />}
+            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} ritualStreak={ritualStreak} examHistory={examHistory} />}
           </React.Fragment>
         )}
       </div>
@@ -1475,6 +1579,158 @@ function MeditationTimer({ onSave, meditationLog, mindfulStreak }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ============== RITUAL VIEW ==============
+function RitualCheckRow({ done, label, sub, onToggle }) {
+  return (
+    <button onClick={onToggle} className="w-full flex items-center gap-3 py-2 text-left">
+      <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-[11px] shrink-0 transition-colors ${done ? 'bg-amber-100 border-amber-700 text-amber-900' : 'border-stone-300 text-transparent'}`}>✓</span>
+      <span className="flex-1 min-w-0">
+        <span className={`block text-sm ${done ? 'text-stone-400 line-through' : 'text-stone-900'}`}>{label}</span>
+        {sub && <span className="block text-xs text-stone-500">{sub}</span>}
+      </span>
+    </button>
+  );
+}
+
+function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prompt }) {
+  const [showAffirm, setShowAffirm] = useState(false);
+  const [showProtect, setShowProtect] = useState(false);
+  const [showMoon, setShowMoon] = useState(moon.nearNew || moon.nearFull);
+  const [jtext, setJtext] = useState(ritualToday.journal || '');
+  const [jsaved, setJsaved] = useState(false);
+
+  const toggleMorning = (k) => onUpdate({ ...ritualToday, morning: { ...ritualToday.morning, [k]: !ritualToday.morning[k] } });
+  const toggleEvening = (k) => onUpdate({ ...ritualToday, evening: { ...ritualToday.evening, [k]: !ritualToday.evening[k] } });
+  const toggleHabit = (i) => onUpdate({ ...ritualToday, habits: { ...ritualToday.habits, [i]: !ritualToday.habits[i] } });
+  const saveJournal = () => { onUpdate({ ...ritualToday, journal: jtext }, 'Journal saved 📝'); setJsaved(true); setTimeout(() => setJsaved(false), 2000); };
+
+  const mDone = MORNING_ITEMS.filter(it => ritualToday.morning[it.key]).length;
+  const eDone = EVENING_ITEMS.filter(it => ritualToday.evening[it.key]).length;
+  const hDone = HABITS.filter((_, i) => ritualToday.habits[i]).length;
+
+  return (
+    <div className="space-y-4">
+      {/* Opportunity window banner */}
+      {oppWindow && (
+        <div className="rounded-2xl p-4 bg-amber-100 border border-amber-200">
+          <p className="mono text-[9px] uppercase tracking-[0.2em] text-amber-700 mb-1">✨ High-Opportunity Window · {oppWindow.pct}%</p>
+          <p className="text-sm text-stone-800 leading-snug">You’re inside an amplify-everything window. Double your scripting, say yes even when you feel unready.</p>
+          <p className="text-xs text-stone-500 mt-1">{oppWindow.themes}</p>
+        </div>
+      )}
+
+      {/* Header + streak */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-light tracking-tight text-stone-900"><span className="italic font-medium">daily</span> ritual</h2>
+        <div className="flex items-center gap-1 bg-amber-100 px-2.5 py-1 rounded-full">
+          <span className="text-xs">🔥</span>
+          <span className="mono text-xs font-semibold text-amber-900">{ritualStreak}d</span>
+        </div>
+      </div>
+
+      {/* Morning routine */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-stone-900">☀️ Morning routine</p>
+          <span className="mono text-[10px] text-stone-400">{mDone}/{MORNING_ITEMS.length}</span>
+        </div>
+        {MORNING_ITEMS.map(it => (
+          <RitualCheckRow key={it.key} done={!!ritualToday.morning[it.key]} label={it.label} sub={it.sub} onToggle={() => toggleMorning(it.key)} />
+        ))}
+        <button onClick={() => setShowAffirm(s => !s)} className="mono text-[10px] uppercase tracking-wider text-amber-700 mt-1">{showAffirm ? 'hide affirmation ▲' : 'show affirmation ▼'}</button>
+        {showAffirm && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 text-sm italic text-stone-700 leading-relaxed">“{AFFIRMATION}”</div>
+        )}
+      </div>
+
+      {/* Today's journal prompt */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <p className="mono text-[9px] uppercase tracking-[0.2em] text-stone-500 mb-1">📝 Today · {prompt.theme}</p>
+        <p className="text-sm text-stone-800 italic leading-snug mb-2">“{prompt.q}”</p>
+        <textarea value={jtext} onChange={e => { setJtext(e.target.value); setJsaved(false); }} placeholder="Write your entry…" rows={4}
+          className="w-full px-3 py-2 bg-stone-100 border border-stone-200 rounded-lg text-sm text-stone-900 placeholder-stone-400 focus:outline-none resize-none" />
+        <div className="flex items-center justify-end gap-2 mt-2">
+          {jsaved && <span className="mono text-[10px] text-emerald-700">saved ✓</span>}
+          <button onClick={saveJournal} className="bg-stone-900 text-stone-50 rounded-lg px-4 py-1.5 text-xs font-medium">Save</button>
+        </div>
+      </div>
+
+      {/* Evening routine */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-stone-900">🌙 Evening routine</p>
+          <span className="mono text-[10px] text-stone-400">{eDone}/{EVENING_ITEMS.length}</span>
+        </div>
+        {EVENING_ITEMS.map(it => (
+          <RitualCheckRow key={it.key} done={!!ritualToday.evening[it.key]} label={it.label} sub={it.sub} onToggle={() => toggleEvening(it.key)} />
+        ))}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 text-sm italic text-stone-700 leading-relaxed">
+          <span className="mono text-[9px] uppercase tracking-wider text-amber-700 not-italic block mb-1">mirror scripting</span>
+          “{MIRROR}”
+        </div>
+      </div>
+
+      {/* Non-negotiable habits */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-stone-900">✅ Non-negotiables</p>
+          <span className="mono text-[10px] text-stone-400">{hDone}/{HABITS.length}</span>
+        </div>
+        {HABITS.map((h, i) => (
+          <RitualCheckRow key={i} done={!!ritualToday.habits[i]} label={h} onToggle={() => toggleHabit(i)} />
+        ))}
+      </div>
+
+      {/* Moon ritual */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <button onClick={() => setShowMoon(s => !s)} className="w-full flex items-center justify-between">
+          <span className="text-sm font-medium text-stone-900">{moon.emoji} {moon.phase}</span>
+          {(moon.nearNew || moon.nearFull)
+            ? <span className="mono text-[9px] uppercase tracking-wider bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full pulse-soft">ritual time</span>
+            : <span className="mono text-[10px] text-stone-400">{showMoon ? '▲' : '▼'}</span>}
+        </button>
+        {showMoon && (
+          <div className="mt-3 text-sm text-stone-700 space-y-2">
+            {moon.age < 14.77 ? (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">New Moon → set intentions</p>
+                <p>Light a candle. Write: <em>“This new moon I am calling in…”</em> then 3–5 intentions as if already true. Do the <strong>555 method</strong> (top intention ×55, 5 days). Close: <em>“This or something better is on its way to me.”</em></p>
+                <p className="text-xs text-stone-500">Examples: “I am confident and focused in nursing school.” · “I am financially growing with ease.” · “I trust my intuition completely.”</p>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">Full Moon → release & cleanse</p>
+                <p>Write everything you’re releasing — fears, doubts, old stories. Read each aloud, then burn or tear it. Follow with an Aries-moon release: dance, run, or hot shower while visualizing it wash off. Close: <em>“I am cleared, I am free, I am ready for what’s next.”</em></p>
+                <p className="text-xs text-stone-500">Examples: “I release the fear that I am not smart enough.” · “I release hypervigilance.” · “I release absorbing others’ emotions as my own.”</p>
+              </React.Fragment>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Protection ritual */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <button onClick={() => setShowProtect(s => !s)} className="w-full flex items-center justify-between">
+          <span className="text-sm font-medium text-stone-900">🛡 Protection ritual</span>
+          <span className="mono text-[10px] text-stone-400">{showProtect ? '▲' : '▼'}</span>
+        </button>
+        {showProtect && (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-stone-500">Before school, clinicals, or draining spaces:</p>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm italic text-stone-700 leading-relaxed">“{PROTECTION}”</div>
+            <p className="text-xs text-stone-500 mt-2">After a hard day — quick cleanse:</p>
+            <ul className="text-sm text-stone-700 list-disc pl-5 space-y-0.5">
+              <li>Wash your hands, visualize the day’s energy leaving</li>
+              <li>Take 5 deep breaths</li>
+              <li>Say: <em>“I am home. I am safe. I am separate from what I witnessed today.”</em></li>
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -2432,7 +2688,7 @@ function PipelineView({ products, onAdd, onAdvance, onDelete, examMode, inAtlant
 }
 
 // ============== STATS VIEW ==============
-function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak, examHistory }) {
+function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak, ritualStreak, examHistory }) {
   const totalPosts = products.filter(p => p.stage === 'posted').length;
   const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -2504,6 +2760,11 @@ function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onG
           <div className="text-xl mb-1">💰</div>
           <div className="text-xl font-medium text-stone-900">${totalRevenue.toFixed(0)}</div>
           <div className="mono text-[9px] uppercase tracking-wider text-stone-500">revenue</div>
+        </div>
+        <div className="bg-white rounded-2xl p-3 border border-stone-200">
+          <div className="text-xl mb-1">🌙</div>
+          <div className="text-xl font-medium text-stone-900">{ritualStreak || 0}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">ritual</div>
         </div>
       </div>
 
