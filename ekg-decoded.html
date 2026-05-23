@@ -48,6 +48,26 @@ h2{font-size:1.5rem;color:#f1f5f9;margin-bottom:.5rem}
 .fw-q{background:#0c0f14;border:1px solid #1e293b;border-radius:10px;padding:1rem}
 .fw-q .q{font-weight:600;color:#f472b6;font-size:.95rem;margin-bottom:.35rem}
 .fw-q .a{font-size:.85rem;color:#94a3b8}
+/* rate section */
+.rate-svg{width:100%;height:auto;background:#0a0d12;border-radius:10px}
+.method{background:#0c0f14;border:1px solid #1e293b;border-radius:10px;padding:1rem;margin-bottom:.85rem}
+.method:last-child{margin-bottom:0}
+.method h3{font-size:1rem;color:#f1f5f9;margin-bottom:.15rem}
+.method .when{font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#67e8f9;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.6rem}
+.method p{font-size:.86rem;color:#cbd5e1}
+.seq{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.75rem}
+.seq-box{flex:1;min-width:3rem;text-align:center;background:#13181f;border:1px solid #1e293b;border-radius:8px;padding:.5rem .2rem;cursor:pointer;transition:all .15s}
+.seq-box:hover{border-color:#ec4899}
+.seq-box.active{border-color:#ec4899;background:#2d0a2e}
+.seq-box .boxn{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:#64748b;display:block}
+.seq-box .bpm{font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:600;color:#f472b6;display:block;margin-top:.15rem}
+.rate-readout{background:#1a1f2e;border-left:3px solid #ec4899;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:.75rem;font-size:.85rem;color:#f9a8d4;min-height:3rem}
+.rate-readout strong{color:#f472b6}
+.keyfact{background:#1a1f2e;border:1px solid #334155;border-radius:8px;padding:.6rem .85rem;font-size:.82rem;color:#cbd5e1;margin-top:.6rem;line-height:1.5}
+.keyfact strong{color:#67e8f9}
+.rate-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.25rem}
+.rate-chip{flex:1;min-width:6rem;text-align:center;border-radius:8px;padding:.6rem .4rem;font-size:.8rem}
+.rate-chip .rng{font-family:'IBM Plex Mono',monospace;font-size:.95rem;font-weight:600;display:block}
 /* rhythm cards */
 .rhythm{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:1.25rem;margin-bottom:1rem;transition:border-color .2s}
 .rhythm-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.75rem}
@@ -199,9 +219,85 @@ You already work tele. You're not starting from zero &mdash; you're putting <str
 </div>
 </div>
 
-<!-- SECTION 3: FRAMEWORK -->
+<!-- SECTION 3: RATE -->
 <div class="section">
-<div class="section-label">Part 3 &middot; The Only 3 Questions</div>
+<div class="section-label">Part 3 &middot; Reading the Paper &amp; Counting Rate</div>
+<h2>Counting beats per minute</h2>
+<p class="lead">Before you can name a rhythm, you need its rate. First understand the paper, then pick the method that matches what you see.</p>
+
+<div class="card">
+<p style="font-weight:600;color:#f1f5f9;margin-bottom:.6rem">The grid is time &rarr;</p>
+<svg class="rate-svg" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="sm" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M8 0H0V8" fill="none" stroke="#1b2735" stroke-width="1"/></pattern>
+    <pattern id="bg" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#34495e" stroke-width="1.4"/></pattern>
+  </defs>
+  <rect x="0" y="15" width="400" height="80" fill="url(#sm)"/>
+  <rect x="0" y="15" width="400" height="80" fill="url(#bg)"/>
+  <!-- highlight one big box -->
+  <rect x="120" y="15" width="40" height="40" fill="rgba(236,72,153,0.14)" stroke="#ec4899" stroke-width="1.6"/>
+  <!-- highlight one small box -->
+  <rect x="120" y="15" width="8" height="8" fill="rgba(103,232,249,0.3)" stroke="#67e8f9" stroke-width="1.2"/>
+  <text x="124" y="74" fill="#67e8f9" font-size="9" font-family="monospace">1 small = 0.04s</text>
+  <text x="200" y="108" fill="#ec4899" font-size="10" font-family="monospace">1 big box (5 small) = 0.20s</text>
+  <text x="0" y="132" fill="#94a3b8" font-size="10" font-family="monospace">5 big boxes = 1 second   ·   300 big boxes = 1 minute</text>
+</svg>
+<div class="keyfact"><strong>The whole trick:</strong> 1 small box = 0.04s, 1 big box = 0.20s, 5 big boxes = 1 second, and <strong>300 big boxes = 1 minute</strong>. Every rate method below comes from that last fact.</div>
+</div>
+
+<div class="card">
+<div class="method">
+<h3>Method 1 &mdash; The 300 / sequence method</h3>
+<div class="when">use when: rhythm is REGULAR &middot; fastest</div>
+<p>Find an R wave sitting on a dark line, then count the <strong>big boxes</strong> to the next R wave. Divide 300 by that number &mdash; or just memorize the cascade. Tap a box count:</p>
+<div class="seq" id="seqRow"></div>
+<div class="rate-readout" id="seqReadout">Tap how many big boxes sit between two R waves.</div>
+<p style="margin-top:.6rem;font-size:.8rem;color:#94a3b8">Memory line: <span class="mono" style="color:#f472b6">300 &middot; 150 &middot; 100 &middot; 75 &middot; 60 &middot; 50</span> &mdash; say it out loud a few times and it sticks for life.</p>
+</div>
+</div>
+
+<div class="card">
+<div class="method">
+<h3>Method 2 &mdash; The 6-second strip</h3>
+<div class="when">use when: rhythm is IRREGULAR (e.g. A-fib)</div>
+<p>Strips have marks at the top every 3 seconds. Count the <strong>QRS complexes</strong> in a 6-second window and multiply by <strong>10</strong>.</p>
+<svg class="rate-svg" viewBox="0 0 400 130" xmlns="http://www.w3.org/2000/svg" style="margin-top:.6rem">
+  <rect width="400" height="130" fill="#0a0d12"/>
+  <!-- 3-second tick flags -->
+  <line x1="13" y1="12" x2="13" y2="115" stroke="#33465c" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="200" y1="12" x2="200" y2="115" stroke="#33465c" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="387" y1="12" x2="387" y2="115" stroke="#33465c" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="100" y="20" fill="#64748b" font-size="9" font-family="monospace" text-anchor="middle">3 sec</text>
+  <text x="293" y="20" fill="#64748b" font-size="9" font-family="monospace" text-anchor="middle">3 sec</text>
+  <!-- 8 QRS spikes -->
+  <path d="M 13,85 L 38,85 L 43,40 L 48,95 L 53,85 L 80,85 L 85,40 L 90,95 L 95,85 L 122,85 L 127,40 L 132,95 L 137,85 L 164,85 L 169,40 L 174,95 L 179,85 L 206,85 L 211,40 L 216,95 L 221,85 L 248,85 L 253,40 L 258,95 L 263,85 L 290,85 L 295,40 L 300,95 L 305,85 L 332,85 L 337,40 L 342,95 L 347,85 L 387,85" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <text x="200" y="125" fill="#fbbf24" font-size="11" font-family="monospace" text-anchor="middle">8 QRS in 6 sec  ×10  =  80 bpm</text>
+</svg>
+<div class="keyfact">This is the go-to for <strong>irregular</strong> rhythms &mdash; you can't use the box method when the spacing keeps changing.</div>
+</div>
+</div>
+
+<div class="card">
+<div class="method">
+<h3>Method 3 &mdash; The 1500 method</h3>
+<div class="when">use when: regular &middot; most precise</div>
+<p>Count the <strong>small boxes</strong> between two R waves and divide <strong>1500</strong> by that number (1500 small boxes = 1 minute). Example: 20 small boxes &rarr; 1500 &divide; 20 = <strong style="color:#f472b6">75 bpm</strong>.</p>
+</div>
+</div>
+
+<div class="card">
+<p style="font-weight:600;color:#f1f5f9;margin-bottom:.5rem">What the number means</p>
+<div class="rate-chips">
+  <div class="rate-chip" style="background:#2a0a0a;color:#fb7185"><span class="rng">&lt; 60</span>bradycardia<br>(slow)</div>
+  <div class="rate-chip" style="background:#052e16;color:#4ade80"><span class="rng">60&ndash;100</span>normal</div>
+  <div class="rate-chip" style="background:#2a1f00;color:#fbbf24"><span class="rng">&gt; 100</span>tachycardia<br>(fast)</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 4: FRAMEWORK -->
+<div class="section">
+<div class="section-label">Part 4 &middot; The Only 3 Questions</div>
 <h2>How to read any strip</h2>
 <p class="lead">You don't memorize rhythms. You ask these 3 questions in order. The answers tell you which rhythm it is.</p>
 
@@ -225,7 +321,7 @@ You already work tele. You're not starting from zero &mdash; you're putting <str
 
 <!-- SECTION 4: RHYTHMS -->
 <div class="section">
-<div class="section-label">Part 4 &middot; The Starter Rhythms</div>
+<div class="section-label">Part 5 &middot; The Starter Rhythms</div>
 <h2>The ones you actually need first</h2>
 <p class="lead">Master these 7 before anything else. Tap "What am I looking at?" on each to apply the 3 questions. Notice the colors &mdash; green is fine, red can kill.</p>
 <div id="rhythmList"></div>
@@ -374,6 +470,22 @@ function toggleRhythm(i){
   btn.innerHTML=open?'Hide &#9650;':'What am I looking at? &#9660;';
 }
 buildRhythms();
+
+/* ---- rate sequence interaction ---- */
+const seq=[{n:1,bpm:300},{n:2,bpm:150},{n:3,bpm:100},{n:4,bpm:75},{n:5,bpm:60},{n:6,bpm:50}];
+function buildSeq(){
+  const row=document.getElementById('seqRow');
+  if(!row)return;
+  row.innerHTML=seq.map(s=>`<div class="seq-box" id="seq-${s.n}" onclick="pickSeq(${s.n})"><span class="boxn">${s.n} box${s.n>1?'es':''}</span><span class="bpm">${s.bpm}</span></div>`).join('');
+}
+function pickSeq(n){
+  document.querySelectorAll('.seq-box').forEach(b=>b.classList.remove('active'));
+  document.getElementById('seq-'+n).classList.add('active');
+  const bpm=Math.round(300/n);
+  const tag = bpm<60 ? 'at rest, that is bradycardia (slow)' : bpm>100 ? 'at rest, that is tachycardia (fast)' : 'that is a normal resting rate';
+  document.getElementById('seqReadout').innerHTML=`<strong>${n} big box${n>1?'es':''}</strong> between R waves &rarr; 300 &divide; ${n} = <strong>${bpm} bpm</strong>. ${tag}.`;
+}
+buildSeq();
 
 /* back to top */
 window.addEventListener('scroll',()=>{
