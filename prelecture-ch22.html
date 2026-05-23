@@ -5,61 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ch 22 Pre-Lecture — Respiratory Assessment</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
-h1,h2,h3{font-family:'DM Serif Display',serif}
-code,.mono{font-family:'IBM Plex Mono',monospace}
-.container{max-width:860px;margin:0 auto}
-.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.25rem}
-.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
-.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
-.prelec-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2dd4bf;background:#04201d;border:1px solid #115e59;padding:.25rem .6rem;border-radius:99px;margin-bottom:.75rem}
-.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:#cbd5e1;text-align:center}
-.preview{background:#04201d;border:1px solid #115e59;border-radius:12px;padding:1.25rem 1.4rem;margin-bottom:1.75rem}
-.preview h2{font-size:1.1rem;color:#5eead4;margin-bottom:.25rem}
-.preview p.lead{color:#99f6e4;font-size:.85rem;margin-bottom:.9rem}
-.preview .term{margin-bottom:.6rem;font-size:.88rem;color:#cbd5e1}
-.preview .term b{color:#5eead4}
-.preview .vitals{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem}
-.preview .vital{flex:1;min-width:8rem;background:#0c0f14;border:1px solid #134e4a;border-radius:8px;padding:.6rem .75rem}
-.preview .vital .v{font-family:'IBM Plex Mono',monospace;font-size:1.05rem;font-weight:600;color:#5eead4}
-.preview .vital .l{font-size:.72rem;color:#94a3b8}
-.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
-.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#2dd4bf}
-.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
-.progress-bar{height:100%;background:linear-gradient(90deg,#14b8a6,#2dd4bf);border-radius:99px;transition:width .3s}
-.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
-.q-card.answered-correct{border-color:#22c55e}
-.q-card.answered-wrong{border-color:#ef4444}
-.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
-.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
-.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
-.badge-ch{background:#04201d;color:#2dd4bf}
-.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
-.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
-.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
-.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
-.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
-.opt:hover{border-color:#334155;background:#161b24}
-.opt.selected{border-color:#2dd4bf;background:#06231f}
-.opt.correct-show{border-color:#22c55e;background:#052e16}
-.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
-.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
-.opt-text{font-size:.9rem;flex:1}
-.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
-.btn-submit{background:#14b8a6;color:#042f2a;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .2s}
-.btn-submit:hover{background:#2dd4bf}
-.btn-submit:disabled{opacity:.4;cursor:not-allowed}
-.teach{background:#04201d;border-left:3px solid #2dd4bf;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#99f6e4;line-height:1.5}
-.teach strong{color:#5eead4}
-.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
-.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
-.score-card .big-score{font-size:3rem;font-weight:700;color:#2dd4bf;margin:.5rem 0}
-.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
-.btn-restart:hover{background:#334155}
-@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
-</style>
+<link href="prelecture.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
@@ -68,9 +14,7 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 <h1>Ch 22 &mdash; Respiratory Assessment</h1>
 <p class="subtitle">Exam 4 &middot; Get familiar BEFORE lecture &middot; 10 questions</p>
 </div>
-
 <div class="exam-info">This is a <strong>warm-up, not a test</strong>. The goal is to walk into lecture already knowing the words and the big ideas. Every answer teaches &mdash; read the rationales even when you guess.</div>
-
 <div class="preview">
 <h2>Before you start &mdash; the big picture</h2>
 <p class="lead">Chapter 22 is about how nurses assess breathing. Two priority concepts run through the whole chapter:</p>
@@ -82,24 +26,13 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 <div class="vital"><div class="v">35&ndash;45 mm Hg</div><div class="l">Normal end-tidal CO&#8322; (PETCO&#8322;)</div></div>
 </div>
 </div>
-
-<div class="last-attempt" id="lastAttempt">
-<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
-</div>
-<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-<div id="quizArea"></div>
-<div class="score-card" id="scoreCard">
-<h2>Primer Complete</h2>
-<div class="big-score" id="finalScore">0%</div>
-<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
-<p style="color:#5eead4;font-size:.85rem">Now you're primed &mdash; lecture will feel like review instead of brand-new.</p>
-<button class="btn-restart" onclick="restartQuiz()">Restart Primer</button>
-</div>
+<div id="quizRoot"></div>
 </div>
 <script>
-const EXAM_ID='ms1-exam4-ch22-prelecture';
-const EXAM_LABEL='Ch 22 Pre-Lecture — Respiratory Assessment (10Q)';
-const questions=[
+window.QUIZ_ID='ms1-exam4-ch22-prelecture';
+window.QUIZ_LABEL='Ch 22 Pre-Lecture — Respiratory Assessment (10Q)';
+window.QUIZ_CH=22;
+window.QUIZ_QUESTIONS=[
 {id:1,sata:false,
 stem:'The chapter says two concepts are the priority for the respiratory system. Which pair is it?',
 options:[
@@ -108,7 +41,6 @@ options:[
 {letter:'C',text:'Clotting and immunity',correct:false,rationale:'Important elsewhere, but not the priority lens for breathing.'},
 {letter:'D',text:'Mobility and sensation',correct:false,rationale:'These are neuro/musculoskeletal concepts.'}
 ],teach:'Anchor concept: <strong>gas exchange + perfusion</strong>. If a respiratory question feels overwhelming, ask "is this an oxygen-getting-in problem (gas exchange) or a blood-flow problem (perfusion)?"'},
-
 {id:2,sata:false,
 stem:'A pulse oximeter (SpO₂) reads 97%. How should the nurse interpret this?',
 options:[
@@ -116,26 +48,23 @@ options:[
 {letter:'B',text:'Within the normal range of 95–100%',correct:true,rationale:'Normal SpO2 is 95–100%. 97% is right where you want it. Memorize this range — it shows up constantly.'},
 {letter:'C',text:'Too high — reduce oxygen immediately',correct:false,rationale:'SpO2 maxes at 100%; 97% is not "too high."'},
 {letter:'D',text:'Meaningless without an arterial blood gas',correct:false,rationale:'ABGs give more detail, but SpO2 is a valid, fast, noninvasive screen of oxygenation.'}
-],teach:'<strong>Normal SpO2 = 95–100%.</strong> Below ~90% signals a problem. This is one of the most-tested normal values in the unit.'},
-
+],teach:'<strong>Normal SpO2 = 95–100%.</strong> Below ~90% signals a problem. One of the most-tested normal values in the unit.'},
 {id:3,sata:false,
 stem:'A patient develops "atelectasis" after surgery. What does this term mean?',
 options:[
-{letter:'A',text:'Collapse of the alveoli (the tiny air sacs)',correct:true,rationale:'Atelectasis = alveolar collapse, so less surface is available for gas exchange. It is common after surgery when patients breathe shallowly — which is why we push deep breathing and incentive spirometry.'},
+{letter:'A',text:'Collapse of the alveoli (the tiny air sacs)',correct:true,rationale:'Atelectasis = alveolar collapse, so less surface is available for gas exchange. Common after surgery from shallow breathing — which is why we push deep breathing and incentive spirometry.'},
 {letter:'B',text:'Inflammation of the throat',correct:false,rationale:'That would be pharyngitis. Atelectasis is down in the alveoli.'},
 {letter:'C',text:'Excess oxygen in the blood',correct:false,rationale:'Atelectasis is about collapsed air sacs, not oxygen levels directly.'},
 {letter:'D',text:'A type of lung cancer',correct:false,rationale:'It is not cancer — it is collapse of alveoli, often reversible with lung expansion.'}
 ],teach:'<strong>Atelectasis = alveoli collapse.</strong> Prevent it post-op with deep breathing, coughing, early ambulation, and incentive spirometry.'},
-
 {id:4,sata:false,
 stem:'What is the difference between hypoxemia and hypoxia?',
 options:[
-{letter:'A',text:'They are two words for the exact same thing',correct:false,rationale:'Close, but not identical — the location differs. Knowing the distinction helps you read questions precisely.'},
+{letter:'A',text:'They are two words for the exact same thing',correct:false,rationale:'Close, but the location differs. Knowing the distinction helps you read questions precisely.'},
 {letter:'B',text:'Hypoxemia = low oxygen in the blood; hypoxia = low oxygen in the tissues',correct:true,rationale:'Hypox-EMIA (-emia = blood) is low O2 in the blood. Hypox-IA is low O2 reaching the tissues/cells. Hypoxemia often leads to hypoxia.'},
 {letter:'C',text:'Hypoxemia is high oxygen; hypoxia is low oxygen',correct:false,rationale:'Both prefixes "hypo" mean LOW — neither means high.'},
 {letter:'D',text:'Hypoxemia affects the brain only; hypoxia affects the lungs only',correct:false,rationale:'Neither is organ-specific by definition; the difference is blood vs. tissue.'}
 ],teach:'Word trick: <strong>-emia = blood</strong>. Hypox<u>emia</u> = low O2 in the <u>blood</u>. Hypoxia = low O2 in the tissues.'},
-
 {id:5,sata:false,
 stem:'An 80-year-old becomes suddenly confused and restless. The nurse should first suspect:',
 options:[
@@ -144,16 +73,14 @@ options:[
 {letter:'C',text:'They simply need more sleep',correct:false,rationale:'Dismissing new confusion delays recognizing a dangerous oxygen problem.'},
 {letter:'D',text:'Dehydration is the only possible cause',correct:false,rationale:'Dehydration can contribute, but hypoxia is the priority respiratory cause to rule out first.'}
 ],teach:'High-yield: <strong>new confusion in an older adult = think hypoxia first.</strong> Their classic signs (fever, strong cough) are often blunted.'},
-
 {id:6,sata:false,
-stem:'A patient smoked 2 packs per day for 15 years. How many "pack-years" is that, and why does it matter?',
+stem:'A patient smoked 2 packs per day for 15 years. How many "pack-years" is that?',
 options:[
-{letter:'A',text:'30 pack-years — it quantifies smoking history and lung-disease risk',correct:true,rationale:'Pack-years = packs/day × years smoked = 2 × 15 = 30. It standardizes smoking history so the team can estimate risk for COPD and lung cancer. You will calculate this on exams.'},
+{letter:'A',text:'30 pack-years — it quantifies smoking history and lung-disease risk',correct:true,rationale:'Pack-years = packs/day × years smoked = 2 × 15 = 30. It standardizes smoking history to estimate COPD and lung cancer risk. You will calculate this on exams.'},
 {letter:'B',text:'17 pack-years — you add the packs and the years',correct:false,rationale:'You multiply, not add: packs/day × years.'},
 {letter:'C',text:'2 pack-years — only the packs per day count',correct:false,rationale:'Years smoked must be factored in by multiplying.'},
 {letter:'D',text:'Pack-years are not a real nursing measure',correct:false,rationale:'They are a standard, charted part of the respiratory history.'}
 ],teach:'<strong>Pack-years = packs per day × years smoked.</strong> Pair this with the 5 A’s (Ask, Advise, Assess, Assist, Arrange) for smoking cessation.'},
-
 {id:7,sata:true,
 stem:'Which of the following are "adventitious" (abnormal) breath sounds the nurse listens for? (Select all that apply.)',
 options:[
@@ -162,7 +89,6 @@ options:[
 {letter:'C',text:'Rhonchi',correct:true,rationale:'Rhonchi are low-pitched, snore-like sounds from secretions in larger airways — abnormal.'},
 {letter:'D',text:'Pleural friction rub',correct:true,rationale:'A grating sound from inflamed pleural surfaces rubbing together — abnormal. All four here are adventitious sounds.'}
 ],teach:'<strong>Adventitious = abnormal lung sounds:</strong> crackles, wheezes, rhonchi, pleural friction rub. Always compare side-to-side, top to bottom.'},
-
 {id:8,sata:false,
 stem:'A monitor shows end-tidal CO₂ (PETCO₂) of 40 mm Hg. The nurse knows this is:',
 options:[
@@ -171,180 +97,24 @@ options:[
 {letter:'C',text:'Dangerously low',correct:false,rationale:'40 is normal, not low.'},
 {letter:'D',text:'The same thing as SpO2',correct:false,rationale:'SpO2 measures oxygenation; PETCO2 measures exhaled carbon dioxide (ventilation). Different gases, different jobs.'}
 ],teach:'<strong>Normal PETCO2 = 35–45 mm Hg.</strong> SpO2 watches oxygen IN; PETCO2 watches carbon dioxide OUT.'},
-
 {id:9,sata:false,
-stem:'A patient has been on 60% oxygen for two days. The nurse stays alert for oxygen toxicity, which presents as:',
+stem:'A patient has been on 60% oxygen for two days. Oxygen toxicity presents as:',
 options:[
 {letter:'A',text:'Dyspnea, a nonproductive cough, and chest pain',correct:true,rationale:'High oxygen concentrations (>50%) for more than 24–48 hours can damage lung tissue. Early signs are a dry/nonproductive cough, chest pain, and dyspnea. Use the lowest effective O2 and humidify.'},
 {letter:'B',text:'Bright red skin and euphoria',correct:false,rationale:'Not the picture of oxygen toxicity.'},
 {letter:'C',text:'Increased appetite and weight gain',correct:false,rationale:'Unrelated to oxygen toxicity.'},
 {letter:'D',text:'No symptoms ever — extra oxygen is always safe',correct:false,rationale:'More is not always better. Prolonged high-concentration O2 is harmful to lung tissue.'}
 ],teach:'<strong>Oxygen toxicity:</strong> risk rises with >50% O2 for >24–48 hrs. Watch for nonproductive cough, chest pain, dyspnea. Titrate to the lowest effective dose and humidify.'},
-
 {id:10,sata:false,
-stem:'While palpating the chest, the nurse feels a crackling sensation under the skin, like popping bubbles. This finding is called:',
+stem:'While palpating the chest, the nurse feels a crackling sensation under the skin, like popping bubbles. This is called:',
 options:[
 {letter:'A',text:'Crepitus (subcutaneous emphysema)',correct:true,rationale:'Crepitus is air trapped under the skin — it feels like crackling/popping when pressed. It signals air leaking into tissues and should be reported.'},
 {letter:'B',text:'Fremitus',correct:false,rationale:'Fremitus is the vibration you feel on the chest wall when the patient SPEAKS — different finding.'},
 {letter:'C',text:'Clubbing',correct:false,rationale:'Clubbing is rounding of the fingertips from chronic low oxygen — a visual finding, not a crackle.'},
 {letter:'D',text:'Cyanosis',correct:false,rationale:'Cyanosis is bluish discoloration from low oxygen — something you see, not feel.'}
-],teach:'Feel a crackle under the skin = <strong>crepitus</strong>. Feel vibration when they talk = <strong>fremitus</strong>. Easy to mix up — the trigger word for fremitus is "speaking."'}
+],teach:'Feel a crackle under the skin = <strong>crepitus</strong>. Feel vibration when they talk = <strong>fremitus</strong>. The trigger word for fremitus is "speaking."'}
 ];
-
-let answered={};
-let selections={};
-
-function buildQuiz(){
-const area=document.getElementById('quizArea');
-area.innerHTML='';
-questions.forEach((q,idx)=>{
-const card=document.createElement('div');
-card.className='q-card';
-card.id=`qcard-${q.id}`;
-const isSata=q.sata===true;
-const sataBadge=isSata?'<span class="badge badge-sata">SATA</span>':'';
-card.innerHTML=`
-<div class="q-top">
-<span class="q-num">Q${idx+1}</span>
-<span class="badge badge-ch">Ch 22</span>
-${sataBadge}
-</div>
-<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
-<div class="opts" id="opts-${q.id}">
-${q.options.map(o=>`
-<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
-<span class="opt-letter">${o.letter}.</span>
-<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
-</div>`).join('')}
-</div>
-<button class="btn-submit" id="btn-${q.id}" onclick="submitQ(${q.id})">Submit Answer</button>
-<div class="teach" id="teach-${q.id}"><strong>Primer takeaway:</strong> ${q.teach}</div>
-`;
-area.appendChild(card);
-});
-loadState();
-}
-
-function toggleOpt(qId,letter,isSata){
-if(answered[qId])return;
-if(!selections[qId])selections[qId]=[];
-if(isSata){
-const idx=selections[qId].indexOf(letter);
-if(idx>-1)selections[qId].splice(idx,1);
-else selections[qId].push(letter);
-}else{
-selections[qId]=[letter];
-}
-const q=questions.find(x=>x.id===qId);
-q.options.forEach(o=>{
-const el=document.getElementById(`opt-${qId}-${o.letter}`);
-el.classList.toggle('selected',selections[qId].includes(o.letter));
-});
-}
-
-function submitQ(qId){
-if(answered[qId])return;
-if(!selections[qId]||selections[qId].length===0)return;
-answered[qId]=true;
-const q=questions.find(x=>x.id===qId);
-const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
-const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
-q.options.forEach(o=>{
-const el=document.getElementById(`opt-${qId}-${o.letter}`);
-el.style.cursor='default';
-if(o.correct)el.classList.add('correct-show');
-else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
-document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
-});
-document.getElementById(`teach-${qId}`).style.display='block';
-const card=document.getElementById(`qcard-${qId}`);
-card.classList.add(isCorrect?'answered-correct':'answered-wrong');
-document.getElementById(`btn-${qId}`).disabled=true;
-document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Got it — read below';
-updateProgress();
-saveState();
-if(Object.keys(answered).length===questions.length)showScore();
-}
-
-function updateProgress(){
-const pct=(Object.keys(answered).length/questions.length)*100;
-document.getElementById('progressBar').style.width=pct+'%';
-}
-
-function showScore(){
-let correct=0;
-questions.forEach(q=>{
-if(answered[q.id]){
-const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
-const sel=selections[q.id]||[];
-if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;
-}
-});
-const pct=Math.round((correct/questions.length)*100);
-document.getElementById('finalScore').textContent=pct+'%';
-document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
-document.getElementById('scoreCard').style.display='block';
-document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
-const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
-localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
-localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
-const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
-hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
-localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
-}
-
-function restartQuiz(){
-answered={};
-selections={};
-localStorage.removeItem(EXAM_ID+'-state');
-document.getElementById('scoreCard').style.display='none';
-buildQuiz();
-}
-
-function saveState(){
-localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));
-}
-
-function loadState(){
-const saved=localStorage.getItem(EXAM_ID+'-state');
-if(saved){
-const state=JSON.parse(saved);
-answered=state.answered||{};
-selections=state.selections||{};
-Object.keys(answered).forEach(qId=>{
-const q=questions.find(x=>x.id==qId);
-if(!q)return;
-const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
-const sel=selections[qId]||[];
-const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
-q.options.forEach(o=>{
-const el=document.getElementById(`opt-${qId}-${o.letter}`);
-if(sel.includes(o.letter))el.classList.add('selected');
-if(o.correct)el.classList.add('correct-show');
-else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
-el.style.cursor='default';
-document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
-});
-document.getElementById(`teach-${qId}`).style.display='block';
-const card=document.getElementById(`qcard-${qId}`);
-card.classList.add(isCorrect?'answered-correct':'answered-wrong');
-const btn=document.getElementById(`btn-${qId}`);
-btn.disabled=true;
-btn.textContent=isCorrect?'Correct!':'Got it — read below';
-});
-updateProgress();
-if(Object.keys(answered).length===questions.length)showScore();
-}
-const last=localStorage.getItem(EXAM_ID+'-last');
-if(last){
-const r=JSON.parse(last);
-document.getElementById('lastAttempt').style.display='block';
-document.getElementById('lastScore').textContent=r.score+'%';
-document.getElementById('lastDate').textContent=r.date;
-}
-}
-
-buildQuiz();
 </script>
+<script src="prelecture-engine.js"></script>
 </body>
 </html>

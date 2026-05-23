@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 29 Pre-Lecture — Cardiac Conditions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="prelecture.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<div class="prelec-tag cardio">Pre-Lecture Primer</div>
+<h1>Ch 29 &mdash; Cardiac Conditions</h1>
+<p class="subtitle">Exam 5 &middot; Get familiar BEFORE lecture &middot; 10 questions</p>
+</div>
+<div class="exam-info">A <strong>warm-up, not a test</strong>. The big "heart failure" chapter. Get the left-vs-right pattern down now.</div>
+<div class="preview cardio">
+<h2>Before you start &mdash; the big picture</h2>
+<p class="lead">Chapter 29 is diseases of the heart itself &mdash; failure, valves, infection, muscle.</p>
+<div class="term"><b>Left-sided HF</b> → blood backs up into the LUNGS (crackles, shortness of breath, pulmonary edema). <b>Right-sided HF</b> → blood backs up into the BODY (JVD, peripheral edema, weight gain).</div>
+<div class="term"><b>Systolic HF</b> = can't CONTRACT well. <b>Diastolic HF</b> = can't RELAX/fill well. <b>BNP</b> = blood lab that rises in heart failure (the heart\'s "stress alarm").</div>
+<div class="term"><b>Valve disease:</b> stenosis = stiff/narrowed; regurgitation = leaky/backflow. <b>Infective endocarditis</b> = infection of the heart lining/valves.</div>
+<div class="term"><b>Cardiac tamponade</b> = fluid compresses the heart → emergency. <b>Cardiomyopathy</b> = diseased heart muscle (dilated, hypertrophic, restrictive).</div>
+</div>
+<div id="quizRoot"></div>
+</div>
+<script>
+window.QUIZ_ID='ms1-exam5-ch29-prelecture';
+window.QUIZ_LABEL='Ch 29 Pre-Lecture — Cardiac Conditions (10Q)';
+window.QUIZ_CH=29;
+window.QUIZ_QUESTIONS=[
+{id:1,sata:false,
+stem:'In LEFT-sided heart failure, blood backs up into the:',
+options:[
+{letter:'A',text:'Lungs — causing crackles, shortness of breath, and pulmonary edema',correct:true,rationale:'The LEFT side receives blood from the lungs. When it fails, blood backs UP into the lungs → fluid in the alveoli → crackles, dyspnea, pulmonary edema. Memory: Left = Lungs.'},
+{letter:'B',text:'Legs and abdomen only',correct:false,rationale:'That\'s the RIGHT-sided pattern (systemic backup).'},
+{letter:'C',text:'Brain, causing seizures',correct:false,rationale:'Not the heart-failure pattern.'},
+{letter:'D',text:'Nowhere — left HF has no backup',correct:false,rationale:'It backs up into the lungs.'}
+],teach:'<strong>LEFT = LUNGS.</strong> Crackles, dyspnea, pulmonary edema. Easiest HF memory hook.'},
+{id:2,sata:false,
+stem:'In RIGHT-sided heart failure, you would expect:',
+options:[
+{letter:'A',text:'Systemic congestion — JVD, peripheral edema, weight gain',correct:true,rationale:'The RIGHT side receives blood from the body. When it fails, blood backs up into the systemic circulation → jugular venous distention, swollen legs/feet, weight gain, enlarged liver. Memory: Right = Rest of the body.'},
+{letter:'B',text:'Pink frothy sputum and lung crackles',correct:false,rationale:'That\'s the LEFT-sided (lung) pattern.'},
+{letter:'C',text:'No symptoms anywhere',correct:false,rationale:'Right HF has clear systemic signs.'},
+{letter:'D',text:'Loss of taste and smell',correct:false,rationale:'Those are respiratory-infection symptoms, not right HF.'}
+],teach:'<strong>RIGHT = Rest of the body.</strong> JVD, peripheral edema, weight gain. Pair with "LEFT = LUNGS."'},
+{id:3,sata:false,
+stem:'What is the difference between systolic and diastolic heart failure?',
+options:[
+{letter:'A',text:'Systolic = the heart can\'t contract forcefully enough; diastolic = it can\'t relax/fill adequately',correct:true,rationale:'Systolic failure is a PUMP (squeeze) problem — weak contraction, low ejection fraction. Diastolic failure is a FILLING problem — a stiff ventricle that won\'t relax to fill. Both reduce the blood that gets out to the body.'},
+{letter:'B',text:'They are identical',correct:false,rationale:'One is a contraction problem, the other a filling problem.'},
+{letter:'C',text:'Systolic = filling; diastolic = contracting',correct:false,rationale:'Reversed.'},
+{letter:'D',text:'Neither involves the ventricles',correct:false,rationale:'Both are ventricular problems.'}
+],teach:'<strong>Systolic = can\'t squeeze (low EF). Diastolic = can\'t fill (stiff).</strong>'},
+{id:4,sata:false,
+stem:'A lab called BNP (B-type natriuretic peptide) comes back elevated. This supports a diagnosis of:',
+options:[
+{letter:'A',text:'Heart failure',correct:true,rationale:'BNP is released when the heart is stretched/stressed by excess volume — so it rises in heart failure. Think of it as the heart\'s "stress alarm" hormone; it also helps the body shed fluid.'},
+{letter:'B',text:'A broken bone',correct:false,rationale:'BNP isn\'t a bone marker.'},
+{letter:'C',text:'A urinary tract infection',correct:false,rationale:'Not what BNP measures.'},
+{letter:'D',text:'Seasonal allergies',correct:false,rationale:'Unrelated to BNP.'}
+],teach:'<strong>BNP up = heart failure.</strong> The heart\'s stress alarm.'},
+{id:5,sata:false,
+stem:'In valvular heart disease, "stenosis" means the valve is:',
+options:[
+{letter:'A',text:'Thickened, stiff, or narrowed — restricting forward blood flow',correct:true,rationale:'Stenosis = a stiff/narrowed valve that won\'t open fully, so blood is restricted moving forward. (Regurgitation is the opposite problem — a leaky valve that won\'t close, allowing backflow.)'},
+{letter:'B',text:'Leaky, allowing blood to flow backward',correct:false,rationale:'That describes regurgitation, not stenosis.'},
+{letter:'C',text:'Completely missing',correct:false,rationale:'Stenosis is narrowing, not absence.'},
+{letter:'D',text:'Made of bone',correct:false,rationale:'Valves are tissue; stenosis is narrowing/stiffening.'}
+],teach:'<strong>Stenosis = stiff/narrow (restricts forward flow). Regurgitation = leaky (backflow).</strong>'},
+{id:6,sata:false,
+stem:'Infective endocarditis is an infection of the:',
+options:[
+{letter:'A',text:'Inner lining of the heart and the heart valves',correct:true,rationale:'Endocarditis is a microbial infection (often bacterial) of the endocardium — the heart\'s inner lining and valves. It\'s more common in IV drug users and people with prosthetic valves.'},
+{letter:'B',text:'Outer skin of the chest',correct:false,rationale:'That would be a skin infection, not endocarditis.'},
+{letter:'C',text:'Lungs',correct:false,rationale:'That would be pneumonia.'},
+{letter:'D',text:'Stomach lining',correct:false,rationale:'That\'s gastritis — different organ.'}
+],teach:'<strong>Endocarditis = infection of the heart\'s inner lining/valves.</strong> Higher risk: IV drug use, prosthetic valves.'},
+{id:7,sata:false,
+stem:'Cardiac tamponade is a life-threatening emergency in which:',
+options:[
+{letter:'A',text:'Fluid accumulates around the heart and compresses it, dropping cardiac output',correct:true,rationale:'Fluid building in the pericardial sac squeezes the heart so it can\'t fill or pump effectively — cardiac output crashes. It\'s an emergency that may require pericardiocentesis (draining the fluid).'},
+{letter:'B',text:'The heart grows two extra chambers',correct:false,rationale:'Not a real phenomenon.'},
+{letter:'C',text:'The lungs fill with air',correct:false,rationale:'That\'s a pneumothorax, not tamponade.'},
+{letter:'D',text:'Blood sugar rises sharply',correct:false,rationale:'Unrelated to tamponade.'}
+],teach:'<strong>Tamponade = fluid compresses the heart → output drops.</strong> A complication of pericarditis; it\'s an emergency.'},
+{id:8,sata:false,
+stem:'Cardiomyopathy refers to:',
+options:[
+{letter:'A',text:'Disease of the heart muscle itself (dilated, hypertrophic, or restrictive)',correct:true,rationale:'Cardiomyopathy is a problem with the myocardium (heart muscle): dilated (enlarged and weak), hypertrophic (thickened and stiff), or restrictive (rigid walls). All impair the heart\'s ability to pump or fill.'},
+{letter:'B',text:'A disease of the kidneys',correct:false,rationale:'"Cardio-myo-pathy" = heart-muscle disease.'},
+{letter:'C',text:'Inflammation of the throat',correct:false,rationale:'Unrelated.'},
+{letter:'D',text:'A type of bone fracture',correct:false,rationale:'Unrelated.'}
+],teach:'<strong>Cardiomyopathy = heart-muscle disease:</strong> dilated, hypertrophic, restrictive.'},
+{id:9,sata:true,
+stem:'Which findings fit LEFT-sided heart failure? (Select all that apply.)',
+options:[
+{letter:'A',text:'Crackles in the lungs',correct:true,rationale:'Fluid backing into the lungs creates crackles — a left-sided sign.'},
+{letter:'B',text:'Shortness of breath / dyspnea',correct:true,rationale:'Pulmonary congestion makes breathing hard — left-sided.'},
+{letter:'C',text:'Pulmonary edema',correct:true,rationale:'Fluid in the alveoli is the hallmark of left-sided failure.'},
+{letter:'D',text:'Jugular venous distention and leg edema',correct:false,rationale:'Those are RIGHT-sided (systemic) signs, not left.'}
+],teach:'Left HF = lung signs (crackles, dyspnea, pulmonary edema). JVD/leg edema belong to right HF.'},
+{id:10,sata:false,
+stem:'A patient with heart failure is taught daily weights and to report a gain of 2–3 lb in a day. Why?',
+options:[
+{letter:'A',text:'Sudden weight gain signals fluid retention and worsening heart failure',correct:true,rationale:'In HF the body retains fluid when the heart can\'t keep up. A rapid jump on the scale (often defined as ~2–3 lb in a day or ~5 lb in a week) usually means fluid is building before swelling or breathing trouble is obvious — an early warning to act.'},
+{letter:'B',text:'It means the patient is gaining healthy muscle',correct:false,rationale:'A 2–3 lb overnight change is fluid, not muscle.'},
+{letter:'C',text:'Weight has nothing to do with heart failure',correct:false,rationale:'Daily weight is one of the most important HF self-monitoring tools.'},
+{letter:'D',text:'It indicates the patient is dehydrated',correct:false,rationale:'Weight GAIN signals fluid retention, the opposite of dehydration.'}
+],teach:'HF self-care: <strong>daily weights; rapid gain = fluid retention = report it early.</strong>'}
+];
+</script>
+<script src="prelecture-engine.js"></script>
+</body>
+</html>
