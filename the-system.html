@@ -484,14 +484,19 @@ function Dashboard() {
     let eh = storage.get('examHistory') || [];
     const backfillKeys = [
       {key:'ms1-exam2-comprehensive-v2-last', id:'ms1-exam2-comprehensive-v2', label:'MS1 Exam 2 — Comprehensive v2 (30Q)'},
-      {key:'ms1-exam2-comprehensive-v3-last', id:'ms1-exam2-comprehensive-v3', label:'MS1 Exam 2 — Comprehensive v3 (30Q)'}
+      {key:'ms1-exam2-comprehensive-v3-last', id:'ms1-exam2-comprehensive-v3', label:'MS1 Exam 2 — Comprehensive v3 (30Q)'},
+      {key:'ms1-exam3-nlm-ch16-drill-last', id:'ms1-exam3-nlm-ch16-drill', label:'Ch 16 NLM Drill — Inflammation (15Q)'},
+      {key:'ms1-exam3-nlm-ch17-drill-last', id:'ms1-exam3-nlm-ch17-drill', label:'Ch 17 NLM Drill — Allergy & Immunity (15Q)'},
+      {key:'ms1-exam3-nlm-ch18-drill-last', id:'ms1-exam3-nlm-ch18-drill', label:'Ch 18 NLM Drill — Cancer (20Q)'},
+      {key:'ms1-exam3-nlm-ch19-drill-last', id:'ms1-exam3-nlm-ch19-drill', label:'Ch 19 NLM Drill — Infection (20Q)'},
+      {key:'ms1-exam3-nlm-ch18-19-vocab-last', id:'ms1-exam3-nlm-ch18-19-vocab', label:'Ch 18-19 Vocab & Labs (25Q)'}
     ];
     let changed = false;
     backfillKeys.forEach(b => {
       const raw = localStorage.getItem(b.key);
       if (raw && !eh.find(e => e.examId === b.id)) {
         const r = JSON.parse(raw);
-        eh.push({examId:b.id, examLabel:b.label, date:r.date || new Date().toISOString(), score:r.score, correct:r.correct, total:r.total, topicBreakdown:r.chapters || {}});
+        eh.push({examId:b.id, examLabel:(localStorage.getItem(b.id+'-label') || b.label), date:r.date || new Date().toISOString(), score:r.score, correct:r.correct, total:r.total, topicBreakdown:r.chapters || {}});
         changed = true;
       }
     });
