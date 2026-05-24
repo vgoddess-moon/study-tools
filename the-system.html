@@ -1057,7 +1057,7 @@ function Dashboard() {
               storage.set('customEvents', updated);
             }} />}
             {tab === 'pipe' && <PipelineView products={products} onAdd={() => setShowAdd(true)} onAdvance={advance} onDelete={del} examMode={examMode} inAtlanta={inAtlanta} />}
-            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} ritualStreak={ritualStreak} examHistory={examHistory} />}
+            {tab === 'stats' && <StatsView history={history} products={products} streak={streak} nextExam={nextExam} allLogs={allLogs} lastSync={lastSync} onGenerateSync={generateSyncCode} showSyncImport={showSyncImport} setShowSyncImport={setShowSyncImport} syncCode={syncCode} setSyncCode={setSyncCode} onImportSync={importSyncCode} allStudyLogs={allStudyLogs} revenue={revenue} mindfulStreak={mindfulStreak} ritualStreak={ritualStreak} examHistory={examHistory} quizLog={quizLog} />}
           </React.Fragment>
         )}
       </div>
@@ -2722,7 +2722,7 @@ function PipelineView({ products, onAdd, onAdvance, onDelete, examMode, inAtlant
 }
 
 // ============== STATS VIEW ==============
-function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak, ritualStreak, examHistory }) {
+function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onGenerateSync, showSyncImport, setShowSyncImport, syncCode, setSyncCode, onImportSync, allStudyLogs, revenue, mindfulStreak, ritualStreak, examHistory, quizLog }) {
   const totalPosts = products.filter(p => p.stage === 'posted').length;
   const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -2824,6 +2824,28 @@ function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onG
                       ))}
                     </div>
                   )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Logged NotebookLM Quizzes */}
+      {quizLog && quizLog.length > 0 && (
+        <div>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 px-1">Logged NotebookLM Quizzes</p>
+          <div className="space-y-2">
+            {[...quizLog].reverse().map((q, i) => {
+              const color = q.score >= 90 ? 'text-emerald-600' : q.score >= 78 ? 'text-amber-600' : 'text-red-500';
+              const bg = q.score >= 90 ? 'bg-emerald-50 border-emerald-200' : q.score >= 78 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
+              return (
+                <div key={i} className={`rounded-2xl p-3.5 border ${bg}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-stone-900">{q.name}</p>
+                    <span className={`mono text-sm font-bold ${color}`}>{q.score}%</span>
+                  </div>
+                  <p className="text-[10px] text-stone-400 mono">{q.date}{q.notes ? ' · ' + q.notes : ''}</p>
                 </div>
               );
             })}
