@@ -14,7 +14,9 @@ function quizExam() {
   return null;
 }
 function daysUntil(dateStr) {
-  return Math.ceil((new Date(dateStr + 'T17:00:00') - new Date()) / 86400000);
+  var t = new Date(dateStr + 'T00:00:00'); t.setHours(0, 0, 0, 0);
+  var now = new Date(); now.setHours(0, 0, 0, 0);
+  return Math.round((t - now) / 86400000);
 }
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 var ACTIVATE_LINES = [

@@ -28,7 +28,11 @@
     'Low score, high courage. You just turned unknowns into a to-do list. That IS the win.'
   ];
   function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
-  function daysUntil(d) { return Math.ceil((new Date(d + 'T17:00:00') - new Date()) / 86400000); }
+  function daysUntil(d) {
+    var t = new Date(d + 'T00:00:00'); t.setHours(0, 0, 0, 0);
+    var now = new Date(); now.setHours(0, 0, 0, 0);
+    return Math.round((t - now) / 86400000);
+  }
 
   function injectStyles() {
     var css =
