@@ -57,4 +57,8 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 .score-card .big-score{font-size:3rem;font-weight:700;color:#2dd4bf;margin:.5rem 0}
 .btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
 .btn-restart:hover{background:#334155}
+.activate{background:linear-gradient(135deg,#1c1407,#0c0f14);border:1px solid #92722e;border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1.5rem}
+.activate-count{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#fbbf24;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.activate-line{font-size:.92rem;color:#fde68a;line-height:1.45;font-weight:500}
+.score-reframe{font-size:.92rem;color:#fde68a;line-height:1.5;margin:.75rem auto 0;max-width:30rem}
 @media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}

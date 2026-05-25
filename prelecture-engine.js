@@ -7,7 +7,53 @@ var questions = window.QUIZ_QUESTIONS || [];
 var answered = {};
 var selections = {};
 
+/* ---- encouragement / activation (personalized to Vivian's why) ---- */
+function quizExam() {
+  if (/exam4/.test(EXAM_ID || '')) return { key: 'Exam 4', date: '2026-06-25' };
+  if (/exam5/.test(EXAM_ID || '')) return { key: 'Exam 5', date: '2026-07-09' };
+  return null;
+}
+function daysUntil(dateStr) {
+  return Math.ceil((new Date(dateStr + 'T17:00:00') - new Date()) / 86400000);
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+var ACTIVATE_LINES = [
+  'You opened it. The hardest part is already done — now just answer one.',
+  'Wrong answers in here are free. Spend them now so you don’t spend them on exam day.',
+  'This is the seed. Everything you’re building toward grows from reps exactly like this one.',
+  'You’re getting ahead, not cramming — that’s the whole flex.',
+  'You’re becoming the nurse who knows this cold. Prove it one question at a time.',
+  'Showing up tired still counts. Especially then.',
+  'The lie-flat seat that folds into a bed. The freedom to pour into him. This rep buys a piece of it.',
+  'Smart, not broke — built the right way. Keep going.',
+  'Future-you, in scrubs and unbothered, is rooting for this exact moment.'
+];
+var REFRAME_HIGH = [
+  'That’s pattern recognition, not luck. This topic is becoming yours.',
+  'You’re not guessing anymore — you’re recognizing. That’s what exam-ready feels like.'
+];
+var REFRAME_MID = [
+  'Solid rep. The ones you missed are your free preview — review them and you’ve banked the points.',
+  'Good work. Those misses just became the easiest points you’ll grab all week.'
+];
+var REFRAME_LOW = [
+  'You showed up and found exactly what to study. That’s not a fail — that’s a map. Brave work.',
+  'Low score, high courage. You just turned unknowns into a to-do list. That IS the win.'
+];
+function populateActivate() {
+  var ex = quizExam();
+  var ce = document.getElementById('activateCount');
+  if (ex) {
+    var n = daysUntil(ex.date);
+    ce.textContent = n > 0 ? (ex.key + ' in ' + n + ' day' + (n === 1 ? '' : 's')) : (n === 0 ? (ex.key + ' is today') : (ex.key + ' — keep it fresh'));
+  } else {
+    ce.textContent = 'Pre-lecture rep';
+  }
+  document.getElementById('activateLine').textContent = pick(ACTIVATE_LINES);
+}
+
 document.getElementById('quizRoot').innerHTML =
+  '<div class="activate" id="activateCard"><div class="activate-count" id="activateCount"></div><div class="activate-line" id="activateLine"></div></div>' +
   '<div class="last-attempt" id="lastAttempt"><div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div></div>' +
   '<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>' +
   '<div id="quizArea"></div>' +
@@ -15,9 +61,11 @@ document.getElementById('quizRoot').innerHTML =
     '<h2>Primer Complete</h2>' +
     '<div class="big-score" id="finalScore">0%</div>' +
     '<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>' +
-    '<p style="color:#5eead4;font-size:.85rem">Now you\'re primed &mdash; lecture will feel like review instead of brand-new.</p>' +
+    '<p class="score-reframe" id="scoreReframe"></p>' +
+    '<p style="color:#5eead4;font-size:.85rem;margin-top:.75rem">Now you\'re primed &mdash; lecture will feel like review instead of brand-new.</p>' +
     '<button class="btn-restart" onclick="restartQuiz()">Restart Primer</button>' +
   '</div>';
+populateActivate();
 
 function buildQuiz(){
   var area=document.getElementById('quizArea');
@@ -108,6 +156,7 @@ function showScore(){
   var pct=Math.round((correct/questions.length)*100);
   document.getElementById('finalScore').textContent=pct+'%';
   document.getElementById('finalText').textContent=correct+' of '+questions.length+' correct';
+  document.getElementById('scoreReframe').textContent = pct>=85 ? pick(REFRAME_HIGH) : pct>=70 ? pick(REFRAME_MID) : pick(REFRAME_LOW);
   document.getElementById('scoreCard').style.display='block';
   document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
   var record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
