@@ -195,6 +195,41 @@ const AFFIRMATION_555 = "Financial freedom is mine. I live in abundance, I give 
 const NEXT_NEW_MOON_555 = "June 25, 2026";
 const NOTE_555 = "55× each day for 5 days, starting on the new moon (that night = Day 1). Write slowly — picture the first-class seat, the destination, the peace of not checking a price tag. The emotion is what activates it.";
 
+// Rotating daily activation lines (tied to her why — son, freedom, identity, the seed). NOT the 555 line.
+const ACTIVATION_LINES = [
+  "You are becoming the nurse who knows it cold. Today is one rep closer.",
+  "The lie-flat seat that folds into a bed — the freedom to pour into him. The reps buy it.",
+  "Smart, not broke. Built the right way, one day at a time.",
+  "You don't need a clear day to start. You need one question. Start there.",
+  "Future-you, in scrubs and unbothered, is rooting for what you do today.",
+  "Your son is watching how you handle hard things. Show him.",
+  "Wrong answers in practice are free. Spend them now, not on exam day.",
+  "Showing up tired still counts. Especially then.",
+  "This is the seed. Everything you're building grows from what you do now.",
+  "You're not behind. You're building a system most people never could — now use it.",
+  "Discipline today is freedom later. First class isn't the dream — the freedom behind it is.",
+  "The version of you that's financially free started with a Tuesday like this one.",
+  "You already know how. The bravest thing is to begin before you feel ready.",
+  "Five questions. That's the whole ask. The rest takes care of itself."
+];
+const dailyIndex = (len) => Math.floor(Date.now() / 86400000) % len;
+const dailyActivation = () => ACTIVATION_LINES[dailyIndex(ACTIVATION_LINES.length)];
+
+// Gather all saved daily reflections (ritual:<date> entries with a non-empty journal)
+const reflectionEntries = () => {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.indexOf('ritual:') === 0) {
+      try {
+        const v = JSON.parse(localStorage.getItem(k));
+        if (v && v.journal && v.journal.trim()) out.push({ date: k.slice(7), journal: v.journal.trim() });
+      } catch (e) {}
+    }
+  }
+  return out.sort((a, b) => new Date(b.date) - new Date(a.date));
+};
+
 const MORNING_ITEMS = [
   { key: 'grounding', label: 'Grounding statement', sub: 'Hand on chest, 3 slow breaths' },
   { key: 'affirmation', label: 'Affirmation scripting', sub: 'By hand · 10–15× · don’t type' },
@@ -1034,7 +1069,7 @@ function Dashboard() {
               ))}
             </div>
 
-            {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
+            {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} examHistory={examHistory} quizLog={quizLog} onGoToRitual={() => setTab('ritual')} />}
 
             {tab === 'ritual' && <RitualView ritualToday={ritualToday} onUpdate={updateRitual} ritualStreak={ritualStreak} moon={moonInfo()} oppWindow={activeOppWindow()} prompt={JOURNAL_PROMPTS[new Date().getDay()]} />}
 
@@ -1635,6 +1670,7 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
   const [showMoon, setShowMoon] = useState(moon.nearNew || moon.nearFull);
   const [jtext, setJtext] = useState(ritualToday.journal || '');
   const [jsaved, setJsaved] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const toggleMorning = (k) => onUpdate({ ...ritualToday, morning: { ...ritualToday.morning, [k]: !ritualToday.morning[k] } });
   const toggleEvening = (k) => onUpdate({ ...ritualToday, evening: { ...ritualToday.evening, [k]: !ritualToday.evening[k] } });
@@ -1688,6 +1724,27 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
           {jsaved && <span className="mono text-[10px] text-emerald-700">saved ✓</span>}
           <button onClick={saveJournal} className="bg-stone-900 text-stone-50 rounded-lg px-4 py-1.5 text-xs font-medium">Save</button>
         </div>
+        {(() => {
+          const past = reflectionEntries().filter(r => r.date !== todayKey());
+          if (!past.length) return null;
+          return (
+            <div className="mt-3 pt-3 border-t border-stone-200">
+              <button onClick={() => setShowHistory(s => !s)} className="mono text-[10px] uppercase tracking-wider text-amber-700">
+                {showHistory ? 'hide past reflections ▲' : `past reflections (${past.length}) ▼`}
+              </button>
+              {showHistory && (
+                <div className="mt-2 space-y-2 max-h-80 overflow-y-auto">
+                  {past.map((r, i) => (
+                    <div key={i} className="bg-stone-100 rounded-lg p-2.5">
+                      <p className="mono text-[9px] uppercase tracking-wider text-stone-400 mb-0.5">{r.date}</p>
+                      <p className="text-xs text-stone-700 italic leading-snug">{r.journal}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Evening routine */}
@@ -1770,15 +1827,36 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
 }
 
 // ============== TODAY VIEW ==============
-function TodayView({ checkin, suggestions, suggestionLog, onToggleSuggestion, onUpdateSuggestionNote, nextExam, examMode, inAtlanta, ate, onEat, anki, ankiSec, ankiNote, setAnkiNote, ankiSessions, onStartAnki, onStopAnki, onSaveAnkiSession, study, onToggleStudy, family, onToggleFamily, onPanic, onReset, todayLaunchTasks, onGoToLaunch, addresses, onEditAddress, weather, onRefreshWeather, weakAreas, meditationLog, onSaveMeditation, mindfulStreak, pomodoro, pomodoroSec, onStartPomodoro, onStopPomodoro }) {
+function TodayView({ checkin, suggestions, suggestionLog, onToggleSuggestion, onUpdateSuggestionNote, nextExam, examMode, inAtlanta, ate, onEat, anki, ankiSec, ankiNote, setAnkiNote, ankiSessions, onStartAnki, onStopAnki, onSaveAnkiSession, study, onToggleStudy, family, onToggleFamily, onPanic, onReset, todayLaunchTasks, onGoToLaunch, addresses, onEditAddress, weather, onRefreshWeather, weakAreas, meditationLog, onSaveMeditation, mindfulStreak, pomodoro, pomodoroSec, onStartPomodoro, onStopPomodoro, examHistory, quizLog, onGoToRitual }) {
   const brainLabel = checkin.brain === 'hyper' ? 'hyperfocus' : checkin.brain === 'normal' ? 'normal' : 'foggy';
   const energyEmoji = checkin.energy === 'high' ? '⚡' : checkin.energy === 'med' ? '🟡' : '🔴';
   const ateHrs = ate ? Math.floor((Date.now() - ate) / 3600000) : null;
   const needsFood = !ate || (Date.now() - ate) > 14400000;
   const fmt = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
+  // Encouragement: rep-done-today nudge + resurfaced past reflection
+  const did = (d) => { try { return new Date(d).toDateString() === todayKey(); } catch (e) { return false; } };
+  const repsToday = ((examHistory || []).filter(e => did(e.date)).length) + ((quizLog || []).filter(q => q.date === todayKey()).length);
+  const nudge = repsToday > 0
+    ? { text: `✓ ${repsToday} rep${repsToday === 1 ? '' : 's'} done today — that's the win. Anything more is a bonus.`, tone: 'win' }
+    : { text: 'No rep yet today. You don\'t need a clear day — just one question to start.', tone: 'nudge' };
+  const pastReflections = reflectionEntries().filter(r => r.date !== todayKey());
+  const resurfaced = pastReflections.length ? pastReflections[dailyIndex(pastReflections.length)] : null;
+
   return (
     <div className="space-y-4">
+      {/* Daily activation + nudge + resurfaced reflection */}
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <p className="text-base font-medium text-amber-900 leading-snug">{dailyActivation()}</p>
+        <p className={`text-xs mt-1.5 ${nudge.tone === 'win' ? 'text-emerald-700' : 'text-stone-500'}`}>{nudge.text}</p>
+        {resurfaced && (
+          <div className="mt-2.5 pt-2.5 border-t border-amber-200" onClick={onGoToRitual} style={{cursor:'pointer'}}>
+            <p className="mono text-[9px] uppercase tracking-wider text-stone-400 mb-0.5">You wrote on {resurfaced.date}</p>
+            <p className="text-xs italic text-stone-600 leading-snug">"{resurfaced.journal.length > 160 ? resurfaced.journal.slice(0, 160) + '…' : resurfaced.journal}"</p>
+          </div>
+        )}
+      </div>
+
       {/* State card */}
       <div className="bg-white rounded-2xl p-4 border border-stone-200">
         <div className="flex items-start justify-between">
