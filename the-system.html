@@ -212,6 +212,18 @@ const ACTIVATION_LINES = [
   "You already know how. The bravest thing is to begin before you feel ready.",
   "Five questions. That's the whole ask. The rest takes care of itself."
 ];
+// Home workout — boring/repeatable, glute-heavy (matches her equipment)
+const WORKOUT_MOVES = [
+  { key: 'warmup', label: 'Warm-up', sub: 'Bridges + air squats + arm circles', track: false },
+  { key: 'hipthrust', label: 'Hip thrust', sub: '3–4 × 8–12 · bench + bar/KB', track: true },
+  { key: 'goblet', label: 'Goblet squat', sub: '3 × 10–12 · kettlebell', track: true },
+  { key: 'rdl', label: 'Romanian deadlift', sub: '3 × 10–12 · dumbbells', track: true },
+  { key: 'lunge', label: 'Reverse lunge', sub: '3 × 10 each leg', track: false },
+  { key: 'bridge', label: 'Glute bridge burnout', sub: '2 × 15–20 · band', track: false },
+  { key: 'bench', label: 'DB bench press', sub: '3 × 8–12 · Marcy bench', track: true },
+  { key: 'row', label: 'Bent-over row', sub: '3 × 10–12 · dumbbells', track: true },
+  { key: 'core', label: 'Core', sub: 'Ab wheel / slider tucks 2 × 8', track: false },
+];
 const dailyIndex = (len) => Math.floor(Date.now() / 86400000) % len;
 const dailyActivation = () => ACTIVATION_LINES[dailyIndex(ACTIVATION_LINES.length)];
 
@@ -437,6 +449,10 @@ function Dashboard() {
   // Ritual state
   const [ritualToday, setRitualToday] = useState({ morning: {}, evening: {}, habits: {}, journal: '' });
   const [ritualStreak, setRitualStreak] = useState(0);
+  // Workout state
+  const [workoutToday, setWorkoutToday] = useState({ checks: {}, weights: {} });
+  const [workoutWeights, setWorkoutWeights] = useState({});
+  const [workoutStreak, setWorkoutStreak] = useState(0);
   // Pomodoro
   const [pomodoro, setPomodoro] = useState(null); // null | 'work' | 'break'
   const [pomodoroSec, setPomodoroSec] = useState(0);
@@ -514,6 +530,12 @@ function Dashboard() {
     if (rt) setRitualToday(rt);
     const rh = storage.get('ritualHistory');
     if (rh) setRitualStreak(streakFromDateList(rh));
+    const wkt = storage.get(`workout:${todayKey()}`);
+    if (wkt) setWorkoutToday(wkt);
+    const ww = storage.get('workoutWeights');
+    if (ww) setWorkoutWeights(ww);
+    const wkh = storage.get('workoutHistory');
+    if (wkh) setWorkoutStreak(streakFromDateList(wkh));
     const ce = storage.get('customEvents');
     if (ce) setCustomEvents(ce);
     let eh = storage.get('examHistory') || [];
@@ -934,6 +956,29 @@ function Dashboard() {
     if (toast) showToast(toast, 1500);
   };
 
+  // Workout: check off moves, log weights for progressive overload, save the session
+  const updateWorkout = (next) => {
+    setWorkoutToday(next);
+    storage.set(`workout:${todayKey()}`, next);
+  };
+  const logWorkout = () => {
+    let hist = storage.get('workoutHistory') || [];
+    if (!hist.includes(todayKey())) {
+      hist = [...hist, todayKey()].slice(-120);
+      storage.set('workoutHistory', hist);
+    }
+    setWorkoutStreak(streakFromDateList(hist));
+    // Save any logged weights as the new "last" to beat next time
+    const ww = { ...workoutWeights };
+    Object.keys(workoutToday.weights || {}).forEach(k => {
+      const v = parseFloat(workoutToday.weights[k]);
+      if (!isNaN(v) && v > 0) ww[k] = v;
+    });
+    setWorkoutWeights(ww);
+    storage.set('workoutWeights', ww);
+    showToast('Workout logged 💪 Pearl placed.', 2000);
+  };
+
   // Pomodoro
   const startPomodoro = () => {
     setPomodoro('work');
@@ -989,6 +1034,7 @@ function Dashboard() {
   const tabs = [
     { id: 'today', label: 'Today' },
     { id: 'ritual', label: 'Ritual' },
+    { id: 'move', label: 'Move' },
     { id: 'study', label: 'Study' },
     { id: 'launch', label: 'Launch' },
     { id: 'road', label: 'Road' },
@@ -1072,6 +1118,8 @@ function Dashboard() {
             {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} examHistory={examHistory} quizLog={quizLog} onGoToRitual={() => setTab('ritual')} />}
 
             {tab === 'ritual' && <RitualView ritualToday={ritualToday} onUpdate={updateRitual} ritualStreak={ritualStreak} moon={moonInfo()} oppWindow={activeOppWindow()} prompt={JOURNAL_PROMPTS[new Date().getDay()]} />}
+
+            {tab === 'move' && <WorkoutView workoutToday={workoutToday} onUpdate={updateWorkout} onLog={logWorkout} workoutWeights={workoutWeights} workoutStreak={workoutStreak} />}
 
             {tab === 'study' && <StudyView checkin={checkin} nextExam={nextExam} examMode={examMode} studyLogs={studyLogs} allStudyLogs={allStudyLogs} quizLog={quizLog} studyTimer={studyTimer} studyTimerSec={studyTimerSec} onStartStudyTimer={() => { studyStartRef.current = studyTimerSec > 0 ? Date.now() - (studyTimerSec * 1000) : Date.now(); setStudyTimer(true); }} onStopStudyTimer={() => setStudyTimer(false)} onSaveStudySession={saveStudySession} onAddQuiz={addQuiz} weakAreas={weakAreas} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} />}
 
@@ -1631,6 +1679,63 @@ function MeditationTimer({ onSave, meditationLog, mindfulStreak }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ============== WORKOUT VIEW ==============
+function WorkoutView({ workoutToday, onUpdate, onLog, workoutWeights, workoutStreak }) {
+  const checks = workoutToday.checks || {};
+  const weights = workoutToday.weights || {};
+  const toggle = (k) => onUpdate({ ...workoutToday, checks: { ...checks, [k]: !checks[k] } });
+  const setWeight = (k, v) => onUpdate({ ...workoutToday, weights: { ...weights, [k]: v } });
+  const done = WORKOUT_MOVES.filter(m => checks[m.key]).length;
+  const allKey = WORKOUT_MOVES.length;
+
+  return (
+    <div className="space-y-4">
+      {/* header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-light tracking-tight text-stone-900"><span className="italic font-medium">glute</span> day</h2>
+        <div className="flex items-center gap-1 bg-amber-100 px-2.5 py-1 rounded-full">
+          <span className="text-xs">💪</span>
+          <span className="mono text-xs font-semibold text-amber-900">{workoutStreak}d</span>
+        </div>
+      </div>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+        <p className="text-sm text-amber-900 leading-snug">Boring + repeatable on purpose. Lower body is the priority — finish those first, the rest is bonus. Showing up is the whole win.</p>
+      </div>
+
+      {/* moves */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-stone-900">Today's session</p>
+          <span className="mono text-[10px] text-stone-400">{done}/{allKey}</span>
+        </div>
+        {WORKOUT_MOVES.map(m => (
+          <div key={m.key} className="py-2 border-b border-stone-100 last:border-0">
+            <button onClick={() => toggle(m.key)} className="w-full flex items-center gap-3 text-left">
+              <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-[11px] shrink-0 ${checks[m.key] ? 'bg-amber-100 border-amber-700 text-amber-900' : 'border-stone-300 text-transparent'}`}>✓</span>
+              <span className="flex-1 min-w-0">
+                <span className={`block text-sm ${checks[m.key] ? 'text-stone-400 line-through' : 'text-stone-900'}`}>{m.label}</span>
+                <span className="block text-xs text-stone-500">{m.sub}</span>
+              </span>
+            </button>
+            {m.track && (
+              <div className="flex items-center gap-2 mt-1.5 ml-8">
+                <input type="number" inputMode="numeric" value={weights[m.key] || ''} onChange={e => setWeight(m.key, e.target.value)}
+                  placeholder="lb" className="w-20 px-2 py-1 bg-stone-100 border border-stone-200 rounded-lg text-sm text-stone-900 placeholder-stone-400 focus:outline-none" />
+                <span className="mono text-[10px] text-stone-500">
+                  {workoutWeights[m.key] ? `last: ${workoutWeights[m.key]} lb — beat it` : 'log your weight'}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+        <button onClick={onLog} className="w-full mt-3 bg-stone-900 text-stone-50 rounded-lg py-2.5 text-xs font-medium">Log this workout 💪</button>
+        <p className="mono text-[9px] text-stone-400 text-center mt-2">Progressive overload = beat last week's weight by a rep or 5 lb. That's how the booty grows.</p>
+      </div>
     </div>
   );
 }
