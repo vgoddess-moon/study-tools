@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 20 NLM Drill — Skin, Hair & Nails</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#a78bfa}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#a78bfa);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch20{background:#1a0e2e;color:#a78bfa}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#a78bfa;background:#1a0e2e}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#8b5cf6;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#7c3aed}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #a78bfa;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#c4b5fd;line-height:1.5}
+.vocab-tip strong{color:#a78bfa}
+.trap-callout{background:#2a1f00;border:1px solid #92400e;border-radius:8px;padding:.6rem .9rem;margin-top:.75rem;display:none;font-size:.8rem;color:#fbbf24}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#a78bfa;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 20 NLM Drill &mdash; Skin, Hair &amp; Nails</h1>
+<p class="subtitle">Chapter 20 &middot; NotebookLM Post-Lecture Drill &middot; 20 Questions</p>
+</div>
+<div class="exam-info">20 professor-emphasized questions from Chapter 20 lecture materials. Each question includes rationale for ALL options, Test Clues, and Fast Rules.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Drill Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<button class="btn-restart" onclick="restartQuiz()">Restart Drill</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-nlm-ch20-drill';
+const EXAM_LABEL='Ch 20 NLM Drill — Skin, Hair & Nails (20Q)';
+const questions=[
+{id:1,chapter:20,sata:false,trap:false,
+stem:'A nurse documents a "crust that has formed where the patient scratched a vesicle." How should this lesion be classified?',
+options:[
+{letter:'A',text:'A primary lesion — it is a direct result of the disease process.',correct:false,rationale:'Primary lesions arise directly from the disease (the original vesicle). The crust arose AFTER the patient scratched it.'},
+{letter:'B',text:'A secondary lesion — it evolved from a primary lesion or external force (scratching).',correct:true,rationale:'Secondary lesions evolve from primary lesions or develop from external forces/patient activities (scratching, rubbing, healing). A crust forming after a scratched vesicle is the classic example.'},
+{letter:'C',text:'A vesicle — fluid-filled blister.',correct:false,rationale:'The crust is what formed after the vesicle was scratched, not the vesicle itself.'},
+{letter:'D',text:'A macule — flat discoloration.',correct:false,rationale:'A macule is a flat, non-palpable color change, not a crust.'}
+],vocabTip:'<strong>Fast rule:</strong> Primary = arises from disease itself (vesicle, macule, papule). Secondary = evolves from primary or external forces (crust, scale, lichenification, scar).'},
+
+{id:2,chapter:20,sata:false,trap:false,
+stem:'During physical assessment the nurse notes a rash that is flat, discolored, and not palpable. This is BEST documented as:',
+options:[
+{letter:'A',text:'Papular',correct:false,rationale:'Papular lesions are RAISED ("pops up") — palpable. This one is flat.'},
+{letter:'B',text:'Macular',correct:true,rationale:'A macule is flat — a color change without elevation. Memory: "Mac-flat".'},
+{letter:'C',text:'Vesicular',correct:false,rationale:'Vesicles are small fluid-filled blisters — raised and palpable.'},
+{letter:'D',text:'Nodular',correct:false,rationale:'Nodules are solid, raised, deeper than papules — palpable.'}
+],vocabTip:'<strong>Fast rule:</strong> Macular = flat. Papular = popped up. (Most-tested basic skin vocab.)'},
+
+{id:3,chapter:20,sata:false,trap:true,
+stem:'A nurse caring for a post-op patient observes pinpoint reddish-purple spots scattered across the patient\'s chest, abdomen, and lower extremities. These spots do NOT blanch with pressure. What is the nurse\'s PRIORITY action?',
+options:[
+{letter:'A',text:'Document the finding as a normal post-surgical rash.',correct:false,rationale:'Non-blanching pinpoint spots (petechiae) are never "normal post-op rash" — they signal capillary bleeding.'},
+{letter:'B',text:'Apply lotion to soothe irritation.',correct:false,rationale:'These are not irritated skin; they are bleeding under the skin.'},
+{letter:'C',text:'Notify the provider immediately — petechiae below the nipple line is a red flag for DIC.',correct:true,rationale:'The professor explicitly emphasized: petechiae below the nipple line raises immediate concern for DIC (Disseminated Intravascular Coagulation) — a life-threatening clotting + bleeding emergency. This is the priority.'},
+{letter:'D',text:'Encourage increased oral fluids.',correct:false,rationale:'Fluids do not address microvascular bleeding from DIC.'}
+],vocabTip:'<strong>HIGH-YIELD red flag:</strong> Petechiae BELOW the nipple line → think DIC → call the provider NOW. (Connects back to Ch 18 oncologic emergencies.)'},
+
+{id:4,chapter:20,sata:false,trap:true,
+stem:'A nurse is assessing skin turgor on an 82-year-old patient. The MOST appropriate site to pinch is:',
+options:[
+{letter:'A',text:'The back of the hand',correct:false,rationale:'TRAP. The back of an older adult\'s hand will "tent" regardless of hydration due to age-related loss of subcutaneous tissue and elasticity — this site gives a FALSE positive for dehydration.'},
+{letter:'B',text:'Under the collarbone (over the sternum) or on the abdomen',correct:true,rationale:'In older adults, the sternum/below the collarbone, the abdomen, or the radial aspect of the wrist gives an accurate turgor read. These sites are less affected by age-related elasticity loss.'},
+{letter:'C',text:'The forehead',correct:false,rationale:'Not a standard or accurate turgor assessment site.'},
+{letter:'D',text:'Behind the ear',correct:false,rationale:'Not a standard turgor site; gives unreliable results.'}
+],vocabTip:'<strong>TRAP:</strong> Back-of-hand turgor in older adults always tents → FALSE dehydration finding. Use <strong>sternum or abdomen</strong> instead.'},
+
+{id:5,chapter:20,sata:false,trap:true,
+stem:'A patient complains of a persistent flaky scalp and reports applying coconut oil daily for "dryness" without improvement. The nurse\'s BEST teaching is:',
+options:[
+{letter:'A',text:'"Try a heavier moisturizer like Vaseline on the scalp."',correct:false,rationale:'Adding more oil worsens the actual problem.'},
+{letter:'B',text:'"Dandruff is caused by EXCESS oil production, not dryness — switch to an anti-dandruff shampoo and stop adding oils."',correct:true,rationale:'The professor emphasized this misconception: dandruff is the accumulation of patchy/diffuse white-gray scales from EXCESSIVE sebum (oil) production. Treatment targets oil, not dryness.'},
+{letter:'C',text:'"Stop washing your hair for one week to let oils build up."',correct:false,rationale:'This worsens dandruff by increasing oil/sebum buildup.'},
+{letter:'D',text:'"Use a dry-scalp shampoo."',correct:false,rationale:'Reinforces the wrong cause. The cause is excess oil.'}
+],vocabTip:'<strong>TRAP:</strong> Dandruff = <strong>OIL excess</strong>, not dryness. This is a classic misconception tested repeatedly.'},
+
+{id:6,chapter:20,sata:false,trap:false,
+stem:'A restaurant worker presents with redness, swelling, and tenderness around the cuticles of both hands that has persisted for 4 months. The most likely diagnosis is:',
+options:[
+{letter:'A',text:'Acute paronychia',correct:false,rationale:'Acute paronychia develops quickly, often after a torn cuticle or ingrown nail — duration is short, not months.'},
+{letter:'B',text:'Chronic paronychia',correct:true,rationale:'Chronic paronychia (months-long inflammation around the nails) is classically associated with frequent hand exposure to water and irritants — common in healthcare workers, dishwashers, and restaurant staff.'},
+{letter:'C',text:'Onychomycosis',correct:false,rationale:'Onychomycosis is a fungal nail infection — typically affects the nail plate itself, not the surrounding skin tissue.'},
+{letter:'D',text:'Felon',correct:false,rationale:'A felon is a closed-space infection of the fingertip pulp — acute and localized to the tip pad.'}
+],vocabTip:'<strong>Fast rule:</strong> Paronychia = inflammation around the nail. Acute = short, often after trauma. Chronic = months, frequent water exposure (healthcare/restaurant workers).'},
+
+{id:7,chapter:20,sata:false,trap:false,
+stem:'A female patient is concerned about new, coarse dark hair growth on her face and chest. The nurse documents this as:',
+options:[
+{letter:'A',text:'Hirsutism',correct:true,rationale:'Hirsutism is excessive growth of dark, coarse body hair in women in male-pattern locations (face, chest). Common causes: aging, hormonal imbalances (Cushing syndrome, ovarian dysfunction), or drug therapy. It is a clinical finding that warrants investigation.'},
+{letter:'B',text:'Alopecia',correct:false,rationale:'Alopecia is hair LOSS, not excess growth.'},
+{letter:'C',text:'Folliculitis',correct:false,rationale:'Folliculitis is inflammation of the hair follicles — typically pustules, not coarse hair growth.'},
+{letter:'D',text:'Lanugo',correct:false,rationale:'Lanugo is fine, soft body hair seen in newborns or severely malnourished patients (e.g., anorexia) — not coarse adult hair in women.'}
+],vocabTip:'<strong>Vocab:</strong> Hirsutism = coarse hair in women in male-pattern areas. Consider hormonal/endocrine workup (Cushing, PCOS).'},
+
+{id:8,chapter:20,sata:false,trap:false,
+stem:'A dermatologist plans a biopsy that removes a 4-mm circular plug of tissue down to subcutaneous fat. The nurse identifies this as a:',
+options:[
+{letter:'A',text:'Shave biopsy',correct:false,rationale:'A shave biopsy uses a scalpel/razor parallel to skin to remove superficial/raised lesions — not a deep plug.'},
+{letter:'B',text:'Punch biopsy',correct:true,rationale:'A punch biopsy uses a small circular instrument to remove a 2–6 mm plug of tissue down through the dermis — the most common biopsy technique.'},
+{letter:'C',text:'Excisional biopsy',correct:false,rationale:'Excisional biopsy uses a scalpel for deep removal with sutures — not a small punch tool.'},
+{letter:'D',text:'Incisional biopsy',correct:false,rationale:'Incisional biopsy removes only a portion of a larger lesion with a scalpel cut.'}
+],vocabTip:'<strong>Fast rule:</strong> Punch = small circular plug, 2–6 mm. Shave = surface/raised, no sutures. Excisional = deep, sutures.'},
+
+{id:9,chapter:20,sata:false,trap:false,
+stem:'Which biopsy technique is BEST suited for a small, raised superficial lesion and typically does NOT require sutures afterward?',
+options:[
+{letter:'A',text:'Punch biopsy',correct:false,rationale:'Punch biopsy removes a small deep plug — may or may not need a single suture depending on size.'},
+{letter:'B',text:'Shave biopsy',correct:true,rationale:'A shave biopsy slices parallel to the skin surface to remove raised/superficial lesions. Because it stays shallow, sutures are typically not needed.'},
+{letter:'C',text:'Excisional biopsy',correct:false,rationale:'Excisional biopsy is deep removal with a scalpel — always requires sutures.'},
+{letter:'D',text:'Bone marrow biopsy',correct:false,rationale:'Bone marrow biopsy is unrelated to skin/lesion sampling.'}
+],vocabTip:'<strong>Memory:</strong> Shave = shallow, no sutures. Excisional = excavate, expect sutures.'},
+
+{id:10,chapter:20,sata:true,trap:false,
+stem:'Which findings would the nurse expect as NORMAL age-related skin changes in an older adult? (Select all that apply.)',
+options:[
+{letter:'A',text:'Thinning, paper-like skin from epidermal atrophy',correct:true,rationale:'Epidermis thins with age — skin becomes paper-thin, transparent, and prone to tearing.'},
+{letter:'B',text:'Senile (cherry) angiomas — small red papules from benign capillary proliferation',correct:true,rationale:'Senile/cherry angiomas are a benign, expected age-related vascular change.'},
+{letter:'C',text:'Actinic lentigo (age/liver spots) on sun-exposed areas',correct:true,rationale:'Hyperplasia of melanocytes in sun-exposed skin creates age spots — a normal aging change.'},
+{letter:'D',text:'Petechiae below the nipple line',correct:false,rationale:'NOT normal — this is the DIC red flag (Q3). Even in older adults, petechiae warrant evaluation.'},
+{letter:'E',text:'Dry skin (xerosis) from decreased sebum production',correct:true,rationale:'Sebum production decreases with age, leading to xerosis (dry skin). Encourage moisturizers.'}
+],vocabTip:'<strong>Age-related skin changes:</strong> thinning, angiomas, age spots, xerosis. Petechiae below nipple line is NEVER normal aging — think DIC.'},
+
+{id:11,chapter:20,sata:false,trap:true,
+stem:'A nurse is assessing a darker-skinned patient for signs of anemia and decreased perfusion. Where is pallor MOST RELIABLY detected?',
+options:[
+{letter:'A',text:'The skin overlying the cheeks',correct:false,rationale:'Surface skin assessment is unreliable for pallor in darker skin tones.'},
+{letter:'B',text:'The conjunctivae and oral mucous membranes — looking for an ash-gray color',correct:true,rationale:'In darker skin, pallor is detected by examining the mucous membranes (conjunctivae, oral mucosa) for an ash-gray color rather than relying on surface skin pallor.'},
+{letter:'C',text:'The back of the patient\'s hand',correct:false,rationale:'Surface skin sites are unreliable.'},
+{letter:'D',text:'The hard palate',correct:false,rationale:'The hard palate is used to assess JAUNDICE in darker skin, not pallor.'}
+],vocabTip:'<strong>Skin of color — pallor:</strong> check mucous membranes for ash-gray. <strong>Jaundice:</strong> hard palate or sclera near the iris.'},
+
+{id:12,chapter:20,sata:false,trap:true,
+stem:'A nurse is assessing a Black patient with suspected cellulitis. What is the MOST RELIABLE technique for identifying the inflammation?',
+options:[
+{letter:'A',text:'Look for bright erythema (redness)',correct:false,rationale:'TRAP. Erythema may not be visible on darker skin tones — relying on redness can MISS cellulitis entirely.'},
+{letter:'B',text:'Use the back of your hand to assess for increased warmth, then palpate for hardened/shiny edematous skin',correct:true,rationale:'The professor emphasized: in darker skin, do NOT rely on redness. Use palpation — feel for increased warmth, firmness (induration), and taut, shiny skin caused by edema. Inflamed skin often feels firmer and tender.'},
+{letter:'C',text:'Check for blue discoloration over the area',correct:false,rationale:'Blue discoloration suggests cyanosis, not inflammation.'},
+{letter:'D',text:'Skip the assessment — cellulitis cannot be detected on darker skin',correct:false,rationale:'This is incorrect and unsafe. Cellulitis is detectable in all skin tones using the right techniques (warmth, induration, palpation).'}
+],vocabTip:'<strong>Skin of color — inflammation:</strong> WARMTH + PALPATION (firm, taut, shiny) — NOT redness.'},
+
+{id:13,chapter:20,sata:false,trap:true,
+stem:'A nurse is assessing for jaundice in a darker-skinned patient. The MOST RELIABLE assessment site is:',
+options:[
+{letter:'A',text:'The sclera near the outer corners of the eyes',correct:false,rationale:'TRAP. The outer corners of the sclera often have normal fat deposits that appear yellowish in darker skin — leading to a false-positive jaundice finding.'},
+{letter:'B',text:'The hard palate of the mouth',correct:true,rationale:'The hard palate (and the sclera closest to the iris, not the corners) is the most reliable site for detecting true jaundice in darker-skinned patients.'},
+{letter:'C',text:'The fingernail beds',correct:false,rationale:'Nail beds reflect oxygenation/perfusion, not jaundice.'},
+{letter:'D',text:'The skin overlying the forehead',correct:false,rationale:'Surface skin is unreliable for jaundice in darker tones.'}
+],vocabTip:'<strong>Skin of color — jaundice:</strong> check the <strong>hard palate</strong> or sclera <em>near the iris</em>. AVOID the outer eye corners (normal fat = false yellow).'},
+
+{id:14,chapter:20,sata:false,trap:true,
+stem:'During a skin assessment, a nurse notes a 4-mm mole on the patient\'s back that the patient reports has been "changing shape over the past 2 months." The nurse\'s BEST action is:',
+options:[
+{letter:'A',text:'Reassure the patient — the lesion is under 6 mm so it is not concerning.',correct:false,rationale:'TRAP. The 6-mm rule applies to STATIC lesions. EVOLVING characteristics override size.'},
+{letter:'B',text:'Refer the patient to dermatology immediately — the EVOLVING feature trumps the 6-mm size cutoff.',correct:true,rationale:'The professor explicitly emphasized: "Evolving" (any change in size, shape, or color over time) is a critical warning sign regardless of diameter. The E in ABCDE outweighs the 6-mm rule when evolution is present.'},
+{letter:'C',text:'Recommend a routine follow-up in 1 year.',correct:false,rationale:'Delaying assessment of an evolving lesion is unsafe.'},
+{letter:'D',text:'Tell the patient to apply hydrocortisone cream.',correct:false,rationale:'Steroids do not address potential melanoma and may mask findings.'}
+],vocabTip:'<strong>ABCDE — high-yield:</strong> E (Evolving) is the trump card. Any change in size/shape/color = refer, regardless of D (6 mm).'},
+
+{id:15,chapter:20,sata:true,trap:false,
+stem:'Which features of a skin lesion fit the ABCDE criteria for possible melanoma? (Select all that apply.)',
+options:[
+{letter:'A',text:'Asymmetry — one half does not match the other',correct:true,rationale:'A = Asymmetry: classic melanoma warning sign.'},
+{letter:'B',text:'Border irregularity — ragged, notched, or blurred edges',correct:true,rationale:'B = Border irregularity.'},
+{letter:'C',text:'Color variation within the same lesion',correct:true,rationale:'C = Color (multiple shades of brown/black, sometimes red, white, blue within one lesion).'},
+{letter:'D',text:'Diameter greater than 6 mm (about a pencil eraser)',correct:true,rationale:'D = Diameter > 6 mm (the historical pencil-eraser rule).'},
+{letter:'E',text:'Evolving — any change in size, shape, or color over time',correct:true,rationale:'E = Evolving — the critical late addition, and per Q14, often the most important.'}
+],vocabTip:'<strong>ABCDE</strong> — Asymmetry, Border, Color, Diameter, Evolving. All five can independently signal melanoma. Memorize cold.'},
+
+{id:16,chapter:20,sata:false,trap:false,
+stem:'A nurse observes that a patient\'s fingernails have a straightened angle (180° or greater) at the nail bed and the nail base feels spongy. This finding most likely indicates:',
+options:[
+{letter:'A',text:'Acute dehydration',correct:false,rationale:'Dehydration affects turgor, not nail angle/base sponginess.'},
+{letter:'B',text:'Prolonged hypoxia (e.g., from COPD, emphysema, or lung cancer)',correct:true,rationale:'Nail clubbing — a 180° or greater angle at the nail bed plus a spongy nail base — is a classic sign of prolonged tissue hypoxia. Common in chronic lung disease (COPD), congenital heart disease, and lung cancer.'},
+{letter:'C',text:'Hypothyroidism',correct:false,rationale:'Hypothyroid nail changes are typically brittleness and slow growth — not clubbing.'},
+{letter:'D',text:'Calcium deficiency',correct:false,rationale:'Calcium deficiency may cause brittle nails, not clubbing.'}
+],vocabTip:'<strong>Fast rule:</strong> Clubbing (180° angle + spongy base) = CHRONIC HYPOXIA. Think COPD/lung cancer/cyanotic heart disease.'},
+
+{id:17,chapter:20,sata:false,trap:true,
+stem:'A nurse notes that a patient has full hair growth on the right lower leg but NO hair on the left lower leg. What should the nurse suspect?',
+options:[
+{letter:'A',text:'Normal age-related hair loss',correct:false,rationale:'TRAP. Age-related hair loss is bilateral and gradual — not unilateral.'},
+{letter:'B',text:'Arterial insufficiency / ischemia in the affected leg',correct:true,rationale:'Unilateral lower-extremity hair loss reflects inadequate arterial blood supply to that limb. The hair follicles cannot survive without perfusion. Pair this finding with pulses, temperature, color, and capillary refill.'},
+{letter:'C',text:'Bilateral fungal infection',correct:false,rationale:'A bilateral infection would affect BOTH legs, not just one.'},
+{letter:'D',text:'The patient probably just shaves one leg',correct:false,rationale:'Dismissing a clinical finding without assessment is unsafe — investigate the arterial circulation first.'}
+],vocabTip:'<strong>Fast rule:</strong> UNILATERAL hair loss on a leg = arterial ischemia until proven otherwise. Always assess pulses and perfusion.'},
+
+{id:18,chapter:20,sata:true,trap:false,
+stem:'Which nursing interventions are appropriate when caring for the skin of older adults? (Select all that apply.)',
+options:[
+{letter:'A',text:'Handle the skin gently to avoid skin tears',correct:true,rationale:'Thin, fragile aging skin tears easily — handle with care.'},
+{letter:'B',text:'Avoid applying tape directly to skin when possible',correct:true,rationale:'Removing tape can strip thin epidermis. Use barrier products or paper tape.'},
+{letter:'C',text:'Test skin turgor on the back of the hand',correct:false,rationale:'INCORRECT — back of hand tents in older adults regardless of hydration. Use sternum or abdomen (see Q4).'},
+{letter:'D',text:'Apply moisturizer regularly due to decreased sebum production',correct:true,rationale:'Aging skin loses sebum and becomes dry (xerosis). Moisturizer is appropriate.'},
+{letter:'E',text:'Inspect for senile angiomas and actinic lentigo as expected findings',correct:true,rationale:'Both are normal age-related changes — recognize, don\'t alarm the patient.'}
+],vocabTip:'<strong>SATA trap:</strong> Don\'t pick "back of hand for turgor" — that\'s the WRONG site in older adults.'},
+
+{id:19,chapter:20,sata:false,trap:false,
+stem:'A home-health nurse visits a community-dwelling older patient who states "I live alone and care for myself just fine." On assessment, the patient has a strong body odor, heavily soiled clothes, and unkempt hair. The nurse should suspect:',
+options:[
+{letter:'A',text:'The patient is being honest and just had a busy morning.',correct:false,rationale:'Documented hygiene mismatch with stated ability is a clinical concern, not a busy morning.'},
+{letter:'B',text:'Possible cognitive decline (dementia), depression, or neglect',correct:true,rationale:'The professor emphasized: when physical presentation (poor hygiene, odor) does not match a patient\'s stated capacity for self-care, it is a red flag for underlying cognitive decline, depression, or neglect/abuse. Further assessment is warranted.'},
+{letter:'C',text:'Normal aging — older adults often have body odor.',correct:false,rationale:'Age alone does not cause severe hygiene neglect.'},
+{letter:'D',text:'A skin infection.',correct:false,rationale:'Odor alone does not equal infection without other signs.'}
+],vocabTip:'<strong>Fast rule:</strong> Hygiene/ability MISMATCH in older adult = think dementia, depression, or neglect. Investigate further.'},
+
+{id:20,chapter:20,sata:false,trap:false,
+stem:'A patient reports swelling, discoloration, and blistering of the toes lasting about 10 days. The MOST important question for the nurse to ask is:',
+options:[
+{letter:'A',text:'"Have you been in close contact with anyone with chickenpox?"',correct:false,rationale:'Chickenpox typically causes a generalized vesicular rash, not isolated toe lesions.'},
+{letter:'B',text:'"Have you been diagnosed with or exposed to COVID-19?"',correct:true,rationale:'The professor emphasized asking patients about COVID-19. "COVID toes" — swelling, discoloration, and blistering of the toes or fingers lasting roughly 2–14 days — is a recognized COVID-19 dermatologic manifestation.'},
+{letter:'C',text:'"Are you wearing new socks?"',correct:false,rationale:'New-sock irritation would not last 10 days or produce true blistering and discoloration.'},
+{letter:'D',text:'"Have you eaten any new foods?"',correct:false,rationale:'Food allergies typically produce more generalized rash, not isolated toe blistering for 10 days.'}
+],vocabTip:'<strong>Fast rule:</strong> Toe/finger swelling + discoloration + blistering, lasting 2–14 days → ask about COVID-19 ("COVID toes").'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+const isSata=q.sata===true;
+const trapBadge=q.trap?'<span class="badge badge-trap">TRAP</span>':'';
+const sataBadge=isSata?'<span class="badge badge-sata">SATA</span>':'';
+card.innerHTML=`
+<div class="q-top">
+<span class="q-num">Q${idx+1}</span>
+<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>
+${trapBadge}${sataBadge}
+</div>
+<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`
+<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-submit" id="btn-${q.id}" onclick="submitQ(${q.id})">Submit Answer</button>
+<div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>
+${q.trap?`<div class="trap-callout" id="trap-${q.id}">&#9888; TRAP QUESTION: tests a common misconception. Read the rationale carefully!</div>`:''}
+`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(answered[qId])return;
+if(!selections[qId])selections[qId]=[];
+if(isSata){
+const idx=selections[qId].indexOf(letter);
+if(idx>-1)selections[qId].splice(idx,1);
+else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function submitQ(qId){
+if(answered[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.style.cursor='default';
+if(o.correct)el.classList.add('correct-show');
+else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;
+document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();
+saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){
+const pct=(Object.keys(answered).length/questions.length)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function showScore(){
+let correct=0;
+questions.forEach(q=>{
+if(answered[q.id]){
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;
+}
+});
+const pct=Math.round((correct/questions.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';
+document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString(),chapters:{20:{correct:correct,total:questions.length}}};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length,topicBreakdown:{20:{correct:correct,total:questions.length}}});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){
+answered={};
+selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+}
+
+function saveState(){
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));
+}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){
+const state=JSON.parse(saved);
+answered=state.answered||{};
+selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{
+const q=questions.find(x=>x.id==qId);
+if(!q)return;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId]||[];
+const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+if(sel.includes(o.letter))el.classList.add('selected');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+el.style.cursor='default';
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+});
+updateProgress();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const r=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=r.score+'%';
+document.getElementById('lastDate').textContent=r.date;
+}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
