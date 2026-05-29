@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 21 Practice Exam — Skin Conditions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.25rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#ec4899}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch21{background:#2a1206;color:#fb923c}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#ec4899;background:#2d0a2e}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#db2777}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #f472b6;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#f9a8d4;line-height:1.5}
+.vocab-tip strong{color:#f472b6}
+.trap-callout{background:#2a1f00;border:1px solid #92400e;border-radius:8px;padding:.6rem .9rem;margin-top:.75rem;display:none;font-size:.8rem;color:#fbbf24}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#ec4899;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 21 Practice Exam &mdash; Skin Conditions</h1>
+<p class="subtitle">20 questions &middot; All-new scenarios &middot; PI &middot; Burns &middot; PureWick &middot; Wound Vac &middot; SJS/TEN</p>
+</div>
+<div class="exam-info">Different scenarios than the Ch 21 drill — pulls in <strong>professor emphasis from the lecture breakdown</strong> (PureWick low suction, Wound Vac = blood flow, electrical burn entrance AND exit, phases vs intentions trap). 3 SATA · 5 traps.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Practice Exam Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<button class="btn-restart" onclick="restartQuiz()">Restart Practice Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-ch21-practice';
+const EXAM_LABEL='Ch 21 Practice Exam — Skin Conditions (20Q)';
+const questions=[
+{id:1,chapter:21,sata:false,trap:true,
+stem:'A new nurse is using a PureWick device on an incontinent female patient. To "make it work better," she turns the suction up to high. What complication is the patient at HIGHEST risk for?',
+options:[
+{letter:'A',text:'Urinary tract infection from prolonged moisture',correct:false,rationale:'UTI is a general risk with poor perineal care, but is not the SPECIFIC complication from turning suction up high.'},
+{letter:'B',text:'Hematomas — the professor specifically warned that high suction creates hematomas',correct:true,rationale:'The professor explicitly emphasized: PureWicks must be on LOW suction. Turning the suction up high creates hematomas. PureWicks are STRICTLY external, for MINOR incontinence only, on LOW suction.'},
+{letter:'C',text:'Bladder distention',correct:false,rationale:'PureWicks don\'t enter the bladder; they collect external urine.'},
+{letter:'D',text:'Allergic reaction to the silicone',correct:false,rationale:'Not the high-suction complication the professor flagged.'}
+],vocabTip:'<strong>Professor emphasis:</strong> PureWick = external only, MINOR incontinence, LOW suction. <strong>High suction = hematomas.</strong>'},
+
+{id:2,chapter:21,sata:false,trap:true,
+stem:'A nursing student tells the clinical instructor "The wound vac keeps the wound clean and dry." The instructor corrects:',
+options:[
+{letter:'A',text:'"Yes, that\'s exactly right — it\'s mainly there to dry the wound."',correct:false,rationale:'TRAP. This is the very misconception the professor corrected.'},
+{letter:'B',text:'"The main physiologic purpose of negative-pressure wound therapy is to PULL BLOOD to the area to help it heal."',correct:true,rationale:'The professor specifically corrected a student on this: while the wound vac helps manage exudate, its main physiological purpose is to bring blood flow to the area to promote healing. NPWT requires close monitoring in anticoagulated patients because of this increased perfusion.'},
+{letter:'C',text:'"Wound vacs are only used to suction out infection."',correct:false,rationale:'Suctioning exudate is one function, but the primary physiologic mechanism is increased blood flow.'},
+{letter:'D',text:'"Wound vacs prevent all infections."',correct:false,rationale:'They don\'t guarantee infection prevention.'}
+],vocabTip:'<strong>Professor fast rule:</strong> Wound Vac = <strong>blood flow / circulation</strong> to the area. Watch closely in patients on anticoagulants.'},
+
+{id:3,chapter:21,sata:false,trap:true,
+stem:'A patient was electrocuted by a downed power line. EMS reports a clear burn on the patient\'s right hand at the contact point. The nurse\'s priority assessment also includes:',
+options:[
+{letter:'A',text:'Only the entrance wound, since electricity does not damage internal tissue',correct:false,rationale:'TRAP. Electrical current travels through the body causing massive internal damage between entry and exit points.'},
+{letter:'B',text:'Searching for an exit wound and assessing for internal injury along the current\'s pathway',correct:true,rationale:'The professor explicitly emphasized: with electrical burns, ALWAYS look for both an ENTRANCE and an EXIT wound. The current travels straight through the body, causing internal organ damage along the pathway (heart, kidneys, muscles).'},
+{letter:'C',text:'Documenting the wound and discharging the patient',correct:false,rationale:'Dangerous — electrical burns require thorough internal assessment.'},
+{letter:'D',text:'Applying antibiotic ointment to the visible burn only',correct:false,rationale:'Misses the internal damage and exit wound.'}
+],vocabTip:'<strong>Electrical burn = always look for the EXIT WOUND.</strong> Current travels through the body. Monitor heart, kidneys, muscles for internal damage.'},
+
+{id:4,chapter:21,sata:false,trap:true,
+stem:'On the exam, you see: "A nurse describes wound healing as occurring in three phases: inflammatory, proliferative, and maturation." Another option says: "Wound healing occurs by first, second, or third intention." Which statement is TRUE?',
+options:[
+{letter:'A',text:'Both statements describe the same concept — they\'re interchangeable',correct:false,rationale:'TRAP. The professor explicitly wrote "Not the same as inten[tion]" next to the wound-healing phases. They are DISTINCT concepts.'},
+{letter:'B',text:'Phases (inflammatory → proliferative → maturation) describe the BIOLOGICAL stages of healing; intentions (first/second/third) describe how the wound is CLOSED',correct:true,rationale:'The professor emphasized this distinction: PHASES are the body\'s biological healing sequence (inflammatory → proliferative → maturation). INTENTIONS are about wound closure approach (first = sutured, second = open/fills in, third = delayed closure). Don\'t confuse them.'},
+{letter:'C',text:'There are 3 phases and 2 intentions',correct:false,rationale:'There are 3 intentions (first, second, third).'},
+{letter:'D',text:'Phases are for surgical wounds; intentions are for pressure injuries',correct:false,rationale:'Both apply across wound types; the distinction is biological process vs closure approach.'}
+],vocabTip:'<strong>Professor TRAP:</strong> Phases ≠ Intentions. Phases = biology of healing (inflammatory → proliferative → maturation). Intentions = how it\'s closed (1st/2nd/3rd).'},
+
+{id:5,chapter:21,sata:false,trap:false,
+stem:'A nurse boosts a patient up in bed using the draw sheet method. Three days later the patient develops a deep tissue injury over the coccyx. The mechanism was MOST LIKELY:',
+options:[
+{letter:'A',text:'Pressure alone',correct:false,rationale:'Pressure alone produces more superficial damage; boosting involves movement.'},
+{letter:'B',text:'Shear — skin stays in place against the sheet while the underlying bone/tissue slides',correct:true,rationale:'The professor specifically used boosting in bed as the textbook example of SHEAR. The skin sticks to the sheets while underlying tissue slides downward, kinking deep blood vessels and causing tissue hypoxia and necrosis.'},
+{letter:'C',text:'Friction',correct:false,rationale:'Friction is superficial rubbing — causes more skin tears/abrasions, not deep tissue injury.'},
+{letter:'D',text:'Maceration',correct:false,rationale:'Maceration is moisture-related skin breakdown, not from movement.'}
+],vocabTip:'<strong>Boosting/sliding = SHEAR (deep injury).</strong> Surface rubbing = FRICTION (superficial). Shear is worse.'},
+
+{id:6,chapter:21,sata:false,trap:false,
+stem:'A nurse documents a sacral wound: intact skin, non-blanching red area over a bony prominence. NO open skin, NO blister. This is:',
+options:[
+{letter:'A',text:'Stage 1 Pressure Injury',correct:true,rationale:'Stage 1 = intact skin with NON-BLANCHABLE erythema over a bony prominence. No open wound, no blister, no fat. Differentiator: pressing the area does NOT cause it to blanch (turn white).'},
+{letter:'B',text:'Stage 2 Pressure Injury',correct:false,rationale:'Stage 2 requires partial-thickness skin loss (open wound or blister).'},
+{letter:'C',text:'Deep Tissue Pressure Injury',correct:false,rationale:'DTPI involves persistent deep red/maroon/purple discoloration, often with damage extending deeper.'},
+{letter:'D',text:'Unstageable',correct:false,rationale:'Unstageable means slough/eschar obscures depth — not the case here.'}
+],vocabTip:'<strong>Stage 1:</strong> intact skin + NON-blanchable erythema. If it blanches, it isn\'t a PI.'},
+
+{id:7,chapter:21,sata:false,trap:false,
+stem:'Compare these wounds:<br>· Wound A: full-thickness skin loss, exposed subcutaneous fat, no muscle visible, has tunneling.<br>· Wound B: full-thickness loss with directly palpable bone.<br>How should the nurse stage them?',
+options:[
+{letter:'A',text:'A = Stage 4; B = Stage 3',correct:false,rationale:'Reversed — bone visibility/palpation defines Stage 4.'},
+{letter:'B',text:'A = Stage 3; B = Stage 4',correct:true,rationale:'Wound A: fat visible, no bone/muscle = Stage 3 (tunneling may be present). Wound B: palpable bone = Stage 4 (also exposed muscle/tendon/fascia counts).'},
+{letter:'C',text:'Both are Stage 2',correct:false,rationale:'Stage 2 has no fat visible.'},
+{letter:'D',text:'Both are Unstageable',correct:false,rationale:'Both have visible depth — they CAN be staged.'}
+],vocabTip:'<strong>Stage 3 vs 4:</strong> Stage 3 stops at FAT (no bone/muscle). Stage 4 = BONE/MUSCLE/TENDON visible or palpable.'},
+
+{id:8,chapter:21,sata:false,trap:false,
+stem:'An 80-kg adult has burns to both anterior legs (entire fronts) and the perineum. Using the Rule of Nines, what is the approximate TBSA and the Parkland first-24-hour total?',
+options:[
+{letter:'A',text:'TBSA ~10%, total fluid ~3200 mL',correct:false,rationale:'Underestimates TBSA — both anterior legs alone are ~18%.'},
+{letter:'B',text:'TBSA ~19%, total fluid ~6080 mL — half (3040 mL) in the first 8 hours',correct:true,rationale:'Each entire leg = 18%; anterior leg only ≈ 9%. Both anterior legs = ~18%. Perineum = 1%. Total ~19%. Parkland: 4 × 80 × 19 = 6080 mL. HALF in first 8 hrs.'},
+{letter:'C',text:'TBSA ~36%, total fluid ~11,520 mL',correct:false,rationale:'36% would be both ENTIRE legs (not just anterior).'},
+{letter:'D',text:'TBSA ~9%, total fluid ~2880 mL',correct:false,rationale:'9% is one whole arm or head, not two anterior legs.'}
+],vocabTip:'<strong>Rule of 9s tip:</strong> entire leg = 18%, so anterior leg only ≈ 9%. Combine, then Parkland: 4 mL × kg × %TBSA.'},
+
+{id:9,chapter:21,sata:false,trap:true,
+stem:'A patient with a 5% kitchen-grease burn to the hand was also in a closed garage when the burn occurred. The patient has carbonaceous sputum, hoarseness, and singed nasal hair but says "the burn is so small, I don\'t need to be admitted." The MOST appropriate response is:',
+options:[
+{letter:'A',text:'"You\'re right — small burns don\'t need admission."',correct:false,rationale:'TRAP. The burn size is small but the AIRWAY is the real emergency.'},
+{letter:'B',text:'"Your airway is at risk — we need to intubate early before it swells shut. The burn size doesn\'t reflect the danger."',correct:true,rationale:'Singed nasal hair + hoarseness + carbon sputum = inhalation injury. The professor emphasized: airway swelling progresses fast. Intubate BEFORE the airway closes. Don\'t be misled by small burn area.'},
+{letter:'C',text:'"Take some Benadryl and follow up in clinic."',correct:false,rationale:'Dangerously dismissive — inhalation injury is life-threatening.'},
+{letter:'D',text:'"Apply ice to the burn and rest at home."',correct:false,rationale:'Ignores the airway risk entirely.'}
+],vocabTip:'<strong>TRAP:</strong> Small burn ≠ safe. Inhalation injury = airway emergency. Intubate EARLY.'},
+
+{id:10,chapter:21,sata:false,trap:false,
+stem:'A patient pulled from a burning building presents with cherry-red skin, headache, and confusion. The PRIORITY treatment is:',
+options:[
+{letter:'A',text:'100% oxygen via non-rebreather mask',correct:true,rationale:'Cherry-red skin + altered mental status after fire = carbon monoxide poisoning. CO binds hemoglobin tightly. Treat with high-flow 100% O2 (and hyperbaric O2 if severe). Pulse ox can be falsely normal — don\'t be fooled.'},
+{letter:'B',text:'Aspirin for the headache',correct:false,rationale:'Doesn\'t address CO toxicity.'},
+{letter:'C',text:'IV antibiotics',correct:false,rationale:'Not infection; doesn\'t fix the CO.'},
+{letter:'D',text:'Wait and reassess in 30 minutes',correct:false,rationale:'CO is a life-threatening emergency requiring immediate O2.'}
+],vocabTip:'<strong>CO poisoning:</strong> cherry-red skin + altered mental status → 100% O2 immediately. Pulse ox can lie.'},
+
+{id:11,chapter:21,sata:true,trap:false,
+stem:'A patient is starting infliximab (a biologic) for severe psoriasis. Which teaching does the nurse include? (Select all that apply.)',
+options:[
+{letter:'A',text:'Get a TB skin test or interferon test BEFORE starting the drug',correct:true,rationale:'TB screening is required before biologic initiation due to reactivation risk.'},
+{letter:'B',text:'Report any fever, fatigue, cough, or new infection immediately',correct:true,rationale:'Black Box warning: immunosuppression with serious infection risk (TB, sepsis, fungal).'},
+{letter:'C',text:'You can receive live vaccines (like live shingles) while on this drug',correct:false,rationale:'TRAP. NO live vaccines while on biologics. Inactivated vaccines are fine.'},
+{letter:'D',text:'Avoid crowds and sick contacts; practice meticulous hand hygiene',correct:true,rationale:'Standard immunosuppressed precautions.'},
+{letter:'E',text:'Double your dose if a flare occurs',correct:false,rationale:'Never alter dosing without provider — dangerous overdosing.'}
+],vocabTip:'<strong>Biologic Black Box:</strong> TB screen first · report infection signs · NO live vaccines · standard immunosuppression precautions.'},
+
+{id:12,chapter:21,sata:false,trap:false,
+stem:'A 29-year-old woman is prescribed tazarotene cream for psoriasis. She mentions she and her husband want to start trying for a baby in 6 months. The nurse\'s PRIORITY response is:',
+options:[
+{letter:'A',text:'"Tazarotene is highly teratogenic — discuss alternatives with your provider, and use strict birth control if you do use it."',correct:true,rationale:'Tazarotene is highly teratogenic (causes birth defects). Topical does NOT mean safe in pregnancy. With pregnancy plans within 6 months, an alternative treatment is preferred.'},
+{letter:'B',text:'"Topical creams don\'t affect pregnancy — go ahead with the cream and pregnancy."',correct:false,rationale:'DANGEROUS — topical retinoids ARE teratogenic.'},
+{letter:'C',text:'"Wait until after pregnancy to treat your psoriasis."',correct:false,rationale:'Doesn\'t address the current symptoms or alternatives.'},
+{letter:'D',text:'"Tazarotene is safer than systemic biologics in pregnancy."',correct:false,rationale:'Tazarotene is teratogenic — not safe in pregnancy regardless.'}
+],vocabTip:'<strong>Tazarotene = teratogenic.</strong> Topical ≠ safe. Discuss alternatives if pregnancy is desired.'},
+
+{id:13,chapter:21,sata:false,trap:false,
+stem:'A patient develops widespread blistering and 35% body surface skin sloughing 5 days after starting a new anticonvulsant. The PRIORITY action is:',
+options:[
+{letter:'A',text:'Stop the anticonvulsant immediately and admit for burn-unit-level supportive care',correct:true,rationale:'TEN (>30% BSA detachment) is life-threatening and usually drug-induced. Priority = STOP the offending drug. Supportive care includes fluids, infection prevention, temperature stabilization, often in a burn unit.'},
+{letter:'B',text:'Continue the medication and add hydrocortisone',correct:false,rationale:'Continuing the trigger is dangerous.'},
+{letter:'C',text:'Discharge home with antihistamines',correct:false,rationale:'TEN is a life-threatening emergency, not outpatient.'},
+{letter:'D',text:'Double the medication to overcome a reaction',correct:false,rationale:'Dangerous and incorrect.'}
+],vocabTip:'<strong>SJS / TEN:</strong> STOP the offending drug FIRST. SJS < 10% BSA. TEN > 30% BSA. Burn-unit-level supportive care.'},
+
+{id:14,chapter:21,sata:false,trap:true,
+stem:'A patient with widespread urticaria asks if she should soak in a hot bath to soothe the hives. The nurse responds:',
+options:[
+{letter:'A',text:'"Yes — heat draws out the toxins."',correct:false,rationale:'False — there are no "toxins" to draw out, and heat worsens urticaria.'},
+{letter:'B',text:'"No — heat causes vasodilation that makes the histamine response and itching WORSE. Use cool baths or compresses instead."',correct:true,rationale:'TRAP. Heat is a common patient assumption but is wrong: heat causes vasodilation and amplifies histamine-driven hives. Cool/tepid baths with colloidal oatmeal and cool compresses help.'},
+{letter:'C',text:'"Heat versus cold doesn\'t matter."',correct:false,rationale:'Temperature matters significantly with histamine-driven reactions.'},
+{letter:'D',text:'"Take a hot shower right before bed."',correct:false,rationale:'Same misconception — worsens the symptoms.'}
+],vocabTip:'<strong>TRAP:</strong> Hives + heat = WORSE. Use COOL baths/compresses, oatmeal, antihistamines.'},
+
+{id:15,chapter:21,sata:false,trap:false,
+stem:'A patient develops a painful unilateral vesicular rash along the T6 dermatome on the left side of the trunk. Which intervention is MOST important?',
+options:[
+{letter:'A',text:'Start an antiviral (e.g., acyclovir or valacyclovir) and implement appropriate isolation',correct:true,rationale:'Herpes zoster (shingles): unilateral dermatomal vesicles. Antivirals shorten duration and lessen postherpetic neuralgia, especially if started within 72 hours of onset. Until lesions crust, lesions are contagious to nonimmune contacts.'},
+{letter:'B',text:'Apply topical antifungal cream',correct:false,rationale:'Shingles is viral (varicella-zoster), not fungal.'},
+{letter:'C',text:'Administer IV antibiotics',correct:false,rationale:'Bacteria are not the cause.'},
+{letter:'D',text:'No intervention — shingles resolves on its own',correct:false,rationale:'Antivirals reduce duration and complications.'}
+],vocabTip:'<strong>Shingles:</strong> unilateral dermatomal vesicles → antivirals (acyclovir/valacyclovir) within 72 hrs. Isolate until crusted.'},
+
+{id:16,chapter:21,sata:false,trap:false,
+stem:'A patient presents with a firm, nodular lesion with a crusted center on a chronically sun-damaged forearm. Biopsy may show:',
+options:[
+{letter:'A',text:'Squamous cell carcinoma (SCC) — and SCC CAN metastasize',correct:true,rationale:'SCC arises from chronic sun-damaged skin / chronic wounds. Presents as firm, nodular lesion with crust or central ulceration. Unlike basal cell, SCC CAN metastasize. Refer for excision and possible adjuvant therapy.'},
+{letter:'B',text:'Basal cell carcinoma — pearly, rolled borders, rarely metastasizes',correct:false,rationale:'BCC has different morphology (pearly papule with central crater, rolled borders) and rarely metastasizes.'},
+{letter:'C',text:'Actinic keratosis — premalignant scaly patch',correct:false,rationale:'Actinic keratosis is premalignant but typically scaly/rough patches, not firm nodular lesions with central crust.'},
+{letter:'D',text:'Melanoma — irregularly pigmented',correct:false,rationale:'Melanoma is variegated PIGMENTED — not described here.'}
+],vocabTip:'<strong>SCC:</strong> firm/nodular + crust on sun-damaged skin. <strong>CAN metastasize.</strong> BCC most common but rarely spreads.'},
+
+{id:17,chapter:21,sata:true,trap:false,
+stem:'Which actions are appropriate when caring for a patient experiencing severe pruritus? (Select all that apply.)',
+options:[
+{letter:'A',text:'Keep fingernails short',correct:true,rationale:'Reduces skin damage from scratching.'},
+{letter:'B',text:'Apply mittens at night',correct:true,rationale:'Prevents unconscious scratching during sleep — breaks the itch-scratch-itch cycle.'},
+{letter:'C',text:'Use cool or tepid baths with colloidal oatmeal',correct:true,rationale:'Cool temperatures and oatmeal soothe itching via reduced vasodilation and barrier effects.'},
+{letter:'D',text:'Apply hot compresses for relief',correct:false,rationale:'Heat WORSENS itch by causing vasodilation. Avoid.'},
+{letter:'E',text:'Administer antihistamines as ordered',correct:true,rationale:'Antihistamines block the histamine driving the itch.'}
+],vocabTip:'<strong>Pruritus care:</strong> short nails + mittens + COOL + oatmeal + antihistamines. NO heat.'},
+
+{id:18,chapter:21,sata:false,trap:false,
+stem:'A patient with deep, full-thickness skin loss from a stage 4 PI is being managed with packing. This wound will heal by:',
+options:[
+{letter:'A',text:'First intention',correct:false,rationale:'First intention = sutured wound (clean surgical edges approximated).'},
+{letter:'B',text:'Second intention',correct:true,rationale:'Second intention = deep wounds with tissue loss that cannot be sutured closed; heal by gradual filling of the dead space with granulation/connective tissue. Wound packing is the typical management.'},
+{letter:'C',text:'Third intention',correct:false,rationale:'Third intention = delayed primary closure — wound left open initially then surgically closed once inflammation/infection resolves.'},
+{letter:'D',text:'Reepithelialization',correct:false,rationale:'Reepithelialization specifically refers to partial-thickness wound healing via new epidermal cells.'}
+],vocabTip:'<strong>Second intention = deep cavity + wound packing.</strong> Fills in gradually with connective tissue.'},
+
+{id:19,chapter:21,sata:false,trap:false,
+stem:'A nurse identifies which finding as a Deep Tissue Pressure Injury (DTPI)?',
+options:[
+{letter:'A',text:'Intact skin with non-blanchable erythema',correct:false,rationale:'That\'s Stage 1.'},
+{letter:'B',text:'Intact or non-intact skin with persistent, non-blanchable DEEP RED, MAROON, or PURPLE discoloration',correct:true,rationale:'DTPI is defined by persistent deep red, maroon, or purple discoloration — distinguished from Stage 1 by the COLOR. Often signals underlying deep tissue damage even before the wound opens.'},
+{letter:'C',text:'Partial-thickness skin loss with serum-filled blister',correct:false,rationale:'That\'s Stage 2.'},
+{letter:'D',text:'Full-thickness loss with eschar obscuring depth',correct:false,rationale:'That\'s Unstageable.'}
+],vocabTip:'<strong>DTPI:</strong> persistent deep RED / MAROON / PURPLE discoloration. Distinct from Stage 1 (regular red).'},
+
+{id:20,chapter:21,sata:true,trap:false,
+stem:'Which statements correctly describe medical-device-related pressure injuries and prevention? (Select all that apply.)',
+options:[
+{letter:'A',text:'PureWick devices must be on LOW suction; high suction creates hematomas',correct:true,rationale:'Professor emphasis: PureWick = external only, MINOR incontinence, LOW suction. High suction → hematomas.'},
+{letter:'B',text:'A wound vac\'s primary purpose is to bring blood flow to the wound to promote healing',correct:true,rationale:'Professor correction: NPWT increases circulation to the area; not primarily to dry the wound.'},
+{letter:'C',text:'Donut pillows are recommended to offload pressure on bony prominences',correct:false,rationale:'Donut pillows are CONTRAINDICATED — they damage capillary beds at the rim.'},
+{letter:'D',text:'Massaging reddened skin improves circulation and prevents PIs',correct:false,rationale:'NEVER massage reddened skin — damages fragile capillary beds and worsens necrosis.'},
+{letter:'E',text:'Reposition patients at least every 2 hours and keep HOB at or below 30 degrees to reduce shear',correct:true,rationale:'Standard PI prevention. The 30-degree side-lying tilt protects the trochanter, and the HOB rule reduces shearing.'}
+],vocabTip:'<strong>Medical device rules:</strong> PureWick = LOW suction · Wound Vac = blood flow · NO donuts · NO massage · q2h reposition · HOB ≤ 30°.'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');
+area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+const isSata=q.sata===true;
+const trapBadge=q.trap?'<span class="badge badge-trap">TRAP</span>':'';
+const sataBadge=isSata?'<span class="badge badge-sata">SATA</span>':'';
+card.innerHTML=`
+<div class="q-top">
+<span class="q-num">Q${idx+1}</span>
+<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>
+${trapBadge}${sataBadge}
+</div>
+<div class="q-stem">${q.stem}${isSata?'<em>(Select all that apply)</em>':''}</div>
+<div class="opts" id="opts-${q.id}">
+${q.options.map(o=>`
+<div class="opt" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${isSata})">
+<span class="opt-letter">${o.letter}.</span>
+<div><span class="opt-text">${o.text}</span><div class="opt-rationale" id="rat-${q.id}-${o.letter}">${o.rationale}</div></div>
+</div>`).join('')}
+</div>
+<button class="btn-submit" id="btn-${q.id}" onclick="submitQ(${q.id})">Submit Answer</button>
+<div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>
+${q.trap?`<div class="trap-callout" id="trap-${q.id}">&#9888; TRAP QUESTION: tests a common misconception. Read the rationale carefully!</div>`:''}
+`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(answered[qId])return;
+if(!selections[qId])selections[qId]=[];
+if(isSata){
+const idx=selections[qId].indexOf(letter);
+if(idx>-1)selections[qId].splice(idx,1);
+else selections[qId].push(letter);
+}else{
+selections[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.classList.toggle('selected',selections[qId].includes(o.letter));
+});
+}
+
+function submitQ(qId){
+if(answered[qId])return;
+if(!selections[qId]||selections[qId].length===0)return;
+answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+el.style.cursor='default';
+if(o.correct)el.classList.add('correct-show');
+else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;
+document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();
+saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){
+const pct=(Object.keys(answered).length/questions.length)*100;
+document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function showScore(){
+let correct=0;
+questions.forEach(q=>{
+if(answered[q.id]){
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[q.id]||[];
+if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;
+}
+});
+const pct=Math.round((correct/questions.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';
+document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){
+answered={};
+selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+}
+
+function saveState(){
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));
+}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){
+const state=JSON.parse(saved);
+answered=state.answered||{};
+selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{
+const q=questions.find(x=>x.id==qId);
+if(!q)return;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const sel=selections[qId]||[];
+const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));
+q.options.forEach(o=>{
+const el=document.getElementById(`opt-${qId}-${o.letter}`);
+if(sel.includes(o.letter))el.classList.add('selected');
+if(o.correct)el.classList.add('correct-show');
+else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');
+el.style.cursor='default';
+document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';
+});
+document.getElementById(`tip-${qId}`).style.display='block';
+if(q.trap)document.getElementById(`trap-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);
+btn.disabled=true;
+btn.textContent=isCorrect?'Correct!':'Incorrect';
+});
+updateProgress();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const r=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=r.score+'%';
+document.getElementById('lastDate').textContent=r.date;
+}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
