@@ -66,7 +66,22 @@ body.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
 body.dark input, body.dark textarea { background: #13181f; border-color: #1e293b; color: #e2e8f0; }
 body.dark input::placeholder, body.dark textarea::placeholder { color: #475569; }
 body.dark .bg-stone-900.text-stone-50 { background: #1e293b; }
+/* Quiz / exam score cards: bg-emerald-50 and bg-red-50 are NOT overridden in dark mode (stay light pastel),
+   so text-stone-900 (overridden to light grey) becomes unreadable. Force pastel cards to keep dark text + dark muted secondary. */
+body.dark .bg-emerald-50 .text-stone-900,
+body.dark .bg-red-50 .text-stone-900 { color: #0c0f14; }
+body.dark .bg-emerald-50 .text-stone-400,
+body.dark .bg-red-50 .text-stone-400 { color: #475569; }
+/* Also bias amber cards (which DO get overridden to dark transparent pink) — but the text-stone-900 default
+   override (#e2e8f0) is already readable there, so we leave amber alone. */
 .dark-toggle { cursor: pointer; background: none; border: none; font-size: 18px; line-height: 1; padding: 2px; }
+/* Moon callout — high-leverage phase indicator */
+@keyframes moon-pulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(236,72,153,0.6)); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(236,72,153,0.9)); } }
+.moon-pulse-icon { animation: moon-pulse 2.2s ease-in-out infinite; display: inline-block; }
+@keyframes moon-glow { 0%,100% { box-shadow: 0 0 0 0 rgba(236,72,153,0.0), inset 0 0 0 1px rgba(236,72,153,0.4); } 50% { box-shadow: 0 0 14px 2px rgba(236,72,153,0.5), inset 0 0 0 1px rgba(236,72,153,0.7); } }
+.moon-glow { animation: moon-glow 2.6s ease-in-out infinite; border-radius: 0.5rem; }
+@keyframes moon-banner-glow { 0%,100% { box-shadow: 0 0 18px 0 rgba(236,72,153,0.25); } 50% { box-shadow: 0 0 28px 4px rgba(236,72,153,0.55); } }
+.moon-banner { animation: moon-banner-glow 3s ease-in-out infinite; }
 </style>
 </head>
 <body class="bg-stone-50">
@@ -297,9 +312,50 @@ const moonInfo = () => {
   else if (age < 21.5) { phase = 'Waning Gibbous'; emoji = '🌖'; }
   else if (age < 23.5) { phase = 'Last Quarter'; emoji = '🌗'; }
   else { phase = 'Waning Crescent'; emoji = '🌘'; }
-  const nearNew = age < 2 || age > synodic - 2;
-  const nearFull = Math.abs(age - synodic / 2) < 2;
-  return { age, phase, emoji, nearNew, nearFull };
+  // 3-day high-leverage windows
+  const halfSyn = synodic / 2;
+  const preFull = age < halfSyn && (halfSyn - age) < 3;
+  const postFull = age >= halfSyn && (age - halfSyn) < 3;
+  const preNew = age > synodic - 3;
+  const postNew = age < 3 && age >= 0 && !(age > synodic - 3);
+  const nearNew = preNew || postNew;
+  const nearFull = preFull || postFull;
+  // Callout content for the dashboard banner
+  let callout = null;
+  if (preFull) {
+    const d = Math.max(1, Math.ceil(halfSyn - age));
+    callout = {
+      icon: '🌕',
+      tone: 'full',
+      label: d <= 1 ? 'Full Moon tonight' : `Full Moon in ${d} day${d>1?'s':''}`,
+      hint: 'Refine your vision. Start your release list — what are you letting go of?',
+    };
+  } else if (postFull) {
+    const d = Math.max(1, Math.ceil(age - halfSyn));
+    callout = {
+      icon: '🌖',
+      tone: 'full',
+      label: d <= 1 ? 'Full Moon energy still active' : `Full Moon was ${d} days ago`,
+      hint: 'Burn or tear your release list. Cleanse with water, smoke, or a long shower.',
+    };
+  } else if (preNew) {
+    const d = Math.max(1, Math.ceil(synodic - age));
+    callout = {
+      icon: '🌑',
+      tone: 'new',
+      label: d <= 1 ? 'New Moon tonight' : `New Moon in ${d} day${d>1?'s':''}`,
+      hint: 'Quiet your mind. What seeds are you planting this cycle?',
+    };
+  } else if (postNew) {
+    const d = Math.max(1, Math.ceil(age));
+    callout = {
+      icon: '🌒',
+      tone: 'new',
+      label: d <= 1 ? 'New Moon energy active' : `New Moon was ${d} days ago`,
+      hint: 'Light a candle. Begin (or continue) the 555 method — 55 lines a day for 5 days.',
+    };
+  }
+  return { age, phase, emoji, nearNew, nearFull, callout };
 };
 
 const playChime = () => {
@@ -1059,6 +1115,12 @@ function Dashboard() {
               <span className="italic font-medium">the</span> system
             </h1>
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              {(() => { const m = moonInfo(); return m.callout && (
+                <button onClick={() => setTab('ritual')} title={`${m.callout.label} — tap to open Ritual`} className="bg-pink-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="moon-pulse-icon text-sm leading-none">{m.callout.icon}</span>
+                  <span className="mono text-[9px] font-semibold text-pink-800 uppercase tracking-wider">moon</span>
+                </button>
+              ); })()}
               <button onClick={() => setDarkMode(d => !d)} className="dark-toggle" title="Toggle dark mode">
                 {darkMode ? '☀️' : '🌙'}
               </button>
@@ -1103,15 +1165,31 @@ function Dashboard() {
 
         <ExamCountdownTimeline />
 
+        {(() => { const m = moonInfo(); return m.callout && (
+          <button onClick={() => setTab('ritual')} className="moon-banner w-full text-left bg-pink-50 border border-pink-200 rounded-2xl p-3.5 mb-4 flex items-start gap-3">
+            <span className="moon-pulse-icon text-2xl leading-none mt-0.5">{m.callout.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="mono text-[9px] uppercase tracking-[0.2em] text-pink-800 mb-0.5">🌙 Tonight the moon is saying…</p>
+              <p className="text-sm font-medium text-stone-900 leading-snug">{m.callout.label}</p>
+              <p className="text-xs text-stone-700 mt-1 leading-snug">{m.callout.hint}</p>
+              <p className="mono text-[10px] text-pink-800 mt-1.5">Open Ritual →</p>
+            </div>
+          </button>
+        ); })()}
+
         {checkin && (
           <React.Fragment>
             <div className="flex gap-0.5 mb-4 bg-stone-200/50 p-1 rounded-xl overflow-x-auto">
-              {tabs.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)}
-                  className={`flex-1 py-2 rounded-lg text-[11px] font-medium whitespace-nowrap px-1 ${tab===t.id?'bg-white text-stone-900 shadow-sm':'text-stone-500'}`}>
-                  {t.label}
-                </button>
-              ))}
+              {tabs.map(t => {
+                const m = moonInfo();
+                const isMoonTab = t.id === 'ritual' && m.callout && tab !== t.id;
+                return (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    className={`flex-1 py-2 rounded-lg text-[11px] font-medium whitespace-nowrap px-1 ${tab===t.id?'bg-white text-stone-900 shadow-sm':'text-stone-500'} ${isMoonTab ? 'moon-glow' : ''}`}>
+                    {t.label}{isMoonTab ? ' 🌙' : ''}
+                  </button>
+                );
+              })}
             </div>
 
             {tab === 'today' && <TodayView checkin={checkin} suggestions={getSuggestions()} suggestionLog={todayLog.suggestions || {}} onToggleSuggestion={toggleSuggestion} onUpdateSuggestionNote={updateSuggestionNote} nextExam={nextExam} examMode={examMode} inAtlanta={inAtlanta} ate={ate} onEat={logEat} anki={anki} ankiSec={ankiSec} ankiNote={ankiNote} setAnkiNote={setAnkiNote} ankiSessions={todayLog.anki || []} onStartAnki={startAnki} onStopAnki={() => setAnki(false)} onSaveAnkiSession={saveAnkiSession} study={study} onToggleStudy={() => setStudy(s => !s)} family={family} onToggleFamily={toggleFamily} onPanic={() => setPanic(true)} onReset={() => setCheckin(null)} todayLaunchTasks={todayLaunchTasks} onGoToLaunch={() => setTab('launch')} addresses={addresses} onEditAddress={(a) => setEditingAddr(a)} weather={weather} onRefreshWeather={fetchWeather} weakAreas={weakAreas} meditationLog={meditationLog} onSaveMeditation={saveMeditationSession} mindfulStreak={mindfulStreak} pomodoro={pomodoro} pomodoroSec={pomodoroSec} onStartPomodoro={startPomodoro} onStopPomodoro={() => { setPomodoro(null); setPomodoroSec(0); }} examHistory={examHistory} quizLog={quizLog} onGoToRitual={() => setTab('ritual')} />}
