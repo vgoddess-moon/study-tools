@@ -355,7 +355,17 @@ const moonInfo = () => {
       hint: 'Light a candle. Begin (or continue) the 555 method — 55 lines a day for 5 days.',
     };
   }
-  return { age, phase, emoji, nearNew, nearFull, callout };
+  // 8-phase key for ritual rendering
+  let phaseKey;
+  if (age < 1.5 || age > synodic - 1.5) phaseKey = 'new';
+  else if (age < 6.5) phaseKey = 'waxingCrescent';
+  else if (age < 8.5) phaseKey = 'firstQuarter';
+  else if (age < 13.5) phaseKey = 'waxingGibbous';
+  else if (age < 16) phaseKey = 'full';
+  else if (age < 21.5) phaseKey = 'waningGibbous';
+  else if (age < 23.5) phaseKey = 'lastQuarter';
+  else phaseKey = 'waningCrescent';
+  return { age, phase, emoji, nearNew, nearFull, callout, phaseKey };
 };
 
 const playChime = () => {
@@ -1963,22 +1973,66 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
         </button>
         {showMoon && (
           <div className="mt-3 text-sm text-stone-700 space-y-2">
-            {(moon.nearNew || (!moon.nearFull && moon.age < 14.77)) ? (
+            {moon.phaseKey === 'new' && (
               <React.Fragment>
-                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">New Moon → set intentions</p>
-                <p>Light a candle. Write: <em>“This new moon I am calling in…”</em> then 3–5 intentions as if already true. Do the <strong>555 method</strong>: start the night of the new moon (Day 1), write your affirmation 55× a day for 5 days straight, slowly. Close: <em>“This or something better is on its way to me.”</em></p>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌑 New Moon → plant seeds</p>
+                <p>Light a candle. Write 3–5 intentions in present tense as if already true. Begin the <strong>555 method</strong>: 55× a day for 5 days starting tonight. Close: <em>“This or something better is on its way to me.”</em></p>
+                <p className="text-xs text-stone-500"><strong>Your Scorpio Sun reads this differently:</strong> pick intentions that mean DEEP transformation, not surface goals. The 8th house wants total rebirth, not minor tweaks.</p>
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
                   <span className="mono text-[9px] uppercase tracking-wider text-amber-700 block mb-1">Official 555 · Financial Freedom · next new moon {NEXT_NEW_MOON_555}</span>
                   <p className="text-sm italic text-stone-700">“{AFFIRMATION_555}”</p>
                   <p className="text-xs text-stone-500 mt-2 not-italic">{NOTE_555}</p>
                 </div>
-                <p className="text-xs text-stone-500">Other intentions: “I am confident and focused in nursing school.” · “I am financially growing with ease.” · “I trust my intuition completely.”</p>
               </React.Fragment>
-            ) : (
+            )}
+            {moon.phaseKey === 'waxingCrescent' && (
               <React.Fragment>
-                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">Full Moon → release & cleanse</p>
-                <p>Write everything you’re releasing — fears, doubts, old stories. Read each aloud, then burn or tear it. Follow with an Aries-moon release: dance, run, or hot shower while visualizing it wash off. Close: <em>“I am cleared, I am free, I am ready for what’s next.”</em></p>
-                <p className="text-xs text-stone-500">Examples: “I release the fear that I am not smart enough.” · “I release hypervigilance.” · “I release absorbing others’ emotions as my own.”</p>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌒 Waxing Crescent → build</p>
+                <p>Take ONE concrete action toward your intention today. Write 3 small steps. Start something you've been putting off — even something small.</p>
+                <p className="text-xs text-stone-500"><strong>Your Aries Moon LIVES for this phase:</strong> pure action energy, no overthinking. Vision board, Pinterest board building, fire-starting moves. The match is lit.</p>
+              </React.Fragment>
+            )}
+            {moon.phaseKey === 'firstQuarter' && (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌓 First Quarter → push through</p>
+                <p>Resistance shows up here. Most people quit. You don't. Journal: <em>“What resistance came up this week — is it fear or intuition?”</em></p>
+                <p className="text-xs text-stone-500"><strong>Scorpio ritual:</strong> light a black or deep red candle. Sit with the discomfort. Don't run — breathe through it. Do one thing today that scares you slightly but aligns with your goal.</p>
+              </React.Fragment>
+            )}
+            {moon.phaseKey === 'waxingGibbous' && (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌔 Waxing Gibbous → refine + trust</p>
+                <p>Full Moon is close. Don't pivot — sharpen. Journal: <em>“What do I need to surrender control over right now?”</em></p>
+                <p className="text-xs text-stone-500"><strong>Big one for your chart:</strong> Scorpio grips too tightly. Practice "wouldn't it be nice if…" — say it lightly, not desperately. <strong>Pisces Rising needs water:</strong> Epsom bath, swim, or sit near water tonight.</p>
+              </React.Fragment>
+            )}
+            {moon.phaseKey === 'full' && (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌕 Full Moon → release + cleanse</p>
+                <p>Write everything you're releasing — fears, doubts, old stories. Read each aloud, then <strong>burn or tear it</strong>. Close: <em>“I am cleared, I am free, I am ready for what's next.”</em></p>
+                <p className="text-xs text-stone-500"><strong>Aries Moon release:</strong> dance, run, or hot shower while visualizing it wash off. The body has to MOVE the energy out, not just think it out.</p>
+                <p className="text-xs text-stone-500 italic">Examples: "I release the fear I'm not smart enough." · "I release tying my worth to a test score." · "I release absorbing others' emotions as my own."</p>
+              </React.Fragment>
+            )}
+            {moon.phaseKey === 'waningGibbous' && (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌖 Waning Gibbous → integrate + receive</p>
+                <p>Energy shifts inward. Time to receive, not chase. Journal: <em>“What has already shifted, even subtly, since the New Moon?”</em> Write gratitude for things that don't exist yet as if they do.</p>
+                <p className="text-xs text-stone-500"><strong>Pisces Rising fuel:</strong> play Neville readings, High Frequency Guru, or sleep affirmations. Just receive. No doing.</p>
+              </React.Fragment>
+            )}
+            {moon.phaseKey === 'lastQuarter' && (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌗 Last Quarter → release habits</p>
+                <p>Different from the Full Moon: this is releasing <strong>habits and patterns</strong>, not fears. Journal: <em>“What habit or thought pattern is keeping me in survival mode?”</em> Write it down, close the journal — signal that pattern is done.</p>
+                <p className="text-xs text-stone-500"><strong>Scorpio shadow work:</strong> ask honestly — <em>“What part of me still believes I don't deserve this?”</em></p>
+              </React.Fragment>
+            )}
+            {moon.phaseKey === 'waningCrescent' && (
+              <React.Fragment>
+                <p className="mono text-[9px] uppercase tracking-wider text-amber-700">🌘 Waning Crescent → rest + surrender</p>
+                <p>The most important phase most people skip. Do almost nothing intentionally. Rest. Sleep more. Don't start anything new. Journal: <em>“What did this cycle teach me?”</em></p>
+                <p className="text-xs text-stone-500"><strong>Your Saturn 12th house thrives here:</strong> solitude and rest are not laziness — they ARE the spiritual work. Sleep affirmations, tea, protect your energy fiercely.</p>
               </React.Fragment>
             )}
           </div>
