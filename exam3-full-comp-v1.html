@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 16-21 Full Comprehensive v1 — MS1 Exam 3</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+.container{max-width:900px;margin:0 auto}
+h1{font-family:'DM Serif Display',serif;font-size:2rem;text-align:center;margin-bottom:.25rem;color:#f8fafc}
+.subtitle{text-align:center;color:#94a3b8;font-size:.95rem;margin-bottom:1.5rem}
+.exam-info{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem 1.25rem;margin-bottom:2rem;font-size:.88rem;color:#94a3b8;text-align:center}
+.exam-info strong{color:#e2e8f0}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .4s ease;width:0%}
+.progress-text{text-align:center;font-size:.82rem;color:#64748b;margin-bottom:1.5rem}
+.last-attempt{background:#1a1f2e;border:1px solid #1e293b;border-radius:12px;padding:1rem;margin-bottom:2rem;text-align:center;display:none}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#f472b6}
+.chapter-divider{display:flex;align-items:center;gap:.75rem;margin:2.5rem 0 1.5rem;padding:.5rem 0}
+.chapter-divider::before,.chapter-divider::after{content:'';flex:1;height:1px;background:#1e293b}
+.chapter-divider span{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#94a3b8;white-space:nowrap}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .3s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-incorrect{border-color:#ef4444}
+.q-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-number{font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:#64748b}
+.badge{font-size:.7rem;padding:.2rem .55rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch16{background:#2d0a2e;color:#f472b6}
+.badge-ch17{background:#1a0a2e;color:#c084fc}
+.badge-ch18{background:#1f1a05;color:#fbbf24}
+.badge-ch19{background:#0a1f0d;color:#4ade80}
+.badge-ch20{background:#0a1722;color:#93c5fd}
+.badge-ch21{background:#1f0f0a;color:#fb7185}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-calc{background:#0a2a1a;color:#34d399}
+.badge-diff{font-size:.65rem;padding:.15rem .45rem;border-radius:99px;background:#1e293b;color:#64748b}
+.q-stem{font-size:1rem;margin-bottom:1rem;color:#f1f5f9}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt-btn{background:#1a1f2e;border:1px solid #1e293b;border-radius:10px;padding:.75rem 1rem;text-align:left;color:#cbd5e1;cursor:pointer;font-size:.92rem;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:flex-start;gap:.6rem}
+.opt-btn:hover:not(.locked){border-color:#ec4899;background:#1e2433}
+.opt-btn.selected{border-color:#ec4899;background:#1e2433;color:#f1f5f9}
+.opt-btn.locked{cursor:default}
+.opt-btn.correct-show{border-color:#22c55e;background:#0f2a1a}
+.opt-btn.incorrect-show{border-color:#ef4444;background:#2a0f0f}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:1.2rem;color:#ec4899}
+.sata-note{font-size:.78rem;color:#f472b6;margin-bottom:.75rem;font-style:italic}
+.submit-btn{background:linear-gradient(135deg,#ec4899,#f472b6);color:#fff;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;font-family:'DM Sans',sans-serif}
+.submit-btn:hover{transform:scale(1.03)}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.rationale-box{margin-top:1rem;padding:1rem;background:#0f1218;border:1px solid #1e293b;border-radius:10px;display:none}
+.rationale-box.show{display:block}
+.rationale-box h4{font-size:.82rem;color:#f472b6;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
+.rationale-box p{font-size:.88rem;color:#94a3b8;margin-bottom:.5rem}
+.rationale-box .opt-rat{font-size:.84rem;color:#64748b;padding:.4rem 0;border-bottom:1px solid #1e293b}
+.rationale-box .opt-rat:last-child{border-bottom:none}
+.rationale-box .opt-rat strong{color:#cbd5e1}
+.vocab-tip{margin-top:.75rem;padding:.75rem 1rem;background:#1a1520;border:1px solid #2d1f4e;border-radius:8px;font-size:.84rem;color:#c4b5fd;line-height:1.5}
+.vocab-tip::before{content:'💡 Fast Rule: ';font-weight:600}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:16px;padding:2rem;text-align:center;display:none}
+.score-card h2{font-family:'DM Serif Display',serif;font-size:1.8rem;color:#f8fafc;margin-bottom:.5rem}
+.score-pct{font-size:3rem;font-weight:700;background:linear-gradient(135deg,#ec4899,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:.5rem 0}
+.score-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin:1.5rem 0;text-align:left}
+.ch-score{background:#1a1f2e;border-radius:8px;padding:.6rem .8rem}
+.ch-score .ch-label{font-size:.75rem;color:#64748b;text-transform:uppercase}
+.ch-score .ch-val{font-size:1.1rem;font-weight:700;color:#e2e8f0}
+.restart-btn{margin-top:1.5rem;background:transparent;border:2px solid #ec4899;color:#f472b6;border-radius:10px;padding:.7rem 2rem;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.restart-btn:hover{background:#ec4899;color:#fff}
+@media(max-width:600px){body{padding:.5rem}h1{font-size:1.5rem}.q-card{padding:1rem}.score-breakdown{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+<h1>Ch 16-21 Full Comprehensive v1</h1>
+<p class="subtitle">Chapters 16-21 · 25 Questions · The First Real Exam Simulation</p>
+<div class="exam-info">
+<strong>Exam Date: June 4, 2026</strong> · Mixed comprehensive across ALL six chapters. Every professor-emphasized trap baked in — phagocytosis sequence, TNM Tₓ, Filgrastim vs hypercalcemia, the "others" pronoun trap (conjugation vs communicability), Contact Precautions SATA, ABCDE cm→mm conversion, Parkland math, and more. SATA grading is all-or-nothing.
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div style="font-size:.82rem;color:#64748b;margin-bottom:.25rem">Last Attempt</div>
+<div class="score-val" id="lastScore">—</div>
+</div>
+<div class="progress-text" id="progressText">0 of 25 answered</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div id="quizBody"></div>
+<div class="score-card" id="scoreCard">
+<h2>Exam Complete</h2>
+<div class="score-pct" id="finalPct">—</div>
+<p id="finalMsg" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="score-breakdown" id="breakdown"></div>
+<button class="restart-btn" onclick="restartQuiz()">Retake Exam</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam3-full-comp-v1';
+const EXAM_LABEL='Ch 16-21 Full Comprehensive v1 (25Q)';
+const questions=[
+// ═══ CHAPTER 16: INFLAMMATION & IMMUNITY ═══
+{id:1,chapter:16,difficulty:'medium',sata:false,trap:true,
+stem:"A nursing instructor is reviewing the steps of phagocytosis with students. A student asks, \"What's the difference between Step 5 (Ingestion) and Step 7 (Degradation)?\" Which response by the instructor is MOST accurate?",
+options:[
+{letter:'A',text:"\"They are the same step described two different ways — both refer to the phagocyte swallowing the pathogen.\"",correct:false,rationale:"INCORRECT — these are distinct, separate steps in the phagocytosis sequence. Conflating them is the exact trap your professor emphasizes."},
+{letter:'B',text:"\"Ingestion is the PHYSICAL act of the phagocyte engulfing and swallowing the pathogen into a phagosome. Degradation is the CHEMICAL act where lysosomal granules fuse with the phagosome and release enzymes to digest the pathogen.\"",correct:true,rationale:"CORRECT — Step 5 (Ingestion) = physical engulfment, the cell membrane wraps around the pathogen forming a phagosome. Step 7 (Degradation) = chemical breakdown, the lysosomes fuse with the phagosome forming a phagolysosome, and hydrolytic enzymes digest the contents. Physical vs. chemical = the key distinction."},
+{letter:'C',text:"\"Ingestion happens at the cell surface; degradation happens in the bloodstream after the phagocyte travels to the liver.\"",correct:false,rationale:"INCORRECT — both ingestion AND degradation occur INSIDE the phagocyte itself, not at different anatomical locations. The phagocyte does the whole process internally."},
+{letter:'D',text:"\"Ingestion is performed by neutrophils only; degradation is performed by macrophages only.\"",correct:false,rationale:"INCORRECT — both neutrophils AND macrophages perform the entire phagocytosis sequence (recognition, adherence, ingestion, degradation). Cell type does not separate the steps."}
+],
+vocabTip:"Phagocytosis sequence trap: INGESTION (Step 5) = physical SWALLOWING (cell membrane wraps around pathogen → phagosome forms). DEGRADATION (Step 7) = chemical DIGESTION (lysosomes fuse and release enzymes). Physical → Chemical. Don't fall for the distractor that lumps them together."
+},
+{id:2,chapter:16,difficulty:'easy',sata:false,trap:false,
+stem:"A patient with cellulitis on the lower leg shows redness, warmth, swelling, pain, and decreased ability to walk. The nurse understands that the WARMTH and REDNESS are caused by which physiological mechanism?",
+options:[
+{letter:'A',text:"Increased capillary permeability causing fluid to leak into the tissues",correct:false,rationale:"INCORRECT — increased capillary permeability causes SWELLING/EDEMA, not warmth and redness. Don't confuse the cause-effect pairs."},
+{letter:'B',text:"Vasodilation and increased blood flow to the affected area",correct:true,rationale:"CORRECT — vasodilation (widening of blood vessels) brings MORE warm, oxygenated blood to the area, which causes both warmth (the blood is body temperature) and redness (more blood = more visible red color). This is the inflammatory response delivering immune cells to the site."},
+{letter:'C',text:"Pressure of accumulated fluid on local nerve endings",correct:false,rationale:"INCORRECT — pressure on nerve endings from swelling causes PAIN and DECREASED FUNCTION, not warmth and redness."},
+{letter:'D',text:"Mast cell degranulation releasing IgE antibodies",correct:false,rationale:"INCORRECT — mast cell degranulation releases HISTAMINE (which triggers vasodilation and permeability), not IgE. IgE is the antibody that binds to mast cells to trigger degranulation in Type I hypersensitivity. This option mixes up cause and effect."}
+],
+vocabTip:"Cardinal signs cause-effect chain (memorize this): Vasodilation/Increased Blood Flow → WARMTH + REDNESS. Increased Capillary Permeability → SWELLING (edema). Swelling presses on nerves → PAIN + DECREASED FUNCTION. The chain: vasodilation → permeability → swelling → pain → decreased function."
+},
+{id:3,chapter:16,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is teaching a patient about the role of B-lymphocytes after a vaccination. The patient asks, \"What's the difference between plasma cells and memory cells?\" Which explanation is MOST accurate?",
+options:[
+{letter:'A',text:"Plasma cells are part of innate immunity, memory cells are part of adaptive immunity",correct:false,rationale:"INCORRECT — BOTH plasma cells and memory cells are part of ADAPTIVE immunity. They both come from activated B-lymphocytes. The trap here is implying one is innate, which is wrong."},
+{letter:'B',text:"Plasma cells immediately secrete antibodies during an active infection. Memory cells wait in reserve and launch a faster, stronger response upon SECOND exposure to the same pathogen.",correct:true,rationale:"CORRECT — both are activated B-cells but with different jobs. Plasma cells = the ACTIVE responders during the current infection, churning out antibodies. Memory cells = the LONG-TERM reserves that don't do much during the first infection, but remember the pathogen so the body can mount a faster response if it ever sees that pathogen again (this is why vaccines and second infections produce stronger, faster antibody responses)."},
+{letter:'C',text:"Plasma cells produce IgM only; memory cells produce IgG only",correct:false,rationale:"INCORRECT — plasma cells can produce ANY antibody class (IgM, IgG, IgA, IgE) depending on the situation. Memory cells don't produce antibodies at all — they wait, and when activated, they differentiate INTO plasma cells which then produce antibodies. The class-switching from IgM (primary) to IgG (secondary) is correct, but that happens in plasma cells, not memory cells."},
+{letter:'D',text:"Plasma cells live for years; memory cells live only a few days",correct:false,rationale:"INCORRECT — this is BACKWARD. Plasma cells are short-lived (days to weeks) — they pump out antibodies fast and then die. MEMORY cells are LONG-LIVED (years to decades) — that's the whole point of immunity, lifelong memory."}
+],
+vocabTip:"Both plasma & memory cells = ADAPTIVE immunity (from B-lymphocytes). Plasma = ACTIVE NOW, secreting antibodies for the current infection, short-lived. Memory = WAITS for next time, long-lived, produces the faster/stronger secondary response. Vaccines work by creating memory cells."
+},
+{id:4,chapter:16,difficulty:'medium',sata:true,trap:false,
+stem:"A nursing student is identifying components of the INNATE (non-specific) immune system. Which of the following are part of innate immunity? Select All That Apply.",
+options:[
+{letter:'A',text:"Intact skin and mucous membranes",correct:true,rationale:"CORRECT — skin and mucous membranes are the FIRST LINE of innate defense. They are physical barriers that block pathogen entry. No specificity required."},
+{letter:'B',text:"Neutrophils performing phagocytosis",correct:true,rationale:"CORRECT — neutrophils are innate immune cells (first responders to bacterial infection). They phagocytize pathogens without needing prior exposure or specific antibody recognition."},
+{letter:'C',text:"B-lymphocytes producing antibodies after antigen exposure",correct:false,rationale:"INCORRECT — B-lymphocytes producing antibodies is ADAPTIVE immunity (specific, requires antigen recognition). Innate is non-specific and does not require prior exposure."},
+{letter:'D',text:"The inflammatory response (vasodilation, increased permeability, phagocyte recruitment)",correct:true,rationale:"CORRECT — inflammation is a core component of innate immunity. It is non-specific (responds to any tissue injury or pathogen) and immediate."},
+{letter:'E',text:"Memory T-cells responding to a second exposure",correct:false,rationale:"INCORRECT — memory T-cells are ADAPTIVE immunity. Memory = specific = adaptive. Innate has no memory."},
+{letter:'F',text:"Natural killer (NK) cells destroying virus-infected cells",correct:true,rationale:"CORRECT — NK cells are innate lymphocytes. They kill infected or abnormal cells without prior sensitization, which is the hallmark of innate immunity."}
+],
+vocabTip:"INNATE = non-specific, immediate, no memory (skin, mucous membranes, phagocytes, NK cells, inflammation, complement, fever). ADAPTIVE = specific, slower first time, has memory (B-cells/antibodies, T-cells, plasma cells, memory cells). If it requires recognizing a SPECIFIC antigen → adaptive. If it works on EVERYTHING → innate."
+},
+// ═══ CHAPTER 17: ALLERGY & IMMUNITY ═══
+{id:5,chapter:17,difficulty:'medium',sata:false,trap:true,
+stem:"A nursing student is studying the antibody-antigen relationship. The instructor asks the student to describe the binding using an analogy. Which response by the student is MOST accurate?",
+options:[
+{letter:'A',text:"\"Antibodies fit antigens like a LOCK fits a KEY — each antibody is specific to one antigen.\"",correct:true,rationale:"CORRECT — the lock and key analogy is the classic and correct one for antibody-antigen binding. Each antibody has a specific antigen-binding site that recognizes only ONE specific antigen (or very closely related ones). Highly specific molecular recognition."},
+{letter:'B',text:"\"Antibodies bind antigens like INSULIN binds GLUCOSE — they work together to regulate immune function.\"",correct:false,rationale:"TRAP — insulin does NOT 'bind' glucose; insulin binds its receptor on cell membranes and signals glucose uptake. This is a distractor mixing up endocrinology with immunology. Your professor uses the insulin/glucose comparison sometimes to illustrate hormonal signaling, but it is NOT how antibody-antigen binding works."},
+{letter:'C',text:"\"Antibodies bind ALL pathogens equally — they are non-specific killers.\"",correct:false,rationale:"INCORRECT — that describes innate immunity. Antibodies are HIGHLY specific — that's the entire defining feature of adaptive immunity."},
+{letter:'D',text:"\"Antibodies physically engulf antigens like a phagocyte swallowing bacteria.\"",correct:false,rationale:"INCORRECT — that's phagocytosis (innate cellular immunity). Antibodies BIND antigens, they don't engulf them. After binding, antibodies can neutralize, mark for destruction (opsonization), or activate complement — but engulfment is a phagocyte function, not an antibody function."}
+],
+vocabTip:"ANTIBODY-ANTIGEN binding = LOCK and KEY (highly specific molecular recognition). Don't fall for the insulin/glucose distractor — that's endocrine signaling, not immunology. Each antibody recognizes ONE specific antigen via its unique variable region."
+},
+{id:6,chapter:17,difficulty:'easy',sata:false,trap:false,
+stem:"A patient arrives in the ED with hives, wheezing, swelling of the lips and tongue, and a BP of 78/40 after eating a bowl of soup that contained peanuts. The nurse recognizes this as which type of hypersensitivity reaction?",
+options:[
+{letter:'A',text:"Type I — IgE-mediated, immediate hypersensitivity (anaphylaxis)",correct:true,rationale:"CORRECT — peanut allergy causing immediate (within minutes) hives, bronchospasm (wheezing), angioedema (lip/tongue swelling), and hypotension is the classic anaphylaxis presentation. Type I is IgE-mediated and occurs immediately upon re-exposure to the allergen. Treatment priority: epinephrine IM, then airway protection."},
+{letter:'B',text:"Type II — antibody-mediated cytotoxic (e.g., hemolytic transfusion reaction)",correct:false,rationale:"INCORRECT — Type II is IgG or IgM binding to cell surface antigens leading to cell destruction. Examples: hemolytic transfusion reactions, hemolytic disease of the newborn. Not the food allergy mechanism."},
+{letter:'C',text:"Type III — immune complex deposition (e.g., serum sickness)",correct:false,rationale:"INCORRECT — Type III involves antigen-antibody complexes depositing in tissues causing inflammation. Examples: serum sickness, lupus. Develops over hours to days, not minutes."},
+{letter:'D',text:"Type IV — T-cell mediated, delayed (e.g., contact dermatitis or TB skin test)",correct:false,rationale:"INCORRECT — Type IV is delayed (24-72 hours) and T-cell mediated. Examples: poison ivy, TB skin test reaction, contact dermatitis. NOT immediate anaphylaxis."}
+],
+vocabTip:"Hypersensitivity types — memorize the cell/mediator: Type I = IgE → mast cells → histamine (anaphylaxis, hay fever, asthma, peanut allergy). Type II = IgG/IgM cytotoxic (hemolytic transfusion, hemolytic disease of newborn). Type III = immune complexes (serum sickness, SLE, RA). Type IV = T-cells, DELAYED 24-72h (contact dermatitis, TB skin test, transplant rejection)."
+},
+{id:7,chapter:17,difficulty:'medium',sata:false,trap:false,
+stem:"A patient with a known latex allergy is being prepped for surgery. The patient mentions also being allergic to bananas. The nurse understands this is significant because:",
+options:[
+{letter:'A',text:"Bananas contain latex proteins, so the allergy is the same molecule",correct:false,rationale:"INCORRECT — bananas do not literally contain latex. The connection is via CROSS-REACTIVITY, where similar protein structures in different foods/substances trigger the same IgE antibodies."},
+{letter:'B',text:"Patients with latex allergies often cross-react with certain foods (bananas, avocados, kiwi, chestnuts) due to similar protein structures",correct:true,rationale:"CORRECT — this is the LATEX-FRUIT SYNDROME. Proteins in natural rubber latex share structural similarities with proteins in bananas, avocados, kiwis, chestnuts, and some other fruits. The same IgE antibodies recognize both, so latex-allergic patients are at risk for allergic reactions to these foods. Important for OR safety planning."},
+{letter:'C',text:"The patient must have been mis-diagnosed — these allergies are unrelated",correct:false,rationale:"INCORRECT — these allergies ARE related through protein cross-reactivity. Dismissing the patient's report is unsafe and incorrect."},
+{letter:'D',text:"Banana allergy increases the risk of Type IV delayed hypersensitivity to anesthesia",correct:false,rationale:"INCORRECT — latex allergy is Type I (immediate IgE), not Type IV. The cross-reactivity concern is about preventing intraoperative anaphylaxis from latex contact, not anesthesia."}
+],
+vocabTip:"LATEX-FRUIT SYNDROME: latex-allergic patients commonly cross-react with bananas, avocados, kiwi, chestnuts (and sometimes papaya, tomato, potato). Same IgE recognizes shared protein structures. OR/clinical implication: latex-allergic = ask about these foods, plan for latex-free environment."
+},
+{id:8,chapter:17,difficulty:'hard',sata:true,trap:false,
+stem:"A patient experiencing anaphylaxis in the clinic shows hypotension, stridor, and impending airway closure. Which interventions should the nurse implement IMMEDIATELY? Select All That Apply.",
+options:[
+{letter:'A',text:"Administer epinephrine 0.3 mg IM in the lateral thigh (vastus lateralis)",correct:true,rationale:"CORRECT — epinephrine IM is the FIRST-LINE treatment for anaphylaxis. Given in the lateral thigh for fastest absorption. Reverses vasodilation, bronchoconstriction, and edema. Do NOT delay for any other intervention."},
+{letter:'B',text:"Place the patient in a supine position with legs elevated (Trendelenburg)",correct:true,rationale:"CORRECT — supine with legs elevated promotes venous return to the heart and supports blood pressure. EXCEPTION: if the patient is having significant respiratory distress, semi-Fowler's may be preferable. If vomiting, place in recovery position."},
+{letter:'C',text:"Administer oral diphenhydramine (Benadryl) as the first-line treatment",correct:false,rationale:"INCORRECT — diphenhydramine is an ADJUNCT (often given AFTER epinephrine) and only helps with hives and itching. It does NOT reverse hypotension or airway swelling fast enough. Epinephrine first, always. Also, the patient with airway compromise should NOT be given anything by mouth."},
+{letter:'D',text:"Establish IV access for fluids and consider IV normal saline bolus",correct:true,rationale:"CORRECT — large-volume IV fluids (normal saline) support BP in distributive shock from anaphylaxis. The vasodilation and capillary leak cause volume depletion."},
+{letter:'E',text:"Prepare for possible intubation if airway swelling progresses",correct:true,rationale:"CORRECT — anaphylaxis can rapidly cause complete airway obstruction. Have intubation equipment ready, and call for advanced airway support immediately if stridor or swelling progresses despite epinephrine."},
+{letter:'F',text:"Apply ice to the injection site to slow allergen absorption",correct:false,rationale:"INCORRECT — this is a distractor based on bee sting protocols (and even there, ice is debated). For systemic anaphylaxis, ice does nothing meaningful and delays the priority interventions. Focus on epinephrine, airway, fluids."}
+],
+vocabTip:"Anaphylaxis priority: EPINEPHRINE IM (lateral thigh) FIRST, then airway, fluids, prep for intubation. Adjuncts (antihistamines, steroids) come AFTER epi. Remember: every minute matters. Mnemonic: EPI-A-F-A (Epinephrine → Airway → Fluids → Adjuncts)."
+},
+// ═══ CHAPTER 18: CANCER & ONCOLOGY ═══
+{id:9,chapter:18,difficulty:'medium',sata:false,trap:true,
+stem:"A 58-year-old patient has a confirmed lung tumor measuring 2 cm on biopsy, with no lymph node involvement and no distant metastasis. The oncology nurse is documenting the TNM staging. Which classification is MOST accurate?",
+options:[
+{letter:'A',text:"T_x, N0, M0 — tumor cannot be assessed",correct:false,rationale:"TRAP — T_x means the tumor CANNOT BE ASSESSED. But this question gives you an exact tumor size (2 cm), which means the tumor CAN be assessed and Tx is therefore INCORRECT. If a measurement is given, T_x is never the answer."},
+{letter:'B',text:"T1, N0, M0 — small tumor, no lymph node involvement, no metastasis",correct:true,rationale:"CORRECT — T1 = small tumor with measurable size (typically ≤3 cm for lung), N0 = no regional lymph node involvement, M0 = no distant metastasis. This is Stage I disease, often the most favorable prognosis. The exact T number depends on the staging system for the cancer type, but the pattern is correct."},
+{letter:'C',text:"T4, N3, M1 — large tumor with extensive metastasis",correct:false,rationale:"INCORRECT — T4 indicates a very large or invasive tumor, N3 indicates extensive lymph node involvement, and M1 indicates distant metastasis. None of these match the clinical picture described (2 cm, no nodes, no metastasis)."},
+{letter:'D',text:"Tis, Nx, Mx — carcinoma in situ with unknown nodal and metastatic status",correct:false,rationale:"INCORRECT — Tis = carcinoma IN SITU (pre-invasive, hasn't crossed the basement membrane). A 2 cm invasive tumor is past the in-situ stage. Nx and Mx also mean 'cannot be assessed' — but the question clearly states no nodes and no metastasis."}
+],
+vocabTip:"TNM Staging traps: T_x = CANNOT be assessed. If a size is given, T_x is WRONG. Same logic: N_x means nodes can't be assessed, M_x means metastasis can't be assessed. If the question gives you actual data, the 'cannot be assessed' option is a distractor. Tis = in situ (pre-invasive). T1-T4 = increasing size/invasion. N0-N3 = no nodes → extensive nodes. M0 = no metastasis, M1 = distant metastasis."
+},
+{id:10,chapter:18,difficulty:'medium',sata:false,trap:true,
+stem:"A patient receiving chemotherapy is started on filgrastim (Neupogen) injections. Two days later, the patient reports deep pain in the sternum, hips, and pelvis. What is the nurse's BEST interpretation of this finding?",
+options:[
+{letter:'A',text:"This is hypercalcemia — an oncologic emergency requiring immediate ECG monitoring and IV fluids",correct:false,rationale:"TRAP — hypercalcemia of malignancy DOES cause bone pain and muscle weakness, but it's a different mechanism (cancer-related bone breakdown). With filgrastim specifically, deep bone pain is an EXPECTED side effect of the drug working — NOT hypercalcemia. The trap is jumping to oncologic emergency when this is normal drug response. ECG changes in hypercalcemia include shortened QT — but that's not what this scenario describes."},
+{letter:'B',text:"This is the EXPECTED side effect of filgrastim — the bone marrow is producing white blood cells in overdrive and the marrow expansion causes deep bone pain. Treat with acetaminophen or NSAIDs as ordered.",correct:true,rationale:"CORRECT — filgrastim (G-CSF, granulocyte colony-stimulating factor) stimulates neutrophil production in the bone marrow. The marrow ramps up so aggressively that the bones themselves ache from the expansion, especially in the sternum, hips, and pelvis where active marrow is abundant in adults. This is EXPECTED, not emergent. Manage with acetaminophen or NSAIDs (with provider order — careful with NSAIDs if thrombocytopenic)."},
+{letter:'C',text:"This is bone metastasis from undiagnosed advanced cancer — notify the oncologist for emergency imaging",correct:false,rationale:"INCORRECT — while bone pain CAN be a sign of metastasis in some contexts, when a patient is on filgrastim and develops bone pain in the EXPECTED locations (sternum, pelvis, hips — where marrow is active), the cause is the drug, not metastasis. Don't jump to worst-case interpretation when the timing matches a known side effect."},
+{letter:'D',text:"This is severe neutropenia — assess for fever and prepare for blood cultures",correct:false,rationale:"INCORRECT — neutropenia is what filgrastim is given to PREVENT/TREAT. Neutropenia itself does not cause bone pain. The bone pain is from filgrastim WORKING — stimulating neutrophil production. Neutropenic fever would be infection, not the side effect described."}
+],
+vocabTip:"FILGRASTIM (Neupogen) = G-CSF = colony-stimulating factor → boosts neutrophil production in bone marrow. EXPECTED side effect = deep bone pain (sternum, hips, pelvis) because the marrow is in overdrive. Treat with acetaminophen/NSAIDs. Don't confuse with HYPERCALCEMIA OF MALIGNANCY (oncologic emergency: muscle weakness, ECG changes (shortened QT), altered mental status, polyuria). Mechanism is totally different."
+},
+{id:11,chapter:18,difficulty:'medium',sata:false,trap:false,
+stem:"A patient is 10 days post-chemotherapy with cyclophosphamide. The nurse should monitor MOST closely for signs of which complication during this period?",
+options:[
+{letter:'A',text:"Hair regrowth and improved appetite",correct:false,rationale:"INCORRECT — hair regrowth happens AFTER treatment cycles are completed, weeks to months later. This is also a positive finding, not a complication to monitor."},
+{letter:'B',text:"Neutropenia and infection risk (the nadir period)",correct:true,rationale:"CORRECT — the NADIR is the lowest point of blood cell counts after chemotherapy, typically occurring 7-14 days post-treatment. During the nadir, neutrophils are at their lowest, putting the patient at highest risk for life-threatening infections, often from their OWN flora (gut bacteria, skin flora). Monitor: fever (oncologic emergency in neutropenic patient), any signs of infection. Patient teaching: neutropenic precautions, avoid crowds, fresh fruits/veggies, raw foods."},
+{letter:'C',text:"Hyperglycemia and need for insulin",correct:false,rationale:"INCORRECT — while steroids given with chemo can cause hyperglycemia, this is not the priority concern at day 10 post-cyclophosphamide. The priority is infection."},
+{letter:'D',text:"Sudden weight gain from fluid retention",correct:false,rationale:"INCORRECT — fluid retention is not the primary concern of the nadir period. Infection risk is."}
+],
+vocabTip:"NADIR = lowest blood cell counts after chemo, typically days 7-14 post-treatment. Neutropenic patient + ANY fever = oncologic emergency. ANC <500 = severe neutropenia. Patient teaching: no fresh flowers, no raw fruits/vegetables, no crowds, hand hygiene, report fever IMMEDIATELY."
+},
+{id:12,chapter:18,difficulty:'hard',sata:true,trap:false,
+stem:"A patient with newly-diagnosed acute leukemia is starting chemotherapy. The nurse is monitoring for tumor lysis syndrome (TLS). Which findings should the nurse recognize as signs of TLS? Select All That Apply.",
+options:[
+{letter:'A',text:"Hyperuricemia (high uric acid)",correct:true,rationale:"CORRECT — when tumor cells lyse, intracellular contents spill out. Uric acid is released as DNA breaks down. High uric acid can crystallize in the kidneys causing acute kidney injury."},
+{letter:'B',text:"Hyperkalemia (high potassium)",correct:true,rationale:"CORRECT — intracellular K+ is released when cells lyse, causing dangerous hyperkalemia. Risk: cardiac arrhythmias, peaked T waves on ECG, cardiac arrest. This is often the FIRST life-threatening manifestation."},
+{letter:'C',text:"Hyperphosphatemia (high phosphate)",correct:true,rationale:"CORRECT — intracellular phosphate is released. High phosphate binds with calcium causing HYPOCALCEMIA (note: high phos AND low calcium often together)."},
+{letter:'D',text:"Hypercalcemia (high calcium)",correct:false,rationale:"INCORRECT — in TLS, calcium is LOW (hypocalcemia), because the released phosphate binds calcium. Don't confuse with hypercalcemia of malignancy, which is a different syndrome from bone breakdown by certain solid tumors."},
+{letter:'E',text:"Acute kidney injury (rising creatinine, decreased urine output)",correct:true,rationale:"CORRECT — uric acid crystals + phosphate-calcium precipitates clog the renal tubules causing AKI. Aggressive hydration BEFORE chemo helps prevent this."},
+{letter:'F',text:"Hyponatremia (low sodium)",correct:false,rationale:"INCORRECT — sodium is not a primary TLS abnormality. The classic 4 are: hyperkalemia, hyperphosphatemia, hyperuricemia, hypocalcemia."}
+],
+vocabTip:"TUMOR LYSIS SYNDROME (TLS) = cells lyse → contents spill out. The 4 hallmarks: HIGH potassium (hyperkalemia), HIGH phosphate, HIGH uric acid, LOW calcium (hypocalcemia, because phos binds calcium). Result: cardiac arrhythmias + acute kidney injury. Prevention: aggressive IV hydration BEFORE chemo, allopurinol or rasburicase to prevent uric acid buildup. Highest risk: acute leukemias, large lymphomas, bulky tumors. Monitor labs frequently in the first 72 hours after chemo."
+},
+// ═══ CHAPTER 19: INFECTION CONTROL ═══
+{id:13,chapter:19,difficulty:'hard',sata:false,trap:true,
+stem:"During a lecture on bacterial resistance, the professor explains, \"Some bacteria can transfer genetic material directly to others through physical contact.\" The nurse correctly identifies this process as:",
+options:[
+{letter:'A',text:"Communicability — the ability of a disease to spread directly to others through contact",correct:false,rationale:"TRAP — the word \"others\" pulls your brain toward person-to-person transmission. But re-read the question: the subject is \"bacteria\" and the context is \"bacterial resistance\" (sharing antibiotic-defeating genetic information). \"Others\" in this sentence grammatically refers back to OTHER BACTERIA, not other humans. Communicability = disease moving person-to-person. This question is about bacteria-to-bacteria DNA transfer."},
+{letter:'B',text:"Conjugation — the microscopic transfer of genetic material from one bacterium to another bacterium through physical contact",correct:true,rationale:"CORRECT — CONJUGATION is the specific process where one bacterium acts as a donor and transfers DNA (often containing antibiotic resistance genes) to another bacterium via a pilus during direct cell-to-cell contact. This is HOW antibiotic resistance spreads through bacterial colonies. The key giveaway in the question: \"genetic material\" + \"bacterial resistance\" = conjugation."},
+{letter:'C',text:"Antigenic drift — small mutations that allow pathogens to evade the immune system over time",correct:false,rationale:"INCORRECT — antigenic drift refers to gradual mutations in viral surface proteins (e.g., influenza) that allow immune evasion. It is NOT a bacterial DNA transfer mechanism between cells."},
+{letter:'D',text:"Pathogenicity — the ability of an organism to cause disease",correct:false,rationale:"INCORRECT — pathogenicity is a descriptive trait (how good a pathogen is at causing disease), not a mechanism of genetic transfer."}
+],
+vocabTip:"⚠️ THE 'OTHERS' PRONOUN TRAP: When you see 'others' in a question stem, PAUSE and check what the subject is. Subject = 'bacteria'? → 'others' = other bacteria → CONJUGATION (DNA transfer). Subject = 'patient/person/pathogen spreading disease'? → 'others' = other humans → COMMUNICABILITY. Cellular sharing DNA = conjugation. Population sharing illness = communicability. Look for the phrase 'genetic material' or 'bacterial resistance' as the giveaway for conjugation."
+},
+{id:14,chapter:19,difficulty:'easy',sata:false,trap:false,
+stem:"A patient with productive cough arrives in the ED triage area. The triage nurse should apply a SURGICAL MASK to the patient PRIMARILY to:",
+options:[
+{letter:'A',text:"Protect the patient from inhaling pathogens from other patients in the waiting room",correct:false,rationale:"INCORRECT — that would be the rationale for the PATIENT wearing an N95 or for sterile OR settings. In triage, the mask on the patient is going OUTWARD, not inward."},
+{letter:'B',text:"Protect the nurse and other patients from the symptomatic patient's respiratory droplets",correct:true,rationale:"CORRECT — in TRIAGE/respiratory-symptom settings, putting a surgical mask on the COUGHING PATIENT contains their droplets so they don't spread to staff and other patients. This is source control. Direction of protection: FROM the patient OUTWARD."},
+{letter:'C',text:"Filter the air entering the patient's lungs and prevent contamination of the respiratory tract",correct:false,rationale:"INCORRECT — surgical masks do not filter incoming air effectively for the wearer. They are for source control. If we wanted to PROTECT the patient from airborne pathogens, we'd use an N95."},
+{letter:'D',text:"Replace the need for hand hygiene since droplets are contained",correct:false,rationale:"INCORRECT — masks NEVER replace hand hygiene. Hand hygiene remains essential regardless of PPE."}
+],
+vocabTip:"SURGICAL MASK SCENARIO TRAP: TRIAGE/respiratory setting → mask on PATIENT protects the NURSE (and others) from patient's droplets. STERILE OR/wound care → mask on NURSE protects the PATIENT from nurse's oral flora. Direction of protection = direction of source. N95 = protects WEARER from airborne pathogens (TB, measles, COVID)."
+},
+{id:15,chapter:19,difficulty:'medium',sata:false,trap:false,
+stem:"A medical unit has two patients with confirmed MRSA infections — one with a MRSA wound infection and one with MRSA pneumonia. The hospital is at full capacity. The nurse manager is making room assignments. Which assignment is APPROPRIATE?",
+options:[
+{letter:'A',text:"The two MRSA patients should not be near each other; each must have a private room",correct:false,rationale:"INCORRECT — while a private room is PREFERRED for Contact Precautions, when private rooms are unavailable, COHORTING is acceptable for patients with the SAME pathogen, even if the infection is in different body systems."},
+{letter:'B',text:"The two MRSA patients can share a room (cohorting) since they have the same pathogen, even though the infections are in different body systems",correct:true,rationale:"CORRECT — COHORTING means placing patients with the SAME confirmed pathogen in the same room. Both patients have MRSA, so cross-contamination of MRSA is not a concern (they already have it). The body system of infection doesn't matter — what matters is the pathogen. Maintain Contact Precautions for both, dedicated equipment for the room."},
+{letter:'C',text:"One MRSA patient should be roomed with a VRE patient since both require Contact Precautions",correct:false,rationale:"INCORRECT — this is a major patient safety violation. Cohorting requires the SAME pathogen, not just the same precaution type. Rooming a MRSA patient with a VRE patient would expose each patient to a new resistant pathogen they didn't already have."},
+{letter:'D',text:"The MRSA pneumonia patient must be placed in a negative-pressure room",correct:false,rationale:"INCORRECT — MRSA pneumonia is on Contact Precautions (the organism spreads by contact, not airborne). Negative-pressure rooms are reserved for AIRBORNE precautions (TB, measles, chickenpox, COVID-19). Don't use negative pressure for contact pathogens."}
+],
+vocabTip:"COHORTING RULE: same pathogen = OK to share a room, even if the infection sites differ (MRSA wound + MRSA pneumonia = fine). Different pathogens = never share (MRSA + VRE = no). Pathogen type, not precaution type, determines cohorting eligibility."
+},
+{id:16,chapter:19,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is reviewing room assignments for a busy unit. Which patient situation REQUIRES placement in a negative-pressure (airborne isolation) room?",
+options:[
+{letter:'A',text:"A patient with newly-diagnosed MRSA wound infection",correct:false,rationale:"TRAP — MRSA is on CONTACT precautions, not airborne. Negative pressure is NOT needed. Just gown, gloves, hand hygiene, dedicated equipment, private room or cohorting."},
+{letter:'B',text:"A patient with confirmed pulmonary tuberculosis (TB)",correct:true,rationale:"CORRECT — TB is one of the classic AIRBORNE precaution organisms. Negative-pressure room (air flows IN, not out), N95 respirator for staff, and door kept closed. The five airborne diseases to memorize: TB, Measles, Varicella (Chickenpox), Disseminated Herpes Zoster, and COVID-19 (some guidelines)."},
+{letter:'C',text:"A patient with C. difficile diarrhea",correct:false,rationale:"INCORRECT — C. diff is CONTACT precautions, not airborne. Critical points for C.diff: SOAP AND WATER for hand washing (alcohol-based sanitizers don't kill spores), gown and gloves, dedicated equipment."},
+{letter:'D',text:"A patient with VRE colonization detected on routine screening",correct:false,rationale:"INCORRECT — VRE is CONTACT precautions. Not airborne, no negative pressure needed."}
+],
+vocabTip:"NEGATIVE-PRESSURE TRAP: Only use negative airflow for AIRBORNE diseases. Memorize the airborne 5: TB, Measles, Varicella (chickenpox), Disseminated Herpes Zoster, COVID-19. NEVER use for Contact precautions (MRSA, VRE, C.diff). NEVER use for Droplet precautions (flu, mumps, meningococcus). The exam will try to make you pick the patient with the most 'serious' infection — but the right answer is about TRANSMISSION ROUTE, not severity."
+},
+{id:17,chapter:19,difficulty:'medium',sata:true,trap:true,
+stem:"A patient with C. difficile infection (Contact Precautions) is admitted to a private room. Which nursing interventions are REQUIRED when caring for this patient? Select All That Apply.",
+options:[
+{letter:'A',text:"Wear gown and gloves upon entering the room",correct:true,rationale:"CORRECT — gown and gloves are required for ALL contact with the patient or contaminated surfaces in the room. Don these BEFORE entering."},
+{letter:'B',text:"Wash hands with soap and water (NOT alcohol-based sanitizer) before leaving the room",correct:true,rationale:"CORRECT — C. diff spores are NOT killed by alcohol-based sanitizers. Soap and water (mechanical removal) is required. This is a UNIQUE rule for C.diff and norovirus that differs from other contact pathogens where alcohol gel is acceptable."},
+{letter:'C',text:"Use dedicated equipment for this patient only (e.g., stethoscope, BP cuff stay in the room)",correct:true,rationale:"CORRECT — dedicated equipment prevents pathogen transfer to other patients. A stethoscope left in the room, room-specific BP cuff, dedicated thermometer."},
+{letter:'D',text:"Place an N95 respirator on the staff member before entering",correct:false,rationale:"INCORRECT — N95 is for AIRBORNE precautions, not contact. C. diff transmits by contact with spores, not by air. Standard surgical mask is not required either for routine C.diff care (use one only if splash risk)."},
+{letter:'E',text:"Clean the room with bleach-based disinfectants (or other sporicidal agents) at discharge",correct:true,rationale:"CORRECT — C. diff spores are tough. Standard quaternary ammonium cleaners are NOT effective. Bleach (sodium hypochlorite) or other EPA-approved sporicidal agents are required for terminal cleaning."}
+],
+vocabTip:"⚠️ SATA ALL-OR-NOTHING TRAP: Contact Precautions for C.diff requires multiple steps — pick them ALL. Required: (1) gown, (2) gloves, (3) SOAP AND WATER hand wash (NOT alcohol), (4) dedicated equipment, (5) bleach for environmental cleaning. C.diff-specific differences from other contact pathogens: must use SOAP AND WATER (spores resist alcohol) and BLEACH for cleaning. Missing any one of these on a SATA = whole question wrong."
+},
+// ═══ CHAPTER 20: INTEGUMENTARY ASSESSMENT ═══
+{id:18,chapter:20,difficulty:'medium',sata:false,trap:false,
+stem:"A nurse is assessing a patient with deeply pigmented skin who is reporting fatigue and shortness of breath. The nurse suspects anemia. Where should the nurse BEST assess for pallor in this patient?",
+options:[
+{letter:'A',text:"On the patient's chest and back",correct:false,rationale:"INCORRECT — pigmented skin obscures pallor on the chest and back. These are poor assessment sites for color changes in dark skin."},
+{letter:'B',text:"On the conjunctivae (inner eyelids) and oral mucous membranes",correct:true,rationale:"CORRECT — when assessing color changes in deeply pigmented skin, examine areas with LESS pigment: the conjunctivae (pink/red normally → pale in anemia), oral mucous membranes (inside the cheeks/tongue), nail beds, palms of hands and soles of feet. These are the gold-standard sites for assessing pallor, jaundice (sclera and hard palate for jaundice specifically), and cyanosis."},
+{letter:'C',text:"On the patient's forehead and cheeks",correct:false,rationale:"INCORRECT — facial pigmentation also makes pallor difficult to detect on the forehead/cheeks. Use less-pigmented areas."},
+{letter:'D',text:"You should ask the patient to stand to assess for postural pallor",correct:false,rationale:"INCORRECT — orthostatic assessment is for blood pressure changes, not visualizing pallor. And in dark skin, the pallor would still be hard to see on most surfaces."}
+],
+vocabTip:"DARK SKIN ASSESSMENT — color changes are hidden by pigment. Assess at LESS-PIGMENTED sites: CONJUNCTIVAE (for pallor/anemia), ORAL MUCOUS MEMBRANES + HARD PALATE (for jaundice), nail beds + palms + soles (for cyanosis and pallor). For INFLAMMATION in dark skin: don't look for redness — use WARMTH (back of hand) and PALPATION (taut, shiny, firm tissue) to detect."
+},
+{id:19,chapter:20,difficulty:'hard',sata:false,trap:true,
+stem:"A patient comes to the dermatology clinic concerned about a mole on her back. Assessment reveals: asymmetric edges, irregular border, varied brown and black coloration, diameter of 0.5 cm, and the patient reports it has \"changed shape\" over 3 months. Using the ABCDE rule, which letter is NOT met by this mole?",
+options:[
+{letter:'A',text:"A (Asymmetry) — the mole is asymmetric, so A IS met",correct:false,rationale:"INCORRECT logic chain — the mole IS asymmetric, so A is met. The question asks which letter is NOT met."},
+{letter:'B',text:"D (Diameter > 6 mm) — the mole is 0.5 cm = 5 mm, which is LESS than 6 mm",correct:true,rationale:"CORRECT — ⚠️ UNIT CONVERSION TRAP: 0.5 cm = 5 mm. The ABCDE diameter criterion is >6 mm (about the size of a pencil eraser). 5 mm does NOT meet criterion D. The mole meets A (asymmetric), B (irregular border), C (varied color), E (evolving/changing) — but NOT D. The professor specifically writes diameters in cm to make you forget to convert."},
+{letter:'C',text:"B (Border irregularity) — the border is described as irregular, so B IS met",correct:false,rationale:"INCORRECT logic chain — the border IS irregular, so B is met."},
+{letter:'D',text:"E (Evolving) — the mole has changed over 3 months, so E IS met",correct:false,rationale:"INCORRECT logic chain — the mole HAS changed, so E is met."}
+],
+vocabTip:"⚠️ ABCDE DIAMETER UNIT CONVERSION TRAP: D = Diameter GREATER THAN 6 mm (size of a pencil eraser). If the question gives you the measurement in cm, CONVERT to mm before deciding. 0.5 cm = 5 mm (does NOT meet D). 0.7 cm = 7 mm (DOES meet D). The professor will sneak cm in there. ABCDE: Asymmetry, Border irregularity, Color variation, Diameter >6mm, Evolving."
+},
+{id:20,chapter:20,difficulty:'hard',sata:false,trap:false,
+stem:"A patient hospitalized for severe sepsis develops sudden onset of pinpoint, non-blanchable red spots on the chest and abdomen, along with new bruising at IV sites and gums bleeding when brushing teeth. The nurse should suspect:",
+options:[
+{letter:'A',text:"A minor allergic reaction to the IV antibiotics",correct:false,rationale:"INCORRECT — petechiae + new bruising + bleeding at multiple sites is NOT an allergic reaction pattern. Allergic reactions present with hives (raised wheals), itching, possibly anaphylaxis — not the bleeding pattern described."},
+{letter:'B',text:"Disseminated Intravascular Coagulation (DIC) — a life-threatening complication of sepsis",correct:true,rationale:"CORRECT — sudden petechiae (non-blanchable pinpoint spots from capillary fragility) + new bruising + bleeding at IV sites and mucous membranes in a septic patient = classic DIC presentation. In DIC, the clotting system is over-activated then exhausted — the body clots and bleeds simultaneously. Sepsis is the #1 trigger. This is a MEDICAL EMERGENCY. Notify provider immediately, anticipate STAT labs (PT/PTT, fibrinogen, D-dimer, platelets), and prepare for possible blood products."},
+{letter:'C',text:"Normal aging-related vascular changes (senile purpura)",correct:false,rationale:"INCORRECT — senile purpura is chronic, related to long-term sun damage and fragile vessels, and would not appear suddenly in a hospitalized septic patient with new bleeding at multiple sites."},
+{letter:'D',text:"Contact dermatitis from hospital linens",correct:false,rationale:"INCORRECT — contact dermatitis appears as red, raised, itchy patches with possible vesicles — not petechiae and bleeding."}
+],
+vocabTip:"PETECHIAE + DIC: petechiae are NON-BLANCHABLE pinpoint spots from capillary leak/fragility. Sudden petechiae + new bruising + bleeding at multiple sites + critically ill patient = SUSPECT DIC (Disseminated Intravascular Coagulation). DIC = body clots and bleeds at the same time. #1 trigger = sepsis. Other triggers: trauma, obstetric emergencies, leukemia. Labs to expect: LOW platelets, LOW fibrinogen, HIGH D-dimer, prolonged PT/PTT. This is an emergency."
+},
+{id:21,chapter:20,difficulty:'medium',sata:true,trap:false,
+stem:"A nurse is documenting the integumentary assessment of an 82-year-old patient. Which findings are considered NORMAL age-related skin changes? Select All That Apply.",
+options:[
+{letter:'A',text:"Senile angiomas (cherry angiomas) — small, bright red papules on the trunk",correct:true,rationale:"CORRECT — senile/cherry angiomas are normal benign capillary proliferations that become more common with aging. Document but do not alarm the patient."},
+{letter:'B',text:"Actinic lentigines (age spots/liver spots) — flat brown macules on sun-exposed areas",correct:true,rationale:"CORRECT — actinic lentigines (or solar lentigines) are normal age-related sun damage marks. Common on hands, face, forearms. Not concerning unless they show ABCDE features of melanoma."},
+{letter:'C',text:"Decreased skin turgor (skin tents when pinched)",correct:true,rationale:"CORRECT — loss of elastin and subcutaneous fat with aging causes decreased turgor. In older adults, the SUBCLAVICULAR area is preferred over the back of the hand for assessing dehydration via turgor (the back of the hand will always look tented in older patients due to age, not dehydration)."},
+{letter:'D',text:"Sudden petechiae across the trunk after a fall",correct:false,rationale:"INCORRECT — sudden petechiae are NOT a normal age finding. This could indicate trauma, anticoagulant excess, thrombocytopenia, or DIC. Investigate."},
+{letter:'E',text:"Thinner, drier skin with decreased subcutaneous fat",correct:true,rationale:"CORRECT — normal aging skin loses moisture, subcutaneous fat, and becomes thinner. This is why older adults are more prone to skin tears and pressure injuries."},
+{letter:'F',text:"A new dark, asymmetric, irregularly-bordered mole on the back",correct:false,rationale:"INCORRECT — a new mole with ABCDE characteristics is suspicious for melanoma at ANY age. Refer for evaluation."}
+],
+vocabTip:"NORMAL AGING SKIN: senile/cherry angiomas (red papules), actinic lentigines (age spots), decreased turgor (use subclavicular area in elders), thinning skin, decreased subcutaneous fat, slow wound healing. ALARMING: new ABCDE moles, sudden petechiae, non-healing wounds, dramatic color changes. Document the normal aging findings, investigate the alarming."
+},
+// ═══ CHAPTER 21: SKIN CONDITIONS, WOUNDS & BURNS ═══
+{id:22,chapter:21,difficulty:'hard',sata:false,trap:true,
+stem:"A nurse is teaching a new graduate about wound healing. The graduate asks, \"What's the difference between wound intentions and wound healing phases?\" Which response is MOST accurate?",
+options:[
+{letter:'A',text:"They mean the same thing — both describe how a wound heals over time",correct:false,rationale:"TRAP — these are TWO DIFFERENT concepts. The exam will mix them up because the words sound similar."},
+{letter:'B',text:"INTENTIONS describe HOW the wound is CLOSED (First = sutured/stapled clean; Second = left open to heal by granulation; Third = delayed surgical closure after initial open management). PHASES describe the CELLULAR TIMELINE of healing (Inflammatory → Proliferative → Maturation/Remodeling).",correct:true,rationale:"CORRECT — INTENTIONS = closure technique decision (How is the wound brought together?). PHASES = cellular biology of healing over time (What is happening at the tissue level?). A wound healing by SECOND intention (left open) still goes through the SAME three phases (inflammatory, proliferative, maturation) — just over a longer timeline. Don't confuse them."},
+{letter:'C',text:"Intentions are for surgical wounds; phases are for chronic wounds only",correct:false,rationale:"INCORRECT — both concepts apply to ALL wounds. A pressure injury (chronic) and a surgical incision (acute) both go through the healing phases. Intention refers to closure strategy regardless of wound type."},
+{letter:'D',text:"Intentions are nursing actions; phases are physician orders",correct:false,rationale:"INCORRECT — both are clinical concepts, not job descriptions. Both nurses and physicians need to understand both."}
+],
+vocabTip:"WOUND INTENTIONS vs PHASES — TRAP: INTENTIONS = HOW the wound is CLOSED. First (primary) intention = sutured/stapled clean (surgical incision). Second intention = left OPEN to heal by granulation (pressure injury, infected wound). Third (tertiary) intention = delayed surgical closure (open then sutured later). PHASES = the CELLULAR TIMELINE of healing: (1) INFLAMMATORY (vasodilation, clot formation, days 1-5), (2) PROLIFERATIVE (granulation, epithelialization, day 4 to weeks), (3) MATURATION/REMODELING (collagen reorganization, months to years). Every wound goes through all 3 phases regardless of intention."
+},
+{id:23,chapter:21,difficulty:'hard',sata:false,trap:true,
+stem:"A 154-lb patient sustains burns over 40% of total body surface area. Using the Parkland formula, what is the TOTAL fluid volume to administer over 24 hours?",
+options:[
+{letter:'A',text:"11,200 mL",correct:true,rationale:"CORRECT — Step 1: convert weight from lb to kg: 154 lb ÷ 2.2 = 70 kg. Step 2: Apply Parkland formula: 4 mL × weight(kg) × %TBSA = 4 × 70 × 40 = 11,200 mL total over 24 hours. Step 3: 50% in the first 8 hours = 5,600 mL in first 8 hr, then 5,600 mL over the next 16 hr. This is the standard fluid resuscitation for major burns. Use Lactated Ringer's."},
+{letter:'B',text:"24,640 mL",correct:false,rationale:"INCORRECT — this is the answer if you FORGET to convert pounds to kilograms: 4 × 154 × 40 = 24,640 mL. ⚠️ The lb→kg conversion is the #1 trap. Always divide by 2.2 first."},
+{letter:'C',text:"5,600 mL",correct:false,rationale:"INCORRECT — 5,600 mL is the amount given in the FIRST 8 HOURS, not the 24-hour total. The full 24-hour total is 11,200 mL. Read the question — it asks for total over 24 hours."},
+{letter:'D',text:"2,800 mL",correct:false,rationale:"INCORRECT — this would be if you used 1 mL instead of 4 mL in the formula. The Parkland multiplier is 4 mL, not 1."}
+],
+vocabTip:"⚠️ PARKLAND FORMULA — every step has a trap: TOTAL fluid (mL) = 4 mL × weight in KG × %TBSA. (1) Always convert lb to kg FIRST (divide by 2.2). (2) Use 4 mL multiplier (not 1, not 2). (3) Give 50% in first 8 hours, remaining 50% over the next 16 hours. (4) Use Lactated Ringer's. Start the clock from the TIME OF BURN, not arrival time. Always practice with the conversion — 154 lb is a common practice weight because 154 ÷ 2.2 = 70 kg exactly."
+},
+{id:24,chapter:21,difficulty:'medium',sata:false,trap:false,
+stem:"A patient arrived in the ED at 0800 with major burns. The provider orders Parkland fluid resuscitation with a calculated total volume of 12,000 mL over 24 hours. The burn occurred at 0600. By what time should the FIRST HALF of the fluid (6,000 mL) be completely infused?",
+options:[
+{letter:'A',text:"By 1600 (8 hours from arrival)",correct:false,rationale:"INCORRECT — the 8-hour clock starts at the TIME OF BURN, not the time of arrival. Don't restart the clock when the patient gets to your unit."},
+{letter:'B',text:"By 1400 (8 hours from time of burn at 0600)",correct:true,rationale:"CORRECT — the Parkland formula's 8-hour clock starts at the TIME OF INJURY (0600), not arrival. First 50% must be infused within 8 hours of the BURN. 0600 + 8 hours = 1400. The patient arrived at 0800, so the nurse has only 6 hours from arrival to complete the first half. This is critical to anticipate fluid needs and rate."},
+{letter:'C',text:"By 2400 (16 hours from arrival)",correct:false,rationale:"INCORRECT — that would be the entire 24-hour mark, not the first half timing."},
+{letter:'D',text:"Immediately (rapid bolus on arrival)",correct:false,rationale:"INCORRECT — Parkland is calculated TOTAL volume over a specific timeline, not bolus. Bolus dumping can cause volume overload and is not the protocol."}
+],
+vocabTip:"PARKLAND TIMING: 50% in the first 8 HOURS FROM TIME OF BURN (not from arrival). Remaining 50% over the next 16 hours. Always note the time of injury! If the patient arrives 2 hours after the burn, you have only 6 hours left in the first 50% window. Calculate the IV rate accordingly. Use Lactated Ringer's. Monitor urine output (goal: 30-50 mL/hr adult, 1 mL/kg/hr child)."
+},
+{id:25,chapter:21,difficulty:'hard',sata:true,trap:false,
+stem:"A nurse is caring for a patient with full-thickness facial burns sustained in a house fire. Which interventions should the nurse implement as IMMEDIATE priorities? Select All That Apply.",
+options:[
+{letter:'A',text:"Assess airway patency and prepare for possible intubation",correct:true,rationale:"CORRECT — facial burns + house fire = HIGH RISK for inhalation injury and airway edema. Stridor, hoarseness, singed nasal hairs, soot in mouth, carbonaceous sputum are red flags. Early intubation is preferred BEFORE airway edema makes it impossible. Airway is ALWAYS the first priority."},
+{letter:'B',text:"Begin large-bore IV access and initiate Parkland fluid resuscitation",correct:true,rationale:"CORRECT — major burns cause massive fluid loss through capillary leak. Establish 2 large-bore IVs (16-18g) and begin Lactated Ringer's per Parkland calculation. Aggressive fluid resuscitation prevents burn shock."},
+{letter:'C',text:"Administer 100% oxygen via non-rebreather mask",correct:true,rationale:"CORRECT — high-flow 100% oxygen is administered for ALL closed-space fire victims to displace carbon monoxide from hemoglobin. Carboxyhemoglobin half-life on room air ~4-6 hours, on 100% O2 ~1 hour. Suspect CO poisoning in any fire victim with altered mental status."},
+{letter:'D',text:"Cover burns with cool, wet sterile dressings to relieve pain",correct:false,rationale:"INCORRECT — for major burns >10% TBSA, cool wet dressings can cause HYPOTHERMIA (the patient has lost thermoregulation via destroyed skin). Cover with DRY, sterile sheets/dressings to prevent infection and conserve heat. Cool water is acceptable ONLY for small partial-thickness burns."},
+{letter:'E',text:"Remove non-adherent clothing and jewelry from burn areas",correct:true,rationale:"CORRECT — remove clothing/jewelry that is NOT stuck to the burn to prevent constriction from swelling. Do NOT pull off clothing that is adherent — cut around it. Edema progresses rapidly."},
+{letter:'F',text:"Apply topical silver sulfadiazine immediately in the field",correct:false,rationale:"INCORRECT — topical antimicrobials are applied AFTER initial assessment, debridement, and fluid resuscitation are underway — typically in the burn unit. Not a field/initial intervention."}
+],
+vocabTip:"BURN PRIORITIES — ABCs first, always: AIRWAY (especially facial/inhalation burns, prepare for early intubation), BREATHING (100% O2 for fire victims = CO poisoning), CIRCULATION (Parkland fluids via 2 large-bore IVs), DISABILITY (neuro check), EXPOSURE (remove non-adherent clothing/jewelry, cover with DRY sheets to prevent hypothermia, NOT wet for major burns). Topicals come later. The exam tests if you can prioritize ABCs over comfort measures."
+}
+];
+const chNames={16:'Inflammation & Immunity',17:'Allergy & Immunity',18:'Cancer & Oncology',19:'Infection Control',20:'Integumentary Assessment',21:'Skin Conditions, Wounds & Burns'};
+let answers={};let submitted={};
+
+function buildQuiz(){
+const body=document.getElementById('quizBody');
+body.innerHTML='';
+let currentCh=null;
+questions.forEach((q,idx)=>{
+if(q.chapter!==currentCh){
+currentCh=q.chapter;
+const div=document.createElement('div');
+div.className='chapter-divider';
+div.innerHTML=`<span>Chapter ${currentCh}: ${chNames[currentCh]}</span>`;
+body.appendChild(div);
+}
+const card=document.createElement('div');
+card.className='q-card';
+card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">Ch ${q.chapter}</span>`;
+if(q.trap) badges+=` <span class="badge badge-trap">Trap</span>`;
+badges+=` <span class="badge-diff">${q.difficulty}</span>`;
+let html=`<div class="q-header"><span class="q-number">Q${idx+1}</span>${badges}</div>`;
+html+=`<p class="q-stem">${q.stem}</p>`;
+if(q.sata) html+=`<p class="sata-note">Select All That Apply (all-or-nothing grading)</p>`;
+html+=`<div class="opts" id="opts-${q.id}">`;
+q.options.forEach(o=>{
+html+=`<button class="opt-btn" id="opt-${q.id}-${o.letter}" onclick="toggleOpt(${q.id},'${o.letter}',${q.sata})"><span class="opt-letter">${o.letter}.</span><span>${o.text}</span></button>`;
+});
+html+=`</div>`;
+html+=`<button class="submit-btn" id="sub-${q.id}" onclick="submitQ(${q.id})" disabled>Submit Answer</button>`;
+html+=`<div class="rationale-box" id="rat-${q.id}">`;
+html+=`<h4>Rationale</h4>`;
+q.options.forEach(o=>{
+html+=`<div class="opt-rat"><strong>${o.letter}. ${o.correct?'✓ CORRECT':'✗ Incorrect'}:</strong> ${o.rationale}</div>`;
+});
+html+=`<div class="vocab-tip">${q.vocabTip}</div>`;
+html+=`</div>`;
+card.innerHTML=html;
+body.appendChild(card);
+});
+loadState();
+}
+
+function toggleOpt(qId,letter,isSata){
+if(submitted[qId]) return;
+if(!answers[qId]) answers[qId]=[];
+if(isSata){
+const idx=answers[qId].indexOf(letter);
+if(idx>-1) answers[qId].splice(idx,1);
+else answers[qId].push(letter);
+}else{
+answers[qId]=[letter];
+}
+const q=questions.find(x=>x.id===qId);
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.toggle('selected',answers[qId].includes(o.letter));
+});
+document.getElementById(`sub-${qId}`).disabled=answers[qId].length===0;
+}
+
+function submitQ(qId){
+if(submitted[qId]) return;
+submitted[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[qId]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${qId}-${o.letter}`);
+btn.classList.add('locked');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${qId}`);
+card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${qId}`).classList.add('show');
+document.getElementById(`sub-${qId}`).disabled=true;
+updateProgress();
+saveState();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,600);
+}
+
+function updateProgress(){
+const count=Object.keys(submitted).length;
+document.getElementById('progressText').textContent=`${count} of ${questions.length} answered`;
+document.getElementById('progressBar').style.width=`${(count/questions.length)*100}%`;
+}
+
+function showScore(){
+let total=0;let chScores={16:0,17:0,18:0,19:0,20:0,21:0};let chTotals={16:0,17:0,18:0,19:0,20:0,21:0};
+questions.forEach(q=>{
+chTotals[q.chapter]++;
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const userAns=answers[q.id]||[];
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+if(isCorrect){total++;chScores[q.chapter]++;}
+});
+const pct=Math.round((total/questions.length)*100);
+document.getElementById('finalPct').textContent=`${pct}%`;
+document.getElementById('finalMsg').textContent=`${total} of ${questions.length} correct`;
+const bd=document.getElementById('breakdown');
+bd.innerHTML='';
+Object.keys(chScores).forEach(ch=>{
+bd.innerHTML+=`<div class="ch-score"><div class="ch-label">Ch ${ch}</div><div class="ch-val">${chScores[ch]}/${chTotals[ch]}</div></div>`;
+});
+document.getElementById('scoreCard').style.display='block';
+document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:total,total:questions.length,date:new Date().toISOString(),chapters:chScores};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+let history=JSON.parse(localStorage.getItem(EXAM_ID+'-history')||'[]');
+history.push(record);
+localStorage.setItem(EXAM_ID+'-history',JSON.stringify(history));
+const eh=JSON.parse(localStorage.getItem('examHistory')||'[]');
+eh.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:total,total:questions.length,topicBreakdown:chScores});
+localStorage.setItem('examHistory',JSON.stringify(eh.slice(-30)));
+}
+
+function restartQuiz(){
+answers={};submitted={};
+localStorage.removeItem(EXAM_ID+'-state');
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+updateProgress();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveState(){
+const state={answers,submitted};
+localStorage.setItem(EXAM_ID+'-state',JSON.stringify(state));
+}
+
+function loadState(){
+const raw=localStorage.getItem(EXAM_ID+'-state');
+if(raw){
+const state=JSON.parse(raw);
+answers=state.answers||{};
+submitted=state.submitted||{};
+Object.keys(submitted).forEach(qId=>{
+const id=parseInt(qId);
+const q=questions.find(x=>x.id===id);
+if(!q)return;
+const userAns=answers[id]||[];
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===userAns.length&&correctLetters.every(c=>userAns.includes(c));
+q.options.forEach(o=>{
+const btn=document.getElementById(`opt-${id}-${o.letter}`);
+if(!btn)return;
+btn.classList.add('locked');
+if(userAns.includes(o.letter)) btn.classList.add('selected');
+if(o.correct) btn.classList.add('correct-show');
+else if(userAns.includes(o.letter)&&!o.correct) btn.classList.add('incorrect-show');
+});
+const card=document.getElementById(`qcard-${id}`);
+if(card) card.classList.add(isCorrect?'answered-correct':'answered-incorrect');
+document.getElementById(`rat-${id}`).classList.add('show');
+document.getElementById(`sub-${id}`).disabled=true;
+});
+updateProgress();
+if(Object.keys(submitted).length===questions.length) setTimeout(showScore,300);
+}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){
+const rec=JSON.parse(last);
+document.getElementById('lastAttempt').style.display='block';
+document.getElementById('lastScore').textContent=`${rec.score}% (${rec.correct}/${rec.total})`;
+}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
