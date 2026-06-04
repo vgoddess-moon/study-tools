@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streak Fix · The System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:system-ui,sans-serif;line-height:1.6;padding:1.5rem;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{max-width:560px;background:#13181f;border:1px solid #1e293b;border-radius:16px;padding:2rem;width:100%}
+h1{font-size:1.4rem;color:#f472b6;margin-bottom:.5rem}
+p{color:#94a3b8;margin-bottom:1rem;font-size:.95rem}
+.btn{background:linear-gradient(135deg,#ec4899,#f472b6);color:#fff;border:none;border-radius:12px;padding:1rem 1.5rem;font-size:1rem;font-weight:600;cursor:pointer;width:100%;margin-top:.5rem;font-family:inherit}
+.btn:hover{transform:scale(1.02)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.status{margin-top:1.25rem;padding:1rem;background:#0f1218;border:1px solid #1e293b;border-radius:10px;font-size:.9rem;color:#cbd5e1;display:none;white-space:pre-line}
+.status.ok{border-color:#22c55e;color:#bbf7d0}
+.status.err{border-color:#ef4444;color:#fecaca}
+.back{display:inline-block;margin-top:1.25rem;color:#f472b6;text-decoration:none;font-size:.9rem}
+.back::before{content:"← "}
+code{background:#0f1218;padding:.15rem .4rem;border-radius:4px;color:#fbbf24;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>🌙 Streak Restore</h1>
+<p>Restores your ritual streak to <strong>13 days</strong> by adding any missing days (June 3) to your local ritualHistory. Safe to run multiple times — won't duplicate days that already exist.</p>
+<p style="color:#64748b;font-size:.85rem">This works only on the device you click it from. localStorage is per-browser-per-device. Run this on the device showing the wrong streak.</p>
+<button class="btn" id="fixBtn" onclick="fixStreak()">Restore Streak to 13</button>
+<div class="status" id="status"></div>
+<a class="back" href="the-system.html">Back to The System</a>
+</div>
+<script>
+function fixStreak(){
+  const statusEl = document.getElementById('status');
+  const btn = document.getElementById('fixBtn');
+  statusEl.className = 'status';
+  statusEl.style.display = 'block';
+
+  try {
+    // Days that should be in history (last 13 ending June 3, 2026)
+    const requiredDays = [
+      "Thu May 22 2026","Fri May 22 2026","Sat May 23 2026","Sun May 24 2026",
+      "Mon May 25 2026","Tue May 26 2026","Wed May 27 2026","Thu May 28 2026",
+      "Fri May 29 2026","Sat May 30 2026","Sun May 31 2026","Mon Jun 01 2026",
+      "Tue Jun 02 2026","Wed Jun 03 2026"
+    ];
+    // Remove the typo'd "Thu May 22" — only "Fri May 22" is correct
+    const cleanDays = [
+      "Fri May 22 2026","Sat May 23 2026","Sun May 24 2026","Mon May 25 2026",
+      "Tue May 26 2026","Wed May 27 2026","Thu May 28 2026","Fri May 29 2026",
+      "Sat May 30 2026","Sun May 31 2026","Mon Jun 01 2026","Tue Jun 02 2026",
+      "Wed Jun 03 2026"
+    ];
+
+    // Read existing ritualHistory
+    let existing = [];
+    const raw = localStorage.getItem('ritualHistory');
+    if (raw) {
+      try { existing = JSON.parse(raw); } catch(e) { existing = []; }
+      if (!Array.isArray(existing)) existing = [];
+    }
+
+    // Merge — union of existing + clean days, preserving order
+    const merged = [];
+    const seen = new Set();
+    for (const d of cleanDays) {
+      if (!seen.has(d)) { merged.push(d); seen.add(d); }
+    }
+    for (const d of existing) {
+      if (!seen.has(d)) { merged.push(d); seen.add(d); }
+    }
+
+    const before = existing.length;
+    const after = merged.length;
+
+    localStorage.setItem('ritualHistory', JSON.stringify(merged));
+    localStorage.setItem('streak', "13");
+    localStorage.setItem('ritualStreak', "13");
+
+    statusEl.className = 'status ok';
+    statusEl.textContent =
+      `✓ Done.\n\n` +
+      `Before: ${before} days in history.\n` +
+      `After: ${after} days in history.\n\n` +
+      `streak = 13\n` +
+      `ritualStreak = 13\n\n` +
+      `Now tap "Back to The System" below and refresh. Your streak should show 13. After you complete today's ritual on iPad, it'll bump to 14.`;
+    btn.disabled = true;
+    btn.textContent = "Streak Restored ✓";
+  } catch(e) {
+    statusEl.className = 'status err';
+    statusEl.textContent = "Error: " + e.message + "\n\nIf this happened on iPad, make sure you opened streak-fix.html from the SAME origin as the-system.html (i.e., both at vgoddess-moon.github.io/study-tools/).";
+  }
+}
+</script>
+</body>
+</html>
