@@ -199,6 +199,38 @@ const streakFromDateList = (dates) => {
   return count;
 };
 
+// Cumulative "Days in The System" — union of every unique day across every tracked
+// activity. Only goes UP. Never resets. The metric Vivian asked for.
+const computeDaysInSystem = () => {
+  const set = new Set();
+  const addDate = (d) => {
+    if (!d) return;
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return;
+    set.add(date.toDateString());
+  };
+  try {
+    const rh = storage.get('ritualHistory') || [];
+    if (Array.isArray(rh)) rh.forEach(addDate);
+    const hist = storage.get('history') || [];
+    if (Array.isArray(hist)) hist.forEach(h => addDate(h && h.date));
+    const eh = storage.get('examHistory') || [];
+    if (Array.isArray(eh)) eh.forEach(e => addDate(e && e.date));
+    const ql = storage.get('quizLog') || [];
+    if (Array.isArray(ql)) ql.forEach(q => addDate(q && q.date));
+    const wh = storage.get('workoutHistory') || [];
+    if (Array.isArray(wh)) wh.forEach(addDate);
+    // meditation:* keys (one per day)
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('meditation:')) {
+        addDate(key.slice('meditation:'.length));
+      }
+    }
+  } catch (e) { /* swallow */ }
+  return set.size;
+};
+
 // ============== RITUAL PLAN DATA (Vivian's Ritual & Routine Plan) ==============
 const AFFIRMATION = "I finished nursing school with ease and confidence. My mind is calm, focused, and protected. I am guided toward success every day. Fear left my body and strength replaced it. Everything worked out in my favor.";
 const GROUNDING = "I release what is not mine. I remain grounded, clear, and protected.";
@@ -1142,12 +1174,9 @@ function Dashboard() {
               {family && <span className="bg-pink-100 text-pink-800 mono text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full">family</span>}
               {examMode && <span className="bg-rose-100 text-rose-800 mono text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full pulse-soft">exam</span>}
               {(() => {
-                const ritualDays = storage.get('ritualHistory') || [];
-                const checkinDays = (history || []).map(x => x.date).filter(Boolean);
-                const allDays = new Set([...(Array.isArray(ritualDays) ? ritualDays : []), ...checkinDays]);
-                const total = allDays.size;
+                const total = computeDaysInSystem();
                 return (
-                  <div className="flex items-center gap-1 bg-amber-100 px-2 py-0.5 rounded-full" title={`${total} day${total === 1 ? '' : 's'} in The System — counts every day you've shown up, never resets.`}>
+                  <div className="flex items-center gap-1 bg-amber-100 px-2 py-0.5 rounded-full" title={`${total} day${total === 1 ? '' : 's'} in The System — counts every day you've engaged (check-in, ritual, exam, quiz, meditation, workout). Never resets.`}>
                     <span className="text-xs">🌱</span>
                     <span className="mono text-xs font-semibold text-amber-900">{total}</span>
                   </div>
@@ -1748,9 +1777,6 @@ function MeditationTimer({ onSave, meditationLog, mindfulStreak }) {
     <div className="bg-white rounded-2xl p-3.5 border border-stone-200">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-medium text-stone-900">Meditation</p>
-        {mindfulStreak > 0 && (
-          <span className="mono text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">🧘 {mindfulStreak}d</span>
-        )}
       </div>
       <div className="flex gap-2 mb-2">
         {[5, 10, 15].map(n => (
@@ -1789,13 +1815,9 @@ function WorkoutView({ workoutToday, onUpdate, onLog, workoutWeights, workoutStr
 
   return (
     <div className="space-y-4">
-      {/* header */}
+      {/* header (streak chip removed — same reason as Ritual) */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-light tracking-tight text-stone-900"><span className="italic font-medium">glute</span> day</h2>
-        <div className="flex items-center gap-1 bg-amber-100 px-2.5 py-1 rounded-full">
-          <span className="text-xs">💪</span>
-          <span className="mono text-xs font-semibold text-amber-900">{workoutStreak}d</span>
-        </div>
       </div>
 
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
@@ -1892,13 +1914,9 @@ function RitualView({ ritualToday, onUpdate, ritualStreak, moon, oppWindow, prom
         </div>
       )}
 
-      {/* Header + streak */}
+      {/* Header (streak chip removed per Vivian's request — no more numbers that go down) */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-light tracking-tight text-stone-900"><span className="italic font-medium">daily</span> ritual</h2>
-        <div className="flex items-center gap-1 bg-amber-100 px-2.5 py-1 rounded-full">
-          <span className="text-xs">🔥</span>
-          <span className="mono text-xs font-semibold text-amber-900">{ritualStreak}d</span>
-        </div>
       </div>
 
       {/* Morning routine */}
@@ -3083,11 +3101,12 @@ function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onG
 
   return (
     <div className="space-y-4">
+      {/* Cumulative-only stats — no streaks. Every number here only goes UP. */}
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-white rounded-2xl p-3 border border-stone-200">
-          <div className="text-xl mb-1">🔥</div>
-          <div className="text-xl font-medium text-stone-900">{streak}</div>
-          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">streak</div>
+          <div className="text-xl mb-1">🌱</div>
+          <div className="text-xl font-medium text-stone-900">{computeDaysInSystem()}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">days in</div>
         </div>
         <div className="bg-white rounded-2xl p-3 border border-stone-200">
           <div className="text-xl mb-1">✅</div>
@@ -3108,19 +3127,14 @@ function StatsView({ history, products, streak, nextExam, allLogs, lastSync, onG
           <div className="mono text-[9px] uppercase tracking-wider text-stone-500">study time</div>
         </div>
         <div className="bg-white rounded-2xl p-3 border border-stone-200">
-          <div className="text-xl mb-1">🧘</div>
-          <div className="text-xl font-medium text-stone-900">{mindfulStreak}</div>
-          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">mindful</div>
+          <div className="text-xl mb-1">📝</div>
+          <div className="text-xl font-medium text-stone-900">{(examHistory || []).length}</div>
+          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">exams taken</div>
         </div>
         <div className="bg-white rounded-2xl p-3 border border-stone-200">
           <div className="text-xl mb-1">💰</div>
           <div className="text-xl font-medium text-stone-900">${totalRevenue.toFixed(0)}</div>
           <div className="mono text-[9px] uppercase tracking-wider text-stone-500">revenue</div>
-        </div>
-        <div className="bg-white rounded-2xl p-3 border border-stone-200">
-          <div className="text-xl mb-1">🌙</div>
-          <div className="text-xl font-medium text-stone-900">{ritualStreak || 0}</div>
-          <div className="mono text-[9px] uppercase tracking-wider text-stone-500">ritual</div>
         </div>
       </div>
 
