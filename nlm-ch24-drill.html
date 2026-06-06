@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 24 NLM Drill — Noninfectious Lower Respiratory</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#fb923c}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ea580c,#fb923c);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch24{background:#2a1206;color:#fb923c}
+.badge-trap{background:#2a1f00;color:#fbbf24}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.q-stem em{color:#94a3b8;font-style:italic;font-size:.85rem;display:block;margin-top:.25rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fb923c;background:#2a1206}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#ea580c;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#c2410c}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #fb923c;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#fed7aa;line-height:1.5}
+.vocab-tip strong{color:#fb923c}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#fb923c;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 24 NLM Drill &mdash; Noninfectious Lower Respiratory</h1>
+<p class="subtitle">Chapter 24 &middot; Asthma &middot; COPD &middot; CF &middot; PAH &middot; IPF &middot; Lung Cancer &middot; 20 Questions</p>
+</div>
+<div class="exam-info">Professor-emphasized: SABA vs LABA, status asthmaticus silent chest, COPD O2 88-92%, RV most affected, pink puffer vs blue bloater, ICS rinse mouth, leukotriene black box, DPI no shake, beta-blocker in asthma, chest tube tidaling normal.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Drill Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<button class="btn-restart" onclick="restartQuiz()">Restart Drill</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam4-nlm-ch24-drill';
+const EXAM_LABEL='Ch 24 NLM Drill — Noninfectious Lower Respiratory (20Q)';
+const questions=[
+{id:1,chapter:24,sata:false,trap:true,
+stem:'A patient in the ED for an acute asthma attack was wheezing loudly on arrival. Now, 30 minutes later, the wheezing has STOPPED. SpO2 is 84%. The MOST URGENT interpretation is:',
+options:[
+{letter:'A',text:'The patient is improving — the wheezing stopped.',correct:false,rationale:'TRAP. Wheezing stopping with FALLING SpO2 is a CATASTROPHE, not improvement.'},
+{letter:'B',text:'Status asthmaticus — the airway is now near-total obstruction. NO air is moving. Prepare for emergency intubation.',correct:true,rationale:'Professor-emphasized red flag: in an acute asthma attack, sudden ABSENCE of wheezing combined with low SpO2 means air is no longer moving (severe obstruction or status asthmaticus). The "silent chest" is a pre-arrest sign. Call rapid response, prepare for intubation, IV epinephrine/corticosteroids.'},
+{letter:'C',text:'Anxiety — give a benzodiazepine.',correct:false,rationale:'Sedating a hypoxic asthma patient is catastrophic.'},
+{letter:'D',text:'Pneumothorax — order a chest x-ray and wait.',correct:false,rationale:'Possible but does not address the immediate airway emergency.'}
+],vocabTip:'<strong>SILENT CHEST RULE:</strong> Wheezing STOPPING + LOW SpO2 = status asthmaticus / near-arrest. Prepare to intubate.'},
+
+{id:2,chapter:24,sata:false,trap:true,
+stem:'A patient with COPD arrives in the ED with SpO2 of 78% and severe dyspnea. The nurse is hesitant to apply high-flow oxygen, worried about "CO2 narcosis." What is the CORRECT action?',
+options:[
+{letter:'A',text:'Withhold oxygen until ABGs are drawn.',correct:false,rationale:'TRAP. Withholding O2 from a hypoxic patient kills them. CO2 narcosis is over-emphasized in basic teaching.'},
+{letter:'B',text:'Apply oxygen immediately. Titrate to SpO2 88-92% for COPD patients. Do NOT withhold O2 in acute distress.',correct:true,rationale:'Professor explicitly addressed: do NOT withhold O2 from a hypoxic COPD patient. Goal SpO2 for COPD = 88-92% (not 95-100%). In a true emergency, "crank it up" to save the airway, then titrate down. Monitor ABGs.'},
+{letter:'C',text:'Apply 100% non-rebreather and leave it permanently.',correct:false,rationale:'Goal is 88-92% — titrate to that, do not stay at 100%.'},
+{letter:'D',text:'Tell the patient to breathe slower.',correct:false,rationale:'Does not address hypoxia.'}
+],vocabTip:'<strong>COPD O2 rule:</strong> Goal SpO2 88-92%. NEVER withhold O2 from a hypoxic COPD patient. Crank it up in an emergency.'},
+
+{id:3,chapter:24,sata:false,trap:false,
+stem:'A patient with chronic emphysema is described as "pink, thin, barrel-chested, with pursed-lip breathing and use of accessory muscles." This presentation is best described as:',
+options:[
+{letter:'A',text:'Blue bloater',correct:false,rationale:'Blue bloater is chronic bronchitis: cyanotic, edematous, productive cough.'},
+{letter:'B',text:'Pink puffer — emphysema. Cachexia, barrel chest, accessory muscle use, pursed lips, lack of cyanosis until very late.',correct:true,rationale:'Pink puffer = emphysema. Patients are thin (cachectic), pink (preserved oxygenation through hyperventilation), barrel chest, accessory muscle use, pursed-lip breathing. Mnemonic: "Pink Puffer = emPhysema."'},
+{letter:'C',text:'Asthma exacerbation',correct:false,rationale:'Acute, reversible, intermittent — not chronic.'},
+{letter:'D',text:'Cystic fibrosis',correct:false,rationale:'CF has thick mucus, recurrent infections, malnutrition, steatorrhea.'}
+],vocabTip:'<strong>Pink Puffer = emPhysema</strong> (cachectic, pink, accessory muscles, pursed lips). <strong>Blue Bloater = chronic Bronchitis</strong> (cyanotic, edematous, productive).'},
+
+{id:4,chapter:24,sata:false,trap:false,
+stem:'A patient with chronic bronchitis presents with cyanosis, dusky skin, dependent edema, jugular venous distention, and a productive cough. The cardiac complication being demonstrated is:',
+options:[
+{letter:'A',text:'Left-sided heart failure',correct:false,rationale:'Left-sided HF presents with pulmonary edema, crackles, pink frothy sputum — different presentation.'},
+{letter:'B',text:'Cor pulmonale — right-sided heart failure secondary to pulmonary disease',correct:true,rationale:'Cor pulmonale = right HF caused by chronic lung disease (COPD, PAH). Pulmonary hypertension forces the RV to pump harder; eventually it fails. Signs: peripheral edema, JVD, hepatomegaly, cyanosis. Classic in "blue bloater" chronic bronchitis.'},
+{letter:'C',text:'Pericarditis',correct:false,rationale:'Pericarditis presents with chest pain worse on inspiration, friction rub, not chronic edema.'},
+{letter:'D',text:'Aortic stenosis',correct:false,rationale:'Aortic stenosis is a valvular issue, not a chronic lung-driven RV failure.'}
+],vocabTip:'<strong>Cor pulmonale:</strong> Right HF from lung disease. Signs: peripheral edema, JVD, hepatomegaly. Common in advanced COPD/PAH.'},
+
+{id:5,chapter:24,sata:false,trap:false,
+stem:'On PFTs, the lung volume MOST significantly elevated in advanced COPD is:',
+options:[
+{letter:'A',text:'Tidal Volume (TV)',correct:false,rationale:'TV can decrease slightly; not the most affected.'},
+{letter:'B',text:'Residual Volume (RV) — due to trapped stale air',correct:true,rationale:'Professor mnemonic: "RV drives to the woods." Residual Volume = air remaining after maximum exhalation. In COPD, lost elastic recoil and air trapping massively elevate RV. FEV1/FVC ratio falls; RV rises.'},
+{letter:'C',text:'Vital Capacity (VC)',correct:false,rationale:'VC decreases in COPD, not increases.'},
+{letter:'D',text:'Inspiratory Reserve Volume (IRV)',correct:false,rationale:'IRV decreases with hyperinflation.'}
+],vocabTip:'<strong>Professor mnemonic:</strong> "RV drives to the woods" — Residual Volume is the LUNG VOLUME MOST AFFECTED in COPD.'},
+
+{id:6,chapter:24,sata:false,trap:true,
+stem:'A patient asks the nurse why they should never use their salmeterol (LABA) inhaler during an acute asthma attack. The BEST response is:',
+options:[
+{letter:'A',text:'"LABAs are too expensive for emergency use."',correct:false,rationale:'Not the clinical reason.'},
+{letter:'B',text:'"LABAs have a slow onset and a BLACK BOX WARNING — they are for daily prevention, NEVER for rescue. Use your albuterol (SABA) for acute attacks."',correct:true,rationale:'Professor-emphasized distinction: LABA (salmeterol, formoterol) has slow onset and long duration — for daily control, NEVER rescue. Black box warning: LABA monotherapy increases asthma death risk. Must be combined with ICS. Albuterol (SABA) is the RESCUE drug.'},
+{letter:'C',text:'"LABAs can be used for both maintenance and rescue."',correct:false,rationale:'False — they are for daily prevention only.'},
+{letter:'D',text:'"LABAs and SABAs are interchangeable."',correct:false,rationale:'They are NOT interchangeable.'}
+],vocabTip:'<strong>SABA vs LABA:</strong> SABA (albuterol) = RESCUE. LABA (salmeterol) = daily control, never rescue. LABA black box: monotherapy = asthma death.'},
+
+{id:7,chapter:24,sata:false,trap:true,
+stem:'A patient is being taught about a new inhaled corticosteroid (fluticasone). The MOST important teaching point is:',
+options:[
+{letter:'A',text:'Take only when wheezing starts.',correct:false,rationale:'ICS are DAILY controllers, not rescue meds.'},
+{letter:'B',text:'Rinse mouth with water after each dose to prevent oral candidiasis (thrush).',correct:true,rationale:'ICS leave steroid residue in the mouth that can cause oral candidiasis (thrush). ALWAYS rinse mouth and spit after each dose. Hoarseness is another side effect. Use a spacer to reduce oropharyngeal deposition.'},
+{letter:'C',text:'Use as a rescue inhaler.',correct:false,rationale:'ICS are not rescue — they prevent inflammation over time.'},
+{letter:'D',text:'Take with food.',correct:false,rationale:'Not relevant for inhaled route.'}
+],vocabTip:'<strong>ICS rule:</strong> RINSE MOUTH after each dose → prevents thrush. Use a spacer. Daily preventive, NOT rescue.'},
+
+{id:8,chapter:24,sata:false,trap:true,
+stem:'A teen with asthma asks the nurse about the new montelukast prescription. The black box warning the nurse MUST review is:',
+options:[
+{letter:'A',text:'Weight gain.',correct:false,rationale:'Not the black box warning.'},
+{letter:'B',text:'Suicidal thoughts and mood/mental health changes — report any depression, agitation, or suicidal ideation.',correct:true,rationale:'Montelukast (Singulair) leukotriene modifier has a BLACK BOX WARNING for neuropsychiatric events including suicidal ideation, agitation, depression. Especially monitor in adolescents. Takes 48-72 hours for max effect.'},
+{letter:'C',text:'Diabetes.',correct:false,rationale:'Not the boxed warning.'},
+{letter:'D',text:'Liver toxicity.',correct:false,rationale:'Possible side effect but NOT the boxed warning.'}
+],vocabTip:'<strong>Montelukast (Singulair) BLACK BOX:</strong> suicidal ideation, mood changes. Onset takes 48-72 hours; not for acute attacks.'},
+
+{id:9,chapter:24,sata:false,trap:true,
+stem:'A patient receives a prescription for a DRY POWDER INHALER (DPI). Teaching includes which instruction?',
+options:[
+{letter:'A',text:'"Shake the canister vigorously before each dose."',correct:false,rationale:'TRAP. DPIs are NEVER shaken — shaking can clump or disperse the powder.'},
+{letter:'B',text:'"Load the dose, seal lips tightly around the mouthpiece, and inhale RAPIDLY and DEEPLY."',correct:true,rationale:'DPI technique: load → seal lips → inhale FAST and DEEP (powder needs the rapid airflow to disperse). Do NOT shake. Do NOT use a spacer (only used with MDIs). Hold breath 10 sec after inhalation.'},
+{letter:'C',text:'"Use a spacer device."',correct:false,rationale:'Spacers are for MDIs, NOT DPIs.'},
+{letter:'D',text:'"Inhale slowly and gently."',correct:false,rationale:'Slow inhalation with a DPI does not disperse the powder.'}
+],vocabTip:'<strong>DPI rule:</strong> NO shaking. NO spacer. Inhale RAPIDLY + DEEPLY. <strong>MDI rule:</strong> SHAKE 5 sec. USE SPACER. Inhale SLOWLY + DEEPLY.'},
+
+{id:10,chapter:24,sata:false,trap:true,
+stem:'A nurse reviews a new asthma admission\'s medications. Which medication is a SAFETY concern for this asthma patient?',
+options:[
+{letter:'A',text:'Acetaminophen 650 mg PRN',correct:false,rationale:'Safe for asthma — does not trigger bronchospasm.'},
+{letter:'B',text:'Metoprolol (beta-blocker) — can trigger bronchospasm in asthma patients.',correct:true,rationale:'Beta-blockers (especially nonselective like propranolol) can cause bronchospasm in asthma. NSAIDs and aspirin can also trigger asthma via leukotriene production. Notify provider for medication review.'},
+{letter:'C',text:'Insulin glargine',correct:false,rationale:'No direct asthma risk.'},
+{letter:'D',text:'Multivitamin',correct:false,rationale:'Safe.'}
+],vocabTip:'<strong>Asthma drug traps:</strong> beta-blockers (bronchospasm) + NSAIDs/aspirin (leukotrienes). Avoid in asthma.'},
+
+{id:11,chapter:24,sata:false,trap:false,
+stem:'A patient with asthma is monitoring their peak expiratory flow (PEF) at home. Their personal best is 500 L/min. Today\'s morning PEF is 320 L/min. Using the action plan, this corresponds to:',
+options:[
+{letter:'A',text:'Green zone (>80%) — continue normal activities and meds',correct:false,rationale:'Green is >80% (400+ in this case). 320 is below.'},
+{letter:'B',text:'Yellow zone (50-80%) — take rescue SABA, may need oral steroids if no improvement',correct:true,rationale:'Yellow zone: 50-80% of personal best (in this case 250-400 L/min). Patient is feeling worse, cough/wheeze, peak flow dropping. Action: take rescue SABA. If not improving within hours, start oral corticosteroids and notify provider.'},
+{letter:'C',text:'Red zone (<50%) — call 911',correct:false,rationale:'Red zone is <50% (below 250 in this case). 320 is above red.'},
+{letter:'D',text:'Black zone',correct:false,rationale:'No black zone — only Green/Yellow/Red.'}
+],vocabTip:'<strong>Asthma Action Plan:</strong> Green >80% (doing well) · Yellow 50-80% (rescue SABA, maybe oral steroid) · Red <50% (911).'},
+
+{id:12,chapter:24,sata:false,trap:false,
+stem:'A patient with cystic fibrosis (CF) is admitted. Standard CF precautions include:',
+options:[
+{letter:'A',text:'Routine droplet precautions only.',correct:false,rationale:'Insufficient — CF patients need strict isolation from other CF patients.'},
+{letter:'B',text:'STRICT isolation from other CF patients — to prevent cross-infection with Pseudomonas and Burkholderia cepacia.',correct:true,rationale:'Cystic fibrosis: CF patients are at extreme risk for chronic Pseudomonas and the lethal Burkholderia cepacia. Cross-infection between CF patients is catastrophic. Strict isolation from other CF patients (different floors, no clinics together) is mandatory.'},
+{letter:'C',text:'No special precautions.',correct:false,rationale:'CF requires strict precautions.'},
+{letter:'D',text:'Room with another CF patient for support.',correct:false,rationale:'NEVER pair CF patients together — cross-infection risk.'}
+],vocabTip:'<strong>CF isolation rule:</strong> NEVER room two CF patients together. Burkholderia cepacia + Pseudomonas cross-infection is lethal.'},
+
+{id:13,chapter:24,sata:false,trap:false,
+stem:'A patient with cystic fibrosis takes pancreatic enzymes with every meal. The PRIMARY purpose is to:',
+options:[
+{letter:'A',text:'Prevent constipation',correct:false,rationale:'Not the primary purpose.'},
+{letter:'B',text:'Replace the enzymes the pancreas no longer produces, helping the patient digest fats, proteins, and prevent malnutrition / steatorrhea',correct:true,rationale:'CF blocks chloride transport, leading to thick mucus that obstructs pancreatic ducts. Without pancreatic enzymes, the patient cannot digest fats → steatorrhea (excessive fat in stools), malnutrition, fat-soluble vitamin (ADEK) deficiency. Pancreatic enzymes are taken with EVERY meal/snack.'},
+{letter:'C',text:'Reduce mucus in the lungs',correct:false,rationale:'That is the role of mucolytics, not enzymes.'},
+{letter:'D',text:'Treat diabetes',correct:false,rationale:'Diabetes management is separate.'}
+],vocabTip:'<strong>CF + pancreatic enzymes:</strong> Take with EVERY meal/snack. Prevents steatorrhea + malnutrition + fat-soluble vitamin deficiency.'},
+
+{id:14,chapter:24,sata:false,trap:false,
+stem:'On a chest tube drainage system, the nurse observes intermittent bubbling in the water-seal chamber that occurs ONLY during exhalation. This finding is:',
+options:[
+{letter:'A',text:'A dangerous air leak — clamp the chest tube immediately.',correct:false,rationale:'Intermittent bubbling on exhalation is NORMAL. Clamping a chest tube without provider order is dangerous.'},
+{letter:'B',text:'Normal — gentle/intermittent bubbling on exhalation or coughing indicates expected lung re-expansion. CONTINUOUS bubbling = air leak.',correct:true,rationale:'NORMAL: intermittent bubbling on exhalation/coughing (air escaping as the lung re-expands). NORMAL: tidaling (water rising and falling with breaths). ABNORMAL: CONTINUOUS bubbling = air leak somewhere (notify provider). NEVER strip chest tubes.'},
+{letter:'C',text:'A sign of pneumonia.',correct:false,rationale:'No relation.'},
+{letter:'D',text:'A sign the lung has fully re-expanded.',correct:false,rationale:'Full re-expansion would actually stop the bubbling and tidaling.'}
+],vocabTip:'<strong>Chest tube:</strong> Intermittent bubbling on exhale = NORMAL. Continuous bubbling = AIR LEAK (notify). Tidaling = NORMAL.'},
+
+{id:15,chapter:24,sata:false,trap:false,
+stem:'A patient with small cell lung cancer has a serum sodium of 122 mEq/L and is hyponatremic. This finding suggests:',
+options:[
+{letter:'A',text:'Routine dehydration',correct:false,rationale:'Dehydration would cause hyperatremia, not hyponatremia.'},
+{letter:'B',text:'A paraneoplastic syndrome — SIADH (syndrome of inappropriate antidiuretic hormone) from ectopic ADH secretion by the tumor',correct:true,rationale:'Small cell lung cancer often produces paraneoplastic syndromes via ectopic hormones. SIADH (ADH secretion) → fluid retention → dilutional hyponatremia. Other SCLC paraneoplastic syndromes: Cushing syndrome (ectopic ACTH), Lambert-Eaton myasthenic syndrome.'},
+{letter:'C',text:'Diabetes insipidus',correct:false,rationale:'DI causes hypernatremia (water loss), not hyponatremia.'},
+{letter:'D',text:'Renal failure',correct:false,rationale:'Possible but the cancer-specific pattern is SIADH.'}
+],vocabTip:'<strong>Paraneoplastic syndromes (SCLC):</strong> SIADH (low Na), Cushing (high cortisol), Lambert-Eaton. Tumor secretes ectopic hormones.'},
+
+{id:16,chapter:24,sata:false,trap:false,
+stem:'A patient with COPD asks about diet. The nurse teaches that the BEST eating pattern is:',
+options:[
+{letter:'A',text:'Three large high-protein meals daily',correct:false,rationale:'Large meals cause early satiety, abdominal distention, and increased work of breathing.'},
+{letter:'B',text:'4-6 SMALL, high-calorie, high-protein meals daily; avoid drinking fluids DURING meals to prevent early satiety',correct:true,rationale:'COPD patients have high caloric needs (work of breathing) but tire easily during meals. Small frequent meals prevent gastric distention pressing on diaphragm. Drinking fluids during meals causes early satiety — drink BETWEEN meals. High calorie, high protein.'},
+{letter:'C',text:'Low-calorie, low-protein diet to reduce CO2 production',correct:false,rationale:'Inadequate calories worsen muscle wasting and respiratory muscle weakness.'},
+{letter:'D',text:'NPO except clear liquids',correct:false,rationale:'Not appropriate for chronic COPD nutrition.'}
+],vocabTip:'<strong>COPD diet:</strong> 4-6 SMALL high-cal/high-protein meals. Fluids BETWEEN meals (not during). Prevents early satiety + diaphragmatic pressure.'},
+
+{id:17,chapter:24,sata:true,trap:true,
+stem:'Discharge teaching for a patient newly diagnosed with COPD includes which of the following? (Select all that apply.)',
+options:[
+{letter:'A',text:'Practice pursed-lip breathing (inhale through nose, exhale twice as long through pursed lips).',correct:true,rationale:'Pursed-lip breathing creates back-pressure that keeps alveoli open during exhalation, blows off trapped CO2, and slows respirations. Foundational COPD teaching.'},
+{letter:'B',text:'Get annual influenza vaccine and pneumococcal vaccines.',correct:true,rationale:'Infections trigger acute exacerbations. Vaccines are essential preventive care for COPD.'},
+{letter:'C',text:'Drink at least 2 liters of fluid per day (if not contraindicated) to thin secretions.',correct:true,rationale:'Hydration thins thick mucus and makes it easier to expectorate. Prevents mucus plugging.'},
+{letter:'D',text:'Use a high-flow O2 of 6 L/min at home to keep SpO2 100%.',correct:false,rationale:'TRAP. Goal SpO2 in COPD is 88-92%, not 100%. Over-oxygenation risks suppressing the hypoxic drive in some patients.'},
+{letter:'E',text:'Pace daily activities and rest between tasks.',correct:true,rationale:'Energy conservation reduces dyspnea and improves function.'},
+{letter:'F',text:'Continue smoking but use a humidifier.',correct:false,rationale:'TRAP. Smoking cessation is the single most important intervention.'}
+],vocabTip:'<strong>COPD discharge teaching:</strong> Pursed-lip breathing · 2L fluids · vaccines · pace activity · SMOKING CESSATION. NOT 100% SpO2.'},
+
+{id:18,chapter:24,sata:false,trap:false,
+stem:'A patient is post-lobectomy with a chest tube. The HOB is positioned at 30 degrees. The drainage chamber shows 250 mL of bloody drainage in the first hour. The nurse should:',
+options:[
+{letter:'A',text:'Document and continue routine care.',correct:false,rationale:'>100 mL/hr of bright red blood is concerning.'},
+{letter:'B',text:'Notify the surgeon immediately — drainage > 100 mL/hr (especially bright red) may indicate active hemorrhage.',correct:true,rationale:'Post-op chest tube drainage > 100 mL/hr or > 1500 mL total in 24 hrs is a surgical emergency suggesting active bleeding. The surgeon may need to take the patient back to the OR. Document, notify, monitor hemodynamics, prepare for possible transfusion/return to OR.'},
+{letter:'C',text:'Clamp the chest tube to slow the bleeding.',correct:false,rationale:'NEVER clamp a chest tube without an order — causes tension pneumothorax.'},
+{letter:'D',text:'Strip the chest tube to clear clots.',correct:false,rationale:'NEVER strip chest tubes — causes massive negative pressure and tissue damage.'}
+],vocabTip:'<strong>Chest tube drainage:</strong> >100 mL/hr (especially bright red) = NOTIFY. NEVER clamp. NEVER strip.'},
+
+{id:19,chapter:24,sata:false,trap:false,
+stem:'A patient with idiopathic pulmonary fibrosis (IPF) is being taught about their prognosis. The MOST accurate description is:',
+options:[
+{letter:'A',text:'Curable with standard antibiotics',correct:false,rationale:'IPF is not an infection and not curable.'},
+{letter:'B',text:'A progressive, fatal restrictive lung disease (typical survival 3-5 years from diagnosis); medications (nintedanib, pirfenidone) slow but do not stop progression; lung transplant is the only definitive treatment.',correct:true,rationale:'IPF is a restrictive disease of EXCESSIVE wound healing (continuing fibrosis after normal repair should have stopped). High-resolution CT shows honeycombing. Median survival 3-5 years. Drugs slow progression: nintedanib, pirfenidone. Lung transplant is the only definitive treatment. Hospice referral is common. Late-stage: morphine for dyspnea.'},
+{letter:'C',text:'Reversible with steroid bursts',correct:false,rationale:'Not reliably reversible.'},
+{letter:'D',text:'Caused by smoking — quitting cures it',correct:false,rationale:'Idiopathic = cause unknown. Smoking is associated but not curative on cessation.'}
+],vocabTip:'<strong>IPF mnemonic:</strong> "Idiots don\'t know" — IDIOPATHIC = cause unknown. Survival 3-5 yrs. Lung transplant = only definitive Rx.'},
+
+{id:20,chapter:24,sata:false,trap:false,
+stem:'A nurse is teaching a patient about pulmonary arterial hypertension (PAH). The CLASSIC drug used as a continuous IV infusion is:',
+options:[
+{letter:'A',text:'Albuterol nebulizer',correct:false,rationale:'Albuterol is for asthma/COPD bronchodilation.'},
+{letter:'B',text:'Epoprostenol — a continuous IV prostacyclin agent that lowers pulmonary vascular pressures.',correct:true,rationale:'PAH treatment includes endothelin-receptor antagonists (bosentan), phosphodiesterase inhibitors (sildenafil), and continuous IV prostacyclin agents (epoprostenol). Epoprostenol is delivered via a continuous IV pump with strict aseptic technique because the half-life is extremely short — interruption can be fatal.'},
+{letter:'C',text:'Acetaminophen',correct:false,rationale:'Not a PAH treatment.'},
+{letter:'D',text:'Furosemide PRN only',correct:false,rationale:'Diuretics are adjunct in PAH, but not the continuous IV classic therapy.'}
+],vocabTip:'<strong>PAH meds:</strong> Endothelin antagonists (bosentan), PDE-5 inhibitors (sildenafil), continuous IV prostacyclin (epoprostenol). Untreated PAH: death within 2 yrs.'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch24">CH 24</span>`;if(q.trap)badges+=`<span class="badge badge-trap">TRAP</span>`;if(q.sata)badges+=`<span class="badge badge-sata">SATA</span>`;
+const optsHtml=q.options.map(o=>`<div class="opt" id="opt-${q.id}-${o.letter}" onclick="selectOption(${q.id},'${o.letter}',${q.sata})"><div class="opt-letter">${o.letter}.</div><div class="opt-text">${o.text}<div class="opt-rationale" id="rat-${q.id}-${o.letter}"><strong>${o.correct?'✓ Correct.':'✗ '}</strong>${o.rationale}</div></div></div>`).join('');
+card.innerHTML=`<div class="q-top"><span class="q-num">Q${idx+1}</span>${badges}</div><div class="q-stem">${q.stem}</div><div class="opts">${optsHtml}</div><button class="btn-submit" id="btn-${q.id}" onclick="submitAnswer(${q.id})" disabled>Submit</button><div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById(`opt-${qId}-${letter}`);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>document.getElementById(`opt-${qId}-${l}`).classList.remove('selected'));selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById(`btn-${qId}`).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});
+document.getElementById(`tip-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){const pct=(Object.keys(answered).length/questions.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
+
+function showScore(){
+let correct=0;
+questions.forEach(q=>{if(answered[q.id]){const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[q.id]||[];if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;}});
+const pct=Math.round((correct/questions.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString(),chapters:{24:{correct:correct,total:questions.length}}};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length,topicBreakdown:{24:{correct:correct,total:questions.length}}});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';buildQuiz();}
+
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const state=JSON.parse(saved);answered=state.answered||{};selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{const q=questions.find(x=>x.id==qId);if(!q)return;const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[qId]||[];const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);if(sel.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});document.getElementById(`tip-${qId}`).style.display='block';const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');const btn=document.getElementById(`btn-${qId}`);btn.disabled=true;btn.textContent=isCorrect?'Correct!':'Incorrect';});
+updateProgress();if(Object.keys(answered).length===questions.length)showScore();}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch 22-24 Vocab/Labs/Meds Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#fb923c}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ea580c,#fb923c);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch22{background:#2a1206;color:#fb923c}
+.badge-ch23{background:#2a1206;color:#fb923c}
+.badge-ch24{background:#2a1206;color:#fb923c}
+.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fb923c;background:#2a1206}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#ea580c;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#c2410c}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1a1f2e;border-left:3px solid #fb923c;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#fed7aa;line-height:1.5}
+.vocab-tip strong{color:#fb923c}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#fb923c;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 22-24 Vocab / Labs / Meds Quiz</h1>
+<p class="subtitle">Respiratory Foundations &middot; ABGs &middot; Asthma/COPD Meds &middot; Tracheostomy &middot; 25 Questions</p>
+</div>
+<div class="exam-info">Vocabulary, lab values, inhaler types, and medication mechanisms across Ch 22, 23, and 24. Pull from professor emphasis on terminology + meds.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Quiz Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<button class="btn-restart" onclick="restartQuiz()">Restart Quiz</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam4-nlm-ch22-24-vocab';
+const EXAM_LABEL='Ch 22-24 Vocab/Labs/Meds Quiz (25Q)';
+const questions=[
+{id:1,chapter:22,sata:false,
+stem:'"Atelectasis" refers to:',
+options:[
+{letter:'A',text:'Alveolar collapse — reduces surface area for gas exchange.',correct:true,rationale:'Atelectasis is alveolar collapse. Causes: hypoventilation, mucus plugging, prolonged high-FiO2 (absorptive). Findings: decreased breath sounds, dullness to percussion, crackles.'},
+{letter:'B',text:'Excess fluid in the pleural space.',correct:false,rationale:'That is pleural effusion.'},
+{letter:'C',text:'Air in the pleural space.',correct:false,rationale:'That is pneumothorax.'},
+{letter:'D',text:'Inflammation of the alveoli from infection.',correct:false,rationale:'That is pneumonia.'}
+],vocabTip:'<strong>Atelectasis = alveolar COLLAPSE.</strong> Causes: hypoventilation, mucus plugs, high-FiO2 (absorptive).'},
+
+{id:2,chapter:22,sata:false,
+stem:'"Hemoptysis" is defined as:',
+options:[
+{letter:'A',text:'Vomiting blood',correct:false,rationale:'That is hematemesis (from the GI tract).'},
+{letter:'B',text:'Blood in the sputum — coughing up blood',correct:true,rationale:'Hemoptysis = bright red, frothy, often blood-tinged sputum coming from the airways. Causes: chronic bronchitis, lung/laryngeal cancer, pulmonary infarction, TB. Differs from hematemesis (dark, coffee-ground, from stomach).'},
+{letter:'C',text:'Bleeding from the gums',correct:false,rationale:'Gingival bleeding is a different finding.'},
+{letter:'D',text:'Nosebleed',correct:false,rationale:'That is epistaxis.'}
+],vocabTip:'<strong>Hemoptysis</strong> = blood in SPUTUM (lungs). <strong>Hematemesis</strong> = vomited blood (GI). Different sources.'},
+
+{id:3,chapter:22,sata:false,
+stem:'"Orthopnea" is BEST defined as:',
+options:[
+{letter:'A',text:'Difficulty breathing while standing',correct:false,rationale:'That would be platypnea (rare).'},
+{letter:'B',text:'Shortness of breath when LYING FLAT, relieved by sitting up',correct:true,rationale:'Orthopnea = SOB while supine, improves with upright position. Classic in left-sided HF (fluid redistribution to lungs when lying flat). Ask: "How many pillows do you sleep with?" Orthopnea is described in pillows ("2-pillow orthopnea").'},
+{letter:'C',text:'Painful breathing during exhalation',correct:false,rationale:'No standard term — could be pleuritic pain.'},
+{letter:'D',text:'Cessation of breathing at night',correct:false,rationale:'That is sleep apnea.'}
+],vocabTip:'<strong>Orthopnea:</strong> SOB lying flat, relieved by sitting up. Quantify in PILLOWS. Classic in left HF.'},
+
+{id:4,chapter:22,sata:false,
+stem:'"Paroxysmal nocturnal dyspnea (PND)" is BEST described as:',
+options:[
+{letter:'A',text:'Mild snoring during sleep',correct:false,rationale:'Insufficient definition; PND is more severe.'},
+{letter:'B',text:'Sudden awakening from sleep gasping for breath',correct:true,rationale:'PND = waking from sleep with sudden inability to breathe. Common in left-sided heart failure (fluid redistribution at night) and chronic lung disease. Patient often opens a window or sits up to relieve.'},
+{letter:'C',text:'Snoring with brief apneic pauses',correct:false,rationale:'That describes obstructive sleep apnea.'},
+{letter:'D',text:'Painful inspiration',correct:false,rationale:'That is pleuritic pain.'}
+],vocabTip:'<strong>PND:</strong> Sudden nighttime awakening gasping. Classic in left HF and chronic lung disease.'},
+
+{id:5,chapter:22,sata:false,
+stem:'"Surfactant" is produced by which cells and what does it DO?',
+options:[
+{letter:'A',text:'Type I alveolar cells; transports oxygen across the membrane',correct:false,rationale:'Type I cells form the alveolar wall but don\'t secrete surfactant.'},
+{letter:'B',text:'Type II pneumocytes; reduces alveolar surface tension and prevents collapse',correct:true,rationale:'Type II pneumocytes secrete surfactant, a fatty protein that lines the alveoli and lowers surface tension so the alveoli stay open at end-exhalation. Loss of surfactant → atelectasis (e.g., ARDS, neonatal RDS).'},
+{letter:'C',text:'Goblet cells; produces mucus',correct:false,rationale:'Goblet cells produce mucus, not surfactant.'},
+{letter:'D',text:'Mast cells; releases histamine',correct:false,rationale:'Mast cells do not make surfactant.'}
+],vocabTip:'<strong>Surfactant:</strong> made by TYPE II pneumocytes; lowers surface tension; keeps alveoli OPEN at exhale.'},
+
+{id:6,chapter:22,sata:false,
+stem:'Match the ABG VALUE to its NORMAL RANGE:',
+options:[
+{letter:'A',text:'pH 7.45-7.55; PaCO2 25-35',correct:false,rationale:'Wrong ranges.'},
+{letter:'B',text:'pH 7.35-7.45; PaCO2 35-45; HCO3 21-28; PaO2 80-100; SpO2 95-100%',correct:true,rationale:'Standard adult ABG normals. Memorize cold for exam.'},
+{letter:'C',text:'pH 7.30-7.40; PaCO2 40-50; HCO3 18-25; PaO2 70-90',correct:false,rationale:'Wrong ranges.'},
+{letter:'D',text:'pH 7.40-7.50; PaCO2 45-55; HCO3 25-32; PaO2 90-110',correct:false,rationale:'Wrong ranges.'}
+],vocabTip:'<strong>ABG normals (memorize):</strong> pH 7.35-7.45 · PaCO2 35-45 · HCO3 21-28 · PaO2 80-100 · SpO2 95-100%.'},
+
+{id:7,chapter:22,sata:false,
+stem:'Before pulmonary function testing (PFTs), the patient should:',
+options:[
+{letter:'A',text:'Use their bronchodilator inhaler just before the test',correct:false,rationale:'Bronchodilators are WITHHELD 4-6 hrs before to avoid masking obstruction.'},
+{letter:'B',text:'Withhold smoking for 6-8 hours and bronchodilators for 4-6 hours',correct:true,rationale:'Pre-PFT prep: NO smoking for 6-8 hrs, NO bronchodilators for 4-6 hrs (so the test reflects baseline lung function, not medication-induced bronchodilation).'},
+{letter:'C',text:'Eat a large meal',correct:false,rationale:'Heavy meals may cause early satiety / interfere with effort.'},
+{letter:'D',text:'Run for 30 minutes',correct:false,rationale:'Strenuous exercise pre-test can skew results.'}
+],vocabTip:'<strong>Pre-PFT:</strong> NO smoking 6-8 hrs. NO bronchodilators 4-6 hrs. Baseline conditions.'},
+
+{id:8,chapter:23,sata:false,
+stem:'"Stridor" is defined as:',
+options:[
+{letter:'A',text:'A high-pitched musical sound on exhalation',correct:false,rationale:'That describes a wheeze (during exhalation).'},
+{letter:'B',text:'A high-pitched crowing noise on INSPIRATION — indicates severe upper airway narrowing',correct:true,rationale:'Stridor = high-pitched inspiratory sound from upper airway narrowing (laryngospasm, epiglottitis, foreign body, tracheal edema after extubation). EMERGENCY. Call rapid response, prepare for airway intervention.'},
+{letter:'C',text:'Low-pitched snoring during sleep',correct:false,rationale:'That is snoring/airway obstruction.'},
+{letter:'D',text:'Sounds of pleural rub',correct:false,rationale:'Pleural rub is rough grating, not crowing.'}
+],vocabTip:'<strong>Stridor:</strong> HIGH-PITCHED, INSPIRATORY, CROWING. = upper airway narrowing = EMERGENCY.'},
+
+{id:9,chapter:23,sata:false,
+stem:'A "laryngectomee" is a patient who:',
+options:[
+{letter:'A',text:'Has had a temporary tracheostomy',correct:false,rationale:'Tracheostomy is a different procedure that may be temporary.'},
+{letter:'B',text:'Has had a complete (total) laryngectomy and is a permanent neck breather',correct:true,rationale:'Laryngectomee = patient who has had the larynx removed; they breathe permanently through a neck stoma. They are NECK BREATHERS and require MedicAlert ID, special CPR (mouth-to-stoma), and stoma protection (no swimming, humidifier, scarf).'},
+{letter:'C',text:'Has chronic laryngitis',correct:false,rationale:'Not the term.'},
+{letter:'D',text:'Has vocal cord paralysis',correct:false,rationale:'Vocal cord paralysis is a different condition.'}
+],vocabTip:'<strong>Laryngectomee:</strong> PERMANENT neck breather after total laryngectomy. MedicAlert ID essential.'},
+
+{id:10,chapter:23,sata:false,
+stem:'"Xerostomia" is:',
+options:[
+{letter:'A',text:'A motor speech disorder',correct:false,rationale:'That is dysarthria.'},
+{letter:'B',text:'Severe dry mouth — common permanent side effect of head/neck radiation',correct:true,rationale:'Xerostomia = severe persistent dry mouth from damage to salivary glands (head/neck radiation, Sjögren\'s, some meds). Often permanent. Manage: sugar-free lozenges, sips of water, non-alcohol/fluoride mouthwash, dental hygiene.'},
+{letter:'C',text:'Difficulty swallowing',correct:false,rationale:'That is dysphagia.'},
+{letter:'D',text:'Excessive saliva production',correct:false,rationale:'Opposite — that is sialorrhea.'}
+],vocabTip:'<strong>Xerostomia = severe dry mouth.</strong> Often PERMANENT after head/neck radiation.'},
+
+{id:11,chapter:24,sata:false,
+stem:'A patient who needs a RESCUE inhaler for acute asthma symptoms should reach for:',
+options:[
+{letter:'A',text:'Salmeterol (LABA)',correct:false,rationale:'LABA is daily prevention — slow onset, never rescue.'},
+{letter:'B',text:'Albuterol (SABA) — short-acting beta-2 agonist',correct:true,rationale:'Albuterol is a SHORT-ACTING beta-2 agonist (SABA). Rapid onset (minutes), short duration. Carry at all times. Side effects: tachycardia, tremor. ALWAYS the rescue choice.'},
+{letter:'C',text:'Fluticasone (inhaled corticosteroid)',correct:false,rationale:'ICS is daily controller, not rescue.'},
+{letter:'D',text:'Montelukast (leukotriene modifier)',correct:false,rationale:'Daily controller, takes 48-72 hrs, not rescue.'}
+],vocabTip:'<strong>Asthma rescue inhaler = SABA = ALBUTEROL.</strong> Daily control = ICS, LABA, montelukast.'},
+
+{id:12,chapter:24,sata:false,
+stem:'Which inhaler technique is correct for a METERED-DOSE INHALER (MDI)?',
+options:[
+{letter:'A',text:'Do not shake, inhale rapidly and deeply',correct:false,rationale:'That is DPI technique.'},
+{letter:'B',text:'Shake for 5 seconds, use a spacer (preferred), inhale slowly and deeply, hold breath 10 seconds',correct:true,rationale:'MDI: shake well (mixes propellant and drug), use a spacer (improves delivery, reduces oropharyngeal deposition), seal lips, breathe out gently, then inhale SLOWLY and DEEPLY while pressing canister, hold breath 10 seconds, exhale slowly.'},
+{letter:'C',text:'Use without inhaling — just spray into mouth',correct:false,rationale:'Will deposit drug on the back of the throat, not into the lungs.'},
+{letter:'D',text:'Hold breath for 1 second only',correct:false,rationale:'10 seconds is needed for adequate absorption.'}
+],vocabTip:'<strong>MDI:</strong> Shake 5 sec → spacer → inhale SLOWLY & deeply → hold 10 sec. <strong>DPI:</strong> NO shake, NO spacer, inhale RAPIDLY & deeply → hold 10 sec.'},
+
+{id:13,chapter:24,sata:false,
+stem:'The classic clinical CLUE distinguishing emphysema ("pink puffer") from chronic bronchitis ("blue bloater") is:',
+options:[
+{letter:'A',text:'Both have copious purulent sputum',correct:false,rationale:'Sputum production differs sharply.'},
+{letter:'B',text:'Emphysema: thin, pink, accessory muscle use, minimal sputum. Chronic bronchitis: cyanotic, edematous, copious productive cough.',correct:true,rationale:'Pink Puffer (emPhysema): cachexia, pink (preserved oxygenation through hyperventilation), accessory muscle use, pursed lips, barrel chest, MINIMAL sputum. Blue Bloater (chronic Bronchitis): cyanosis, peripheral edema/JVD (cor pulmonale), COPIOUS sputum, productive cough.'},
+{letter:'C',text:'Both present identically',correct:false,rationale:'They do not.'},
+{letter:'D',text:'Emphysema has cor pulmonale earliest',correct:false,rationale:'Chronic bronchitis develops cor pulmonale earlier.'}
+],vocabTip:'<strong>Pink Puffer = emPhysema</strong> (thin, pink, dry cough). <strong>Blue Bloater = chronic Bronchitis</strong> (cyanotic, edematous, wet cough).'},
+
+{id:14,chapter:24,sata:false,
+stem:'"Cor pulmonale" is:',
+options:[
+{letter:'A',text:'Left-sided heart failure due to MI',correct:false,rationale:'That is post-MI HF.'},
+{letter:'B',text:'Right-sided heart failure caused by chronic pulmonary disease (COPD, PAH)',correct:true,rationale:'Cor pulmonale = RIGHT-sided HF from chronic lung disease. Lung pathology raises pulmonary vascular resistance → RV strain → RV failure → peripheral edema, JVD, hepatomegaly. Treatment: treat the underlying lung disease + diuretics + oxygen.'},
+{letter:'C',text:'Inflammation of the pericardium',correct:false,rationale:'That is pericarditis.'},
+{letter:'D',text:'A type of cardiomyopathy unrelated to the lungs',correct:false,rationale:'Cor pulmonale is specifically lung-driven RV failure.'}
+],vocabTip:'<strong>Cor pulmonale = RIGHT-sided HF from LUNG disease.</strong> Common in advanced COPD, PAH.'},
+
+{id:15,chapter:24,sata:false,
+stem:'The PFT value used DAILY at home by asthma patients to monitor airway control is:',
+options:[
+{letter:'A',text:'FVC',correct:false,rationale:'FVC is measured in a clinic spirometer, not handheld.'},
+{letter:'B',text:'PEF (Peak Expiratory Flow) — measured with a handheld peak flow meter',correct:true,rationale:'PEF measures how quickly air can be exhaled. Patient blows into a handheld peak flow meter daily; compares to their personal best. Green Zone >80%, Yellow 50-80%, Red <50%. Drives the asthma action plan.'},
+{letter:'C',text:'FEV1',correct:false,rationale:'FEV1 requires clinic spirometry, not handheld.'},
+{letter:'D',text:'Residual Volume',correct:false,rationale:'RV requires body plethysmography, not handheld.'}
+],vocabTip:'<strong>PEF:</strong> Daily handheld asthma self-monitoring. Drives green/yellow/red zones of action plan.'},
+
+{id:16,chapter:24,sata:false,
+stem:'A patient is prescribed tiotropium (Spiriva). The mechanism of action is:',
+options:[
+{letter:'A',text:'Beta-2 receptor agonism for bronchodilation',correct:false,rationale:'That is a SABA/LABA mechanism.'},
+{letter:'B',text:'Anticholinergic (LAMA) — blocks parasympathetic input, allowing bronchodilation and decreased secretions',correct:true,rationale:'Tiotropium is a long-acting muscarinic antagonist (LAMA). Blocks parasympathetic bronchoconstriction → bronchodilation. Also decreases secretions. Side effects: dry mouth, blurred vision, urinary retention (anticholinergic effects). Used DAILY in COPD.'},
+{letter:'C',text:'Steroid anti-inflammatory',correct:false,rationale:'Not a steroid.'},
+{letter:'D',text:'Leukotriene receptor antagonist',correct:false,rationale:'Different drug class.'}
+],vocabTip:'<strong>LAMA (tiotropium, ipratropium):</strong> Anticholinergic; daily COPD. Side effects: dry mouth, blurred vision (anticholinergic).'},
+
+{id:17,chapter:24,sata:false,
+stem:'A patient with severe allergic asthma is starting omalizumab (Xolair) injections. The MOST important monitoring instruction is:',
+options:[
+{letter:'A',text:'Self-administer at home with no monitoring',correct:false,rationale:'Not safe — anaphylaxis risk.'},
+{letter:'B',text:'Remain in the clinic for at least 2 hours after injection to monitor for anaphylaxis',correct:true,rationale:'Omalizumab is a monoclonal antibody that binds IgE. Used for severe allergic asthma not controlled by ICS+LABA. Risk of ANAPHYLAXIS — monitor 2 hours post-injection in clinic. Patient should also have an EpiPen and know its use.'},
+{letter:'C',text:'Drink 2 L of water immediately after',correct:false,rationale:'Not the safety priority.'},
+{letter:'D',text:'Avoid food for 4 hours after',correct:false,rationale:'Not the standard monitoring.'}
+],vocabTip:'<strong>Omalizumab (Xolair):</strong> Monitor 2 HRS post-injection for ANAPHYLAXIS. Patient needs EpiPen.'},
+
+{id:18,chapter:24,sata:false,
+stem:'A patient with severe COPD is prescribed theophylline. The MOST important monitoring need is:',
+options:[
+{letter:'A',text:'Daily weight checks',correct:false,rationale:'Useful in heart failure but not theophylline-specific.'},
+{letter:'B',text:'Routine serum theophylline LEVELS due to narrow therapeutic window',correct:true,rationale:'Theophylline (methylxanthine) has a NARROW therapeutic window. Toxicity: tachycardia, dysrhythmias, seizures, nausea. Levels must be monitored. Largely a last-resort drug now because of toxicity risk; newer COPD meds preferred.'},
+{letter:'C',text:'Daily peak flow checks',correct:false,rationale:'Helpful for asthma monitoring but not theophylline-specific.'},
+{letter:'D',text:'Blood pressure monitoring only',correct:false,rationale:'BP is not the key marker.'}
+],vocabTip:'<strong>Theophylline:</strong> NARROW therapeutic window. Monitor SERUM LEVELS. Toxicity = arrhythmias, seizures.'},
+
+{id:19,chapter:24,sata:false,
+stem:'A patient with CF (cystic fibrosis) is diagnosed via:',
+options:[
+{letter:'A',text:'Chest x-ray alone',correct:false,rationale:'CXR shows lung damage but does not diagnose CF.'},
+{letter:'B',text:'Sweat chloride test ≥ 60 mmol/L (plus genetic testing)',correct:true,rationale:'Sweat chloride test is the diagnostic gold standard for CF. ≥60 mmol/L = positive. Confirmed with CFTR genetic testing.'},
+{letter:'C',text:'CT scan only',correct:false,rationale:'Imaging shows damage but doesn\'t diagnose.'},
+{letter:'D',text:'Pulse oximetry',correct:false,rationale:'Detects hypoxemia, not the disease.'}
+],vocabTip:'<strong>CF diagnostic:</strong> Sweat chloride ≥ 60 mmol/L + genetic testing.'},
+
+{id:20,chapter:24,sata:false,
+stem:'The patient with idiopathic pulmonary fibrosis (IPF) is started on pirfenidone. The drug\'s purpose is to:',
+options:[
+{letter:'A',text:'Cure the fibrosis',correct:false,rationale:'IPF is not curable; pirfenidone only slows progression.'},
+{letter:'B',text:'Slow progression of fibrosis — does not stop or reverse it',correct:true,rationale:'Pirfenidone and nintedanib slow IPF progression. They do NOT reverse fibrosis. Median survival is still 3-5 years. Lung transplant is the only definitive treatment. Hospice care often involved in late stage.'},
+{letter:'C',text:'Replace oxygen therapy',correct:false,rationale:'Continuous oxygen is still needed.'},
+{letter:'D',text:'Treat the depression of IPF',correct:false,rationale:'Antidepressants address depression separately.'}
+],vocabTip:'<strong>IPF drugs (pirfenidone, nintedanib):</strong> SLOW progression — DO NOT cure or reverse. Lung transplant = only definitive Rx.'},
+
+{id:21,chapter:24,sata:false,
+stem:'A nurse is teaching a patient with COPD about pursed-lip breathing. The CORRECT instruction is:',
+options:[
+{letter:'A',text:'"Inhale through pursed lips, exhale through nose."',correct:false,rationale:'Reversed.'},
+{letter:'B',text:'"Inhale through nose for 2 counts, exhale through PURSED LIPS for 4 counts — exhalation is twice as long as inhalation."',correct:true,rationale:'Pursed-lip breathing creates back-pressure that keeps small airways open during exhalation, prolonging expiration to blow off trapped CO2. Slow breathing rate; reduces dyspnea. Ratio: exhale ~2x as long as inhale.'},
+{letter:'C',text:'"Inhale and exhale rapidly through the mouth."',correct:false,rationale:'Rapid shallow breathing worsens air trapping and CO2 retention.'},
+{letter:'D',text:'"Hold your breath for 10 seconds after each inhale."',correct:false,rationale:'Breath-holding increases CO2 retention.'}
+],vocabTip:'<strong>Pursed-lip breathing:</strong> Inhale through NOSE x 2 counts → exhale through PURSED LIPS x 4 counts. Exhale 2x as long.'},
+
+{id:22,chapter:22,sata:false,
+stem:'"Capnography" measures:',
+options:[
+{letter:'A',text:'Peripheral hemoglobin oxygen saturation',correct:false,rationale:'That is pulse oximetry (SpO2).'},
+{letter:'B',text:'End-tidal CO2 (PETCO2) — the partial pressure of CO2 in exhaled air',correct:true,rationale:'Capnography measures end-tidal CO2 in exhaled air, reflecting ventilation in real time. Detects hypoventilation FASTER than pulse oximetry. Best monitor for post-op opioid PCA patients, sedation, intubated patients.'},
+{letter:'C',text:'Lung volumes',correct:false,rationale:'That is spirometry.'},
+{letter:'D',text:'Cardiac output',correct:false,rationale:'Hemodynamic monitor, not respiratory.'}
+],vocabTip:'<strong>Capnography:</strong> end-tidal CO2 = ventilation indicator. EARLIEST sign of respiratory depression.'},
+
+{id:23,chapter:22,sata:false,
+stem:'"Fremitus" is:',
+options:[
+{letter:'A',text:'A type of breath sound heard during auscultation',correct:false,rationale:'Fremitus is felt by palpation, not heard.'},
+{letter:'B',text:'A vibration of the chest wall felt by palpation when the patient speaks',correct:true,rationale:'Tactile fremitus: place hands on chest while patient says "ninety-nine." Vibrations transmitted through lung tissue. INCREASED in consolidation (pneumonia, dense tissue). DECREASED in pneumothorax, pleural effusion, emphysema (air or fluid blocks transmission).'},
+{letter:'C',text:'A type of percussion finding',correct:false,rationale:'Percussion is tapping; fremitus is palpation.'},
+{letter:'D',text:'An abnormal lung volume',correct:false,rationale:'No — palpation finding.'}
+],vocabTip:'<strong>Fremitus:</strong> PALPATED chest vibration when patient speaks. INCREASED = consolidation. DECREASED = air/fluid barrier.'},
+
+{id:24,chapter:23,sata:false,
+stem:'The Valsalva maneuver is used during the SUPRAGLOTTIC SWALLOW technique because it:',
+options:[
+{letter:'A',text:'Increases gastric motility',correct:false,rationale:'Not the purpose in this technique.'},
+{letter:'B',text:'Closes the vocal cords, protecting the airway from aspiration during swallow',correct:true,rationale:'In supraglottic swallow, the patient holds breath and bears down (Valsalva) BEFORE swallowing. This closes the vocal cords mechanically, preventing food/fluid from entering the airway. Then they swallow twice, release, clear throat, swallow again. Done with SLP coaching at first.'},
+{letter:'C',text:'Improves heart rate',correct:false,rationale:'Valsalva can affect HR but that\'s not the purpose here.'},
+{letter:'D',text:'Increases lung expansion',correct:false,rationale:'Opposite — breath-hold reduces expansion temporarily.'}
+],vocabTip:'<strong>Valsalva in supraglottic swallow:</strong> Closes vocal cords → protects airway from aspiration. Critical post-partial-laryngectomy.'},
+
+{id:25,chapter:24,sata:false,
+stem:'"Tidaling" refers to:',
+options:[
+{letter:'A',text:'Continuous bubbling in the suction chamber',correct:false,rationale:'That indicates suction is on; not tidaling.'},
+{letter:'B',text:'Normal rise and fall of the water in the water-seal chamber with the patient\'s breathing',correct:true,rationale:'Tidaling = the gentle rise (with inhalation) and fall (with exhalation) of fluid in the water-seal chamber of a chest tube system. Indicates the system is functioning and the lung has not fully re-expanded. Absence of tidaling can mean: lung fully re-expanded, OR tubing is obstructed/kinked. Normal finding.'},
+{letter:'C',text:'Continuous bubbling in the water-seal chamber',correct:false,rationale:'That is an air leak — abnormal.'},
+{letter:'D',text:'Crackling sounds on auscultation',correct:false,rationale:'That is crackles, not tidaling.'}
+],vocabTip:'<strong>Tidaling:</strong> NORMAL rise/fall of water-seal fluid with breathing. Absence = re-expansion OR obstruction.'}
+];
+
+let answered={};
+let selections={};
+
+function buildQuiz(){
+const area=document.getElementById('quizArea');area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">CH ${q.chapter}</span>`;if(q.sata)badges+=`<span class="badge badge-sata">SATA</span>`;
+const optsHtml=q.options.map(o=>`<div class="opt" id="opt-${q.id}-${o.letter}" onclick="selectOption(${q.id},'${o.letter}',${q.sata})"><div class="opt-letter">${o.letter}.</div><div class="opt-text">${o.text}<div class="opt-rationale" id="rat-${q.id}-${o.letter}"><strong>${o.correct?'✓ Correct.':'✗ '}</strong>${o.rationale}</div></div></div>`).join('');
+card.innerHTML=`<div class="q-top"><span class="q-num">Q${idx+1}</span>${badges}</div><div class="q-stem">${q.stem}</div><div class="opts">${optsHtml}</div><button class="btn-submit" id="btn-${q.id}" onclick="submitAnswer(${q.id})" disabled>Submit</button><div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById(`opt-${qId}-${letter}`);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>document.getElementById(`opt-${qId}-${l}`).classList.remove('selected'));selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById(`btn-${qId}`).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});
+document.getElementById(`tip-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){const pct=(Object.keys(answered).length/questions.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
+
+function showScore(){
+let correct=0;
+questions.forEach(q=>{if(answered[q.id]){const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[q.id]||[];if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;}});
+const pct=Math.round((correct/questions.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';buildQuiz();}
+
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const state=JSON.parse(saved);answered=state.answered||{};selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{const q=questions.find(x=>x.id==qId);if(!q)return;const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[qId]||[];const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);if(sel.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});document.getElementById(`tip-${qId}`).style.display='block';const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');const btn=document.getElementById(`btn-${qId}`);btn.disabled=true;btn.textContent=isCorrect?'Correct!':'Incorrect';});
+updateProgress();if(Object.keys(answered).length===questions.length)showScore();}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
