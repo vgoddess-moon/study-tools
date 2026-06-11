@@ -61,9 +61,9 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 <div class="container">
 <div class="exam-header">
 <h1>Med Term Decoder</h1>
-<p class="subtitle">Word Roots &middot; Suffixes &middot; Decode-the-Word &middot; Clinical Recognition</p>
+<p class="subtitle">Word Roots &middot; Prefixes &middot; Suffixes &middot; Decode-the-Word &middot; Clinical Recognition &middot; 40 Building Blocks</p>
 </div>
-<div class="exam-info">The skill: see an unfamiliar term and <em>break it apart</em> instead of memorizing it whole. Learn ~40 building blocks &rarr; decode hundreds of words. Click it as many times as you want &mdash; reps are the point.</div>
+<div class="exam-info">The skill: see an unfamiliar term and <em>break it apart</em> instead of memorizing it whole. This deck drills all 40 core building blocks &mdash; roots, prefixes, suffixes &rarr; decode hundreds of words. Click it as many times as you want; reps are the point.</div>
 <div class="how-box">
 <strong>The habit this trains &mdash; slash before you Google:</strong><br>
 When you hit a scary word, put a slash in it first and guess. <span class="slash">hepat / o / megaly</span> &rarr; liver + enlargement &rarr; <em>enlarged liver.</em> Reaching for the answer <em>before</em> you see it is what makes it stick. And bridge from words you already know: you know <strong>hepat</strong>itis &rarr; so <strong>hepat</strong> = liver.
@@ -317,7 +317,133 @@ options:[
 {letter:'B',text:'Break it at the slashes (prefix / root / suffix), translate each chunk, then reassemble',correct:true,rationale:'Decode, don\'t memorize. Prefix (how/when/where) + root (what organ/tissue) + suffix (what\'s happening to it). ~40 building blocks unlock hundreds of words, including ones you\'ve never seen. Bridge from words you already know to anchor each new root.'},
 {letter:'C',text:'Pick the longest answer choice',correct:false,rationale:'Test-taking myth — decode the term instead.'},
 {letter:'D',text:'Match it to whatever sounds similar in English',correct:false,rationale:'Sound-alikes mislead (dysphagia vs dysphasia). Decode the actual parts.'}
-],vocabTip:'<strong>The whole skill: slash &rarr; translate each chunk &rarr; reassemble.</strong> prefix(how) + root(organ) + suffix(what\'s happening). Bridge from words you know.'}
+],vocabTip:'<strong>The whole skill: slash &rarr; translate each chunk &rarr; reassemble.</strong> prefix(how) + root(organ) + suffix(what\'s happening). Bridge from words you know.'},
+
+{id:27,section:'root',sata:false,
+stem:'Slash and decode: <span class="term">gastr / o / enter / itis</span>.',
+options:[
+{letter:'A',text:'Inflammation of the stomach and intestines',correct:true,rationale:'gastr/o (stomach) + enter/o (intestine) + -itis (inflammation) = inflamed stomach AND intestine — the classic "stomach flu" picture (nausea, vomiting, diarrhea). Two roots stacked: read them left to right.'},
+{letter:'B',text:'Inflammation of the liver',correct:false,rationale:'Liver is hepat/o (hepatitis). No hepat root here.'},
+{letter:'C',text:'Surgical removal of the stomach',correct:false,rationale:'That is gastrectomy (-ectomy). The suffix here is -itis.'},
+{letter:'D',text:'Stomach pain only',correct:false,rationale:'Pain is -algia (gastralgia). -itis is inflammation, and enter/o adds the intestine.'}
+],vocabTip:'<strong>gastr/o=stomach · enter/o=intestine · col/o=colon.</strong> gastroenteritis = stomach + intestine inflamed.'},
+
+{id:28,section:'root',sata:false,
+stem:'A patient has <span class="term">osteoarthritis</span>. Decode the three chunks:',
+options:[
+{letter:'A',text:'oste/o + arthr/o + -itis = bone + joint + inflammation',correct:true,rationale:'oste/o (bone) + arthr/o (joint) + -itis (inflammation) = degenerative joint/bone inflammation. Same suffix as every other -itis. Related root: my/o = muscle (myalgia = muscle pain, myopathy = muscle disease).'},
+{letter:'B',text:'Muscle and nerve disease',correct:false,rationale:'Muscle is my/o, nerve is neur/o — neither appears here. The roots are oste (bone) and arthr (joint).'},
+{letter:'C',text:'Bone tumor',correct:false,rationale:'Bone tumor would be osteoma or osteosarcoma (-oma/-sarcoma). The suffix here is -itis.'},
+{letter:'D',text:'Surgical repair of a joint',correct:false,rationale:'Joint repair is arthroplasty (-plasty). This word ends in -itis.'}
+],vocabTip:'<strong>oste/o=bone · arthr/o=joint · my/o=muscle.</strong> osteoarthritis = bone+joint inflammation. arthroplasty = joint repair.'},
+
+{id:29,section:'root',sata:false,
+stem:'The neuro family: <span class="term">neur/o</span>, <span class="term">cerebr/o</span>, <span class="term">encephal/o</span>. So <span class="term">encephalopathy</span> means:',
+options:[
+{letter:'A',text:'Disease of the brain',correct:true,rationale:'encephal/o (brain) + -pathy (disease) = brain disease/dysfunction (e.g., hepatic encephalopathy when the failing liver lets toxins reach the brain). neur/o = nerve (neuropathy), cerebr/o = cerebrum (cerebral, cerebrovascular accident = stroke).'},
+{letter:'B',text:'Disease of a single nerve',correct:false,rationale:'That is neuropathy (neur/o = nerve). encephal/o specifically = brain.'},
+{letter:'C',text:'Inflammation of the brain',correct:false,rationale:'That is encephalITIS (-itis). The suffix here is -pathy (disease), broader than inflammation.'},
+{letter:'D',text:'Removal of brain tissue',correct:false,rationale:'-ectomy would be removal. The suffix is -pathy.'}
+],vocabTip:'<strong>neur/o=nerve · cerebr/o=cerebrum · encephal/o=brain.</strong> encephalopathy = brain disease. CVA = cerebrovascular accident = stroke.'},
+
+{id:30,section:'root',sata:false,
+stem:'Both <span class="term">angi/o</span> and <span class="term">vas/o</span> refer to vessels. So <span class="term">angioplasty</span> is:',
+options:[
+{letter:'A',text:'Surgical repair/widening of a blood vessel',correct:true,rationale:'angi/o (vessel) + -plasty (surgical repair/reshaping) = repairing/opening a vessel (e.g., balloon angioplasty for a blocked coronary artery). vas/o is the same idea: vasoconstriction = vessel narrowing, vasodilation = vessel widening.'},
+{letter:'B',text:'Narrowing of a vessel',correct:false,rationale:'Narrowing is -stenosis (angiostenosis). -plasty is repair.'},
+{letter:'C',text:'Inflammation of a vessel',correct:false,rationale:'That is vasculitis/angiitis (-itis).'},
+{letter:'D',text:'A vessel tumor',correct:false,rationale:'That is angioma (-oma). The suffix here is -plasty.'}
+],vocabTip:'<strong>angi/o = vas/o = VESSEL.</strong> angioplasty = vessel repair. vasoconstriction/vasodilation = vessel narrows/widens.'},
+
+{id:31,section:'root',sata:false,
+stem:'The color roots are tested constantly: <span class="term">cyan/o</span>, <span class="term">erythr/o</span>, <span class="term">leuk/o</span>. They mean:',
+options:[
+{letter:'A',text:'blue, red, white',correct:true,rationale:'cyan/o = blue (cyanosis = bluish skin from low O2), erythr/o = red (erythrocyte = red blood cell, erythema = redness), leuk/o = white (leukocyte = white blood cell, leukopenia = low WBC). Color + cell or + -osis tells the whole story.'},
+{letter:'B',text:'red, white, blue',correct:false,rationale:'Order is off: cyan = blue (not red), erythr = red, leuk = white.'},
+{letter:'C',text:'white, blue, red',correct:false,rationale:'Mixed up. cyan = blue, erythr = red, leuk = white.'},
+{letter:'D',text:'black, yellow, red',correct:false,rationale:'Those would be melan/o (black), xanth/o/jaund (yellow). Not these roots.'}
+],vocabTip:'<strong>cyan/o=blue (cyanosis) · erythr/o=red (erythrocyte) · leuk/o=white (leukocyte).</strong> Color + cell/-osis.'},
+
+{id:32,section:'root',sata:false,
+stem:'Slash and decode: <span class="term">chole / cyst / itis</span> (a common surgical admission).',
+options:[
+{letter:'A',text:'Inflammation of the gallbladder',correct:true,rationale:'chol/e (bile/gall) + cyst (sac/bladder — here the gallBLADDER) + -itis (inflammation) = inflamed gallbladder, usually from a stone. Related: cholelithiasis = chol/e (bile) + lith (stone) + -iasis (presence of) = gallstones. lith = stone shows up in nephrolithiasis (kidney stones) too.'},
+{letter:'B',text:'Inflammation of the urinary bladder',correct:false,rationale:'That is cystitis alone. The chole- prefix here points to bile/gallbladder, not the urinary bladder.'},
+{letter:'C',text:'Gallstones',correct:false,rationale:'Gallstones = cholelithiasis (lith = stone). This word ends in -itis = inflammation.'},
+{letter:'D',text:'Removal of the gallbladder',correct:false,rationale:'That is cholecystectomy (-ectomy) — the surgery that treats it.'}
+],vocabTip:'<strong>chol/e=bile · cyst=sac/bladder · lith=stone.</strong> cholecystitis=inflamed gallbladder. cholelithiasis=gallstones. lith also = nephrolithiasis.'},
+
+{id:33,section:'suffix',sata:false,
+stem:'You learned -emia = blood. Now add prefixes: <span class="term">hyper/kal/emia</span> vs <span class="term">hypo/kal/emia</span>. They mean:',
+options:[
+{letter:'A',text:'hyper- = HIGH potassium in blood; hypo- = LOW potassium in blood',correct:true,rationale:'hyper- = above/excess, hypo- = below/deficient. kal = potassium (K). So hyperkalemia = high K (peaked T waves, cardiac arrest risk), hypokalemia = low K (flat T waves, U waves, weakness). The prefix flips the entire clinical picture — that\'s why prefixes matter as much as roots.'},
+{letter:'B',text:'They mean the same thing',correct:false,rationale:'Opposite prefixes = opposite conditions. hyper = high, hypo = low.'},
+{letter:'C',text:'hyper- = low; hypo- = high',correct:false,rationale:'Reversed. hyper- = above/high, hypo- = below/low.'},
+{letter:'D',text:'Both refer to sodium',correct:false,rationale:'Sodium is natr- (hypernatremia). kal = potassium.'}
+],vocabTip:'<strong>hyper-=HIGH/above · hypo-=LOW/below.</strong> The prefix flips the meaning. hyperkalemia vs hypokalemia = opposite emergencies.'},
+
+{id:34,section:'suffix',sata:false,
+stem:'The prefixes <span class="term">tachy-</span> and <span class="term">brady-</span> on cardi/o give tachycardia and bradycardia. They mean:',
+options:[
+{letter:'A',text:'tachy- = fast; brady- = slow',correct:true,rationale:'tachy- = fast/rapid, brady- = slow. tachycardia = fast heart rate (>100), bradycardia = slow (<60). Same prefixes attach to breathing: tachypnea (fast breathing), bradypnea (slow breathing). Learn the prefix once, use it on every body system.'},
+{letter:'B',text:'tachy- = slow; brady- = fast',correct:false,rationale:'Reversed. Think "tachometer" (measures fast RPMs) = tachy = fast.'},
+{letter:'C',text:'Both mean irregular',correct:false,rationale:'Irregular rhythm is dysrhythmia/arrhythmia. tachy/brady are about speed.'},
+{letter:'D',text:'tachy- = strong; brady- = weak',correct:false,rationale:'They describe rate (speed), not force.'}
+],vocabTip:'<strong>tachy-=FAST · brady-=SLOW.</strong> tachycardia/bradycardia (heart), tachypnea/bradypnea (breathing). "Tachometer" = fast.'},
+
+{id:35,section:'suffix',sata:false,
+stem:'The heart has three layers named by prefix: <span class="term">peri/cardium</span>, <span class="term">epi/cardium</span>, <span class="term">endo/cardium</span>. The prefixes mean:',
+options:[
+{letter:'A',text:'peri- = around; epi- = upon/outer; endo- = within/inner',correct:true,rationale:'peri- = around (pericardium = sac AROUND the heart → pericarditis), epi- = upon (epicardium = outer surface), endo- = within (endocardium = inner lining → endocarditis, often valve infection). These same prefixes work everywhere: peripheral, epidermis, endotracheal.'},
+{letter:'B',text:'peri- = inner; endo- = around; epi- = below',correct:false,rationale:'Reversed. peri = around, endo = within, epi = upon.'},
+{letter:'C',text:'They all mean "inside"',correct:false,rationale:'Each is a different location — that\'s the point of layered prefixes.'},
+{letter:'D',text:'peri- = above; epi- = below; endo- = beside',correct:false,rationale:'Not these meanings. peri=around, epi=upon, endo=within.'}
+],vocabTip:'<strong>peri-=around (pericarditis) · epi-=upon (epidermis) · endo-=within (endocarditis, endotracheal) · intra-=inside (intravenous).</strong>'},
+
+{id:36,section:'suffix',sata:false,
+stem:'Urine output, decoded by prefix: <span class="term">poly/uria</span>, <span class="term">olig/uria</span>, <span class="term">an/uria</span>. They mean:',
+options:[
+{letter:'A',text:'poly- = excessive urine; olig- = scant urine; an- = no urine',correct:true,rationale:'poly- = many/much (polyuria = large volumes, classic in diabetes), olig- = scant/few (oliguria = <400 mL/day, a kidney-injury red flag), an- = without (anuria = <100 mL/day, near-total kidney shutdown). These three are a frequently tested kidney-function ladder.'},
+{letter:'B',text:'They all mean painful urination',correct:false,rationale:'Painful urination is dysuria (dys-). These prefixes describe VOLUME.'},
+{letter:'C',text:'poly- = no urine; an- = excessive',correct:false,rationale:'Reversed. poly = much, an = without/none.'},
+{letter:'D',text:'All three mean blood in urine',correct:false,rationale:'Blood in urine is hematuria. These are volume terms.'}
+],vocabTip:'<strong>poly-=much (polyuria) · olig-=scant (oliguria, kidney warning) · an-=none (anuria).</strong> Volume ladder, not pain.'},
+
+{id:37,section:'suffix',sata:false,
+stem:'Two procedure suffixes: <span class="term">-plasty</span> vs <span class="term">-scopy</span> (e.g., rhinoplasty vs bronchoscopy). They mean:',
+options:[
+{letter:'A',text:'-plasty = surgical repair/reshaping; -scopy = visual examination with a scope',correct:true,rationale:'-plasty = surgically repair/reshape (rhinoplasty = reshape nose, arthroplasty = repair joint). -scopy = look inside with a scope (bronchoscopy = look in the airways, colonoscopy = look in the colon). One fixes, one looks.'},
+{letter:'B',text:'-plasty = look; -scopy = repair',correct:false,rationale:'Reversed. -plasty repairs, -scopy looks.'},
+{letter:'C',text:'Both mean removal',correct:false,rationale:'Removal is -ectomy. These are repair vs visualization.'},
+{letter:'D',text:'Both mean a new opening',correct:false,rationale:'New opening is -ostomy. -plasty=repair, -scopy=look.'}
+],vocabTip:'<strong>-plasty=REPAIR/reshape (rhinoplasty) · -scopy=LOOK with a scope (bronchoscopy).</strong> -graphy=record an image (angiography).'},
+
+{id:38,section:'suffix',sata:false,
+stem:'Two look-alike suffixes that mean different things: <span class="term">-stenosis</span> vs <span class="term">-sclerosis</span>.',
+options:[
+{letter:'A',text:'-stenosis = narrowing; -sclerosis = hardening',correct:true,rationale:'-stenosis = abnormal narrowing (aortic stenosis = narrowed valve; spinal stenosis). -sclerosis = hardening/stiffening (atherosclerosis = hardened, plaque-filled arteries; multiple sclerosis = hardened nerve patches). Narrow vs hard — different problems.'},
+{letter:'B',text:'-stenosis = hardening; -sclerosis = narrowing',correct:false,rationale:'Reversed. stenosis = narrow, sclerosis = hard.'},
+{letter:'C',text:'Both mean inflammation',correct:false,rationale:'Inflammation is -itis. These are structural changes.'},
+{letter:'D',text:'Both mean dilation/widening',correct:false,rationale:'Widening is -ectasis/-dilation. These mean narrowing and hardening.'}
+],vocabTip:'<strong>-stenosis=NARROWING (aortic stenosis) · -sclerosis=HARDENING (atherosclerosis).</strong> Narrow vs stiff.'},
+
+{id:39,section:'suffix',sata:false,
+stem:'Decode the cell-and-tissue suffixes: <span class="term">hemo/lysis</span> and <span class="term">hyper/trophy</span> / <span class="term">a/trophy</span>.',
+options:[
+{letter:'A',text:'-lysis = breakdown/destruction; -trophy = growth/development',correct:true,rationale:'-lysis = breakdown/separation (hemolysis = red cells bursting; dialysis = filtering/separating wastes). -trophy = development/nourishment of tissue: hypertrophy = overgrowth (enlarged muscle, e.g., left ventricular hypertrophy), atrophy = wasting away (a- = without nourishment → shrinking).'},
+{letter:'B',text:'-lysis = growth; -trophy = breakdown',correct:false,rationale:'Reversed. -lysis = break down, -trophy = development.'},
+{letter:'C',text:'Both mean inflammation',correct:false,rationale:'Inflammation is -itis. -lysis=breakdown, -trophy=growth.'},
+{letter:'D',text:'Both mean hardening',correct:false,rationale:'Hardening is -sclerosis. Different suffixes.'}
+],vocabTip:'<strong>-lysis=breakdown (hemolysis, dialysis) · -trophy=growth/nourish (hypertrophy=overgrowth, atrophy=wasting).</strong>'},
+
+{id:40,section:'clinical',sata:false,
+stem:'Final integrative decode. Two endings you\'ll see everywhere: <span class="term">-osis</span> and <span class="term">-oma</span>. In cyanosis and carcinoma, they mean:',
+options:[
+{letter:'A',text:'-osis = abnormal condition/state; -oma = tumor or mass',correct:true,rationale:'-osis = condition (often abnormal): cyan-osis = bluish condition, athero-sclerosis, thromb-osis (clot condition), necr-osis (tissue death). -oma = tumor/mass: carcin-oma (cancerous tumor), hemat-oma (mass of blood/bruise), lip-oma (fatty tumor). Pair these with any root and you can name the process AND whether it\'s a mass.'},
+{letter:'B',text:'-osis = tumor; -oma = condition',correct:false,rationale:'Reversed. -osis = condition, -oma = tumor/mass.'},
+{letter:'C',text:'Both mean inflammation',correct:false,rationale:'Inflammation is -itis. -osis=condition, -oma=mass.'},
+{letter:'D',text:'Both mean surgical removal',correct:false,rationale:'Removal is -ectomy. These name a state and a mass.'}
+],vocabTip:'<strong>-osis=abnormal CONDITION (cyanosis, thrombosis, necrosis) · -oma=TUMOR/mass (carcinoma, hematoma, lipoma).</strong> You now hold 40 building blocks.'}
 ];
 
 let answered={};
