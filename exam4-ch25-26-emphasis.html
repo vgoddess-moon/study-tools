@@ -60,8 +60,8 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 <body>
 <div class="container">
 <div class="exam-header">
-<h1>Ch 25 &amp; 26 &mdash; Professor Emphasis</h1>
-<p class="subtitle">Infectious Respiratory &middot; Critical Care &amp; Emergencies &middot; Deep Dive &middot; 34 Questions</p>
+<h1 id="hdrTitle">Ch 25 &amp; 26 &mdash; Professor Emphasis</h1>
+<p class="subtitle" id="hdrSub">Infectious Respiratory &middot; Critical Care &amp; Emergencies &middot; Deep Dive &middot; 34 Questions</p>
 </div>
 <div class="exam-info">The in-depth version. Every point your professor flagged, expanded into the full reasoning behind it &mdash; plus the high-yield he tested around it. Read every rationale; the gold tip explains why he stressed it.</div>
 <div class="legend">
@@ -82,9 +82,10 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 </div>
 </div>
 <script>
-const EXAM_ID='ms1-exam4-ch25-26-emphasis';
-const EXAM_LABEL='Ch 25-26 Professor Emphasis Deep Dive';
-const questions=[
+const _ch=new URLSearchParams(location.search).get('ch');
+const EXAM_ID=_ch?('ms1-exam4-ch'+_ch+'-emphasis'):'ms1-exam4-ch25-26-emphasis';
+const EXAM_LABEL=_ch?('Ch '+_ch+' Professor Emphasis'):'Ch 25-26 Professor Emphasis Deep Dive';
+const ALL_Q=[
 {id:1,chapter:25,prof:true,trap:true,sata:false,
 stem:'A patient with confirmed influenza asks why the provider won\'t prescribe a "Z-Pak" (azithromycin). The BEST nursing response reflects which principle?',
 options:[
@@ -411,11 +412,17 @@ options:[
 {letter:'D',text:'It is a normal finding in asthma',correct:false,rationale:'A silent chest in a symptomatic asthmatic is a medical emergency, never a normal finding.'}
 ],vocabTip:'<strong>Silent chest = EMERGENCY, not improvement.</strong> No wheeze + still distressed = almost no air moving = near-total obstruction → impending respiratory arrest. Prep bronchodilators, steroids, intubation.'}
 ];
+const questions=_ch?ALL_Q.filter(function(q){return String(q.chapter)===_ch;}):ALL_Q;
 
 let answered={};
 let selections={};
 
 function buildQuiz(){
+if(_ch){
+document.getElementById('hdrTitle').innerHTML='Ch '+_ch+' &mdash; Professor Emphasis';
+document.getElementById('hdrSub').innerHTML=(_ch==='25'?'Infectious Respiratory':'Critical Care &amp; Emergencies')+' &middot; Professor Emphasis &middot; '+questions.length+' Questions';
+document.title='Ch '+_ch+' — Professor Emphasis';
+}
 const area=document.getElementById('quizArea');area.innerHTML='';
 questions.forEach((q,idx)=>{
 const card=document.createElement('div');card.className='q-card';card.id=`qcard-${q.id}`;
