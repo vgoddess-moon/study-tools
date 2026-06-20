@@ -86,6 +86,11 @@ body.dark .bg-red-50 .text-stone-400 { color: #475569; }
 </head>
 <body class="bg-stone-50">
 <script>
+  // One-time reset: restore dark mode for users who got stuck light. Toggle still works after.
+  if (!localStorage.getItem('darkModeReset2026')) {
+    localStorage.setItem('darkMode', 'true');
+    localStorage.setItem('darkModeReset2026', '1');
+  }
   // Apply dark mode immediately to prevent flash
   if (localStorage.getItem('darkMode') !== 'false') document.body.classList.add('dark');
 </script>
