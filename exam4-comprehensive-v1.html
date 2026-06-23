@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam 4 Comprehensive &mdash; Ch 22-24 Focus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#fb7185}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#e11d48,#fb7185);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch22,.badge-ch23,.badge-ch24{background:#0a1f2a;color:#7dd3fc}
+.badge-prof{background:#2a1a06;color:#fbbf24}
+.badge-hy{background:#1a2332;color:#94a3b8}
+.badge-trap{background:#2a0a0a;color:#f87171;margin-left:auto}
+.badge-sata{background:#1a1f2e;color:#c084fc;border:1px solid #7c3aed}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#c084fc;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fb7185;background:#2a0a14}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#e11d48;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#be123c}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1f0a14;border-left:3px solid #fb7185;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#fecdd3;line-height:1.5}
+.vocab-tip strong{color:#fb7185}
+.prof-quote{background:#1a1406;border-left:3px solid #fbbf24;border-radius:0 8px 8px 0;padding:.6rem 1rem;margin-top:.6rem;display:none;font-size:.78rem;color:#fde68a;font-style:italic}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#fb7185;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Exam 4 Comprehensive &mdash; Ch 22-24</h1>
+<p class="subtitle">Respiratory Assessment &middot; Head &amp; Neck &middot; Infectious Respiratory &middot; 25 Questions</p>
+</div>
+<div class="exam-info">Covers your three biggest weak-area chapters cold. Every professor-emphasis concept, every vocab trap, every clinical reasoning chain he tested. Read every rationale &mdash; the gold tip is the takeaway that sticks.</div>
+<div class="legend">
+<span><span class="dot" style="background:#fbbf24"></span> Prof = he said &ldquo;know this&rdquo;</span>
+<span><span class="dot" style="background:#94a3b8"></span> HY = high-yield NCLEX</span>
+<span><span class="dot" style="background:#f87171"></span> Trap = the catch he set</span>
+<span><span class="dot" style="background:#7dd3fc"></span> Ch# = chapter badge</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Ch 22-24 Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<p style="color:#f9a8d4;font-size:.85rem;margin-top:.5rem">The seed capital plan needs the license. You just trained for it.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam4-comp-v1';
+const EXAM_LABEL='Exam 4 Comprehensive — Ch 22-24 Focus';
+const ALL_Q=[
+
+{id:1,chapter:22,prof:true,trap:true,sata:false,
+stem:'A nurse is monitoring a postoperative patient. Which sign represents the EARLIEST and most reliable indicator of hypoxia?',
+options:[
+{letter:'A',text:'Cyanosis of the lips and nail beds',correct:false,rationale:'Cyanosis is a LATE sign — it requires about 5 g/dL of deoxygenated hemoglobin to be visible. By the time you see blue, hypoxia has been going on for a while.'},
+{letter:'B',text:'Restlessness, anxiety, and agitation',correct:true,rationale:'The brain is the most oxygen-sensitive organ. When O2 starts dropping, the brain signals distress first as behavior changes: the patient becomes restless, anxious, or combative. This occurs BEFORE SpO2 drops to an alarming number, before cyanosis, and before changes in HR or RR. Always investigate sudden behavioral changes — never assume they are pain or confusion without ruling out hypoxia first.'},
+{letter:'C',text:'Bradycardia',correct:false,rationale:'Bradycardia in hypoxia is a LATE and ominous sign — near-terminal. Early hypoxia actually causes tachycardia as the heart compensates.'},
+{letter:'D',text:'Decreased respiratory rate',correct:false,rationale:'Early hypoxia causes tachypnea (increased rate) as the body tries to bring in more oxygen, not a decreased rate.'}
+],vocabTip:'<strong>Earliest hypoxia = restlessness/anxiety/agitation.</strong> Brain is first to suffer. Cyanosis = LATE. Bradycardia = near-terminal. Rule out hypoxia before labeling a confused patient as anxious or in pain.',
+profQuote:'"The very first sign of hypoxia is restlessness, anxiety, agitation. The brain is the first organ that says I need oxygen right now."'},
+
+{id:2,chapter:22,prof:true,trap:false,sata:false,
+stem:'The provider orders both SpO2 monitoring and capnography (ETCO2) for a ventilated patient. The key distinction between these two monitoring methods is:',
+options:[
+{letter:'A',text:'SpO2 measures CO2 in exhaled breath; capnography measures oxygen saturation on hemoglobin',correct:false,rationale:'This is reversed. SpO2 is the oxygen monitor; capnography measures CO2.'},
+{letter:'B',text:'SpO2 measures how much hemoglobin is carrying oxygen (oxygenation); capnography measures the CO2 in exhaled breath (ventilation) — they monitor completely different physiological problems',correct:true,rationale:'SpO2 (pulse oximetry) tells you about OXYGENATION — is the hemoglobin carrying O2? Normal 95-100%. Capnography (ETCO2) tells you about VENTILATION — is the patient blowing off CO2? Normal ETCO2 ~35-45 mmHg. A patient can have a normal SpO2 while retaining CO2 (e.g., hypoventilating, getting oxygen supplementation). You need both to get the full picture. Rising ETCO2 = hypoventilation; dropping ETCO2 = hyperventilation or poor perfusion.'},
+{letter:'C',text:'They are interchangeable — if SpO2 is normal, CO2 must also be normal',correct:false,rationale:'False and dangerous. A patient on supplemental oxygen can maintain a normal SpO2 while severely hypoventilating and retaining CO2. Capnography catches what SpO2 misses.'},
+{letter:'D',text:'Capnography is only used in the operating room, not at the bedside',correct:false,rationale:'ETCO2 is used in ICU, emergency, and procedure settings wherever ventilation monitoring matters.'}
+],vocabTip:'<strong>SpO2 = oxygenation (O2 on Hgb). Capnography/ETCO2 = ventilation (CO2 being exhaled).</strong> Normal ETCO2: 35-45 mmHg. ↑ETCO2 = hypoventilating/retaining CO2. ↓ETCO2 = hyperventilating or poor perfusion.',
+profQuote:'"SpO2 and capnography are monitoring two completely different things — oxygen carrying capacity versus how well the patient is actually breathing out carbon dioxide."'},
+
+{id:3,chapter:22,prof:true,trap:false,sata:false,
+stem:'A nurse assesses tactile (vocal) fremitus by placing hands on the patient\'s posterior chest while the patient says "ninety-nine." Which finding correctly pairs the assessment with the condition?',
+options:[
+{letter:'A',text:'Increased fremitus → consolidation (pneumonia); decreased/absent fremitus → pneumothorax or pleural effusion',correct:true,rationale:'Vocal fremitus is the vibration you feel on the chest wall as the patient speaks. Sound conducts better through solid/dense tissue, so CONSOLIDATION (fluid-filled or solid lung, as in pneumonia) INCREASES fremitus — you feel more vibration. Air or fluid in the pleural space (pneumothorax = air, effusion = fluid) BLOCKS sound transmission and DECREASES or eliminates fremitus. Think: solid = more vibration; air/fluid between lung and wall = less.'},
+{letter:'B',text:'Decreased fremitus → consolidation; increased fremitus → pleural effusion',correct:false,rationale:'Reversed. Consolidation (dense lung) increases fremitus; effusion/pneumothorax (space between lung and wall) decreases it.'},
+{letter:'C',text:'Fremitus is always equal bilaterally; any asymmetry is a technique error',correct:false,rationale:'Asymmetric fremitus is a real and meaningful clinical finding, not just a measurement error.'},
+{letter:'D',text:'Absent fremitus always confirms pneumothorax specifically',correct:false,rationale:'Absent/decreased fremitus can indicate pneumothorax OR pleural effusion — you need additional assessment (percussion, auscultation, CXR) to distinguish.'}
+],vocabTip:'<strong>Fremitus:</strong> ↑ (increased) = consolidation/pneumonia (dense lung conducts sound better) · ↓ (decreased/absent) = pneumothorax or effusion (air/fluid blocks transmission). Pair with percussion and breath sounds.',
+profQuote:'"Tactile fremitus increases with consolidation — your hand feels more vibration — and decreases or disappears with a pneumothorax or effusion because something is blocking the sound."'},
+
+{id:4,chapter:22,prof:true,trap:false,sata:false,
+stem:'A patient\'s pulmonary function test (PFT) shows FVC within normal limits but a reduced FEV1/FVC ratio (0.62). The nurse understands:',
+options:[
+{letter:'A',text:'FVC is the air exhaled in the first second; FEV1 is the total forced exhaled volume',correct:false,rationale:'This is reversed. FVC = TOTAL forced exhaled volume; FEV1 = the portion exhaled in the FIRST second.'},
+{letter:'B',text:'FVC = total volume of air forcibly exhaled; FEV1 = volume exhaled in first second; ratio < 0.70 indicates obstructive disease (airways narrow, air trapped, slow to exhale)',correct:true,rationale:'Forced VITAL Capacity (FVC) is the total volume you can forcibly exhale. FEV1 is the Forced Expiratory Volume in 1 second — how much of that total you can get out in the first second. Normally you exhale ~70-80% in the first second, so ratio ≥ 0.70. When FEV1/FVC < 0.70, air can\'t get OUT fast enough = OBSTRUCTIVE disease (asthma, COPD). Restrictive disease (pulmonary fibrosis) reduces both FVC and FEV1 but the ratio stays normal.'},
+{letter:'C',text:'Both FVC and FEV1 decrease equally in all lung diseases',correct:false,rationale:'Obstructive disease preferentially reduces FEV1 (can\'t exhale fast), reducing the ratio. Restrictive disease reduces both proportionally, preserving the ratio.'},
+{letter:'D',text:'A ratio of 0.62 is within normal limits',correct:false,rationale:'< 0.70 = obstructive pattern. This patient\'s airways are narrow (COPD/asthma pattern).'}
+],vocabTip:'<strong>PFTs:</strong> FVC = total air out. FEV1 = air out in 1st second. FEV1/FVC < 0.70 = OBSTRUCTIVE (asthma, COPD — can\'t empty fast). Both reduced, ratio normal = RESTRICTIVE (fibrosis — can\'t fill fully).',
+profQuote:'"FVC is the total volume out; FEV1 is the volume in the first second. The ratio tells you if it\'s obstructive — can they empty their lungs quickly — or if both are just reduced."'},
+
+{id:5,chapter:22,prof:true,trap:false,sata:false,
+stem:'A patient is prescribed supplemental oxygen via nasal cannula. The nurse knows that a nasal cannula delivers approximately:',
+options:[
+{letter:'A',text:'60-100% FiO2 — equivalent to a non-rebreather mask',correct:false,rationale:'60-100% is the non-rebreather mask range. Nasal cannula delivers much lower concentrations.'},
+{letter:'B',text:'24-44% FiO2 at 1-6 L/min; it is a low-flow device appropriate for patients who need mild supplemental oxygen',correct:true,rationale:'Nasal cannula delivers approximately 24% at 1 L/min, increasing by ~4% per additional liter, up to ~44% at 6 L/min. Above 6 L/min does not significantly increase FiO2 and causes mucosal drying/irritation. It is the most common delivery device — simple, comfortable, allows eating/talking. For patients who need higher concentrations, use a simple face mask (35-50%), Venturi (controlled %), or non-rebreather (60-100%).'},
+{letter:'C',text:'35-60% FiO2 — equivalent to a simple face mask',correct:false,rationale:'35-50% is the simple face mask range. Nasal cannula sits lower (24-44%).'},
+{letter:'D',text:'Exactly 100% FiO2 regardless of liter flow',correct:false,rationale:'100% FiO2 requires a non-rebreather mask with a properly sealed reservoir. Nasal cannula cannot deliver 100% because room air is entrained around the nasal prongs.'}
+],vocabTip:'<strong>Nasal cannula: 24-44% FiO2 at 1-6 L/min.</strong> Each +1 L/min ≈ +4% FiO2. Simple mask: 35-50%. Venturi: precise %. Non-rebreather: 60-100%. Know the device → know the range.',
+profQuote:'"Nasal cannula runs from 24 to 44 percent — 1 to 6 liters. That\'s the low-flow device. You go above that, you need a different delivery system."'},
+
+{id:6,chapter:22,prof:false,trap:false,sata:false,
+stem:'A nurse auscultates fine crackles (fine rales) bilaterally at the lung bases of a patient with dyspnea. This finding is best described as:',
+options:[
+{letter:'A',text:'Turbulent airflow through narrowed airways — characteristic of bronchospasm',correct:false,rationale:'Turbulent flow through narrowed airways produces WHEEZE, not crackles. Asthma and COPD exacerbations wheeze.'},
+{letter:'B',text:'Air popping through fluid-filled or collapsed small airways — heard in early pulmonary edema (heart failure), pneumonia, or atelectasis',correct:true,rationale:'Crackles (rales) are the sound of air moving through fluid-filled or collapsed small airways that pop open. Fine crackles at the BASES suggest fluid accumulation there — think early heart failure (fluid backup), or early pneumonia (inflammatory exudate). Coarse crackles are louder and associated with more secretion. They do NOT clear with coughing (unlike coarse rhonchi, which can clear).'},
+{letter:'C',text:'A normal finding during deep breathing exercises',correct:false,rationale:'Fine crackles at the bases during normal breathing indicate pathology, not normal physiology.'},
+{letter:'D',text:'Pleural surfaces rubbing together — classic for pleuritis',correct:false,rationale:'Pleural rub is a coarse, grating, leathery sound that disappears when breathing holds — it\'s the inflamed pleural layers rubbing, not fluid in the alveoli.'}
+],vocabTip:'<strong>Fine crackles (rales) at bases = fluid in alveoli/small airways.</strong> Think: early HF (fluid backup), pneumonia (exudate), atelectasis (collapsed alveoli). Don\'t confuse with wheeze (bronchospasm) or rhonchi (secretions in large airways).'},
+
+{id:7,chapter:22,prof:true,trap:true,sata:false,
+stem:'A patient with severe COPD (emphysema) has a SpO2 of 89% on room air. The provider is considering supplemental oxygen. The professor emphasized a unique safety concern specific to this patient population:',
+options:[
+{letter:'A',text:'COPD patients experience dangerous hyperventilation when given oxygen',correct:false,rationale:'The risk is hypoventilation (suppression of drive to breathe), not hyperventilation.'},
+{letter:'B',text:'Some long-standing COPD patients with chronic CO2 retention have adapted to breathe on a "hypoxic drive" — giving too much O2 can suppress this drive and cause hypoventilation/CO2 narcosis',correct:true,rationale:'Normal breathing is driven by rising CO2. In some COPD patients with chronic hypercapnia, the brain becomes desensitized to CO2 and switches to a HYPOXIC DRIVE (low O2 triggers breathing). If you flood these patients with oxygen, their primary drive to breathe is eliminated → hypoventilation → CO2 retention worsens → CO2 narcosis. Target SpO2 88-92% in COPD (not 95-100%) to maintain enough hypoxia to stimulate breathing while preventing dangerous hypoxemia. Note: most COPD patients still tolerate some supplemental O2 — the risk is with high-flow, high-FiO2 oxygen.'},
+{letter:'C',text:'COPD patients cannot use a nasal cannula under any circumstances',correct:false,rationale:'Nasal cannula is routinely used for COPD patients — at low flows (1-3 L/min) to maintain target SpO2 88-92%.'},
+{letter:'D',text:'Oxygen is absolutely contraindicated in all COPD patients',correct:false,rationale:'Oxygen is NOT contraindicated — it\'s titrated carefully. The target is SpO2 88-92%, not zero oxygen.'}
+],vocabTip:'<strong>COPD hypoxic drive:</strong> Some COPD patients retain CO2 chronically and breathe off low O2. High-flow O2 → suppresses drive → CO2 narcosis. Target SpO2 88-92%, use low-flow nasal cannula. NOT contraindicated — just titrated.',
+profQuote:'"In COPD patients who retain CO2, too much oxygen can actually suppress their drive to breathe — they\'ve adapted to breathe on low O2, so flooding them with it turns off that drive."'},
+
+{id:8,chapter:22,prof:false,trap:false,sata:false,
+stem:'A patient is in acute respiratory distress. Which position BEST promotes maximum lung expansion and eases the work of breathing?',
+options:[
+{letter:'A',text:'Supine (flat) with a small pillow under the knees',correct:false,rationale:'Supine presses abdominal contents up against the diaphragm, restricting expansion. This worsens respiratory distress.'},
+{letter:'B',text:'High-Fowler\'s position (upright, 60-90°), which allows the diaphragm to descend fully and maximizes lung expansion',correct:true,rationale:'Gravity pulls abdominal contents DOWN when the patient sits upright, allowing the diaphragm to fully contract and descend. This maximizes lung expansion and tidal volume. For patients who cannot sit completely upright, Semi-Fowler\'s (30-45°) is next best. Tripod position (leaning forward on elbows) is also used by patients with severe dyspnea because it fixes the shoulder girdle and lets accessory muscles work more effectively.'},
+{letter:'C',text:'Prone position to prevent aspiration',correct:false,rationale:'Prone has a specific role in ARDS management but is NOT the standard for acute respiratory distress — it requires special equipment and coordination.'},
+{letter:'D',text:'Trendelenburg (head down) to improve perfusion',correct:false,rationale:'Trendelenburg pushes abdominal contents toward the diaphragm, worsening respiratory distress. It is largely outdated even for shock.'}
+],vocabTip:'<strong>Respiratory distress → High-Fowler\'s (upright 60-90°).</strong> Gravity drops the diaphragm and opens lung fields. Tripod (forward lean on elbows) also helps by fixing the shoulder girdle for accessory muscle use.'},
+
+{id:9,chapter:23,prof:true,trap:true,sata:false,
+stem:'The professor stressed a critical distinction between total laryngectomy and partial laryngectomy. Which statement is CORRECT?',
+options:[
+{letter:'A',text:'Both procedures leave the patient at equal risk for aspiration',correct:false,rationale:'False. Total laryngectomy ELIMINATES aspiration risk; partial leaves some. This is the key clinical trap.'},
+{letter:'B',text:'Total laryngectomy permanently separates the airway from the digestive tract — the patient breathes through a stoma only, with NO risk of aspiration; partial laryngectomy preserves some laryngeal function but carries ongoing aspiration risk',correct:true,rationale:'In a TOTAL laryngectomy, the entire larynx is removed and the trachea is sewn to a permanent stoma in the neck. The food/air passages are completely and permanently separated — nothing can be aspirated because there is no connection between mouth/esophagus and the trachea. In a PARTIAL laryngectomy, some laryngeal structure remains, speech may be preserved, but the airway protection is impaired and the patient IS at risk for aspiration with swallowing. The total = no aspiration rule is a classic exam trap.'},
+{letter:'C',text:'After total laryngectomy, the patient can speak normally because the vocal cords remain',correct:false,rationale:'Total laryngectomy removes ALL laryngeal structures including the vocal cords. Normal speech is impossible. Patients communicate via electrolarynx, esophageal speech, or tracheoesophageal puncture (TEP) voice prosthesis.'},
+{letter:'D',text:'After partial laryngectomy, the patient has a permanent stoma and can never eat by mouth',correct:false,rationale:'Partial laryngectomy patients typically have a temporary tracheostomy and are eventually decannulated. They can eat by mouth — with swallowing therapy and techniques like the supraglottic swallow.'}
+],vocabTip:'<strong>Total laryngectomy = permanent stoma + ZERO aspiration risk</strong> (airway and digestive tract completely separated). Partial laryngectomy = some function preserved + ONGOING aspiration risk. This is the trap on exams.',
+profQuote:'"After a total laryngectomy, the airway and the esophagus are completely separated — there is no path for food to enter the lungs. Aspiration is impossible. Partial laryngectomy is the opposite; aspiration is a real ongoing concern."'},
+
+{id:10,chapter:23,prof:true,trap:false,sata:false,
+stem:'A nurse is teaching swallowing technique to a patient who underwent partial laryngectomy. The correct technique is:',
+options:[
+{letter:'A',text:'Swallow quickly with a backward head tilt to use gravity',correct:false,rationale:'Head tilt-back is the wrong direction — it opens the laryngeal inlet. A chin-tuck/downward position is safer for these patients.'},
+{letter:'B',text:'Supraglottic swallow: take a breath → hold it before and during the swallow → swallow → cough immediately before taking the next breath',correct:true,rationale:'The supraglottic swallow uses a voluntary breath-hold to close the vocal cords BEFORE the swallow, protecting the airway from aspiration. The sequence: (1) Inhale, (2) Hold breath — this closes the cords, (3) Swallow while holding, (4) Cough immediately BEFORE inhaling again to clear anything near the airway entrance. This technique allows partial laryngectomy patients to eat safely despite impaired laryngeal closure. A speech-language pathologist teaches it in detail; the nurse reinforces it.'},
+{letter:'C',text:'Eat while lying flat to slow food movement and reduce aspiration risk',correct:false,rationale:'Lying flat increases aspiration risk. Semi-Fowler\'s or upright is required during eating.'},
+{letter:'D',text:'Avoid all oral feeding permanently after partial laryngectomy',correct:false,rationale:'Partial laryngectomy patients can and do eat by mouth — with technique training and SLP follow-up.'}
+],vocabTip:'<strong>Supraglottic swallow (partial laryngectomy):</strong> Inhale → HOLD breath → swallow → COUGH before next breath. Hold = closes cords = no aspiration. Cough after = clears any that slipped past. SLP trains; nurse reinforces.',
+profQuote:'"The supraglottic swallow technique — hold your breath, swallow, then cough before you breathe again — that\'s how partial laryngectomy patients protect their airway when eating."'},
+
+{id:11,chapter:23,prof:true,trap:false,sata:false,
+stem:'A patient has a new tracheostomy. The professor specified exactly what must be kept at the bedside at all times. Which set is correct?',
+options:[
+{letter:'A',text:'Cardiac monitor, defibrillator, and crash cart only',correct:false,rationale:'These are important in many settings but do not directly address a tracheostomy-specific emergency like accidental decannulation.'},
+{letter:'B',text:'Spare tracheostomy tube (same size AND one size smaller), obturator, suction equipment, bag-valve-mask, and extra holder/ties',correct:true,rationale:'Accidental decannulation can cause rapid asphyxiation. The bedside kit addresses each emergency: (1) Same-size spare tube to replace immediately; (2) One-size-smaller tube if the stoma begins to close and a larger tube won\'t fit; (3) Obturator (guide) to reinsert the outer cannula without trauma — must stay with the patient; (4) Suction to clear secretions; (5) Bag-valve-mask to ventilate if the tube cannot be replaced immediately; (6) Extra ties/holder in case the securing device breaks. The obturator is removed immediately after insertion but must be taped to the head of the bed.'},
+{letter:'C',text:'Only suction equipment is needed at the bedside',correct:false,rationale:'Suction alone is insufficient. If the tube falls out and you cannot reinsert it, you need the extra tube, obturator, and BVM.'},
+{letter:'D',text:'Intubation tray with laryngoscope and oral ET tubes',correct:false,rationale:'Oral ET tube intubation equipment is not the right emergency kit for a tracheostomy — the standard approach is to replace the trach tube via the existing stoma, not to re-intubate orally.'}
+],vocabTip:'<strong>Tracheostomy bedside must-haves:</strong> Extra trach tube (same size + 1 size smaller) · obturator taped to head of bed · suction · BVM · extra ties. Obturator guides insertion then is REMOVED immediately — it cannot stay in the tube.',
+profQuote:'"At every tracheostomy patient bedside, you must have the same-size tube, a size smaller, the obturator taped to the head of the bed, suction, and a bag-valve-mask. Non-negotiable."'},
+
+{id:12,chapter:23,prof:true,trap:false,sata:false,
+stem:'A patient\'s jaw is wired shut (intermaxillary fixation) after a mandibular fracture. The professor stressed one specific item that must stay with this patient at all times. What is it and why?',
+options:[
+{letter:'A',text:'An oral care kit — to maintain oral hygiene through the wires',correct:false,rationale:'Oral hygiene is important but is not the life-safety item the professor flagged.'},
+{letter:'B',text:'Wire cutters at the bedside at ALL times — if the patient vomits or has a respiratory emergency, the wires must be cut immediately to open the airway and prevent aspiration or asphyxiation',correct:true,rationale:'When the jaw is wired closed, the patient CANNOT open their mouth. If they vomit, they cannot spit it out and will aspirate into the wired-shut airway — rapidly fatal. Wire cutters (or scissors for rubber bands) must be immediately accessible — NOT locked in a drawer, NOT at the nurse\'s station. In the event of vomiting or respiratory arrest: cut the wires first, then manage the airway. This is the safety priority the professor made explicit.'},
+{letter:'C',text:'A continuous-reading SpO2 monitor on the finger',correct:false,rationale:'SpO2 monitoring is appropriate but is not the one item the professor specifically flagged for this patient.'},
+{letter:'D',text:'Ice packs applied to the jaw every 2 hours',correct:false,rationale:'Ice is for swelling management in the acute phase, not the life-safety item.'}
+],vocabTip:'<strong>Jaw wired shut → wire cutters at the bedside always.</strong> Vomiting with a wired jaw = aspiration/asphyxiation. Cut first, then manage airway. Teach patient + family before discharge: wire cutters go everywhere with them.',
+profQuote:'"Wire cutters must be at the bedside — and I mean at the bedside — for a jaw-wired patient. If they vomit, you have seconds to cut those wires or they aspirate and die."'},
+
+{id:13,chapter:23,prof:true,trap:true,sata:false,
+stem:'A nurse enters the room of a patient who had a radical neck dissection and finds bright red arterial blood spurting from the neck. This represents carotid artery rupture. The IMMEDIATE nursing action is:',
+options:[
+{letter:'A',text:'Leave the patient immediately to call the Rapid Response Team and gather supplies',correct:false,rationale:'NEVER leave this patient alone — leaving = blood loss continues uncontrolled = death. You stay AND call for help simultaneously (call button, shout for staff to come).'},
+{letter:'B',text:'Apply firm direct pressure with gloved hands, stay at the bedside, and call for help without leaving — do NOT leave the patient',correct:true,rationale:'Carotid artery rupture is a surgical emergency with mortality rates >50%. Your immediate job: STAY, COMPRESS. Apply the firmest manual pressure possible with gloved hands or whatever sterile material is immediately available. Use the call button or shout loudly for help to come TO you. The patient will likely be terrified — stay calm, maintain pressure, keep them as calm as possible. Surgical repair is the definitive treatment; your job is to keep them alive until OR. Note: this complication is most common 7-10 days post-op when wound breakdown exposes the vessel.'},
+{letter:'C',text:'Apply a tourniquet tightly around the neck to stop the bleeding',correct:false,rationale:'A neck tourniquet would occlude both carotid arteries and the airway — a death sentence. Firm local pressure is the correct approach.'},
+{letter:'D',text:'Start a large-bore IV and give normal saline rapidly while laying the patient flat',correct:false,rationale:'IV access and fluids matter, but they\'re secondary to hemorrhage control. You need to stop the bleeding first.'}
+],vocabTip:'<strong>Carotid rupture = STAY + PRESS. Never leave.</strong> Apply maximum direct pressure with gloved hands. Call for help to come to you. Keep patient calm. OR is definitive. Peak risk 7-10 days post-op (wound breakdown). Use call button; shout; do not leave.',
+profQuote:'"If you walk in and see carotid artery hemorrhage, you put your gloved hands on that wound with maximum pressure and you do NOT leave that patient. You call for help to come to you."'},
+
+{id:14,chapter:23,prof:false,trap:false,sata:false,
+stem:'A patient with a cuffed tracheostomy tube with an inner cannula develops increased secretions and respiratory distress. The FIRST nursing action is:',
+options:[
+{letter:'A',text:'Call the rapid response team immediately',correct:false,rationale:'RRT is called for unresolved emergencies — the first action should address the most common, fixable cause before escalating.'},
+{letter:'B',text:'Remove and clean (or replace with a clean spare) the inner cannula — it is the most common cause of tracheostomy obstruction',correct:true,rationale:'The inner cannula is a removable inner tube within the outer (main) cannula. Secretions accumulate on its walls, causing partial or complete obstruction. Removing and cleaning or replacing it is the FIRST action because it directly addresses the most common cause of tracheostomy distress. After removing the inner cannula, suction the outer cannula if secretions remain. Only after these simple interventions fail should you escalate.'},
+{letter:'C',text:'Deflate the tracheostomy cuff immediately',correct:false,rationale:'Deflating the cuff addresses air leak, not airway obstruction. It might actually worsen aspiration risk.'},
+{letter:'D',text:'Upsize the tracheostomy tube',correct:false,rationale:'Changing to a larger tube is a provider/RT decision and not the first-line nursing action for secretion obstruction.'}
+],vocabTip:'<strong>Trach distress first action = remove + clean the inner cannula.</strong> Most obstruction is dried secretions on the inner cannula. Remove → clean → replace. Then suction the outer. Then escalate if unresolved.'},
+
+{id:15,chapter:23,prof:false,trap:false,sata:false,
+stem:'After a radical neck dissection with a Jackson-Pratt (JP) drain in place, which assessment finding requires IMMEDIATE notification of the surgical team?',
+options:[
+{letter:'A',text:'30 mL of serosanguineous drainage during the first 24 hours post-op',correct:false,rationale:'Serosanguineous drainage in the first 24 hours is expected. 30 mL is within normal expected range.'},
+{letter:'B',text:'Sudden large amounts of bright red blood OR milky/creamy drainage (chyle) OR signs that a hematoma is compressing the airway',correct:true,rationale:'Three urgent drain findings: (1) Sudden bright red blood = arterial hemorrhage, most dangerous (carotid exposure risk); (2) Milky/chyle = thoracic duct injury (the duct drains lymph from the left neck; injury causes chylous leakage); (3) Rapidly filling hematoma can compress the trachea/airway externally — an expanding hematoma in the neck is an airway emergency. Normal drainage decreases from serosanguineous to serous over 24-48 hours.'},
+{letter:'C',text:'Drain becomes clogged on postoperative day 3',correct:false,rationale:'A clogged drain several days post-op needs assessment but is not an immediate emergency like hemorrhage or chyle leak.'},
+{letter:'D',text:'Small amounts of clear serous fluid at day 2',correct:false,rationale:'Clear serous drainage at day 2 is normal — the inflammatory exudate is clearing.'}
+],vocabTip:'<strong>Neck dissection drain: report immediately:</strong> (1) Bright red blood = arterial bleed, (2) Milky/chyle = thoracic duct injury, (3) Rapidly enlarging hematoma = airway compression risk. Normal: serosanguineous → serous over 24-48 hrs.'},
+
+{id:16,chapter:24,prof:true,trap:false,sata:false,
+stem:'The professor specifically emphasized the genetics of cystic fibrosis. CF is inherited as:',
+options:[
+{letter:'A',text:'X-linked recessive — sons of carrier mothers are always affected',correct:false,rationale:'X-linked recessive affects the sex chromosomes (hemophilia, color blindness). CF is an autosomal (non-sex chromosome) recessive condition.'},
+{letter:'B',text:'Autosomal recessive — a child must inherit a defective CFTR gene from BOTH parents; the mutation is on chromosome 7',correct:true,rationale:'Cystic fibrosis is caused by mutations in the CFTR gene (cystic fibrosis transmembrane conductance regulator) on chromosome 7. Because it is autosomal RECESSIVE, two copies of the defective gene are required for disease — one from each parent. If both parents are carriers, each pregnancy has a 25% chance of having CF. Carriers (one copy) have no disease symptoms. The most common CFTR mutation is ΔF508. CFTR controls chloride ion channels; defective CFTR leads to thick, sticky mucus throughout the body (lungs, pancreas, liver, intestines).'},
+{letter:'C',text:'Autosomal dominant — one copy of the mutated gene causes the disease',correct:false,rationale:'Autosomal dominant means one copy is enough (e.g., Huntington\'s disease). CF requires two defective copies — it is recessive.'},
+{letter:'D',text:'A de novo mutation; parents are never carriers',correct:false,rationale:'Most CF cases occur in children of two carrier parents. CF is a classic inherited recessive condition, not typically de novo.'}
+],vocabTip:'<strong>CF = autosomal recessive + chromosome 7 (CFTR gene).</strong> Both parents must contribute a defective allele. 25% chance per pregnancy if both parents are carriers. CFTR defect → defective Cl⁻ channels → thick sticky mucus → obstructs lungs, pancreas, liver.',
+profQuote:'"Cystic fibrosis is autosomal recessive, chromosome 7. Both parents have to carry the defective gene. That\'s a must-know."'},
+
+{id:17,chapter:24,prof:true,trap:false,sata:false,
+stem:'A patient with cystic fibrosis is admitted to the hospital. The professor specified that CF patients require specific isolation. The correct precautions are:',
+options:[
+{letter:'A',text:'Airborne precautions only — N95 mask for all staff',correct:false,rationale:'Airborne precautions address organisms spread through droplet nuclei (TB, measles). CF patients have chronically colonized airways; the risk is contact and droplet of their organisms.'},
+{letter:'B',text:'Contact AND Droplet precautions — CF patients harbor drug-resistant organisms (especially Pseudomonas aeruginosa and Burkholderia cepacia); they must also be cohorted AWAY from other CF patients to prevent cross-colonization',correct:true,rationale:'CF patients chronically colonize dangerous pathogens in their thick mucus — particularly Pseudomonas aeruginosa and Burkholderia cepacia (cepacia complex). These are transmitted by contact and droplet. The critical extra rule: CF patients must NOT be placed near or allowed contact with OTHER CF patients, because cross-infection between CF patients transmits these organisms and dramatically worsens prognosis (B. cepacia colonization can cause fatal "cepacia syndrome").'},
+{letter:'C',text:'Standard precautions only — CF is a genetic disease and not contagious',correct:false,rationale:'CF itself is not contagious, but the organisms colonizing CF patients\' airways ARE transmissible, especially to other CF patients. Isolation protects both directions.'},
+{letter:'D',text:'Reverse isolation (protective environment) — CF patients are severely immunocompromised',correct:false,rationale:'CF patients have normal immune systems — the problem is structural (thick mucus traps organisms), not immunocompromise. Reverse isolation protects an immunocompromised patient FROM others; that\'s the wrong direction here.'}
+],vocabTip:'<strong>CF isolation = Contact + Droplet.</strong> Colonized with Pseudomonas + Burkholderia. NEVER place CF patients near each other (cross-infection especially B. cepacia = fatal). Separate rooms; no shared equipment.',
+profQuote:'"CF patients get contact and droplet precautions because of the organisms in that thick mucus, and under no circumstances do you put two CF patients near each other."'},
+
+{id:18,chapter:24,prof:false,trap:false,sata:false,
+stem:'When collecting a sputum specimen for culture and sensitivity from a patient with suspected bacterial pneumonia, the BEST technique is:',
+options:[
+{letter:'A',text:'Any time of day; have the patient spit into the specimen cup; a small amount is acceptable',correct:false,rationale:'Timing, technique, and volume all affect specimen quality. A random spit sample is likely contaminated with oropharyngeal flora.'},
+{letter:'B',text:'Early morning, after having the patient rinse their mouth (not brush teeth), then produce a deep cough; collect before the first antibiotic dose if possible',correct:true,rationale:'Best sputum specs: (1) EARLY MORNING — secretions accumulate overnight, more organisms present; (2) Rinse mouth with water ONLY (no mouthwash/toothbrushing — this removes oral flora but preserves the specimen quality and doesn\'t kill organisms in the specimen); (3) DEEP COUGH — produce sputum from the lower airways, not a throat-cleared spit; (4) BEFORE first antibiotic — antibiotics suppress organisms within hours, giving false-negative cultures. A valid sputum specimen has > 25 WBCs and < 10 epithelial cells per low-power field. If patient can\'t produce sputum, bronchoscopy/BAL may be needed.'},
+{letter:'C',text:'Collect after the first day of antibiotics so the bacteria are more concentrated',correct:false,rationale:'Antibiotics suppress organisms — waiting until after treatment makes culture results unreliable or falsely negative.'},
+{letter:'D',text:'Nasopharyngeal swab is equivalent to sputum culture for pneumonia diagnosis',correct:false,rationale:'NP swabs sample the upper airway/nasopharynx, not the lower respiratory tract where pneumonia pathogens reside. They are used for flu, RSV, COVID testing — not bacteria causing pneumonia.'}
+],vocabTip:'<strong>Best sputum specimen:</strong> Early AM + mouth rinse (water only) + deep cough + BEFORE antibiotics. Valid = >25 WBCs, <10 epi cells per LPF. Culture FIRST, then start empiric antibiotics, narrow when sensitivities return.'},
+
+{id:19,chapter:24,prof:true,trap:true,sata:false,
+stem:'A patient with asthma reports that they took ibuprofen (Advil) for a headache and is now wheezing. The nurse correctly identifies this as:',
+options:[
+{letter:'A',text:'A coincidence — ibuprofen has no relationship to asthma',correct:false,rationale:'Ibuprofen is an NSAID and can absolutely trigger bronchoconstriction in susceptible asthma patients. This is the trap the professor set.'},
+{letter:'B',text:'Aspirin-exacerbated respiratory disease (AERD) — NSAIDs including ibuprofen, aspirin, and naproxen can trigger severe bronchospasm in susceptible patients; the safe alternative is acetaminophen',correct:true,rationale:'AERD (formerly Samter\'s Triad: asthma + nasal polyps + aspirin/NSAID sensitivity) is a recognized condition in ~10% of adult asthmatics. NSAIDs block COX-1, shifting arachidonic acid metabolism toward leukotriene production — leukotrienes cause potent bronchoconstriction. The trap: this reaction is NOT a true allergy (IgE-mediated); it\'s a pharmacological intolerance. ALL NSAIDs (aspirin, ibuprofen, naproxen, ketorolac) can trigger it. Safe alternatives: acetaminophen (Tylenol) and celecoxib (selective COX-2 inhibitor) are generally safe.'},
+{letter:'C',text:'Normal — the patient should take a higher dose of ibuprofen to reduce inflammation',correct:false,rationale:'More NSAID would worsen the bronchospasm, not treat it. NSAIDs are the cause.'},
+{letter:'D',text:'Only aspirin causes this reaction; ibuprofen is safe for all asthmatics',correct:false,rationale:'All NSAIDs that inhibit COX-1 can cause this reaction. Ibuprofen, naproxen, and ketorolac are just as capable as aspirin.'}
+],vocabTip:'<strong>NSAIDs (aspirin, ibuprofen, naproxen) → bronchospasm in AERD asthma.</strong> COX-1 block → ↑ leukotrienes → bronchoconstriction. Safe alternative: acetaminophen or celecoxib. ~10% of asthmatics are affected. NOT an IgE allergy.',
+profQuote:'"NSAIDs — that includes ibuprofen, not just aspirin — can trigger an asthma attack in patients with aspirin-exacerbated respiratory disease. The safe choice for pain is Tylenol."'},
+
+{id:20,chapter:24,prof:false,trap:false,sata:false,
+stem:'Influenza is classified as which type of transmission precaution and what does the nurse wear?',
+options:[
+{letter:'A',text:'Airborne — requires N95 respirator, negative-pressure room, and door closed at all times',correct:false,rationale:'Airborne precautions are for TB, measles, chickenpox (VAZ), and COVID-19. Influenza is DROPLET. The N95 is not required for routine flu care (only if performing aerosol-generating procedures).'},
+{letter:'B',text:'Droplet — surgical mask within 3-6 feet of the patient, with gown and gloves for contact; negative-pressure room is NOT required',correct:true,rationale:'Influenza spreads via large respiratory droplets (> 5 microns) that fall within about 3-6 feet. Droplet precautions require a surgical (procedure) mask when within 3-6 feet, gown and gloves for direct patient contact, and a private room (or cohorting with other flu patients). A negative-pressure room is NOT required — large droplets don\'t stay suspended in the air the way TB does. If aerosol-generating procedures (e.g., intubation, bronchoscopy) are performed, upgrade to N95.'},
+{letter:'C',text:'Contact only — gown and gloves are sufficient; no mask needed',correct:false,rationale:'Contact precautions alone are inadequate for droplet-spread influenza. A mask is required when within 3-6 feet.'},
+{letter:'D',text:'Standard precautions — flu is not transmissible between patients',correct:false,rationale:'Influenza is highly contagious — standard precautions alone are insufficient. Droplet precautions are required.'}
+],vocabTip:'<strong>Influenza = DROPLET precautions.</strong> Surgical mask within 3-6 ft, gown + gloves for contact. Private room preferred. NO negative-pressure room needed. Upgrade to N95 only for aerosol-generating procedures (intubation, bronch).'},
+
+{id:21,chapter:24,prof:true,trap:false,sata:false,
+stem:'The professor contrasted COVID-19 with influenza, emphasizing why COVID assessment must be whole-body. His key teaching point was:',
+options:[
+{letter:'A',text:'COVID-19 is always a milder illness than influenza and requires less intensive nursing assessment',correct:false,rationale:'Not reliably true. COVID can be far more severe and multisystem than flu.'},
+{letter:'B',text:'Unlike influenza (primarily a respiratory illness), COVID-19 is a multisystem disease that attacks a patient\'s weakest organ system based on their individual comorbidities — causing clots, kidney injury, cardiac damage, or neurological effects depending on the patient',correct:true,rationale:'Flu is predominantly a respiratory illness with predictable presentation. COVID-19 uses ACE2 receptors found throughout the body and creates systemic endothelial damage and hypercoagulability. So a diabetic might present with DKA, a cardiac patient with myocarditis, an elderly patient with a stroke, and a healthy young person with lung disease — all from COVID-19. The professor\'s point: assess the whole body, not just the lungs. Complications include DVT/PE (hypercoagulable state), AKI, myocarditis, encephalitis, cytokine storm, and long-COVID effects.'},
+{letter:'C',text:'Both flu and COVID are primarily treated with the same antiviral (oseltamivir)',correct:false,rationale:'Oseltamivir is for influenza. COVID-19 uses different antivirals (remdesivir, Paxlovid/nirmatrelvir-ritonavir) with different indications. They are not interchangeable.'},
+{letter:'D',text:'COVID-19 cannot cause coagulation abnormalities',correct:false,rationale:'Hypercoagulability (DVT, PE, stroke) is one of the most dangerous COVID complications. Anticoagulation is often part of management.'}
+],vocabTip:'<strong>Flu = mostly respiratory. COVID = multisystem.</strong> COVID hits the patient\'s weakest system (clots, kidneys, heart, brain) based on their comorbidities. Assess head to toe. Hypercoagulable → DVT/PE risk. Not just a lung illness.',
+profQuote:'"COVID-19 specifically targets whatever is the weakest part of that patient\'s body. If they have bad kidneys, the kidneys fail. If they have heart disease, the heart gets hit. You have to assess the entire body."'},
+
+{id:22,chapter:24,prof:false,trap:false,sata:false,
+stem:'A patient with confirmed influenza asks why the provider will not prescribe antibiotics. The BEST nursing response is:',
+options:[
+{letter:'A',text:'"The doctor probably forgot — I\'ll ask them to add an antibiotic order."',correct:false,rationale:'Antibiotics are not indicated for viral influenza and requesting one would be inappropriate.'},
+{letter:'B',text:'"Influenza is caused by a virus. Antibiotics kill bacteria, not viruses, so they have no effect on the flu and taking them unnecessarily promotes antibiotic resistance. The antiviral oseltamivir (Tamiflu) can shorten the duration if started within 48 hours."',correct:true,rationale:'This response correctly explains the mechanism (antibiotics vs antivirals), the risk of unnecessary antibiotics (resistance), and the actual treatment option (oseltamivir for flu within 48 hours). Antibiotics may ONLY be added if a secondary bacterial pneumonia develops as a complication of influenza. Treatment priorities for flu: (1) Supportive care (rest, fluids, fever management), (2) Oseltamivir if within 48 hours and indicated, (3) Monitor for bacterial superinfection (if fever returns after improving, worsening cough, new infiltrate on CXR).'},
+{letter:'C',text:'"Antibiotics are too expensive, but they would work if we had them."',correct:false,rationale:'Cost is not the reason. Antibiotics simply do not work against viruses regardless of cost.'},
+{letter:'D',text:'"We\'ll add antibiotics if the fever persists for more than one day."',correct:false,rationale:'Persistent fever alone is not a reason to add antibiotics — you assess for secondary bacterial pneumonia with more specific findings before treating.'}
+],vocabTip:'<strong>Flu = VIRUS → antibiotics = useless.</strong> Antibiotic use for viruses → resistance. Flu treatment: supportive + oseltamivir within 48 hrs. Antibiotics ONLY if secondary bacterial pneumonia confirmed (new infiltrate, worsening after initial improvement).'},
+
+{id:23,chapter:22,prof:true,trap:true,sata:false,
+stem:'The professor warned about absorptive atelectasis as a risk when delivering high-concentration oxygen. This occurs because:',
+options:[
+{letter:'A',text:'High FiO2 causes the airways to swell, narrowing them and causing alveolar collapse',correct:false,rationale:'High FiO2 does not cause airway swelling. The mechanism is nitrogen washout, not airway edema.'},
+{letter:'B',text:'Nitrogen, which normally keeps alveoli open by preventing complete gas absorption, is washed out by high O2; once all the oxygen is absorbed by the bloodstream, the alveolus collapses on itself',correct:true,rationale:'Room air is ~78% nitrogen. Nitrogen is relatively insoluble in blood, so it stays in the alveolus and acts as a "stent" — preventing the alveolus from completely collapsing after oxygen is absorbed. At high FiO2 (especially 100% O2), nitrogen is washed out of the alveoli. Now the only gas is highly soluble oxygen. When blood absorbs all the oxygen, there is nothing left to hold the alveolus open → it collapses → absorptive atelectasis. This is why prolonged 100% O2 is avoided when lower concentrations suffice, and why PEEP is used in ventilated patients.'},
+{letter:'C',text:'High O2 causes oxygen toxicity to the alveolar surfactant, destroying it',correct:false,rationale:'Oxygen toxicity does damage the alveolar epithelium with prolonged exposure, but the acute mechanism of absorptive atelectasis is specifically nitrogen washout, not surfactant destruction.'},
+{letter:'D',text:'100% O2 increases surfactant production, making alveoli too compliant and causing them to collapse',correct:false,rationale:'High O2 actually impairs surfactant function over time; it doesn\'t increase production. And the mechanism being tested is nitrogen washout.'}
+],vocabTip:'<strong>Absorptive atelectasis:</strong> High FiO2 washes out nitrogen → no nitrogen "stent" in alveolus → O2 fully absorbed by blood → alveolus collapses. Avoid prolonged 100% O2. Use lowest effective FiO2. PEEP in vented patients prevents this.',
+profQuote:'"At 100% oxygen, nitrogen gets washed out of the alveoli. Nitrogen keeps those alveoli open — without it, the alveolus collapses once all the oxygen is absorbed. That\'s absorptive atelectasis."'},
+
+{id:24,chapter:22,prof:false,trap:false,sata:false,
+stem:'When assessing a patient\'s response to oxygen therapy, which finding indicates the therapy is working effectively?',
+options:[
+{letter:'A',text:'The patient\'s skin remains pale and they continue to report feeling short of breath',correct:false,rationale:'Continued pallor and dyspnea suggest the therapy is not adequate — the patient is not responding.'},
+{letter:'B',text:'SpO2 trends toward the target range (95-100% in most patients; 88-92% in COPD), the patient\'s respiratory rate normalizes, and they report less dyspnea',correct:true,rationale:'Effective O2 therapy produces: (1) Rising SpO2 toward goal — the primary measurable parameter; (2) Decreasing respiratory rate — the body no longer has to work as hard to get O2; (3) Decreased dyspnea — the subjective improvement; (4) Improving mental status — restlessness/confusion resolves as the brain gets O2. Also check for complications: oxygen toxicity (prolonged high FiO2), absorption atelectasis (high FiO2), and in COPD, CO2 retention.'},
+{letter:'C',text:'The patient\'s oxygen flow rate must be increased every 30 minutes regardless of SpO2',correct:false,rationale:'Oxygen is titrated to response — if SpO2 is on target and the patient is comfortable, you do NOT routinely increase the flow rate.'},
+{letter:'D',text:'The patient\'s SpO2 reaches exactly 100% on all patients',correct:false,rationale:'100% SpO2 is actually too much oxygen for COPD patients (target 88-92%) and may indicate unnecessary O2 use in others. Titrate to the lowest effective dose.'}
+],vocabTip:'<strong>O2 therapy working:</strong> SpO2 → target (95-100% most; 88-92% COPD) + RR normalizes + dyspnea ↓ + mental status improves. Titrate to lowest effective flow. Monitor for complications: O2 toxicity, absorptive atelectasis, ↑CO2 in COPD.'},
+
+{id:25,chapter:23,prof:false,trap:false,sata:false,
+stem:'A patient with a permanent tracheostomy is being discharged home. Which teaching point has the highest priority for safety?',
+options:[
+{letter:'A',text:'Avoid all exercise and outdoor activities permanently',correct:false,rationale:'Patients with permanent tracheostomies can and do exercise and go outdoors. Appropriate adaptations (stoma cover/filter, humidification) allow normal activities.'},
+{letter:'B',text:'Never submerge the stoma in water; cover it outdoors to filter/humidify air; recognize signs of stoma infection; know emergency airway management and when to call 911',correct:true,rationale:'Priority teaching for permanent tracheostomy: (1) WATER: no swimming, be careful in showers — water entering the stoma causes drowning/aspiration; (2) OUTDOOR STOMA COVER: a foam cover or filter humidifies and filters inspired air, replacing what the nose/upper airway normally does; (3) INFECTION SIGNS: redness, purulent secretions, bleeding, increased mucus — need medical attention; (4) EMERGENCY: if tube displaced, call 911, keep stoma open (use obturator), do NOT cover the stoma. Patient/family must be competent in stoma suction and tube cleaning before discharge.'},
+{letter:'C',text:'Singing is permanently prohibited',correct:false,rationale:'Some patients with tracheoesophageal puncture (TEP) voice prostheses can sing. This is not the priority safety teaching.'},
+{letter:'D',text:'Change the tracheostomy tube daily without any instruction or supervision',correct:false,rationale:'Tracheostomy tube changes require skill, are done at specified intervals (not daily), and must be taught formally before patients are expected to do it independently at home.'}
+],vocabTip:'<strong>Trach home teaching priorities:</strong> No water submersion (drowning risk) · stoma cover outdoors (filters/humidifies) · infection signs (redness/pus/blood) · emergency plan (call 911, keep stoma open) · suction/cleaning competency before discharge.'}
+
+];
+
+let answered={};
+let selections={};
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F','G','H'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+ALL_Q.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">CH ${q.chapter}</span>`;
+badges+=q.prof?`<span class="badge badge-prof">Prof</span>`:`<span class="badge badge-hy">HY</span>`;
+if(q.trap)badges+=`<span class="badge badge-trap">Trap</span>`;
+if(q.sata)badges+=`<span class="badge badge-sata">SATA</span>`;
+const optsHtml=q.options.map(o=>`<div class="opt" id="opt-${q.id}-${o.letter}" onclick="selectOption(${q.id},'${o.letter}',${q.sata})"><div class="opt-letter">${o.letter}.</div><div class="opt-text">${o.text}<div class="opt-rationale" id="rat-${q.id}-${o.letter}"><strong>${o.correct?'✓ Correct — ':'✗ — '}</strong>${o.rationale}</div></div></div>`).join('');
+const profHtml=q.profQuote?`<div class="prof-quote" id="prof-${q.id}">Why he stressed it &mdash; ${q.profQuote}</div>`:'';
+const sataHint=q.sata?`<div class="sata-hint">Select ALL that apply</div>`:'';
+card.innerHTML=`<div class="q-top"><span class="q-num">Q${idx+1}</span>${badges}</div><div class="q-stem">${q.stem}</div>${sataHint}<div class="opts">${optsHtml}</div><button class="btn-submit" id="btn-${q.id}" onclick="submitAnswer(${q.id})" disabled>Submit</button><div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>${profHtml}`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById(`opt-${qId}-${letter}`);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const prev=document.getElementById(`opt-${qId}-${l}`);if(prev)prev.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById(`btn-${qId}`).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});
+document.getElementById(`tip-${qId}`).style.display='block';
+const pf=document.getElementById(`prof-${qId}`);if(pf)pf.style.display='block';
+const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);btn.disabled=true;btn.textContent=isCorrect?'Correct!':'Review the reasoning';
+updateProgress();saveState();
+if(Object.keys(answered).length===ALL_Q.length)showScore();
+}
+
+function updateProgress(){const pct=(Object.keys(answered).length/ALL_Q.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
+
+function showScore(){
+let correct=0;
+ALL_Q.forEach(q=>{if(answered[q.id]){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];if(c.length===s.length&&c.every(l=>s.includes(l)))correct++;}});
+const pct=Math.round((correct/ALL_Q.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=`${correct} of ${ALL_Q.length} correct`;
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const rec={score:pct,correct,total:ALL_Q.length,date:new Date().toLocaleDateString()};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct,total:ALL_Q.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const state=JSON.parse(saved);answered=state.answered||{};selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const rat=document.getElementById(`rat-${qId}-${o.letter}`);if(rat)rat.style.display='block';}});const tip=document.getElementById(`tip-${qId}`);if(tip)tip.style.display='block';const pf=document.getElementById(`prof-${qId}`);if(pf)pf.style.display='block';const card=document.getElementById(`qcard-${qId}`);if(card)card.classList.add(ok?'answered-correct':'answered-wrong');const btn=document.getElementById(`btn-${qId}`);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';}});
+updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore();}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam 4 Comprehensive &mdash; Ch 25-26 Priority</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+code,.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#fb7185}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#e11d48,#fb7185);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch25{background:#1a0a2e;color:#c084fc}
+.badge-ch26{background:#1a0a2e;color:#c084fc}
+.badge-prof{background:#2a1a06;color:#fbbf24}
+.badge-hy{background:#1a2332;color:#94a3b8}
+.badge-trap{background:#2a0a0a;color:#f87171;margin-left:auto}
+.badge-sata{background:#1a1f2e;color:#6ee7b7;border:1px solid #059669}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#6ee7b7;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fb7185;background:#2a0a14}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}
+.btn-submit{background:#e11d48;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#be123c}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1f0a14;border-left:3px solid #fb7185;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#fecdd3;line-height:1.5}
+.vocab-tip strong{color:#fb7185}
+.prof-quote{background:#1a1406;border-left:3px solid #fbbf24;border-radius:0 8px 8px 0;padding:.6rem 1rem;margin-top:.6rem;display:none;font-size:.78rem;color:#fde68a;font-style:italic}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.score-card .big-score{font-size:3rem;font-weight:700;color:#fb7185;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Exam 4 Comprehensive &mdash; Ch 25-26</h1>
+<p class="subtitle">Chronic/Lower Respiratory &middot; Critical Care &middot; ARDS &middot; PE &middot; Oxygen Therapy &middot; 25 Questions</p>
+</div>
+<div class="exam-info">Your hardest chapters cold. ARDS, PE, asthma emergencies, oxygen delivery systems, ventilator concepts, anticoagulation — everything the professor flagged plus the NCLEX traps he built around them. Every rationale explains the why, not just the what.</div>
+<div class="legend">
+<span><span class="dot" style="background:#fbbf24"></span> Prof = he said &ldquo;know this&rdquo;</span>
+<span><span class="dot" style="background:#94a3b8"></span> HY = high-yield NCLEX</span>
+<span><span class="dot" style="background:#f87171"></span> Trap = the catch he set</span>
+<span><span class="dot" style="background:#c084fc"></span> Ch# = chapter badge</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Ch 25-26 Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<p style="color:#f9a8d4;font-size:.85rem;margin-top:.5rem">License first. Lie-flat seats after. You are so close.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam4-comp-v2';
+const EXAM_LABEL='Exam 4 Comprehensive — Ch 25-26 Priority';
+const ALL_Q=[
+
+{id:101,chapter:26,prof:true,trap:true,sata:false,
+stem:'A mechanically ventilated patient develops severe hypoxemia despite 100% FiO2, bilateral diffuse infiltrates on CXR, and echo showing no signs of heart failure. The professor\'s diagnosis is:',
+options:[
+{letter:'A',text:'Cardiogenic pulmonary edema — start aggressive diuresis',correct:false,rationale:'Cardiogenic edema has an elevated wedge pressure (PCWP > 18 mmHg) and responds to diuretics. This patient has a normal cardiac echo — pulmonary edema is NOT the cause. Confusing the two is the classic trap because both show "white" on CXR.'},
+{letter:'B',text:'Acute Respiratory Distress Syndrome (ARDS) — defined by rapid onset bilateral infiltrates, refractory hypoxemia (PaO2/FiO2 < 300), and NON-cardiogenic cause',correct:true,rationale:'ARDS definition (Berlin Criteria): (1) Rapid onset within 1 week of a trigger (sepsis, trauma, aspiration, pancreatitis most common); (2) Bilateral infiltrates on CXR or CT not explained by effusions/atelectasis alone; (3) Non-cardiogenic: PCWP ≤ 18 or no clinical heart failure; (4) PaO2/FiO2 ratio < 300 (severe = <100). The hypoxemia is REFRACTORY — adding more O2 doesn\'t work because the problem is V/Q mismatch from collapsed/fluid-filled alveoli. Treatment: low tidal volume ventilation (6 mL/kg IBW), high PEEP, prone positioning for severe ARDS, and treating the underlying cause.'},
+{letter:'C',text:'Simple pneumonia — treat with antibiotics and the CXR will clear in 24 hours',correct:false,rationale:'Pneumonia can trigger ARDS but ARDS itself has distinct diagnostic criteria. Unilateral pneumonia and bilateral ARDS infiltrates look different; ARDS involves the entire alveolar-capillary membrane.'},
+{letter:'D',text:'Pulmonary embolism — start heparin immediately',correct:false,rationale:'PE classically shows clear lungs (not bilateral infiltrates) and hypoxemia from dead-space ventilation. CXR may be normal or show Hampton\'s Hump (rare). This presentation is ARDS.'}
+],vocabTip:'<strong>ARDS = bilateral infiltrates + refractory hypoxemia + NON-cardiogenic.</strong> Berlin criteria: PaO2/FiO2 < 300. Triggers: sepsis, aspiration, trauma, pancreatitis. Treatment: low tidal volume (6 mL/kg), high PEEP, prone position for severe. NOT heart failure.',
+profQuote:'"ARDS — bilateral infiltrates on X-ray, the lungs look white, but when you look at the cardiac echo, there\'s no heart failure. The oxygen won\'t respond. That\'s your refractory hypoxemia."'},
+
+{id:102,chapter:26,prof:true,trap:false,sata:false,
+stem:'A patient on 100% FiO2 via non-rebreather mask has a SpO2 of 78% that does not improve despite repositioning and increasing the flow. The nurse recognizes this as:',
+options:[
+{letter:'A',text:'A broken pulse oximeter — replace the probe and reassess',correct:false,rationale:'While probe issues can cause false readings, when SpO2 remains critically low on maximum oxygen with no other explanation, you cannot assume the monitor is wrong. Treat it as refractory hypoxemia first.'},
+{letter:'B',text:'Refractory hypoxemia — a hallmark of ARDS where increasing FiO2 does not improve SpO2 because the problem is V/Q mismatch and intrapulmonary shunt, not insufficient O2 delivery',correct:true,rationale:'"Refractory" means it does NOT respond to standard interventions. In ARDS, alveoli are flooded with protein-rich edema and collapsed; ventilated blood passes by non-ventilated alveoli (intrapulmonary shunt). Because the O2 never reaches the alveoli that would absorb it, pouring in more O2 doesn\'t help — the shunt fraction is too high. This is why ARDS requires mechanical ventilation with PEEP (to re-open collapsed alveoli and match ventilation to perfusion), not just a higher-flow O2 device.'},
+{letter:'C',text:'Normal oxygen saturation for a patient on 100% FiO2',correct:false,rationale:'SpO2 of 78% is a critical emergency — far below any acceptable threshold. Normal SpO2 on 100% FiO2 would be 99-100%.'},
+{letter:'D',text:'The patient simply needs to breathe more deeply; encourage incentive spirometry',correct:false,rationale:'Incentive spirometry helps with atelectasis prevention in cooperative patients. It does not address ARDS-level refractory hypoxemia.'}
+],vocabTip:'<strong>Refractory hypoxemia = SpO2 stays critically low despite high FiO2.</strong> Mechanism: intrapulmonary shunt (blood bypasses ventilated alveoli). More O2 = no help. Needs mechanical ventilation + PEEP to physically re-open the alveoli. ARDS hallmark.',
+profQuote:'"Refractory hypoxemia means you give them more and more oxygen and the saturation just will not come up. That tells you the problem isn\'t the oxygen supply — it\'s that the alveoli aren\'t reaching the oxygen because they\'re flooded or collapsed."'},
+
+{id:103,chapter:26,prof:false,trap:false,sata:false,
+stem:'The chest X-ray of a patient with ARDS shows:',
+options:[
+{letter:'A',text:'Dark, hyperinflated lung fields with a flattened diaphragm',correct:false,rationale:'Hyperinflation + flattened diaphragm = classic COPD/air trapping appearance. ARDS looks the opposite.'},
+{letter:'B',text:'Bilateral diffuse white infiltrates ("bilateral whiteout" or ground-glass opacities) in BOTH lung fields — representing protein-rich fluid flooding the alveolar spaces',correct:true,rationale:'ARDS CXR = bilateral, diffuse, patchy-to-confluent opacities across BOTH lungs — often called "white-out" or "ground-glass." This represents the alveolar flooding (edema, protein, hemorrhage) from damaged alveolar-capillary membranes. The BILATERAL pattern is key — it distinguishes ARDS from unilateral pneumonia. Unlike cardiogenic pulmonary edema which also whitens both lungs, ARDS has no cardiomegaly, no Kerley B lines, and the wedge pressure is normal.'},
+{letter:'C',text:'A unilateral white opacity with air bronchograms on only the right side',correct:false,rationale:'Unilateral opacity suggests lobar pneumonia, pleural effusion, or atelectasis — not ARDS, which is bilateral by definition.'},
+{letter:'D',text:'A completely normal CXR is consistent with early ARDS',correct:false,rationale:'ARDS shows CXR changes by definition. A normal CXR with bilateral infiltrates does not fit the diagnostic criteria.'}
+],vocabTip:'<strong>ARDS CXR = bilateral diffuse white infiltrates/ground-glass both lungs.</strong> Different from: COPD (dark, hyperinflated), pneumonia (unilateral lobar), cardiogenic edema (bilateral but with cardiomegaly + Kerley B lines). Normal wedge pressure = not cardiac.'},
+
+{id:104,chapter:25,prof:true,trap:true,sata:false,
+stem:'A patient with moderate persistent asthma takes daily aspirin for a cardiac history. After adding it, they report increased asthma attacks. The priority nursing action is:',
+options:[
+{letter:'A',text:'Reassure the patient that aspirin is safe for all asthmatics',correct:false,rationale:'Aspirin-exacerbated respiratory disease (AERD) exists in ~10% of asthmatics; aspirin is NOT safe for all of them. Reassuring without assessment is dangerous.'},
+{letter:'B',text:'Recognize this as aspirin-exacerbated respiratory disease (AERD), document it as a drug intolerance, notify the provider to discuss an alternative (acetaminophen or a selective COX-2 inhibitor), and teach the patient to avoid ALL NSAIDs',correct:true,rationale:'AERD (formerly Samter\'s Triad: asthma + nasal polyps + NSAID intolerance) is a pharmacological intolerance, not IgE-mediated allergy. NSAIDs block COX-1 → arachidonic acid is shunted to leukotriene production → potent bronchoconstriction. ALL COX-1-inhibiting NSAIDs can trigger it (aspirin, ibuprofen, naproxen, ketorolac). For cardiac patients, the cardiologist must weigh the cardiac benefit vs. respiratory risk. SAFE alternatives: acetaminophen (Tylenol) for pain; if an antiplatelet is specifically needed, discussion with cardiology is required.'},
+{letter:'C',text:'Increase the patient\'s inhaled corticosteroid dose to counteract the aspirin effect',correct:false,rationale:'Increasing ICS may reduce baseline inflammation but does not neutralize the pharmacological NSAID trigger. The NSAID must be avoided.'},
+{letter:'D',text:'Switch the patient to ibuprofen — only aspirin causes this reaction',correct:false,rationale:'All COX-1-inhibiting NSAIDs cause the same reaction in AERD patients. Ibuprofen is just as dangerous as aspirin in this context.'}
+],vocabTip:'<strong>AERD: aspirin/NSAIDs → bronchospasm in ~10% of asthmatics.</strong> COX-1 block → ↑leukotrienes → bronchoconstriction. Document drug intolerance. Safe swap: acetaminophen. ALL NSAIDs are off-limits (aspirin, ibuprofen, naproxen, ketorolac).',
+profQuote:'"In a patient with asthma, the NSAIDs — aspirin, ibuprofen, all of them — can set off a severe attack by shifting the pathway to leukotriene production. Tylenol is the safe choice."'},
+
+{id:105,chapter:25,prof:true,trap:true,sata:false,
+stem:'A patient with a severe asthma exacerbation was loudly wheezing. Now the nurse auscultates a "silent chest" — no wheezing at all. The nurse correctly interprets this as:',
+options:[
+{letter:'A',text:'The bronchodilator worked — the patient is improving',correct:false,rationale:'This is the classic deadly trap. Silence during a known asthma attack means LESS air movement, not more. The patient is getting WORSE.'},
+{letter:'B',text:'A critical emergency — "silent chest" means near-total airway obstruction with almost no air movement; this is a pre-arrest finding requiring immediate emergency intervention',correct:true,rationale:'Wheezing requires at least some airflow — you need air moving through narrowed airways to generate the wheeze sound. When airways are so severely obstructed that almost NO air moves, the wheeze disappears and you get silence. This is a PRE-ARREST finding in a known asthma patient. Immediate actions: call for help, prepare for IV steroids/epinephrine/magnesium sulfate, intubation setup at bedside. Remember: asthma = bronchospasm + mucosal inflammation + mucus plugging — all three must be addressed.'},
+{letter:'C',text:'A normal fluctuation during the treatment phase of an asthma attack',correct:false,rationale:'There is no "normal silent phase" during a worsening asthma attack. Any silence during active distress is an emergency.'},
+{letter:'D',text:'The patient has fallen asleep; reassess in 30 minutes',correct:false,rationale:'A patient with severe asthma who becomes silent and unresponsive is in respiratory failure — not sleeping.'}
+],vocabTip:'<strong>Silent chest = EMERGENCY. Not improvement.</strong> No wheeze + still distressed = near-zero airflow = impending respiratory arrest. Call for help immediately. Set up for intubation. IV steroids + bronchodilators + epinephrine/magnesium if indicated.',
+profQuote:'"When a wheezing patient goes silent, do not celebrate — that silence means the airways have closed down so tight that almost no air is moving. That is a pre-arrest state."'},
+
+{id:106,chapter:25,prof:false,trap:false,sata:true,
+stem:'A patient with mild persistent asthma asks which of their medications to take EVERY DAY (controllers), not just during attacks. Select all that apply.',
+options:[
+{letter:'A',text:'Albuterol (Proventil, Ventolin) — short-acting beta-2 agonist',correct:false,rationale:'Albuterol is a SHORT-ACTING RELIEVER (SABA) — used for acute rescue/symptom relief, NOT daily control. Using it > 2 days/week suggests inadequate control and a need for a controller medication review.'},
+{letter:'B',text:'Fluticasone (Flovent) — inhaled corticosteroid',correct:true,rationale:'Inhaled corticosteroids (ICS) are the GOLD STANDARD daily controller. They reduce airway inflammation. Must be used daily even when asymptomatic. Rinse mouth after each use to prevent oral candidiasis (thrush).'},
+{letter:'C',text:'Salmeterol (Serevent) — long-acting beta-2 agonist',correct:true,rationale:'Long-acting beta-2 agonists (LABA) are daily controllers added to ICS for moderate-severe asthma. LABA should NEVER be used as monotherapy (without ICS) — increases risk of asthma-related death. Always used WITH an ICS (e.g., Advair = fluticasone + salmeterol combination).'},
+{letter:'D',text:'Montelukast (Singulair) — leukotriene receptor antagonist',correct:true,rationale:'Montelukast is a leukotriene modifier — daily oral controller. Especially useful in aspirin-exacerbated asthma (blocks the leukotriene pathway that NSAIDs trigger) and in exercise-induced bronchoconstriction.'}
+],vocabTip:'<strong>Controllers (daily): ICS (fluticasone), LABA (salmeterol — always WITH ICS), leukotriene modifiers (montelukast).</strong> Relievers (PRN only): SABA (albuterol). If using albuterol > 2×/week → step up controller therapy. Rinse mouth after ICS (prevents thrush).'},
+
+{id:107,chapter:25,prof:false,trap:false,sata:false,
+stem:'A patient with COPD presents with increasing dyspnea, productive green sputum, and low-grade fever. These assessment findings are most consistent with:',
+options:[
+{letter:'A',text:'A normal COPD symptom pattern that does not require intervention',correct:false,rationale:'Green purulent sputum + fever + worsening dyspnea = signs of infection/acute exacerbation of COPD (AECOPD). This requires medical evaluation and treatment.'},
+{letter:'B',text:'Acute exacerbation of COPD (AECOPD), most commonly triggered by a bacterial or viral respiratory infection',correct:true,rationale:'AECOPD is defined as a sustained worsening of respiratory symptoms (dyspnea, cough, sputum production/color change) beyond normal day-to-day variation. Triggers: 80% are infectious (bacteria: H. influenzae, S. pneumoniae, M. catarrhalis; viruses: rhinovirus most common). Management: bronchodilators (SABA ± LAMA), systemic corticosteroids (prednisone to reduce inflammation), antibiotics if purulent sputum or clinical signs of infection, supplemental O2 to target SpO2 88-92%, and hospitalization if severe.'},
+{letter:'C',text:'Pulmonary embolism presenting as COPD',correct:false,rationale:'PE typically presents as sudden-onset pleuritic chest pain, hemoptysis, and dyspnea — not purulent sputum and fever. However, PE can trigger AECOPD in some patients.'},
+{letter:'D',text:'Early-stage lung cancer presenting with COPD symptoms',correct:false,rationale:'Lung cancer can coexist with COPD, but acute purulent sputum + fever in a known COPD patient is first managed as AECOPD.'}
+],vocabTip:'<strong>AECOPD = sustained worse dyspnea + cough + sputum change (color/volume).</strong> Triggers: infection (bacteria/virus), air pollution, cold air. Treatment: SABA, steroids (5-7 days prednisone), antibiotics if purulent sputum, O2 target 88-92%.'},
+
+{id:108,chapter:25,prof:false,trap:false,sata:true,
+stem:'A nurse is assessing risk factors for deep vein thrombosis (DVT) in postoperative patients. Select all that apply.',
+options:[
+{letter:'A',text:'Prolonged immobility / bed rest',correct:true,rationale:'Virchow\'s triad: stasis of blood flow is one of the three mechanisms for clot formation. Any prolonged immobility (surgery, hospitalization, long flights) dramatically increases DVT risk.'},
+{letter:'B',text:'Recent major surgery, especially orthopedic (hip/knee replacement)',correct:true,rationale:'Surgery causes venous injury (endothelial damage — Virchow\'s second factor) and triggers the inflammatory/coagulation cascade. Orthopedic surgery is highest risk due to position, tourniquet use, and marrow fat release.'},
+{letter:'C',text:'Oral contraceptive use or hormone replacement therapy',correct:true,rationale:'Estrogen increases clotting factor production (factors VII, X, prothrombin) and reduces natural anticoagulants. Estrogen-containing OCP = significant DVT/PE risk, especially when combined with smoking or immobility.'},
+{letter:'D',text:'Regular aerobic exercise 4 times per week',correct:false,rationale:'Regular exercise promotes venous return and is PROTECTIVE against DVT, not a risk factor. It\'s the absence of movement that creates stasis.'}
+],vocabTip:'<strong>DVT risk (Virchow\'s Triad):</strong> Stasis (immobility, long travel) + Endothelial injury (surgery, trauma, IV access) + Hypercoagulability (cancer, OCP, pregnancy, inherited disorders). Prevention: early ambulation, compression stockings/SCDs, anticoagulant prophylaxis.'},
+
+{id:109,chapter:25,prof:true,trap:false,sata:false,
+stem:'A patient is diagnosed with acute pulmonary embolism and started on anticoagulation. The professor emphasized the INR therapeutic goal for PE treatment with warfarin. The target INR is:',
+options:[
+{letter:'A',text:'INR 1.0-1.5 — just above the normal range',correct:false,rationale:'INR 1.0-1.5 is sub-therapeutic — the clot would continue to propagate. Normal INR is 0.9-1.1; an INR of 1.5 does not provide adequate anticoagulation for PE.'},
+{letter:'B',text:'INR 2.0-3.0 — the standard therapeutic anticoagulation range for venous thromboembolism (DVT/PE)',correct:true,rationale:'INR 2.0-3.0 is the therapeutic target for warfarin in DVT and PE treatment. Below 2.0 = sub-therapeutic (clot can grow/propagate). Above 3.0 = supratherapeutic (significant bleeding risk). For mechanical heart valves, a higher range (2.5-3.5) is used. For atrial fibrillation stroke prevention, 2.0-3.0 is also used. Remember: warfarin takes days to reach therapeutic INR — bridge with heparin (UFH or LMWH) until INR is in range on two consecutive readings.'},
+{letter:'C',text:'INR 3.5-4.5 — a supratherapeutic range used for PE',correct:false,rationale:'INR above 3.0 significantly increases bleeding risk without additional clot prevention benefit for DVT/PE. 3.5-4.5 is dangerously high for routine PE treatment.'},
+{letter:'D',text:'INR is not used to monitor PE treatment — only aPTT matters',correct:false,rationale:'INR monitors WARFARIN therapy. aPTT monitors UNFRACTIONATED HEPARIN. Both are used depending on the anticoagulant — they are not interchangeable monitors.'}
+],vocabTip:'<strong>PE on warfarin: INR goal = 2.0-3.0.</strong> < 2.0 = sub-therapeutic (clot grows). > 3.0 = bleeding risk. UFH bridge until INR therapeutic x2 readings. INR monitors warfarin · aPTT monitors UFH heparin · Anti-Xa monitors LMWH (enoxaparin). Know your monitors.',
+profQuote:'"For pulmonary embolism on warfarin, you need that INR between 2.0 and 3.0. Below that and you\'re not treating the clot. Above that and you\'re risking a bleed. That range is the therapeutic window."'},
+
+{id:110,chapter:25,prof:false,trap:false,sata:false,
+stem:'A provider orders enoxaparin (Lovenox) to bridge a patient with a PE while warfarin reaches a therapeutic INR. The nurse knows that enoxaparin (LMWH):',
+options:[
+{letter:'A',text:'Requires aPTT monitoring every 6 hours, exactly like unfractionated heparin',correct:false,rationale:'LMWH (enoxaparin) has predictable pharmacokinetics and does NOT require routine aPTT monitoring. This is one of its advantages over UFH.'},
+{letter:'B',text:'Is given subcutaneously, has predictable dosing by weight, and is monitored by anti-Xa levels (not aPTT); it can be given outpatient, unlike UFH drips',correct:true,rationale:'Enoxaparin (Lovenox) = LMWH. Advantages over UFH: (1) Subcutaneous injection, not IV drip; (2) Predictable dose-response = no routine aPTT monitoring needed; (3) Can be taught for outpatient/home self-injection; (4) If monitoring needed (obesity, pregnancy, renal failure) → anti-Xa levels. Disadvantage: renal clearance — reduce dose in renal failure; reversal with protamine is less reliable than for UFH. Teaching: inject into abdomen (not within 2" of navel), rotate sites, do NOT expel the air bubble before injecting.'},
+{letter:'C',text:'Must be given IV and requires a dedicated pump like UFH heparin drips',correct:false,rationale:'Enoxaparin is subcutaneous, not IV. An IV heparin drip is UFH (unfractionated heparin), not LMWH.'},
+{letter:'D',text:'Can be safely given at full doses in patients with an eGFR of 15 mL/min',correct:false,rationale:'LMWH is renally cleared — significant dose reduction or switching to UFH is required in severe renal impairment (eGFR < 30 mL/min).'}
+],vocabTip:'<strong>LMWH (enoxaparin/Lovenox):</strong> SubQ injection · weight-based dosing · NO routine aPTT · monitor anti-Xa if needed (obesity, pregnancy, renal Fx) · reduce dose in renal failure · home-injectable. Teach: inject abdomen, rotate sites, keep air bubble.'},
+
+{id:111,chapter:25,prof:false,trap:false,sata:false,
+stem:'On auscultation, a patient has decreased breath sounds and dullness to percussion over the left base. Assessment findings most consistent with:',
+options:[
+{letter:'A',text:'Left-sided pneumothorax — the lung has collapsed',correct:false,rationale:'Pneumothorax produces decreased/absent breath sounds + HYPERRESONANCE (tympanic) on percussion — not dullness. Air is in the pleural space. Dullness indicates fluid.'},
+{letter:'B',text:'Pleural effusion — fluid accumulating in the left pleural space, compressing the underlying lung',correct:true,rationale:'Pleural effusion = fluid (blood/exudate/transudate) in the pleural space. Fluid is DULL to percussion (fluid absorbs the sound). Breath sounds are DECREASED or absent because the fluid sits between the lung and chest wall, muffling sound. Tactile fremitus is also DECREASED. Pleural rub may be heard early. CXR: blunting of the costophrenic angle. Thoracentesis is both diagnostic (analyze fluid) and therapeutic (remove it). Causes: HF (transudate), malignancy, infection/empyema (exudate), liver/renal disease.'},
+{letter:'C',text:'Right-sided pneumonia with consolidation',correct:false,rationale:'Consolidation is on the RIGHT in this question — the finding described is LEFT-SIDED. Also, consolidation shows INCREASED fremitus and dullness to percussion, but breath sounds would include bronchial breath sounds and crackles, not simply absent breath sounds.'},
+{letter:'D',text:'Bilateral hyperinflation consistent with emphysema',correct:false,rationale:'Emphysema = bilateral hyperresonance (increased resonance everywhere) and decreased breath sounds bilaterally — not unilateral dullness.'}
+],vocabTip:'<strong>Pleural effusion = dull to percussion + ↓ breath sounds + ↓ fremitus.</strong> Pneumothorax = hyperresonant + ↓ breath sounds. Consolidation = dull + ↑ fremitus + bronchial sounds. Know which physical finding goes with which condition.'},
+
+{id:112,chapter:25,prof:false,trap:false,sata:false,
+stem:'A trauma patient develops sudden severe chest pain, decreased breath sounds on the left, and hypotension after a rib fracture. The nurse suspects:',
+options:[
+{letter:'A',text:'Simple rib fracture pain causing vasovagal syncope',correct:false,rationale:'Vasovagal would cause bradycardia with brief loss of consciousness — not absent breath sounds. Absent sounds indicate something in the pleural space.'},
+{letter:'B',text:'Hemothorax — blood in the left pleural space compressing the lung, causing hypovolemic shock; requires chest tube drainage',correct:true,rationale:'Hemothorax = blood in the pleural space, usually from rib fracture lacerating an intercostal vessel or lung. Signs: absent/decreased breath sounds on affected side, DULL percussion (blood is heavy), hypotension (blood loss), tachycardia. Treatment: large-bore chest tube (28-32 Fr) to drain the blood AND re-expand the lung. A simple pneumothorax would show hyperresonance; hemothorax is dull. Massive hemothorax (>1500 mL initial drainage or >200 mL/hr for 4 hours) may need thoracotomy.'},
+{letter:'C',text:'Tension pneumothorax — requires immediate needle decompression',correct:false,rationale:'Tension pneumothorax = hyperresonance + tracheal deviation AWAY from the affected side + JVD + absent breath sounds + hypotension. The KEY differentiator from hemothorax is percussion quality: tension pneumo = HYPERRESONANT, hemothorax = DULL (blood is heavy and dulls percussion). Also, tension pneumo would show JVD from mediastinal shift.'},
+{letter:'D',text:'Pericardial tamponade — Beck\'s Triad: hypotension, JVD, muffled heart sounds',correct:false,rationale:'Tamponade presents with Beck\'s Triad (hypotension, JVD, muffled heart sounds) — not absent breath sounds. The problem is in the pericardium, not the pleural space.'}
+],vocabTip:'<strong>Hemothorax = blood in pleural space.</strong> DULL percussion + ↓ breath sounds + hypovolemic shock. vs. Tension pneumo = HYPERRESONANT + tracheal deviation + JVD. Treatment: chest tube. Massive (>1500 mL initial) → OR.'},
+
+{id:113,chapter:26,prof:false,trap:false,sata:false,
+stem:'A patient has a chest tube connected to a water-seal drainage system. The nurse observes tidaling (rise and fall of the water in the water-seal chamber with each breath). This means:',
+options:[
+{letter:'A',text:'The chest tube is kinked and needs to be straightened immediately',correct:false,rationale:'Tidaling is the EXPECTED normal finding — it does not indicate a kinked tube. A lack of tidaling might suggest a kink or blockage.'},
+{letter:'B',text:'The tube is patent and properly positioned in the pleural space — the water level moves because intrathoracic pressure changes with breathing',correct:true,rationale:'Tidaling (water in the water-seal chamber rises with inspiration, falls with expiration — or opposite in positive-pressure ventilation) is NORMAL and desired. It proves: (1) The tube is not blocked/kinked; (2) The tube is properly positioned in the pleural space; (3) The pleural-atmospheric pressure interface is intact. Cessation of tidaling = possible tube obstruction (milk the tube gently) OR lung has fully re-expanded (check CXR). Continuous bubbling in the water-seal = air leak in the system; suction-only bubbling in suction chamber = suction is working.'},
+{letter:'C',text:'The lung has re-expanded and the chest tube can be removed',correct:false,rationale:'When the lung re-expands, tidaling STOPS (no more pressure fluctuation from the pleural space). Tidaling ongoing means the lung is NOT yet fully re-expanded.'},
+{letter:'D',text:'The patient is bleeding into the chest tube — continuous suction is required',correct:false,rationale:'Tidaling is a pressure fluctuation phenomenon, not a blood-related finding. Observe drainage output for blood (serosanguineous → serous is expected progression; sudden bright red = hemorrhage).'}
+],vocabTip:'<strong>Chest tube water-seal: tidaling = NORMAL/EXPECTED</strong> (patent + properly positioned). No tidaling = blocked tube OR lung re-expanded (get CXR). Continuous bubbling in water-seal = AIR LEAK (find source). Suction-chamber bubbling = normal suction working.'},
+
+{id:114,chapter:26,prof:true,trap:false,sata:false,
+stem:'The professor specifically reviewed oxygen delivery systems. Which correctly pairs the device with its FiO2 delivery range?',
+options:[
+{letter:'A',text:'Nasal cannula: 60-100% · Simple mask: 24-44% · Non-rebreather: 35-50%',correct:false,rationale:'These are reversed. The nasal cannula is the lowest-flow, lowest-concentration device; the non-rebreather is highest.'},
+{letter:'B',text:'Nasal cannula: 24-44% (1-6 L/min) · Simple face mask: 35-50% (5-10 L/min) · Non-rebreather: 60-100% (10-15 L/min with reservoir)',correct:true,rationale:'The hierarchy from lowest to highest FiO2: (1) Nasal cannula: 24-44%, 1-6 L/min. (2) Simple face mask: 35-50%, 5-10 L/min (minimum 5 L/min to flush CO2). (3) Partial rebreather mask: 40-60% with reservoir bag. (4) Non-rebreather: 60-100% — reservoir bag + one-way valves prevent expired air re-entry; requires 10-15 L/min. (5) Venturi mask: precise, controlled FiO2 (24-50%) — used when exact FiO2 matters (COPD). Know the device and know what it delivers.'},
+{letter:'C',text:'All masks deliver the same 40% FiO2 regardless of flow rate',correct:false,rationale:'FiO2 varies significantly by device type and flow rate. This is a critical clinical distinction.'},
+{letter:'D',text:'Non-rebreather masks are never used in clinical settings',correct:false,rationale:'Non-rebreather masks are routinely used in emergency situations for maximum oxygen delivery while avoiding intubation.'}
+],vocabTip:'<strong>O2 devices hierarchy:</strong> Nasal cannula 24-44% (1-6 L/min) → Simple mask 35-50% (5-10 L/min, min 5 L) → Partial rebreather 40-60% → Non-rebreather 60-100% (10-15 L/min) → Venturi exact % → Ventilator 21-100%.',
+profQuote:'"You need to know your oxygen delivery systems and what concentration each one delivers. Nasal cannula 24 to 44 percent. Simple mask 35 to 50. Non-rebreather up to 100 percent with the reservoir bag."'},
+
+{id:115,chapter:26,prof:true,trap:false,sata:false,
+stem:'A patient with COPD is hypoxic but the team wants precise oxygen delivery to avoid suppressing the hypoxic drive. The BEST oxygen delivery device is:',
+options:[
+{letter:'A',text:'Non-rebreather mask at 15 L/min',correct:false,rationale:'Non-rebreather delivers 60-100% FiO2 — far too high for a COPD patient who risks CO2 retention. This could suppress their hypoxic drive.'},
+{letter:'B',text:'Venturi (Venti) mask set to 24-28% FiO2 — the only device that delivers a precise, controlled FiO2 independent of breathing pattern',correct:true,rationale:'The Venturi mask uses the Bernoulli principle — a specific jet entrains a precise ratio of room air to oxygen, delivering an exact FiO2 regardless of the patient\'s respiratory rate or tidal volume. This is ideal for COPD where the difference between SpO2 88% (acceptable) and 95% (potentially dangerous) requires precise dosing. Available in color-coded adapters: blue=24%, white=28%, yellow=35%, red=40%, green=60%. Minimum flow rate specified on each adapter.'},
+{letter:'C',text:'Simple face mask at the minimum flow of 3 L/min',correct:false,rationale:'Simple face mask minimum is 5 L/min (to prevent CO2 rebreathing). At 3 L/min, the patient rebreathes exhaled CO2. Also, the FiO2 is not precise.'},
+{letter:'D',text:'Nasal cannula at 10 L/min for maximum delivery',correct:false,rationale:'Nasal cannula above 6 L/min does not meaningfully increase FiO2 and causes significant mucosal drying. Maximum recommended is 6 L/min.'}
+],vocabTip:'<strong>Venturi mask = precise, controlled FiO2 for COPD.</strong> Color-coded adapters: 24%, 28%, 35%, 40%, 60%. Flow rate matters per adapter. Bernoulli principle entrains exact air:O2 ratio. Best for any patient needing exact FiO2 (COPD, CO2 retainers).',
+profQuote:'"For your COPD patient where you need to know exactly what percentage of oxygen you\'re delivering, you use the Venturi mask. It gives you a precise, predictable concentration regardless of how the patient breathes."'},
+
+{id:116,chapter:26,prof:false,trap:false,sata:false,
+stem:'Prolonged use of high-concentration oxygen (FiO2 > 60% for > 24-48 hours) carries the risk of oxygen toxicity. The nurse monitors for which early sign?',
+options:[
+{letter:'A',text:'Bradycardia and hypotension',correct:false,rationale:'Cardiovascular changes are not the primary early sign of O2 toxicity.'},
+{letter:'B',text:'Substernal chest pain, cough, and worsening dyspnea — as the high O2 generates free radicals that damage alveolar epithelium',correct:true,rationale:'Oxygen toxicity results from prolonged exposure to high O2 concentrations generating reactive oxygen species (free radicals) that damage the alveolar epithelium and surfactant. Early: substernal burning/chest pain, cough, dyspnea. Late: ARDS-like picture with alveolar consolidation and respiratory failure — the opposite of the intended effect. Prevention: use the LOWEST effective FiO2 that maintains target SpO2. During ARDS management, accept SpO2 88-92% rather than maintaining 100% FiO2 indefinitely.'},
+{letter:'C',text:'Improvement in dyspnea and SpO2 rising above 99%',correct:false,rationale:'Rising SpO2 and improved dyspnea are the desired therapeutic effects, not signs of toxicity.'},
+{letter:'D',text:'Hypokalemia and metabolic alkalosis',correct:false,rationale:'Electrolyte changes are not a primary manifestation of oxygen toxicity.'}
+],vocabTip:'<strong>O2 toxicity (FiO2 >60% for >24-48h):</strong> Free radical damage to alveoli → substernal pain, cough, worsening dyspnea → ARDS-like picture. Prevention: lowest effective FiO2 (accept SpO2 88-92% rather than push 100% FiO2 indefinitely).'},
+
+{id:117,chapter:26,prof:false,trap:false,sata:false,
+stem:'A patient with ARDS is placed on mechanical ventilation. The provider orders low tidal volume ventilation (6 mL/kg IBW) rather than normal tidal volumes (10-12 mL/kg). The rationale is:',
+options:[
+{letter:'A',text:'Smaller tidal volumes save the ventilator battery and reduce costs',correct:false,rationale:'Tidal volume is determined by patient physiology, not cost or equipment efficiency.'},
+{letter:'B',text:'Large tidal volumes overstretch and injure already-damaged ARDS alveoli (volutrauma/barotrauma); small volumes (6 mL/kg) protect the remaining healthy alveoli from further damage',correct:true,rationale:'Lung-protective ventilation (ARDSNet protocol) uses 6 mL/kg IDEAL body weight (not actual, to avoid overdosing larger patients) because ARDS lungs are non-uniform — "baby lung" concept. The injured lung behaves like a much smaller lung; normal tidal volumes delivered to it over-distend the few remaining open alveoli → volutrauma → worsened injury. Low tidal volumes prevent this. Paired with high PEEP (to keep collapsed alveoli open) and permissive hypercapnia (tolerating some CO2 rise to achieve low volumes).'},
+{letter:'C',text:'Small tidal volumes are used in all ventilated patients to reduce ICU stay',correct:false,rationale:'6 mL/kg is specific to ARDS lung-protective ventilation — it is not the standard for all ventilated patients.'},
+{letter:'D',text:'Large PEEP is used instead of tidal volume in ARDS; tidal volume is irrelevant',correct:false,rationale:'Both low tidal volume AND high PEEP are components of ARDSNet lung-protective strategy — they are used together, not as substitutes.'}
+],vocabTip:'<strong>ARDS ventilation: low tidal volume 6 mL/kg IBW (not actual body weight) + high PEEP.</strong> Rationale: "baby lung" — ARDS lungs are non-uniform; large volumes overstretch healthy areas (volutrauma). Accept higher CO2 (permissive hypercapnia) to achieve safe volumes.'},
+
+{id:118,chapter:26,prof:false,trap:false,sata:false,
+stem:'For a patient with severe ARDS (PaO2/FiO2 < 100), prone positioning is ordered. The nurse understands that prone positioning works by:',
+options:[
+{letter:'A',text:'Making it easier for the nurse to access IV lines in the back',correct:false,rationale:'Access is actually more difficult in the prone position — it is used for the physiological benefit, despite the logistical challenges.'},
+{letter:'B',text:'Redistributing blood flow from the collapsed dorsal (back) lung regions to better-ventilated ventral (front) regions, improving V/Q matching and oxygenation',correct:true,rationale:'In supine ARDS patients, the dependent dorsal regions (which are heaviest and most likely to be collapsed/fluid-filled) receive the most perfusion but have the worst ventilation — severe V/Q mismatch. Prone positioning: (1) Takes the heavy heart and mediastinum off the dorsal lung; (2) Makes dorsal lung regions no longer dependent — they open up; (3) Blood flow is redistributed; V/Q improves. Studies show prone positioning for ≥16 hours/day in severe ARDS reduces mortality by ~16%. Requires: prone team, careful securing of all tubes, padding, eye protection, specialized endotracheal tube.'},
+{letter:'C',text:'Compressing the anterior chest wall to force air out and reduce hyperinflation',correct:false,rationale:'ARDS patients are NOT hyperinflated — they have collapsed, flooded alveoli. Prone positioning recruits collapsed dorsal alveoli, not deflates overdistended ones.'},
+{letter:'D',text:'Allowing the patient to sleep comfortably during ventilation',correct:false,rationale:'Prone positioning requires deep sedation and often neuromuscular blockade because it is uncomfortable and high-risk for tube displacement.'}
+],vocabTip:'<strong>Prone positioning in ARDS:</strong> Redistributes blood flow from collapsed dorsal to open ventral alveoli → better V/Q → ↑ oxygenation. Used ≥16 hr/day in severe ARDS (PaO2/FiO2 <150). Reduces mortality ~16%. Requires team, padding, tube security, eye protection.'},
+
+{id:119,chapter:25,prof:true,trap:false,sata:false,
+stem:'A patient presents to the ED with sudden onset pleuritic chest pain (sharp, worse with breathing), dyspnea, tachycardia, and hemoptysis. SpO2 is 90% on room air. The nurse recognizes:',
+options:[
+{letter:'A',text:'Spontaneous pneumothorax — immediate needle decompression needed',correct:false,rationale:'Spontaneous pneumothorax presents with sudden chest pain and dyspnea, but HEMOPTYSIS is not a typical feature and the CXR would show absent lung markings on the affected side.'},
+{letter:'B',text:'Pulmonary embolism (PE) — a clot blocking pulmonary blood flow; tachycardia, sudden pleuritic pain, dyspnea, and hemoptysis are classic; CXR often normal; CT-PA is the diagnostic gold standard',correct:true,rationale:'PE classic presentation: sudden PLEURITIC chest pain (worse with breathing — infarction irritates the pleura), dyspnea, TACHYCARDIA (most consistent sign), low-grade fever, hemoptysis (from pulmonary infarction). CXR is often NORMAL or shows minimal changes (Hampton\'s Hump = wedge-shaped opacity at periphery is a classic but rare finding). Diagnosis: CT pulmonary angiography (CT-PA) is gold standard. D-dimer: sensitive but NOT specific (elevated in many conditions). Treatment: anticoagulation (LMWH → warfarin or DOAC); massive PE may need thrombolytics or surgical embolectomy.'},
+{letter:'C',text:'Aortic dissection — starts heparin immediately',correct:false,rationale:'Aortic dissection is a severe tearing/ripping pain radiating to the back — CONTRAINDICATED with anticoagulation. PE treatment (anticoagulation) would be dangerous if the diagnosis is dissection.'},
+{letter:'D',text:'Pneumonia with pleuritis — sputum culture and antibiotics',correct:false,rationale:'Pneumonia causes productive cough with fever — the sudden onset, tachycardia, and hemoptysis in this scenario fit PE. D-dimer + CT-PA rule out or confirm.'}
+],vocabTip:'<strong>PE classic = sudden pleuritic pain + dyspnea + tachycardia + hemoptysis.</strong> CXR often normal (Hampton\'s Hump rare). Diagnose with CT-PA (gold standard). D-dimer: sensitive, NOT specific. Treat: LMWH bridge → warfarin (INR 2-3) or DOAC (rivaroxaban, apixaban).',
+profQuote:'"Pulmonary embolism — sudden sharp pleuritic pain, shortness of breath, tachycardia, and you may see hemoptysis. That CXR is probably going to look normal. CT-PA is your gold standard. And you start anticoagulation."'},
+
+{id:120,chapter:25,prof:false,trap:false,sata:false,
+stem:'A patient with cystic fibrosis asks why they take pancreatic enzyme supplements with every meal. The nurse explains:',
+options:[
+{letter:'A',text:'The enzymes replace a vitamin deficiency caused by CF antibiotic therapy',correct:false,rationale:'Pancreatic enzyme replacement is not about antibiotics or vitamins — it directly addresses the exocrine pancreatic failure from CF.'},
+{letter:'B',text:'CF\'s thick secretions block the pancreatic ducts; enzymes cannot reach the intestine, causing malabsorption of fat, protein, and fat-soluble vitamins (A, D, E, K)',correct:true,rationale:'CFTR dysfunction → thick secretions in the pancreatic ducts → ducts become blocked → pancreatic enzymes (lipase, protease, amylase) cannot flow into the duodenum → fat malabsorption → steatorrhea (fatty, foul-smelling stools), malnutrition, failure to thrive. CF patients also malabsorb fat-soluble vitamins (ADEK) because fat absorption requires those pancreatic enzymes. Pancreatic enzyme replacement (PERT: pancrelipase/Creon) is taken WITH EVERY MEAL AND SNACK containing fat. High-calorie, high-fat diet is encouraged (they need the calories despite needing the enzymes to absorb it).'},
+{letter:'C',text:'The enzymes treat the lung infections CF patients frequently develop',correct:false,rationale:'Pancreatic enzyme replacement is for GI absorption, not pulmonary infection treatment. Lung infections are treated separately (antibiotics, airway clearance).'},
+{letter:'D',text:'CF patients have an overactive pancreas and need the supplements to balance it',correct:false,rationale:'CF causes exocrine pancreatic INsufficiency (underactive), not overactivity.'}
+],vocabTip:'<strong>CF + pancreatic insufficiency:</strong> Thick mucus blocks pancreatic ducts → enzymes can\'t reach intestine → fat + fat-soluble vitamin (ADEK) malabsorption → steatorrhea + malnutrition. Fix: PERT (pancrelipase/Creon) with every meal/snack. High-calorie diet encouraged.'},
+
+{id:121,chapter:25,prof:false,trap:false,sata:false,
+stem:'A patient with COPD is prescribed ipratropium (Atrovent) and albuterol (Proventil) via metered-dose inhaler. The correct order of use when administering both is:',
+options:[
+{letter:'A',text:'Ipratropium first, then albuterol 5 minutes later',correct:false,rationale:'When using multiple inhalers, the bronchodilator goes first to open the airways so the other medication can penetrate deeper. Using the anticholinergic first when it\'s not the bronchodilator of choice is less effective.'},
+{letter:'B',text:'Albuterol (SABA bronchodilator) first to open the airways, then ipratropium 5 minutes later to maintain bronchodilation; wait at least 1 minute between puffs of the same inhaler',correct:true,rationale:'The principle: short-acting beta-agonist (SABA = albuterol) first to rapidly open the airways via beta-2 receptor bronchodilation. Then ipratropium (anticholinergic = SAMA) to block bronchoconstricting acetylcholine receptors for sustained bronchodilation. Open the road first, then block the constriction. In COPD, both are used together (synergistic effect; combination = Duoneb or Combivent). Always wait 1 minute between puffs of the same inhaler for the medication to clear before delivering the next dose.'},
+{letter:'C',text:'Both inhalers can be used simultaneously — spray at the same time for efficiency',correct:false,rationale:'Simultaneous use is not appropriate. Each inhaler needs proper technique, breath-hold, and adequate time for drug delivery.'},
+{letter:'D',text:'Ipratropium is a rescue inhaler — use it first during acute attacks only',correct:false,rationale:'Ipratropium is NOT a rescue inhaler; it is a maintenance bronchodilator. The SABA (albuterol) is the rescue inhaler used during acute symptoms.'}
+],vocabTip:'<strong>Inhaler order: SABA (albuterol) FIRST → then ipratropium 5 min later.</strong> Albuterol opens the airway; ipratropium blocks further bronchoconstriction. 1 min between puffs of same inhaler. Wait 5 min between different inhalers. ICS is always LAST if also prescribed.'},
+
+{id:122,chapter:26,prof:false,trap:false,sata:false,
+stem:'A nurse is caring for a ventilated patient. The ventilator suddenly alarms with a high-pressure alarm. The FIRST assessment action is:',
+options:[
+{letter:'A',text:'Sedate the patient more deeply to reduce agitation',correct:false,rationale:'Deep sedation may be part of management, but the first action is to assess the CAUSE of the alarm. Sedating without identifying the cause could mask deterioration.'},
+{letter:'B',text:'Assess the patient first — check: is the patient biting the tube? Is there secretion buildup? Is there a bronchospasm? Is the patient fighting the ventilator? Then address the cause',correct:true,rationale:'Ventilator alarms should always prompt: ASSESS THE PATIENT before silencing or troubleshooting the machine. High-pressure alarm = it is taking more pressure than usual to deliver the breath. Common causes: (1) Patient biting/clamping the tube (insert bite block); (2) Secretion buildup (suction); (3) Bronchospasm (bronchodilator); (4) Patient fighting the vent/dyssynchrony (reposition, sedation); (5) Kinked/blocked tubing (check circuit); (6) Pneumothorax (absent breath sounds + respiratory distress = emergency). The old rule: "When in doubt, take it out" — if you can\'t solve the problem, bag-valve-mask the patient and call for help.'},
+{letter:'C',text:'Silence the alarm and document "equipment malfunction"',correct:false,rationale:'Never silence a ventilator alarm without first identifying the cause. Alarms save lives — a suppressed alarm masks a deteriorating patient.'},
+{letter:'D',text:'Increase the tidal volume to overcome the resistance',correct:false,rationale:'Increasing tidal volume against a high-pressure alarm means delivering more pressure into whatever is causing the obstruction — this could cause barotrauma.'}
+],vocabTip:'<strong>High-pressure vent alarm → ASSESS PATIENT FIRST.</strong> Common causes: biting tube (bite block) · secretions (suction) · bronchospasm (bronchodilator) · dyssynchrony · kinked circuit · pneumothorax (EMERGENCY). Never silence first. "Doubt → bag it."'},
+
+{id:123,chapter:25,prof:true,trap:false,sata:false,
+stem:'A patient\'s serum lactate returns elevated at 4.8 mmol/L (normal < 2.0). They are being treated for a lower respiratory infection. The professor emphasized this lab as "super important." Why?',
+options:[
+{letter:'A',text:'Elevated lactate confirms the antibiotic is working effectively',correct:false,rationale:'Lactate does not measure antibiotic effectiveness. An elevated lactate is an alarm signal, not a reassurance.'},
+{letter:'B',text:'Elevated lactate signals tissue hypoperfusion (anaerobic metabolism) — a red flag for SEPSIS; in a respiratory infection patient this means systemic involvement and potential septic shock',correct:true,rationale:'When tissues don\'t get enough oxygen (from inadequate perfusion), cells switch to ANAEROBIC metabolism, producing LACTATE as a byproduct. A rising lactate in an infected patient is a WARNING SIGN for SEPSIS (systemic infection) and septic shock. The professor flagged it specifically because: (1) Sepsis from respiratory infections (pneumonia especially) is a leading cause of death; (2) Early detection and treatment saves lives; (3) Lactate > 2 mmol/L with suspected infection = sepsis; lactate > 4 mmol/L + hypotension = septic shock regardless of BP. The Sepsis-3 criteria use lactate along with clinical findings. Serial lactate testing tracks clearance; clearance of >10% per 2 hours is a sign of adequate resuscitation.'},
+{letter:'C',text:'Elevated lactate is expected in all pneumonia patients and requires no action',correct:false,rationale:'Elevated lactate in an infected patient requires immediate action — sepsis protocol, blood cultures, fluids, antibiotics, goal-directed care.'},
+{letter:'D',text:'Lactate measures blood oxygenation, like SpO2',correct:false,rationale:'Lactate measures the metabolic BYPRODUCT of anaerobic metabolism — it reflects perfusion adequacy, not oxygen content of the blood. SpO2 measures hemoglobin oxygen saturation.'}
+],vocabTip:'<strong>↑Lactate = anaerobic metabolism = tissue hypoperfusion = SEPSIS alarm.</strong> > 2 mmol/L + infection = sepsis. > 4 mmol/L + hypotension = septic shock. Activate sepsis protocol: cultures, IV fluids, antibiotics within 1 hour, serial lactate. Clearance >10%/2h = improving.',
+profQuote:'"Lactate — super important. In your pneumonia patient with a rising lactate, that body is telling you it can\'t get enough oxygen to the tissues. Sepsis. If you don\'t catch it in time, 100% dead."'},
+
+{id:124,chapter:26,prof:false,trap:false,sata:false,
+stem:'PEEP (positive end-expiratory pressure) is used in ARDS ventilation. The nurse understands PEEP works by:',
+options:[
+{letter:'A',text:'Delivering more oxygen to the alveoli by increasing the FiO2 automatically',correct:false,rationale:'PEEP is a pressure setting — it does not change FiO2. FiO2 is set separately on the ventilator.'},
+{letter:'B',text:'Maintaining positive airway pressure at the END of expiration, preventing alveolar collapse between breaths and keeping recruitable alveoli open throughout the breathing cycle',correct:true,rationale:'Normally, airway pressure drops to zero (atmospheric) at end-expiration, allowing poorly supported ARDS alveoli to collapse again between breaths — they must be re-recruited every breath. PEEP prevents this: it maintains a baseline positive pressure (e.g., 5-15 cm H2O) throughout the entire cycle, including at end-expiration, keeping recruited alveoli open. Benefits: (1) More surface area for gas exchange; (2) Reduced V/Q mismatch; (3) Improved oxygenation without increasing FiO2 (reduces O2 toxicity risk). Risk: too much PEEP → over-distention of healthy alveoli → decreased cardiac output (impedes venous return). Monitor BP carefully when increasing PEEP.'},
+{letter:'C',text:'Providing backup breaths when the patient fails to breathe spontaneously',correct:false,rationale:'Backup breaths are a function of the ventilator mode (CMV, SIMV), not PEEP. PEEP is a pressure baseline, not a breathing trigger.'},
+{letter:'D',text:'Humidifying the delivered oxygen to prevent airway drying',correct:false,rationale:'Humidification is a separate ventilator circuit component. PEEP is an end-expiratory pressure setting.'}
+],vocabTip:'<strong>PEEP = positive pressure at END of expiration → keeps alveoli open between breaths.</strong> Prevents re-collapse. ↑ gas exchange surface. Used in ARDS + pulmonary edema. Risk: ↑ PEEP → ↓ venous return → ↓ cardiac output → hypotension. Monitor BP when titrating.'},
+
+{id:125,chapter:26,prof:true,trap:true,sata:false,
+stem:'The nurse is about to administer a high-flow nasal cannula (HFNC) at 40 L/min to an ARDS patient whose SpO2 remains 88% despite 6 L/min nasal cannula. The team is considering intubation. The professor\'s key teaching about when to intubate is:',
+options:[
+{letter:'A',text:'Wait until SpO2 drops below 70% before intubating to give all non-invasive options time to work',correct:false,rationale:'Waiting for SpO2 70% is dangerous and may result in a crash intubation in an arresting patient — far harder and riskier than an elective intubation.'},
+{letter:'B',text:'Do not delay intubation in a deteriorating ARDS patient — failed non-invasive O2 trials with continued distress, worsening work of breathing, and inability to maintain adequate SpO2 = time to secure the airway before arrest makes it emergent',correct:true,rationale:'The professor\'s principle: INTUBATE EARLY before you are FORCED to intubate. ARDS patients who fail HFNC typically deteriorate rapidly. Signs to escalate NOW: (1) Worsening work of breathing (using accessory muscles, paradoxical breathing); (2) Rising CO2 (hypoventilation despite high effort); (3) Inability to maintain SpO2 even on high-flow devices; (4) Altered mental status. A controlled, prepared intubation is always safer than an emergency intubation on a pulseless patient. Delay = crash airway = higher complication rate.'},
+{letter:'C',text:'If SpO2 is at least 85%, the patient does not need intubation',correct:false,rationale:'SpO2 is one data point. Work of breathing, CO2 trend, mental status, and trajectory ALL factor into the intubation decision. A patient with SpO2 85% who is working hard, tiring, and deteriorating needs early intubation.'},
+{letter:'D',text:'HFNC at maximum flow always avoids intubation in ARDS',correct:false,rationale:'HFNC is a bridge, not a guarantee. Severe ARDS often requires mechanical ventilation with lung-protective settings that HFNC cannot provide (PEEP, tidal volume control, FiO2 100%).'}
+],vocabTip:'<strong>ARDS intubation decision: intubate early, not in crisis.</strong> Warning signs: ↑ work of breathing, rising CO2, failing O2 despite HFNC/NRB, altered mental status. Controlled intubation >> crash intubation. Do not wait for cardiac arrest.',
+profQuote:'"You intubate BEFORE you have to. When you see that work of breathing climbing, the CO2 going up, and the O2 not responding, you do not wait. A controlled intubation is ten times safer than the emergency one you\'re forced into."'}
+
+];
+
+let answered={};
+let selections={};
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F','G','H'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+ALL_Q.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch${q.chapter}">CH ${q.chapter}</span>`;
+badges+=q.prof?`<span class="badge badge-prof">Prof</span>`:`<span class="badge badge-hy">HY</span>`;
+if(q.trap)badges+=`<span class="badge badge-trap">Trap</span>`;
+if(q.sata)badges+=`<span class="badge badge-sata">SATA</span>`;
+const optsHtml=q.options.map(o=>`<div class="opt" id="opt-${q.id}-${o.letter}" onclick="selectOption(${q.id},'${o.letter}',${q.sata})"><div class="opt-letter">${o.letter}.</div><div class="opt-text">${o.text}<div class="opt-rationale" id="rat-${q.id}-${o.letter}"><strong>${o.correct?'✓ Correct — ':'✗ — '}</strong>${o.rationale}</div></div></div>`).join('');
+const profHtml=q.profQuote?`<div class="prof-quote" id="prof-${q.id}">Why he stressed it &mdash; ${q.profQuote}</div>`:'';
+const sataHint=q.sata?`<div class="sata-hint">Select ALL that apply</div>`:'';
+card.innerHTML=`<div class="q-top"><span class="q-num">Q${idx+1}</span>${badges}</div><div class="q-stem">${q.stem}</div>${sataHint}<div class="opts">${optsHtml}</div><button class="btn-submit" id="btn-${q.id}" onclick="submitAnswer(${q.id})" disabled>Submit</button><div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>${profHtml}`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById(`opt-${qId}-${letter}`);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const prev=document.getElementById(`opt-${qId}-${l}`);if(prev)prev.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById(`btn-${qId}`).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});
+document.getElementById(`tip-${qId}`).style.display='block';
+const pf=document.getElementById(`prof-${qId}`);if(pf)pf.style.display='block';
+const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+const btn=document.getElementById(`btn-${qId}`);btn.disabled=true;btn.textContent=isCorrect?'Correct!':'Review the reasoning';
+updateProgress();saveState();
+if(Object.keys(answered).length===ALL_Q.length)showScore();
+}
+
+function updateProgress(){const pct=(Object.keys(answered).length/ALL_Q.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
+
+function showScore(){
+let correct=0;
+ALL_Q.forEach(q=>{if(answered[q.id]){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];if(c.length===s.length&&c.every(l=>s.includes(l)))correct++;}});
+const pct=Math.round((correct/ALL_Q.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=`${correct} of ${ALL_Q.length} correct`;
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const rec={score:pct,correct,total:ALL_Q.length,date:new Date().toLocaleDateString()};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct,total:ALL_Q.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const state=JSON.parse(saved);answered=state.answered||{};selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const rat=document.getElementById(`rat-${qId}-${o.letter}`);if(rat)rat.style.display='block';}});const tip=document.getElementById(`tip-${qId}`);if(tip)tip.style.display='block';const pf=document.getElementById(`prof-${qId}`);if(pf)pf.style.display='block';const card=document.getElementById(`qcard-${qId}`);if(card)card.classList.add(ok?'answered-correct':'answered-wrong');const btn=document.getElementById(`btn-${qId}`);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';}});
+updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore();}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
