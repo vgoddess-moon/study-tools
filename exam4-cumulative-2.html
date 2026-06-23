@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam 4 Cumulative B &mdash; Ch 22-26</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#fb7185}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#e11d48,#fb7185);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch22,.badge-ch23,.badge-ch24,.badge-ch25,.badge-ch26{background:#0a1f2a;color:#7dd3fc}
+.badge-prof{background:#2a1a06;color:#fbbf24}
+.badge-hy{background:#1a2332;color:#94a3b8}
+.badge-trap{background:#2a0a0a;color:#f87171}
+.badge-sata{background:#1a1f2e;color:#c084fc;border:1px solid #7c3aed}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#c084fc;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fb7185;background:#2a0a14}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.05rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b;line-height:1.5}
+.btn-submit{background:#e11d48;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#be123c}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#1f0a14;border-left:3px solid #fb7185;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#fecdd3;line-height:1.5}
+.vocab-tip strong{color:#fb7185}
+.prof-quote{background:#1a1406;border-left:3px solid #fbbf24;border-radius:0 8px 8px 0;padding:.6rem 1rem;margin-top:.6rem;display:none;font-size:.78rem;color:#fde68a;font-style:italic}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#fb7185;margin:.5rem 0}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Exam 4 Cumulative B &mdash; Ch 22-26</h1>
+<p class="subtitle">All five chapters mixed &middot; Assessment &middot; Head/Neck &middot; Noninfectious &middot; Infectious &middot; Critical Care &middot; 30 Questions</p>
+</div>
+<div class="exam-info">A second full cumulative draw &mdash; new scenarios, all five chapters shuffled. No hints in the options. Pick cold, then read the rationale. Use this one after Cumulative A to see what actually stuck.</div>
+<div class="legend">
+<span><span class="dot" style="background:#fbbf24"></span>Prof</span>
+<span><span class="dot" style="background:#94a3b8"></span>HY</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Cumulative B Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<p style="color:#f9a8d4;font-size:.85rem;margin-top:.5rem">That score is yours. No hints. No handholding. All you.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam4-cumulative-2';
+const EXAM_LABEL='Exam 4 Cumulative B — Ch 22-26';
+const ALL_Q=[
+
+{id:301,chapter:24,prof:true,trap:true,sata:false,
+stem:'A nurse observes the water-seal chamber of a patient\'s chest drainage system and notes CONTINUOUS bubbling. The nurse interprets this finding as:',
+options:[
+{letter:'A',text:'An air leak that requires notifying the surgeon',correct:true,rationale:'CONTINUOUS bubbling in the water-seal chamber signals an AIR LEAK — air is entering the system constantly, either from the patient (a persistent pleural leak) or from a loose connection/crack in the tubing. The nurse first checks all connections; if continuous bubbling persists, the surgeon is notified. Contrast with intermittent bubbling on exhalation/cough, which is normal as trapped air is expelled.'},
+{letter:'B',text:'Normal, expected drainage system function',correct:false,rationale:'Continuous bubbling is NOT normal. Intermittent bubbling (with exhalation or cough) and gentle tidaling are the normal findings. Continuous bubbling means an air leak.'},
+{letter:'C',text:'A sign that the lung has fully re-expanded',correct:false,rationale:'Lung re-expansion is signaled by CESSATION of tidaling and bubbling — not by continuous bubbling. Continuous bubbling means air is still leaking into the system.'},
+{letter:'D',text:'An indication to clamp the chest tube immediately',correct:false,rationale:'Clamping a chest tube with an air leak can trap air in the pleural space and cause a tension pneumothorax. You investigate the leak (check connections) and notify the surgeon — you do not clamp.'}
+],vocabTip:'<strong>Chest tube water seal: CONTINUOUS bubbling = AIR LEAK (check connections → notify surgeon).</strong> Intermittent bubbling (exhale/cough) = NORMAL. Tidaling (rise/fall with breathing) = NORMAL. Tidaling stops = lung re-expanded OR tube blocked. Never clamp to "fix" a leak.',
+profQuote:'"Bubbling that never stops is an air leak. Bubbling that comes and goes with a cough is just the lung doing its job."'},
+
+{id:302,chapter:26,prof:true,sata:false,
+stem:'A patient with severe ARDS is placed in the prone position. The nurse explains that prone positioning improves oxygenation primarily because it:',
+options:[
+{letter:'A',text:'Recruits collapsed dorsal alveoli and improves V/Q matching',correct:true,rationale:'In ARDS, the dependent DORSAL (posterior) lung regions collapse under the weight of the heart, mediastinum, and abdominal contents. Turning the patient prone shifts that weight off the dorsal lung, allowing those collapsed alveoli to re-open (recruitment) and redistributing both ventilation and perfusion more evenly — improving V/Q matching and oxygenation.'},
+{letter:'B',text:'Increases the work of breathing to strengthen the diaphragm',correct:false,rationale:'Prone positioning is not about increasing work of breathing — these patients are typically mechanically ventilated. The benefit is alveolar recruitment and improved V/Q matching, not diaphragm "exercise."'},
+{letter:'C',text:'Drains pulmonary edema fluid out through the airway',correct:false,rationale:'Prone positioning does not drain edema fluid out of the lungs. It improves oxygenation by recruiting dependent alveoli and improving the distribution of ventilation and perfusion.'},
+{letter:'D',text:'Reduces the amount of oxygen the patient requires to zero',correct:false,rationale:'Prone positioning improves oxygenation but does not eliminate the need for supplemental oxygen or ventilation. It is an adjunct for refractory hypoxemia in moderate-to-severe ARDS.'}
+],vocabTip:'<strong>Prone positioning in ARDS = recruits collapsed DORSAL alveoli, improves V/Q matching.</strong> Takes the weight of heart/abdomen off the back of the lungs. Used for refractory hypoxemia. Protect the airway, eyes, and pressure points; needs a trained team to turn.',
+profQuote:'"You flip them prone and the back of the lungs finally gets to open up. The weight comes off, the alveoli recruit, the oxygen comes up."'},
+
+{id:303,chapter:22,prof:true,sata:false,
+stem:'A nurse caring for a ventilated patient on supplemental oxygen notes SpO2 of 97% but a rising end-tidal CO2. The nurse understands that these two values differ because:',
+options:[
+{letter:'A',text:'SpO2 reflects oxygenation while capnography reflects ventilation',correct:true,rationale:'SpO2 measures how saturated hemoglobin is with oxygen → OXYGENATION. Capnography (ETCO2) measures exhaled carbon dioxide → VENTILATION (how well CO2 is being cleared). A patient on supplemental O2 can have a reassuring SpO2 while hypoventilating and retaining CO2 — which is exactly why both are monitored. The rising ETCO2 reveals a ventilation problem the SpO2 alone would miss.'},
+{letter:'B',text:'SpO2 reflects ventilation while capnography reflects oxygenation',correct:false,rationale:'This is reversed. SpO2 = oxygenation; capnography (ETCO2) = ventilation. Mixing them up is a classic error.'},
+{letter:'C',text:'Both values measure the same thing and should always match',correct:false,rationale:'They measure different parameters (oxygen on hemoglobin vs. exhaled CO2) and can diverge — that divergence here (good SpO2, rising CO2) is the clinically important clue.'},
+{letter:'D',text:'Capnography is unreliable in ventilated patients',correct:false,rationale:'Capnography is highly reliable and especially valuable in ventilated patients — it confirms tube placement and trends ventilation continuously. It is not unreliable.'}
+],vocabTip:'<strong>SpO2 = OXYGENATION (O2 on hemoglobin). ETCO2/capnography = VENTILATION (CO2 exhaled).</strong> Normal ETCO2 35-45 mmHg. A normal SpO2 with rising CO2 = hypoventilation hidden by supplemental O2. You need both numbers.'},
+
+{id:304,chapter:26,prof:false,sata:false,
+stem:'A patient returns from a 10-hour flight with sudden pleuritic chest pain, dyspnea, tachycardia, and a cough productive of blood-streaked sputum. The nurse suspects:',
+options:[
+{letter:'A',text:'Pulmonary embolism',correct:true,rationale:'Sudden pleuritic chest pain, dyspnea, tachycardia, and hemoptysis after prolonged immobility (a long flight = venous stasis, a Virchow risk factor) is the classic presentation of pulmonary embolism. A clot — usually from a leg DVT — travels to the pulmonary circulation. PE is a perfusion emergency; assess oxygenation, elevate the head of bed, and anticipate D-dimer/CT angiography and anticoagulation.'},
+{letter:'B',text:'Acute asthma exacerbation',correct:false,rationale:'Asthma presents with wheezing and prolonged expiration, usually with a known trigger — not sudden pleuritic pain with hemoptysis after immobility. The travel history and presentation point to PE.'},
+{letter:'C',text:'Pneumonia',correct:false,rationale:'Pneumonia typically develops over days with fever, productive purulent cough, and consolidation — not the abrupt onset after a flight described here. The acute, post-immobility picture fits PE.'},
+{letter:'D',text:'Costochondritis',correct:false,rationale:'Costochondritis causes reproducible chest-wall tenderness without dyspnea, tachycardia, or hemoptysis. It would not explain this acute hypoxic presentation after prolonged immobility.'}
+],vocabTip:'<strong>PE classic picture: sudden pleuritic chest pain + dyspnea + tachycardia ± hemoptysis, often after immobility/surgery (Virchow\'s triad: stasis, hypercoagulability, endothelial injury).</strong> Workup: D-dimer (sensitive, not specific) → CT pulmonary angiography. Treat with anticoagulation.'},
+
+{id:305,chapter:24,prof:true,trap:true,sata:false,
+stem:'A patient returns from a right pneumonectomy (removal of the entire right lung). Which positioning order does the nurse expect?',
+options:[
+{letter:'A',text:'Supine or on the operative (right) side only',correct:true,rationale:'After a PNEUMONECTOMY the entire lung is gone, leaving an empty space and only ONE functioning lung. The patient is positioned supine or on the OPERATIVE side only. The patient must NOT be turned fully onto the non-operative (good-lung) side, because fluid/pressure could compress the only remaining lung and a shifting mediastinum could compromise the heart and great vessels.'},
+{letter:'B',text:'On the non-operative (left) side only',correct:false,rationale:'This is the trap — and it is exactly backwards. Lying fully on the non-operative side puts pressure on the ONLY remaining lung and risks mediastinal shift. The patient may lie supine or on the operative side, not on the good-lung side.'},
+{letter:'C',text:'High-Fowler\'s with frequent turning to both sides',correct:false,rationale:'Free turning to both sides is appropriate after a lobectomy (lung tissue remains to re-expand), not after a pneumonectomy, where turning onto the good-lung side is contraindicated.'},
+{letter:'D',text:'Trendelenburg to promote venous return',correct:false,rationale:'Trendelenburg compresses the diaphragm and the remaining lung and is not indicated. Pneumonectomy positioning is supine or operative side only.'}
+],vocabTip:'<strong>Pneumonectomy = supine OR operative side ONLY — NEVER fully on the good-lung side</strong> (protects the one remaining lung; prevents mediastinal shift). Lobectomy = semi-Fowler\'s, turn EITHER side (remaining lobes re-expand). Know the contrast.',
+profQuote:'"They\'ve only got one lung left. You do not lay them on the good side and squash it. Operative side or flat — that\'s it."'},
+
+{id:306,chapter:25,prof:false,trap:true,sata:false,
+stem:'A patient reports facial pain over both cheeks that radiates to the upper teeth, along with a sore throat. The nurse recognizes this presentation as most consistent with:',
+options:[
+{letter:'A',text:'Rhinosinusitis',correct:true,rationale:'Pain over the cheeks (maxillary sinuses) that radiates to the upper teeth, plus a sore throat from postnasal drip, is classic RHINOSINUSITIS — swollen, inflamed sinuses build pressure that refers pain to the teeth, and mucus dripping down the throat causes the sore throat. This contrasts with inhalation anthrax, which presents with a dry cough and flu-like symptoms but LACKS sore throat and runny nose.'},
+{letter:'B',text:'Inhalation anthrax',correct:false,rationale:'Inhalation anthrax characteristically presents with a dry cough and flu-like symptoms but WITHOUT a sore throat or runny nose. The cheek/tooth pain and sore throat here point to rhinosinusitis, not anthrax.'},
+{letter:'C',text:'A dental abscess only',correct:false,rationale:'While sinus pressure can mimic tooth pain, the bilateral cheek pain radiating to the teeth WITH a sore throat from postnasal drip is the sinus picture. An isolated dental abscess would not cause bilateral cheek pain and postnasal-drip sore throat.'},
+{letter:'D',text:'Tuberculosis',correct:false,rationale:'TB presents with chronic cough, night sweats, weight loss, and possible hemoptysis — not acute cheek/tooth pain with sore throat. This is a sinus presentation.'}
+],vocabTip:'<strong>Rhinosinusitis = cheek pain radiating to the TEETH + sore throat (postnasal drip).</strong> Inhalation anthrax = dry cough + flu-like but NO sore throat / NO runny nose. The presence vs. absence of URI symptoms separates them.'},
+
+{id:307,chapter:22,prof:true,sata:false,
+stem:'A patient\'s pulmonary function test shows an FEV1/FVC ratio of 0.58 with a normal total lung capacity. The nurse interprets this pattern as:',
+options:[
+{letter:'A',text:'Obstructive lung disease',correct:true,rationale:'An FEV1/FVC ratio below 0.70 defines an OBSTRUCTIVE pattern (asthma, COPD): the airways are narrowed, so air comes out too slowly and a smaller fraction of the total is exhaled in the first second. At 0.58, airflow is clearly obstructed. Restrictive disease, by contrast, keeps the ratio normal or high while reducing absolute volumes.'},
+{letter:'B',text:'Restrictive lung disease',correct:false,rationale:'Restrictive disease (fibrosis, obesity, chest wall problems) reduces both FEV1 and FVC proportionally, so the RATIO stays ≥0.70 — and total lung capacity is reduced. This patient has a low ratio with normal TLC, which is obstructive, not restrictive.'},
+{letter:'C',text:'Normal pulmonary function',correct:false,rationale:'A ratio of 0.58 is below the 0.70 threshold and is not normal — it indicates obstruction.'},
+{letter:'D',text:'A purely diffusion-limited process',correct:false,rationale:'A diffusion problem is assessed by DLCO, not by the FEV1/FVC ratio. The low ratio specifically indicates airflow obstruction.'}
+],vocabTip:'<strong>FEV1/FVC < 0.70 = OBSTRUCTIVE (asthma, COPD) — air trapped, comes out slow.</strong> Restrictive = ratio normal/high but low volumes (low TLC/FVC). FVC = total forced exhale; FEV1 = first-second volume.',
+profQuote:'"Ratio under 0.70 is obstruction every time. The air is in there — it just can\'t get out fast enough."'},
+
+{id:308,chapter:26,prof:true,sata:false,
+stem:'A patient with a COPD exacerbation has an ABG showing PaCO2 of 68 mmHg and pH of 7.28. The nurse recognizes this as which type of respiratory failure?',
+options:[
+{letter:'A',text:'Type II — ventilatory failure',correct:true,rationale:'Type II (hypercapnic/ventilatory) failure is defined by PaCO2 > 50 mmHg, typically with acidosis (low pH). This patient\'s PaCO2 of 68 with a pH of 7.28 shows CO2 retention and respiratory acidosis — the lungs cannot move enough air to blow off CO2. This is the classic pattern in a COPD exacerbation.'},
+{letter:'B',text:'Type I — oxygenation failure',correct:false,rationale:'Type I failure is defined by PaO2 < 60 mmHg with a normal/low CO2 — a problem getting oxygen IN. This patient\'s defining abnormality is a HIGH CO2 with acidosis, which is ventilatory (Type II) failure.'},
+{letter:'C',text:'No respiratory failure is present',correct:false,rationale:'A PaCO2 of 68 with a pH of 7.28 is clearly abnormal — it meets the definition of Type II respiratory failure with respiratory acidosis.'},
+{letter:'D',text:'Metabolic alkalosis',correct:false,rationale:'The pH is LOW (7.28 = acidosis), not high, and the cause is a HIGH CO2 — this is respiratory acidosis from ventilatory failure, not metabolic alkalosis.'}
+],vocabTip:'<strong>Type II = VENTILATORY failure: PaCO2 > 50 + acidosis (low pH).</strong> Problem = can\'t blow off CO2 (COPD, oversedation, neuromuscular weakness). Type I = OXYGENATION failure: PaO2 < 60. Two numbers: 50 (CO2) and 60 (O2).'},
+
+{id:309,chapter:23,prof:true,sata:false,
+stem:'The nurse reinforces the supraglottic swallow with a patient after a partial laryngectomy. Which instruction reflects the correct technique?',
+options:[
+{letter:'A',text:'"Take a breath, hold it, swallow, then cough before breathing in again."',correct:true,rationale:'The supraglottic swallow protects the airway in patients with impaired laryngeal closure: (1) inhale, (2) HOLD the breath — this closes the vocal cords and seals the airway, (3) SWALLOW while holding, (4) COUGH immediately, before the next breath, to clear any residue near the airway entrance. Holding the breath before the swallow is what seals the cords; coughing before inhaling clears anything left behind.'},
+{letter:'B',text:'"Swallow first, then take a deep breath in to clear the throat."',correct:false,rationale:'Breathing IN right after swallowing can pull any residual food toward the open airway. The cough must come BEFORE the next inhalation, and the breath-hold must come BEFORE the swallow.'},
+{letter:'C',text:'"Tilt your head back and swallow quickly without pausing."',correct:false,rationale:'Tilting the head BACK opens the airway and increases aspiration risk. A chin-tuck (head slightly forward) is used, along with the breath-hold sequence — not a fast head-back swallow.'},
+{letter:'D',text:'"Drink thin liquids rapidly to wash food down."',correct:false,rationale:'Thin liquids are the hardest to control and the most easily aspirated. The supraglottic swallow technique (with possible diet/texture modification) — not rapid thin liquids — is what protects the airway.'}
+],vocabTip:'<strong>Supraglottic swallow: inhale → HOLD breath (closes cords) → swallow → COUGH before next breath.</strong> Chin tuck, upright, no head-back, no rapid thin liquids. Used after PARTIAL laryngectomy (ongoing aspiration risk). SLP teaches; nurse reinforces every meal.',
+profQuote:'"Hold the breath to close the cords, swallow, then cough before you breathe. That sequence is the whole technique."'},
+
+{id:310,chapter:26,prof:true,sata:true,
+stem:'A nurse reviews reversal agents for anticoagulants and antiplatelets. Which agent-to-antidote pairings are correct? Select all that apply.',
+options:[
+{letter:'A',text:'Unfractionated heparin → protamine sulfate',correct:true,rationale:'Protamine sulfate reverses unfractionated heparin (and partially reverses LMWH) by binding it directly. This is a high-yield pairing.'},
+{letter:'B',text:'Warfarin → vitamin K (with FFP/PCC for urgent reversal)',correct:true,rationale:'Warfarin blocks vitamin-K-dependent clotting factors, so vitamin K reverses it. For urgent/major bleeding, fresh frozen plasma or prothrombin complex concentrate (PCC) replaces factors immediately while vitamin K takes effect.'},
+{letter:'C',text:'Dabigatran → idarucizumab',correct:true,rationale:'Idarucizumab (Praxbind) is the specific monoclonal-antibody reversal agent for the direct thrombin inhibitor dabigatran.'},
+{letter:'D',text:'Rivaroxaban/apixaban → andexanet alfa',correct:true,rationale:'Andexanet alfa reverses the factor Xa inhibitors rivaroxaban and apixaban by acting as a decoy that binds the drug.'},
+{letter:'E',text:'Warfarin → naloxone',correct:false,rationale:'Naloxone reverses OPIOIDS, not anticoagulants. It has no effect on warfarin. Pairing an anticoagulant with naloxone is a classic distractor — warfarin\'s antidote is vitamin K.'}
+],vocabTip:'<strong>Reversal agents:</strong> Heparin → PROTAMINE · Warfarin → VITAMIN K (+ FFP/PCC urgently) · Dabigatran → IDARUCIZUMAB · Rivaroxaban/apixaban → ANDEXANET ALFA. NALOXONE = opioids (NOT anticoagulants). Flumazenil = benzodiazepines.'},
+
+{id:311,chapter:24,prof:true,sata:false,
+stem:'Two parents who are both confirmed cystic fibrosis carriers ask about the chance their child will be born WITH cystic fibrosis. The nurse\'s correct response is:',
+options:[
+{letter:'A',text:'"There is a 25% chance with each pregnancy."',correct:true,rationale:'CF is autosomal recessive. When BOTH parents are carriers (each Cc), each pregnancy carries a 25% chance the child inherits two mutated alleles (affected), a 50% chance of being a carrier, and a 25% chance of being completely unaffected. These odds reset with every pregnancy. (Note the contrast: if one parent actually HAD CF and the other were a carrier, the chance of an affected child would rise to 50%.)'},
+{letter:'B',text:'"There is no chance, since neither parent has the disease."',correct:false,rationale:'Carriers do not have the disease but DO carry one mutated allele. Two carriers can absolutely have an affected child — 25% per pregnancy. The answer is not zero.'},
+{letter:'C',text:'"There is a 50% chance with each pregnancy."',correct:false,rationale:'50% is the figure when one parent HAS CF and the other is a carrier. For two CARRIERS, the chance of an affected child is 25%.'},
+{letter:'D',text:'"All of their children will have cystic fibrosis."',correct:false,rationale:'Two carriers have only a 25% chance per pregnancy of an affected child — not 100%. Half their children are expected to be carriers and a quarter completely unaffected.'}
+],vocabTip:'<strong>CF carrier × carrier = 25% affected / 50% carrier / 25% unaffected per pregnancy.</strong> Affected parent × carrier = 50% affected. Autosomal recessive, CFTR gene, chromosome 7. Odds reset every pregnancy.',
+profQuote:'"Two carriers — that\'s your 25%. One parent with the disease — now it\'s 50%. Know which cross you\'re looking at."'},
+
+{id:312,chapter:22,prof:false,sata:false,
+stem:'A patient needs low-flow supplemental oxygen and is started on a nasal cannula at 3 L/min. The nurse knows this delivers approximately what FiO2?',
+options:[
+{letter:'A',text:'About 32%',correct:true,rationale:'A nasal cannula delivers roughly 24% at 1 L/min and increases about 4% for each additional liter, up to ~44% at 6 L/min. At 3 L/min: 24% + (2 × 4%) ≈ 32%. Going above 6 L/min dries the mucosa without meaningfully raising FiO2. Nasal cannula is the comfortable low-flow device that allows talking and eating.'},
+{letter:'B',text:'About 60%',correct:false,rationale:'60% is in the simple-face-mask / partial-rebreather range, not nasal cannula. A nasal cannula maxes out around 44% at 6 L/min.'},
+{letter:'C',text:'About 90%',correct:false,rationale:'90% requires a non-rebreather mask at 10-15 L/min. A nasal cannula cannot deliver that concentration.'},
+{letter:'D',text:'About 21%',correct:false,rationale:'21% is room air (no supplemental oxygen). A nasal cannula at 3 L/min raises FiO2 above room air, to roughly 32%.'}
+],vocabTip:'<strong>Nasal cannula: ~24% at 1 L/min, +4% per liter, max ~44% at 6 L/min.</strong> Simple mask: 40-60% (min 5 L/min). Non-rebreather: 60-100% (10-15 L/min). Venturi: precise % for COPD. Above 6 L/min on a cannula just dries mucosa.'},
+
+{id:313,chapter:25,prof:true,sata:false,
+stem:'A patient with suspected pneumonia coughs up thick, rust-colored sputum. The nurse recognizes this finding most strongly suggests:',
+options:[
+{letter:'A',text:'Bacterial pneumonia',correct:true,rationale:'Rust-colored (or thick purulent) sputum is the classic finding in BACTERIAL pneumonia — the rusty tinge comes from blood mixed into inflammatory exudate, traditionally associated with Streptococcus pneumoniae. Sputum character is a key discriminator: obtain a culture before starting antibiotics when possible.'},
+{letter:'B',text:'Pulmonary edema',correct:false,rationale:'Pulmonary edema produces PINK, FROTHY sputum (fluid backing up from the heart, whipped into froth), not thick rust-colored sputum.'},
+{letter:'C',text:'A lung abscess',correct:false,rationale:'A lung abscess produces FOUL-SMELLING (fetid) sputum from anaerobic organisms — not the rust color of bacterial pneumonia.'},
+{letter:'D',text:'Viral upper respiratory infection',correct:false,rationale:'A viral URI produces thin, clear secretions. Thick rust-colored sputum points to a bacterial lower-respiratory infection.'}
+],vocabTip:'<strong>Rust-colored / purulent sputum = BACTERIAL pneumonia (classically Strep pneumoniae).</strong> Pink frothy = pulmonary edema. Foul-smelling = lung abscess. Hemoptysis (frank blood) = TB/cancer/infarct. Culture before antibiotics.',
+profQuote:'"Rust-colored sputum — that\'s your bacterial pneumonia. The color is telling you blood is mixed in with the infection."'},
+
+{id:314,chapter:26,prof:true,sata:false,
+stem:'A low-pressure (disconnect) alarm sounds on a mechanically ventilated patient. After confirming the patient is in distress, the nurse is unable to quickly identify the cause. The safest immediate action is to:',
+options:[
+{letter:'A',text:'Disconnect the patient and manually ventilate with a bag-valve-mask',correct:true,rationale:'When a ventilated patient is in distress and the cause cannot be rapidly identified and fixed, the safest action is to DISCONNECT from the ventilator and manually ventilate with a BVM connected to 100% oxygen. This guarantees oxygenation and ventilation while help is summoned and the problem (machine vs. patient) is sorted out. "When in doubt, take them off the vent and bag them" — but always assess the patient first.'},
+{letter:'B',text:'Silence the alarm and continue to observe',correct:false,rationale:'Silencing the alarm on a patient in distress without restoring effective ventilation is dangerous. The alarm is signaling a real problem; oxygenation must be secured.'},
+{letter:'C',text:'Increase the ventilator FiO2 to 100% and wait',correct:false,rationale:'If the circuit is disconnected or leaking (low-pressure alarm), increasing FiO2 on the machine will not reach the patient. Manual ventilation with a BVM is needed to guarantee delivery.'},
+{letter:'D',text:'Call the provider and wait at the bedside for orders',correct:false,rationale:'A distressed ventilated patient cannot wait for a call-back. The nurse acts immediately — bag the patient to maintain oxygenation — while calling for help.'}
+],vocabTip:'<strong>Vent alarm rule: assess the PATIENT first. If in distress + cause unclear → DISCONNECT and bag with BVM + 100% O2.</strong> Low-pressure alarm = leak/disconnect. High-pressure alarm = resistance (secretions, kink, biting, bronchospasm, pneumothorax). When in doubt, bag them.',
+profQuote:'"If you can\'t fix it fast and the patient is in trouble — take them off the machine and bag them. The Ambu bag never fails you."'},
+
+{id:315,chapter:23,prof:true,sata:false,
+stem:'A patient\'s mandible is wired shut following surgical repair of a jaw fracture. Which item is the highest priority to keep taped at the bedside?',
+options:[
+{letter:'A',text:'Wire cutters (or scissors for elastic bands)',correct:true,rationale:'A patient with a wired jaw cannot open their mouth. If they vomit, they cannot expel it and can aspirate or asphyxiate within seconds. Wire cutters must be taped at the bedside (not in a drawer) so the airway can be opened immediately — cut the wires FIRST, then clear/manage the airway. Teach the patient and family to carry cutters at all times after discharge.'},
+{letter:'B',text:'A tongue depressor',correct:false,rationale:'A tongue depressor does nothing to open a wired jaw in an emergency. The life-saving item is the wire cutters that can release the fixation.'},
+{letter:'C',text:'An oral airway',correct:false,rationale:'An oral airway cannot be inserted past a jaw wired shut. The priority is wire cutters to open the jaw if the patient vomits.'},
+{letter:'D',text:'A bite block',correct:false,rationale:'A bite block is irrelevant to a wired jaw and does not address the aspiration/asphyxiation emergency. Wire cutters are the priority safety item.'}
+],vocabTip:'<strong>Wired jaw → WIRE CUTTERS taped at bedside, always.</strong> Vomiting + wired shut = can\'t clear it = aspiration/asphyxiation in seconds. Cut wires FIRST, then airway. Patient/family must carry cutters everywhere after discharge.',
+profQuote:'"Jaw\'s wired shut, the wire cutters are taped right there at the bedside. If they vomit, you cut first and ask questions later."'},
+
+{id:316,chapter:26,prof:false,sata:false,
+stem:'A critically ill patient with suspected sepsis has a serum lactate of 4.8 mmol/L, hypotension unresponsive to fluids, and warm flushed skin. The nurse recognizes these findings as consistent with:',
+options:[
+{letter:'A',text:'Septic shock',correct:true,rationale:'A markedly elevated lactate (≥4 mmol/L) reflects anaerobic metabolism from tissue hypoperfusion. Combined with fluid-refractory hypotension (requiring vasopressors) and the early warm/flushed "warm shock" skin of massive vasodilation, this is septic (distributive) shock. Lactate is both a severity marker and a resuscitation target — trending it down indicates improving perfusion.'},
+{letter:'B',text:'Hypovolemic shock from hemorrhage',correct:false,rationale:'Hypovolemic shock presents with cold, clammy, pale skin from compensatory vasoconstriction — not the warm, flushed skin of early septic shock. And septic hypotension is classically fluid-refractory due to vasodilation.'},
+{letter:'C',text:'Cardiogenic shock',correct:false,rationale:'Cardiogenic shock features pump failure with cool, clammy skin, pulmonary congestion, and signs of poor forward output — not the warm vasodilated picture with a septic source described here.'},
+{letter:'D',text:'A normal stress response to illness',correct:false,rationale:'A lactate of 4.8 with fluid-refractory hypotension is not a normal stress response — it signals shock with tissue hypoperfusion requiring urgent resuscitation.'}
+],vocabTip:'<strong>Septic shock = lactate ≥ 4 mmol/L + fluid-refractory hypotension (needs vasopressors) ± warm/flushed "warm shock" skin.</strong> Lactate = perfusion marker and resuscitation target. Sepsis is also the #1 cause of ARDS — watch the lungs.'},
+
+{id:317,chapter:26,prof:false,sata:true,
+stem:'The nurse is identifying patients at increased risk for deep vein thrombosis and pulmonary embolism. Which factors increase the risk? Select all that apply.',
+options:[
+{letter:'A',text:'Prolonged immobility or recent long-distance travel',correct:true,rationale:'Immobility causes venous stasis — one arm of Virchow\'s triad. Bed rest, long flights, and casts all slow venous return and promote clot formation.'},
+{letter:'B',text:'Recent major surgery or trauma',correct:true,rationale:'Surgery and trauma cause endothelial injury and a hypercoagulable state — two more arms of Virchow\'s triad — markedly raising DVT/PE risk, especially orthopedic and pelvic procedures.'},
+{letter:'C',text:'Estrogen-containing contraceptives or pregnancy',correct:true,rationale:'Estrogen (oral contraceptives, hormone therapy) and pregnancy create a hypercoagulable state and increase venous thromboembolism risk.'},
+{letter:'D',text:'Active malignancy',correct:true,rationale:'Cancer produces a hypercoagulable, pro-thrombotic state (and tumors can compress veins), making active malignancy a well-established DVT/PE risk factor.'},
+{letter:'E',text:'Daily ambulation and regular physical activity',correct:false,rationale:'Regular ambulation and activity REDUCE venous stasis and LOWER clot risk — it is protective, not a risk factor. Early mobilization is a core DVT-prevention strategy.'}
+],vocabTip:'<strong>DVT/PE risk = Virchow\'s triad: STASIS (immobility, travel, bed rest), HYPERCOAGULABILITY (cancer, estrogen, pregnancy), ENDOTHELIAL INJURY (surgery, trauma).</strong> Prevention: early ambulation, SCDs, prophylactic anticoagulation. Ambulation is protective, not a risk.'},
+
+{id:318,chapter:24,prof:true,sata:false,
+stem:'A patient with right-sided heart failure is most likely to present with which finding?',
+options:[
+{letter:'A',text:'Jugular venous distention and peripheral edema',correct:true,rationale:'RIGHT-sided HF backs blood up into the systemic venous circulation (Right = Rest of the body): jugular venous distention, dependent peripheral and sacral edema, hepatomegaly, ascites, and weight gain. The failing right ventricle can\'t move blood forward into the lungs, so pressure backs up into the body\'s veins.'},
+{letter:'B',text:'Crackles and frothy pink sputum',correct:false,rationale:'Crackles and pink frothy sputum are LEFT-sided HF findings — blood backs up into the LUNGS (Left = Lungs). This is the contrast, not right-sided failure.'},
+{letter:'C',text:'Orthopnea and paroxysmal nocturnal dyspnea',correct:false,rationale:'Orthopnea and PND are LEFT-sided HF symptoms from pulmonary congestion. Right-sided failure shows systemic congestion (JVD, edema) instead.'},
+{letter:'D',text:'Dry hacking cough with wheezing',correct:false,rationale:'A cough from pulmonary congestion is a LEFT-sided finding. Right-sided HF produces systemic venous congestion signs like JVD and edema.'}
+],vocabTip:'<strong>RIGHT = REST of the body:</strong> JVD, peripheral/sacral edema, hepatomegaly, ascites, weight gain. <strong>LEFT = LUNGS:</strong> crackles, dyspnea, orthopnea, PND, pink frothy sputum. One letter tells you where to assess.',
+profQuote:'"Right-sided backs up into the body — the neck veins, the legs, the belly. Left-sided drowns the lungs."'},
+
+{id:319,chapter:22,prof:true,trap:true,sata:false,
+stem:'A patient on a high FiO2 via non-rebreather develops gradually worsening hypoxia and new bibasilar crackles over several hours. The nurse identifies absorptive atelectasis as a likely contributor, which occurs because:',
+options:[
+{letter:'A',text:'High FiO2 washes nitrogen out of the alveoli, removing the gas that splints them open',correct:true,rationale:'Room air is ~78% nitrogen, which is poorly absorbed and stays in the alveolus, acting as a "stent" that keeps it from collapsing after oxygen diffuses into the blood. At very high FiO2, nitrogen is washed out and replaced by readily absorbed oxygen; once that O2 is absorbed, nothing remains to hold the alveolus open and it collapses — absorptive atelectasis. This worsens V/Q mismatch and hypoxia. Prevention: lowest effective FiO2 and PEEP.'},
+{letter:'B',text:'High FiO2 causes the bronchi to spasm and trap air',correct:false,rationale:'High FiO2 does not cause bronchospasm. The mechanism of absorptive atelectasis is nitrogen washout leading to alveolar collapse, not airway narrowing.'},
+{letter:'C',text:'Oxygen directly dissolves the alveolar walls',correct:false,rationale:'Oxygen does not dissolve alveolar walls. Absorptive atelectasis is a gas-composition phenomenon: loss of the nitrogen "splint" leads to alveolar collapse.'},
+{letter:'D',text:'High oxygen increases surfactant production excessively',correct:false,rationale:'High oxygen actually impairs surfactant over time; it does not overproduce it. The collapse in absorptive atelectasis is due to nitrogen washout, not a surfactant surge.'}
+],vocabTip:'<strong>Absorptive atelectasis: high FiO2 → nitrogen washed out → no "splint" → O2 fully absorbed → alveolus collapses.</strong> Worsens hypoxia. Prevent with lowest effective FiO2 + PEEP. A reason not to reflexively run everyone at 100% O2.',
+profQuote:'"Nitrogen is what holds the alveolus open between breaths. Wash it out with pure oxygen and the alveolus has nothing left to keep it from collapsing."'},
+
+{id:320,chapter:25,prof:false,sata:false,
+stem:'A patient in acute distress coughs up copious pink, frothy sputum. The nurse recognizes this finding as most consistent with:',
+options:[
+{letter:'A',text:'Pulmonary edema',correct:true,rationale:'Pink, frothy sputum is the hallmark of PULMONARY EDEMA — fluid (often from acute left-sided heart failure) backs up into the alveoli, mixes with a small amount of blood, and gets whipped into froth with each breath. This is a medical emergency: sit the patient upright, apply oxygen, and notify the provider; treatment targets the fluid overload and the failing heart.'},
+{letter:'B',text:'Bacterial pneumonia',correct:false,rationale:'Bacterial pneumonia produces rust-colored or thick purulent sputum, not pink frothy sputum. Pink froth points to fluid in the alveoli from pulmonary edema.'},
+{letter:'C',text:'Tuberculosis',correct:false,rationale:'TB classically causes hemoptysis (frank blood) along with chronic cough, night sweats, and weight loss — not the pink, frothy sputum of pulmonary edema.'},
+{letter:'D',text:'Lung abscess',correct:false,rationale:'A lung abscess produces foul-smelling (fetid) sputum from anaerobes — not pink froth. Pink frothy sputum is the pulmonary edema finding.'}
+],vocabTip:'<strong>Pink, frothy sputum = PULMONARY EDEMA</strong> (often acute left-sided HF backing fluid into alveoli). Sit upright, O2, notify provider. Compare: rust/purulent = bacterial pneumonia; foul = abscess; frank blood = TB/cancer/infarct.'},
+
+{id:321,chapter:26,prof:true,trap:true,sata:false,
+stem:'A young trauma patient with a fractured pelvis and femur suddenly becomes dyspneic and confused 36 hours after injury, and the nurse notes scattered petechiae over the chest and in the axillae. The priority nursing action is to:',
+options:[
+{letter:'A',text:'Apply oxygen and notify the provider of suspected fat embolism',correct:true,rationale:'The triad of respiratory distress, neurologic change (confusion), and a petechial rash on the chest/axillae 24-72 hours after a long-bone/pelvic fracture is classic for fat embolism syndrome. The priority is to support oxygenation (apply O2, position upright, prepare for possible escalation) and notify the provider immediately. Management is largely supportive; prevention is early fracture stabilization.'},
+{letter:'B',text:'Reassure the patient that confusion is normal after trauma',correct:false,rationale:'New confusion with dyspnea and petechiae is not "normal" — it is a hallmark of fat embolism, a potentially life-threatening emergency. Reassurance without intervention delays critical care.'},
+{letter:'C',text:'Apply lotion to the petechial rash',correct:false,rationale:'Petechiae from fat embolism are not a skin-care problem — they are a sign of systemic embolization. Treating the rash topically ignores the respiratory and neurologic emergency.'},
+{letter:'D',text:'Encourage the patient to ambulate to improve circulation',correct:false,rationale:'Ambulating a hypoxic, confused trauma patient with unstable fractures is unsafe and does not treat fat embolism. Oxygenation and provider notification are the priorities.'}
+],vocabTip:'<strong>Fat embolism = long-bone/pelvic fracture + dyspnea + confusion + PETECHIAL rash (chest/axillae), 24-72 hrs post-injury.</strong> Priority: O2 + notify provider; supportive care. Prevention = early fracture stabilization. Petechiae distinguish it from a clot PE.',
+profQuote:'"Pelvis and femur fracture, then a day or two later — short of breath, confused, petechiae on the chest. Get oxygen on them and call."'},
+
+{id:322,chapter:22,prof:true,trap:true,sata:false,
+stem:'A patient with severe COPD and chronic CO2 retention is on 2 L/min nasal cannula. The nurse aims to maintain the SpO2 within which target range?',
+options:[
+{letter:'A',text:'88% to 92%',correct:true,rationale:'For COPD patients who are chronic CO2 retainers, the SpO2 target is 88-92% — NOT the usual 95-100%. These patients may rely on a hypoxic drive to breathe; over-oxygenating them can suppress that drive and lead to CO2 narcosis. Use the lowest effective flow and titrate to keep SpO2 in the 88-92% window.'},
+{letter:'B',text:'95% to 100%',correct:false,rationale:'95-100% is the target for most patients, but it is TOO HIGH for a COPD CO2 retainer — it risks suppressing the hypoxic drive and causing CO2 narcosis. Their target is 88-92%.'},
+{letter:'C',text:'80% to 85%',correct:false,rationale:'80-85% is too low and indicates inadequate oxygenation even for a COPD patient. The accepted target is 88-92%.'},
+{letter:'D',text:'70% to 80%',correct:false,rationale:'70-80% is dangerously hypoxic. The therapeutic target for a CO2-retaining COPD patient is 88-92%.'}
+],vocabTip:'<strong>COPD + chronic CO2 retention: SpO2 target 88-92%</strong> (not 95-100%). Over-oxygenation can suppress the hypoxic drive → CO2 narcosis. Use lowest effective flow; titrate carefully. Most COPD patients are NOT retainers, but the ones who are need this lower target.',
+profQuote:'"Eighty-eight to ninety-two for your CO2 retainer. Push them up to a hundred and you can knock out the drive that\'s keeping them breathing."'},
+
+{id:323,chapter:26,prof:false,sata:false,
+stem:'A nurse observes the fluid in the water-seal chamber of a chest drainage system rising and falling with the patient\'s respirations. The nurse interprets this tidaling as:',
+options:[
+{letter:'A',text:'A normal, expected finding',correct:true,rationale:'Tidaling — the gentle rise and fall of the water-seal fluid with breathing — is NORMAL and reflects the pressure changes in the pleural space during inspiration and expiration. It confirms the system is patent. Tidaling stops when the lung has fully re-expanded OR when the tube is obstructed/kinked (so investigate cessation in the context of the patient\'s status).'},
+{letter:'B',text:'An indication that the tube is clotted and must be replaced',correct:false,rationale:'Tidaling indicates a PATENT system, not an obstruction. It is the ABSENCE of tidaling (with the lung not yet re-expanded) that may suggest a kink or clot.'},
+{letter:'C',text:'A sign of a large air leak',correct:false,rationale:'An air leak is signaled by CONTINUOUS BUBBLING in the water seal, not by tidaling. Tidaling is the normal respiratory fluctuation.'},
+{letter:'D',text:'An emergency requiring immediate clamping',correct:false,rationale:'Tidaling is normal and never an indication to clamp the tube. Clamping a chest tube can cause a tension pneumothorax.'}
+],vocabTip:'<strong>Tidaling (fluid rises/falls with breathing) = NORMAL, patent system.</strong> Stops when lung re-expands OR tube is blocked/kinked. CONTINUOUS bubbling = air leak. Gentle intermittent bubbling with cough = normal. Don\'t clamp.'},
+
+{id:324,chapter:26,prof:true,sata:true,
+stem:'A patient with a chest injury suddenly develops severe dyspnea, absent breath sounds on the right, tracheal deviation to the left, distended neck veins, and hypotension. Which findings point to a TENSION pneumothorax and what is the priority? Select all that apply.',
+options:[
+{letter:'A',text:'Tracheal deviation away from the affected side',correct:true,rationale:'In a tension pneumothorax, air accumulates under pressure in the pleural space and pushes the mediastinum (and trachea) AWAY from the affected side — here, toward the left. Tracheal deviation is a hallmark late sign.'},
+{letter:'B',text:'Absent breath sounds with hyperresonance on the affected side',correct:true,rationale:'Trapped air collapses the lung on the affected side → absent breath sounds and a hyperresonant (drum-like) percussion note. (Contrast a hemothorax: dull percussion from blood, not hyperresonance.)'},
+{letter:'C',text:'Distended neck veins and hypotension',correct:true,rationale:'Rising intrathoracic pressure compresses the great vessels and impairs venous return → JVD and obstructive shock (hypotension). This hemodynamic collapse is what makes tension pneumothorax immediately life-threatening.'},
+{letter:'D',text:'Immediate needle decompression is the priority intervention',correct:true,rationale:'Tension pneumothorax is a clinical emergency treated with emergent needle decompression (large-bore needle, 2nd intercostal space midclavicular line) followed by chest tube placement. The nurse recognizes it clinically and gets emergency help immediately — do not wait for imaging.'},
+{letter:'E',text:'Dull percussion over the affected side indicates this diagnosis',correct:false,rationale:'DULL percussion indicates FLUID/BLOOD (e.g., hemothorax or effusion), not a tension pneumothorax. A tension pneumothorax produces HYPERRESONANCE from trapped air. Dullness does not belong with the tension pneumothorax picture.'}
+],vocabTip:'<strong>Tension pneumothorax: absent breath sounds + HYPERRESONANCE + tracheal deviation AWAY + JVD + hypotension → emergent NEEDLE DECOMPRESSION, then chest tube.</strong> Air = hyperresonant. (Hemothorax = DULL from blood.) Recognize clinically; don\'t wait for x-ray.'},
+
+{id:325,chapter:23,prof:true,trap:true,sata:false,
+stem:'A nurse walks into the room of a patient 9 days post radical neck dissection and finds bright red blood spurting in a pulsatile stream from the neck wound. The immediate priority action is to:',
+options:[
+{letter:'A',text:'Apply firm direct pressure and call for help without leaving the patient',correct:true,rationale:'Active, pulsatile bright-red bleeding is a carotid artery RUPTURE — a surgical emergency with very high mortality. The nurse STAYS, applies firm direct manual pressure to the bleeding site with gloved hands, and calls for help to come TO the room (call bell, shout). Leaving to get supplies allows the patient to exsanguinate in minutes. The OR is definitive treatment; direct pressure buys the time.'},
+{letter:'B',text:'Leave to get the rapid response cart and extra supplies',correct:false,rationale:'Leaving an actively hemorrhaging carotid patient means uncontrolled exsanguination — they can bleed out in minutes. The nurse must stay and compress while summoning help to the room.'},
+{letter:'C',text:'Wrap a circumferential pressure dressing tightly around the neck',correct:false,rationale:'A tight circumferential neck dressing would occlude both carotids and compress the airway — catastrophic. Apply FOCAL direct pressure on the bleeding point instead.'},
+{letter:'D',text:'Lower the head of the bed and start fluids before controlling bleeding',correct:false,rationale:'You cannot resuscitate faster than a ruptured carotid bleeds. Controlling the hemorrhage with direct pressure comes first; fluids and positioning follow once help arrives.'}
+],vocabTip:'<strong>Carotid RUPTURE (pulsatile spurting) → STAY + firm direct pressure with gloved hands, call help to you, never leave.</strong> Suspected LEAK (warning ooze) → call RRT, DON\'T touch. Peak risk 7-10 days post-op. OR is definitive.',
+profQuote:'"It\'s spurting — that\'s a rupture. Hands on, full pressure, and you do not leave that room. You make the help come to you."'},
+
+{id:326,chapter:25,prof:false,sata:false,
+stem:'A patient is admitted with suspected active pulmonary tuberculosis. Which transmission-based precautions does the nurse implement?',
+options:[
+{letter:'A',text:'Airborne precautions with a negative-pressure room and N95 respirator',correct:true,rationale:'TB spreads via tiny droplet nuclei that remain suspended in the air over long distances, so it requires AIRBORNE precautions: a negative-pressure (airborne infection isolation) room with the door closed, and an N95 respirator (fit-tested) for anyone entering. The patient wears a surgical mask if transported. (Measles and varicella also require airborne precautions.)'},
+{letter:'B',text:'Droplet precautions with a surgical mask',correct:false,rationale:'Droplet precautions (surgical mask within 3-6 feet) are for larger droplets that fall quickly — influenza, pertussis, meningococcus. TB\'s airborne droplet nuclei stay suspended and require an N95 + negative-pressure room.'},
+{letter:'C',text:'Contact precautions with gown and gloves',correct:false,rationale:'Contact precautions address surface/skin transmission (C. diff, MRSA). TB is airborne and requires respiratory protection in a negative-pressure room, not just gown and gloves.'},
+{letter:'D',text:'Standard precautions only',correct:false,rationale:'Active pulmonary TB is highly transmissible through the air and requires airborne precautions — standard precautions alone are far insufficient.'}
+],vocabTip:'<strong>TB = AIRBORNE: negative-pressure room + N95 (fit-tested).</strong> Also airborne: measles, varicella ("My Chicken Hez TB" — Measles, Chickenpox/varicella, Herpes zoster disseminated, TB). Droplet = flu, pertussis, meningococcus (surgical mask). Contact = C. diff, MRSA.'},
+
+{id:327,chapter:22,prof:false,sata:false,
+stem:'After a thoracostomy, the nurse palpates a crackling sensation under the skin of the patient\'s upper chest and neck. The most appropriate nursing action is to:',
+options:[
+{letter:'A',text:'Mark the borders of the area and monitor for spread, notifying the provider if it expands',correct:true,rationale:'The crackling under the skin is subcutaneous emphysema (crepitus) — air tracking into the subcutaneous tissue, common around chest tube sites. The nurse marks the borders with a skin marker to track its extent, monitors for spread, and notifies the provider if it expands rapidly or toward the neck/face (which can signal a worsening air leak or airway concern). Small, stable amounts are often reabsorbed.'},
+{letter:'B',text:'Vigorously massage the area to disperse the air',correct:false,rationale:'Massaging does not safely "disperse" the trapped air and is not a recommended intervention. The correct action is to mark, monitor, and notify if it spreads.'},
+{letter:'C',text:'Apply a tight compression wrap around the neck',correct:false,rationale:'A tight neck wrap risks airway and vascular compression and does not treat subcutaneous emphysema. Mark and monitor instead.'},
+{letter:'D',text:'Remove the chest tube to release the trapped air',correct:false,rationale:'A nurse does not remove a chest tube to address subcutaneous emphysema; doing so could worsen a pneumothorax. Marking the borders, monitoring, and notifying the provider is correct.'}
+],vocabTip:'<strong>Subcutaneous emphysema (crepitus) = "Rice Krispies" air under the skin → MARK the borders, MONITOR for spread, NOTIFY if expanding (esp. toward neck/face).</strong> Common around chest tubes. Small/stable usually reabsorbs; rapid spread = worsening air leak.'},
+
+{id:328,chapter:24,prof:false,sata:false,
+stem:'A 55-year-old with a 30 pack-year smoking history who still smokes asks about lung cancer screening. The nurse confirms the patient meets criteria, which include all of the following EXCEPT:',
+options:[
+{letter:'A',text:'Having symptoms such as hemoptysis before screening is offered',correct:true,rationale:'Screening is for ASYMPTOMATIC high-risk individuals — the whole point is early detection BEFORE symptoms appear. Requiring symptoms like hemoptysis first is NOT a criterion (this is the "except"). The actual criteria are age 50-80, ≥20 pack-years, and currently smoking or quit within 15 years. This patient (age 55, 30 pack-years, current smoker) qualifies based on those, not on having symptoms.'},
+{letter:'B',text:'Age between 50 and 80 years',correct:false,rationale:'Age 50-80 IS a genuine screening criterion — so it is not the exception. This patient at 55 meets it.'},
+{letter:'C',text:'A smoking history of at least 20 pack-years',correct:false,rationale:'A ≥20 pack-year history IS a real criterion — so it is not the exception. This patient\'s 30 pack-years exceeds it.'},
+{letter:'D',text:'Currently smoking or having quit within the past 15 years',correct:false,rationale:'Current smoking or quitting within 15 years IS a real criterion — not the exception. This patient is a current smoker and qualifies.'}
+],vocabTip:'<strong>Lung cancer screening = 50-80-20-15 in ASYMPTOMATIC people:</strong> age 50-80 + ≥20 pack-years + current smoker or quit ≤15 yrs ago → annual low-dose CT. Screening is for those WITHOUT symptoms; symptoms trigger diagnostic workup, not screening.'},
+
+{id:329,chapter:26,prof:false,sata:false,
+stem:'A patient is started on subcutaneous low-molecular-weight heparin (enoxaparin) for DVT prophylaxis. The nurse knows that, unlike unfractionated heparin, LMWH:',
+options:[
+{letter:'A',text:'Does not require routine aPTT monitoring',correct:true,rationale:'LMWH (enoxaparin) has a predictable, dose-dependent response and does NOT require routine aPTT monitoring — a major practical advantage over unfractionated heparin, which requires frequent aPTT checks and titration. LMWH is given subcutaneously at fixed/weight-based dosing. (Anti-Xa levels are checked only in special populations such as renal impairment, pregnancy, or obesity.)'},
+{letter:'B',text:'Requires hourly aPTT checks',correct:false,rationale:'Hourly aPTT monitoring is associated with IV unfractionated heparin titration, not LMWH. LMWH\'s predictable response is precisely why routine aPTT monitoring is unnecessary.'},
+{letter:'C',text:'Must be given as a continuous IV infusion',correct:false,rationale:'LMWH is given SUBCUTANEOUSLY, not as a continuous IV infusion. Continuous IV infusion describes unfractionated heparin.'},
+{letter:'D',text:'Has no available reversal agent',correct:false,rationale:'Protamine sulfate partially reverses LMWH (and fully reverses unfractionated heparin). So it is not true that there is no reversal option.'}
+],vocabTip:'<strong>LMWH (enoxaparin): subcutaneous, fixed/weight-based dose, NO routine aPTT monitoring</strong> (predictable response). Unfractionated heparin: IV infusion, monitor aPTT (1.5-2.5× normal). Both partially/fully reversed by protamine. Warfarin → INR + vitamin K.'},
+
+{id:330,chapter:26,prof:false,sata:true,
+stem:'A patient is admitted after major abdominal surgery and is on bed rest. Which nursing interventions are appropriate to prevent deep vein thrombosis? Select all that apply.',
+options:[
+{letter:'A',text:'Apply sequential compression devices (SCDs) as ordered',correct:true,rationale:'SCDs intermittently compress the legs to promote venous return and prevent stasis — a core mechanical DVT-prevention measure for immobile postoperative patients.'},
+{letter:'B',text:'Encourage early ambulation as soon as it is permitted',correct:true,rationale:'Early ambulation is one of the most effective DVT preventions — muscle activity pumps blood back through the veins and counteracts stasis. Mobilize the patient as soon as it is safe and ordered.'},
+{letter:'C',text:'Administer prophylactic anticoagulation as prescribed',correct:true,rationale:'Pharmacologic prophylaxis (e.g., subcutaneous LMWH or low-dose heparin) is standard for postoperative patients at risk, reducing clot formation when ordered.'},
+{letter:'D',text:'Promote adequate hydration',correct:true,rationale:'Adequate hydration prevents hemoconcentration and the increased blood viscosity that promotes clotting — supporting DVT prevention alongside mechanical and pharmacologic measures.'},
+{letter:'E',text:'Vigorously massage the calves to improve circulation',correct:false,rationale:'NEVER massage the calves to prevent DVT. If a clot is present, massage can dislodge it and cause a pulmonary embolism. This is a contraindicated action — the correct measures are SCDs, ambulation, anticoagulation, and hydration.'}
+],vocabTip:'<strong>DVT prevention: SCDs · early ambulation · prophylactic anticoagulation · hydration.</strong> NEVER massage the calves — it can dislodge a clot → PE. Also avoid pillows under the knees / prolonged leg crossing (impede venous return).'}
+
+];
+
+let answered={};
+let selections={};
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+ALL_Q.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id='qcard-'+q.id;
+let badges='<span class="badge badge-ch'+q.chapter+'">CH '+q.chapter+'</span>';
+badges+=q.prof?'<span class="badge badge-prof">Prof</span>':'<span class="badge badge-hy">HY</span>';
+if(q.trap)badges+='<span class="badge badge-trap">Trap</span>';
+if(q.sata)badges+='<span class="badge badge-sata">SATA</span>';
+const optsHtml=q.options.map(o=>'<div class="opt" id="opt-'+q.id+'-'+o.letter+'" onclick="selectOption('+q.id+',\''+o.letter+'\','+q.sata+')"><div class="opt-letter">'+o.letter+'.</div><div class="opt-text">'+o.text+'<div class="opt-rationale" id="rat-'+q.id+'-'+o.letter+'">'+o.rationale+'</div></div></div>').join('');
+const profHtml=q.profQuote?'<div class="prof-quote" id="prof-'+q.id+'">Why he stressed it &mdash; '+q.profQuote+'</div>':'';
+const sataHint=q.sata?'<div class="sata-hint">Select ALL that apply</div>':'';
+card.innerHTML='<div class="q-top"><span class="q-num">Q'+(idx+1)+'</span>'+badges+'</div><div class="q-stem">'+q.stem+'</div>'+sataHint+'<div class="opts">'+optsHtml+'</div><button class="btn-submit" id="btn-'+q.id+'" onclick="submitAnswer('+q.id+')" disabled>Submit</button><div class="vocab-tip" id="tip-'+q.id+'">'+q.vocabTip+'</div>'+profHtml;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById('opt-'+qId+'-'+letter);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const p=document.getElementById('opt-'+qId+'-'+l);if(p)p.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById('btn-'+qId).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correct=q.options.filter(o=>o.correct).map(o=>o.letter);
+const ok=correct.length===selections[qId].length&&correct.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';});
+document.getElementById('tip-'+qId).style.display='block';
+const pf=document.getElementById('prof-'+qId);if(pf)pf.style.display='block';
+const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':'answered-wrong');
+const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';
+updateProgress();saveState();
+if(Object.keys(answered).length===ALL_Q.length)showScore();
+}
+
+function updateProgress(){document.getElementById('progressBar').style.width=(Object.keys(answered).length/ALL_Q.length*100)+'%';}
+
+function showScore(){
+let correct=0;ALL_Q.forEach(q=>{if(answered[q.id]){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];if(c.length===s.length&&c.every(l=>s.includes(l)))correct++;}});
+const pct=Math.round(correct/ALL_Q.length*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=correct+' of '+ALL_Q.length+' correct';
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const rec={score:pct,correct:correct,total:ALL_Q.length,date:new Date().toLocaleDateString()};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:ALL_Q.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-20)));
+}
+
+function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered:answered,selections:selections}));}
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const pf=document.getElementById('prof-'+qId);if(pf)pf.style.display='block';const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';}});
+updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore();}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
