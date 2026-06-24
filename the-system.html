@@ -2329,6 +2329,34 @@ function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizL
   const [quizNotes, setQuizNotes] = useState('');
   const [studyNote, setStudyNote] = useState('');
   const [showScores, setShowScores] = useState(false);
+  const [showVideos, setShowVideos] = useState(false);
+
+  const ytSearch = (q) => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+  const VIDEO_GROUPS = [
+    { exam: 'Exam 4 · Respiratory', color: 'sky', items: [
+      { topic: 'Lung sounds (crackles · wheezes · stridor)', ch: 'RegisteredNurseRN', q: 'registered nurse rn lung sounds' },
+      { topic: 'ABG interpretation', ch: 'RegisteredNurseRN', q: 'registered nurse rn ABG interpretation' },
+      { topic: 'COPD vs Asthma', ch: 'Level Up RN', q: 'level up rn COPD asthma' },
+      { topic: 'ARDS', ch: 'Level Up RN', q: 'level up rn ARDS' },
+      { topic: 'Chest tubes', ch: 'RegisteredNurseRN', q: 'registered nurse rn chest tube' },
+      { topic: 'Pneumonia / TB', ch: 'Level Up RN', q: 'level up rn pneumonia tuberculosis' },
+      { topic: 'Respiratory pathophysiology', ch: 'Ninja Nerd', q: 'ninja nerd respiratory system', deep: true },
+    ]},
+    { exam: 'Exam 5 · Cardiovascular', color: 'rose', items: [
+      { topic: 'EKG interpretation basics', ch: 'RegisteredNurseRN', q: 'registered nurse rn EKG interpretation' },
+      { topic: 'Dysrhythmias (a-fib · v-tach · v-fib)', ch: 'RegisteredNurseRN', q: 'registered nurse rn dysrhythmias' },
+      { topic: 'Heart failure (L vs R)', ch: 'Level Up RN', q: 'level up rn heart failure' },
+      { topic: 'ACS / MI', ch: 'Level Up RN', q: 'level up rn myocardial infarction' },
+      { topic: 'Cardiac medications', ch: 'Level Up RN', q: 'level up rn cardiac medications' },
+      { topic: 'EKG / hemodynamics deep dive', ch: 'ICU Advantage', q: 'ICU Advantage EKG dysrhythmia', deep: true },
+      { topic: 'Cardiac pathophysiology', ch: 'Ninja Nerd', q: 'ninja nerd cardiac physiology', deep: true },
+    ]},
+  ];
+  const VIDEO_CHANNELS = [
+    { name: 'Level Up RN', url: 'https://www.youtube.com/@LevelUpRN' },
+    { name: 'RegisteredNurseRN', url: 'https://www.youtube.com/@RegisteredNurseRN' },
+    { name: 'Simple Nursing', url: 'https://www.youtube.com/@SimpleNursing' },
+  ];
 
   const fmt = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
@@ -2471,6 +2499,41 @@ function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizL
           </div>
         </div>
       )}
+
+      {/* Concept videos */}
+      <div>
+        <button onClick={() => setShowVideos(!showVideos)} className="flex items-center gap-2 mb-2 px-1">
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-stone-500">🎥 Concept Videos · Exam 4 &amp; 5</p>
+          <span className="text-stone-400 text-xs">{showVideos ? '▼' : '▶'}</span>
+        </button>
+        {showVideos && (
+          <div className="space-y-3">
+            <p className="text-[10px] text-stone-500 px-1 leading-snug">NCLEX-aligned · low fluff. Watch one targeted video, then hit a drill to lock recall.</p>
+            <div className="flex flex-wrap gap-1.5 px-0.5">
+              {VIDEO_CHANNELS.map((c, i) => (
+                <a key={i} href={c.url} target="_blank" rel="noopener noreferrer"
+                  className="mono text-[10px] bg-stone-900 text-stone-50 px-2.5 py-1 rounded-full active:scale-95 transition-transform">{c.name} ↗</a>
+              ))}
+            </div>
+            {VIDEO_GROUPS.map((g, gi) => (
+              <div key={gi} className="bg-white rounded-2xl p-3.5 border border-stone-200">
+                <p className={`mono text-[9px] uppercase tracking-wider mb-2 ${g.color === 'sky' ? 'text-sky-700' : 'text-rose-700'}`}>{g.exam}</p>
+                <div className="space-y-1">
+                  {g.items.map((it, ii) => (
+                    <a key={ii} href={ytSearch(it.q)} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 py-1.5 active:scale-[0.98] transition-transform">
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${g.color === 'sky' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
+                      <span className="text-xs text-stone-800 flex-1 leading-snug">{it.topic}</span>
+                      {it.deep && <span className="mono text-[8px] uppercase tracking-wider text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full flex-shrink-0">deep</span>}
+                      <span className="mono text-[9px] text-stone-400 flex-shrink-0">{it.ch} ↗</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Auto-pulled scores */}
       {(practiceScores || vocabScores) && (
