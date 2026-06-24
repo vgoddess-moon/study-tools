@@ -324,7 +324,7 @@ if(Object.keys(answered).length===questions.length)showScore();
 
 function updateProgress(){const pct=(Object.keys(answered).length/questions.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
 
-function showScore(){
+function showScore(doSave){
 let correct=0;
 questions.forEach(q=>{if(answered[q.id]){const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[q.id]||[];if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;}});
 const pct=Math.round((correct/questions.length)*100);
@@ -333,6 +333,7 @@ document.getElementById('finalText').textContent=`${correct} of ${questions.leng
 document.getElementById('scoreCard').style.display='block';
 document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString(),chapters:{23:{correct:correct,total:questions.length}}};
+if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
 localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
@@ -372,7 +373,7 @@ btn.disabled=true;
 btn.textContent=isCorrect?'Correct!':'Incorrect';
 });
 updateProgress();
-if(Object.keys(answered).length===questions.length)showScore();
+if(Object.keys(answered).length===questions.length)showScore(false);
 }
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}

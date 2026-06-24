@@ -366,7 +366,7 @@ const pct=(Object.keys(answered).length/questions.length)*100;
 document.getElementById('progressBar').style.width=pct+'%';
 }
 
-function showScore(){
+function showScore(doSave){
 const chScores={16:0,17:0};
 const chTotals={16:0,17:0};
 const chNames={16:'Ch 16 Inflammation',17:'Ch 17 Allergy/Immunity'};
@@ -395,6 +395,7 @@ bd.appendChild(box);
 document.getElementById('scoreCard').style.display='block';
 document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 const record={score:pct,correct:totalCorrect,total:totalQ,date:new Date().toLocaleDateString(),chapters:{16:{correct:chScores[16],total:chTotals[16]},17:{correct:chScores[17],total:chTotals[17]}}};
+if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
 localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
@@ -443,7 +444,7 @@ btn.disabled=true;
 btn.textContent=isCorrect?'Correct!':'Incorrect';
 });
 updateProgress();
-if(Object.keys(answered).length===questions.length)showScore();
+if(Object.keys(answered).length===questions.length)showScore(false);
 }
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){

@@ -325,13 +325,14 @@ if(Object.keys(answered).length===questions.length)showScore();
 
 function updateProgress(){const pct=(Object.keys(answered).length/questions.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
 
-function showScore(){
+function showScore(doSave){
 let correct=0;
 questions.forEach(q=>{if(answered[q.id]){const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[q.id]||[];if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;}});
 const pct=Math.round((correct/questions.length)*100);
 document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
 document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
+if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
 hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
@@ -346,7 +347,7 @@ function loadState(){
 const saved=localStorage.getItem(EXAM_ID+'-state');
 if(saved){const state=JSON.parse(saved);answered=state.answered||{};selections=state.selections||{};
 Object.keys(answered).forEach(qId=>{const q=questions.find(x=>x.id==qId);if(!q)return;const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[qId]||[];const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);if(sel.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});document.getElementById(`tip-${qId}`).style.display='block';const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');const btn=document.getElementById(`btn-${qId}`);btn.disabled=true;btn.textContent=isCorrect?'Correct!':'Incorrect';});
-updateProgress();if(Object.keys(answered).length===questions.length)showScore();}
+updateProgress();if(Object.keys(answered).length===questions.length)showScore(false);}
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
 }

@@ -427,12 +427,13 @@ if(Object.keys(answered).length===ALL_Q.length)showScore();
 
 function updateProgress(){document.getElementById('progressBar').style.width=(Object.keys(answered).length/ALL_Q.length*100)+'%';}
 
-function showScore(){
+function showScore(doSave){
 let correct=0;ALL_Q.forEach(q=>{if(answered[q.id]){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];if(c.length===s.length&&c.every(l=>s.includes(l)))correct++;}});
 const pct=Math.round(correct/ALL_Q.length*100);
 document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=correct+' of '+ALL_Q.length+' correct';
 document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 const rec={score:pct,correct:correct,total:ALL_Q.length,date:new Date().toLocaleDateString()};
+if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
 hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:ALL_Q.length});
@@ -445,7 +446,7 @@ function loadState(){
 const saved=localStorage.getItem(EXAM_ID+'-state');
 if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
 Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const pf=document.getElementById('prof-'+qId);if(pf)pf.style.display='block';const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';}});
-updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore();}
+updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore(false);}
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
 }

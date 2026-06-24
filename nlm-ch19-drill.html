@@ -363,7 +363,7 @@ const pct=(Object.keys(answered).length/questions.length)*100;
 document.getElementById('progressBar').style.width=pct+'%';
 }
 
-function showScore(){
+function showScore(doSave){
 const chScores={19:0};
 const chTotals={19:0};
 const chNames={19:'Ch 19 Infection'};
@@ -392,6 +392,7 @@ bd.appendChild(box);
 document.getElementById('scoreCard').style.display='block';
 document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 const record={score:pct,correct:totalCorrect,total:totalQ,date:new Date().toLocaleDateString(),chapters:{19:{correct:chScores[19],total:chTotals[19]}}};
+if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
 localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
@@ -440,7 +441,7 @@ btn.disabled=true;
 btn.textContent=isCorrect?'Correct!':'Incorrect';
 });
 updateProgress();
-if(Object.keys(answered).length===questions.length)showScore();
+if(Object.keys(answered).length===questions.length)showScore(false);
 }
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){

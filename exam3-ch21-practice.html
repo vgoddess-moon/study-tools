@@ -346,7 +346,7 @@ const pct=(Object.keys(answered).length/questions.length)*100;
 document.getElementById('progressBar').style.width=pct+'%';
 }
 
-function showScore(){
+function showScore(doSave){
 let correct=0;
 questions.forEach(q=>{
 if(answered[q.id]){
@@ -361,6 +361,7 @@ document.getElementById('finalText').textContent=`${correct} of ${questions.leng
 document.getElementById('scoreCard').style.display='block';
 document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
 const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
+if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
 localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
@@ -409,7 +410,7 @@ btn.disabled=true;
 btn.textContent=isCorrect?'Correct!':'Incorrect';
 });
 updateProgress();
-if(Object.keys(answered).length===questions.length)showScore();
+if(Object.keys(answered).length===questions.length)showScore(false);
 }
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){

@@ -141,7 +141,7 @@ function submitQ(qId){
   document.getElementById('btn-'+qId).textContent=isCorrect?'Correct!':'Got it — read below';
   updateProgress();
   saveState();
-  if(Object.keys(answered).length===questions.length)showScore();
+  if(Object.keys(answered).length===questions.length)showScore(true);
 }
 
 function updateProgress(){
@@ -149,7 +149,7 @@ function updateProgress(){
   document.getElementById('progressBar').style.width=pct+'%';
 }
 
-function showScore(){
+function showScore(doSave){
   var correct=0;
   questions.forEach(function(q){
     if(answered[q.id]){
@@ -164,12 +164,14 @@ function showScore(){
   document.getElementById('scoreReframe').textContent = pct>=85 ? pick(REFRAME_HIGH) : pct>=70 ? pick(REFRAME_MID) : pick(REFRAME_LOW);
   document.getElementById('scoreCard').style.display='block';
   document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
-  var record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
-  localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
-  localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
-  var hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
-  hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
-  localStorage.setItem('examHistory',JSON.stringify(hist.slice(-100)));
+  if(doSave===true){
+    var record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
+    localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
+    localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+    var hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
+    hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
+    localStorage.setItem('examHistory',JSON.stringify(hist.slice(-100)));
+  }
 }
 
 function restartQuiz(){
@@ -212,7 +214,7 @@ function loadState(){
       btn.textContent=isCorrect?'Correct!':'Got it — read below';
     });
     updateProgress();
-    if(Object.keys(answered).length===questions.length)showScore();
+    if(Object.keys(answered).length===questions.length)showScore(false);
   }
   var last=localStorage.getItem(EXAM_ID+'-last');
   if(last){
