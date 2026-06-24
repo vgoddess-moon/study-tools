@@ -572,9 +572,9 @@ localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
 let history=JSON.parse(localStorage.getItem(EXAM_ID+'-history')||'[]');
 history.push(record);
 localStorage.setItem(EXAM_ID+'-history',JSON.stringify(history));
-const eh=JSON.parse(localStorage.getItem('examHistory')||'[]');
+const eh=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
 eh.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:Math.round(totalEarned),total:questions.length,topicBreakdown:chScores});
-localStorage.setItem('examHistory',JSON.stringify(eh.slice(-30)));
+localStorage.setItem('examHistory',JSON.stringify(eh.slice(-100)));
 }
 
 function restartQuiz(){

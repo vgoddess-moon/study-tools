@@ -566,9 +566,9 @@ function showScore(){
     chEl.appendChild(div);
   });
   try{
-    const history=JSON.parse(localStorage.getItem('examHistory')||'[]');
+    const history=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!=='ms1-exam2-professor-only';});
     history.push({examId:'ms1-exam2-professor-only',date:new Date().toISOString(),score:pct,correct,total});
-    localStorage.setItem('examHistory',JSON.stringify(history.slice(-20)));
+    localStorage.setItem('examHistory',JSON.stringify(history.slice(-100)));
   }catch(e){}
   document.getElementById('scoreSection').classList.add('show');
   document.getElementById('scoreSection').scrollIntoView({behavior:'smooth'});

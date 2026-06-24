@@ -641,32 +641,26 @@ function Dashboard() {
     const ce = storage.get('customEvents');
     if (ce) setCustomEvents(ce);
     let eh = storage.get('examHistory') || [];
-    const backfillKeys = [
-      {key:'ms1-exam2-comprehensive-v2-last', id:'ms1-exam2-comprehensive-v2', label:'MS1 Exam 2 — Comprehensive v2 (30Q)'},
-      {key:'ms1-exam2-comprehensive-v3-last', id:'ms1-exam2-comprehensive-v3', label:'MS1 Exam 2 — Comprehensive v3 (30Q)'},
-      {key:'ms1-exam3-nlm-ch16-drill-last', id:'ms1-exam3-nlm-ch16-drill', label:'Ch 16 NLM Drill — Inflammation (15Q)'},
-      {key:'ms1-exam3-nlm-ch17-drill-last', id:'ms1-exam3-nlm-ch17-drill', label:'Ch 17 NLM Drill — Allergy & Immunity (15Q)'},
-      {key:'ms1-exam3-nlm-ch18-drill-last', id:'ms1-exam3-nlm-ch18-drill', label:'Ch 18 NLM Drill — Cancer (20Q)'},
-      {key:'ms1-exam3-nlm-ch19-drill-last', id:'ms1-exam3-nlm-ch19-drill', label:'Ch 19 NLM Drill — Infection (20Q)'},
-      {key:'ms1-exam3-nlm-ch18-19-vocab-last', id:'ms1-exam3-nlm-ch18-19-vocab', label:'Ch 18-19 Vocab & Labs (25Q)'}
-    ];
     let changed = false;
-    backfillKeys.forEach(b => {
-      const raw = localStorage.getItem(b.key);
-      if (raw && !eh.find(e => e.examId === b.id)) {
-        const r = JSON.parse(raw);
-        eh.push({examId:b.id, examLabel:(localStorage.getItem(b.id+'-label') || b.label), date:r.date || new Date().toISOString(), score:r.score, correct:r.correct, total:r.total, topicBreakdown:r.chapters || {}});
+    // Repair: rebuild from per-exam '-last' keys (never capped, so they survive eviction)
+    Object.keys(localStorage).forEach(k => {
+      if (!k.endsWith('-last')) return;
+      const id = k.slice(0, -5);
+      if (eh.find(e => e.examId === id)) return;
+      try {
+        const r = JSON.parse(localStorage.getItem(k));
+        if (!r || typeof r.score !== 'number') return;
+        eh.push({examId:id, examLabel:(localStorage.getItem(id+'-label') || id), date:(r.date ? new Date(r.date).toISOString() : new Date().toISOString()), score:r.score, correct:r.correct, total:r.total, topicBreakdown:r.chapters || {}});
         changed = true;
-      }
+      } catch (e) {}
     });
-    // Deduplicate: remove entries with same examId, score, and correct count, keep only the latest
-    const dominated = new Set();
-    for (let i = eh.length - 1; i >= 0; i--) {
-      const key = eh[i].examId + '|' + eh[i].score + '|' + eh[i].correct;
-      if (dominated.has(key)) { eh.splice(i, 1); changed = true; }
-      else dominated.add(key);
-    }
-    if (changed) localStorage.setItem('examHistory', JSON.stringify(eh.slice(-20)));
+    // Collapse to one entry per exam, keeping the most recent attempt
+    const latestById = {};
+    eh.forEach(e => { const p = latestById[e.examId]; if (!p || new Date(e.date) >= new Date(p.date)) latestById[e.examId] = e; });
+    const collapsed = Object.keys(latestById).map(k => latestById[k]);
+    if (collapsed.length !== eh.length) changed = true;
+    eh = collapsed;
+    if (changed) localStorage.setItem('examHistory', JSON.stringify(eh.slice(-100)));
     setExamHistory(eh);
     // Load weather from cache
     const wc = storage.get('weatherCache');
