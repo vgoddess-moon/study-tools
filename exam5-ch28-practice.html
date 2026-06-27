@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam 5 Practice — Ch 28 Dysrhythmias</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}h1,h2,h3{font-family:'DM Serif Display',serif}code,.mono{font-family:'IBM Plex Mono',monospace}.container{max-width:860px;margin:0 auto}.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.25rem}.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}.exam-header .subtitle{color:#94a3b8;font-size:.95rem}.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1;text-align:center}.exam-info strong{color:#fca5a5}.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#ec4899}.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}.progress-bar{height:100%;background:linear-gradient(90deg,#ec4899,#f472b6);border-radius:99px;transition:width .3s}.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}.q-card.answered-correct{border-color:#22c55e}.q-card.answered-wrong{border-color:#ef4444}.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}.badge-ch{background:#2d0a2e;color:#f472b6}.badge-trap{background:#2a1f00;color:#fbbf24}.badge-priority{background:#0a1f2a;color:#67e8f9}.badge-sata{background:#1a2332;color:#67e8f9;margin-left:auto}.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}.q-stem .data{display:block;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .9rem;margin-top:.6rem;font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#cbd5e1;white-space:pre-line}.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}.opt:hover{border-color:#334155;background:#161b24}.opt.selected{border-color:#ec4899;background:#2d0a2e}.opt.correct-show{border-color:#22c55e;background:#052e16}.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem}.opt-text{font-size:.9rem;flex:1}.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b}.btn-submit{background:#ec4899;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}.btn-submit:hover{background:#db2777}.btn-submit:disabled{opacity:.4;cursor:not-allowed}.vocab-tip{background:#1a1f2e;border-left:3px solid #f472b6;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#f9a8d4;line-height:1.5}.vocab-tip strong{color:#f472b6}.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}.score-card h2{font-size:1.5rem;margin-bottom:.5rem}.score-card .big-score{font-size:3rem;font-weight:700;color:#ec4899;margin:.5rem 0}.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}.btn-restart:hover{background:#334155}@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Exam 5 Practice &mdash; Chapter 28</h1>
+<p class="subtitle">25 questions &middot; Dysrhythmias &amp; ECG &middot; Ignatavicius 11th-ed test bank</p>
+</div>
+<div class="exam-info">Pulled <strong>straight from your Exam 5 test bank</strong> &mdash; real stems, answers, and rationales. Answer options are <strong>shuffled</strong> each load. The 4 questions that originally showed an ECG strip have the <strong>rhythm described in words</strong> so you can still read it. 3 SATA &middot; priority/trap flags shown.</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Ch 28 Practice Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<button class="btn-restart" onclick="restartQuiz()">Restart</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-exam5-ch28-practice';
+const EXAM_LABEL='Exam 5 Practice — Ch 28 Dysrhythmias (25Q)';
+const questions=[
+{id:1,chapter:28,sata:false,trap:false,
+stem:'A nurse assesses a client’s ECG tracing and observes that not all QRS complexes are preceded by a P wave. How would the nurse interpret this observation?',
+options:[
+{letter:'A',text:'The client has hyperkalemia causing irregular QRS complexes.',correct:false,rationale:'This finding does not indicate hyperkalemia.'},
+{letter:'B',text:'Ventricular tachycardia is overriding the normal atrial rhythm.',correct:false,rationale:'This pattern does not indicate ventricular tachycardia.'},
+{letter:'C',text:'The chest leads are not making sufficient contact with the skin.',correct:false,rationale:'This is not lead disconnection — disconnection produces artifact, not absent P waves.'},
+{letter:'D',text:'Ventricular and atrial depolarizations are initiated from different sites.',correct:true,rationale:'Normal rhythm has one P wave before each QRS (all depolarization starting at the SA node). A QRS without a preceding P wave means depolarization is being initiated from a different site.'}
+],vocabTip:'<strong>Rule:</strong> one P before every QRS = SA-node origin. QRS without a P = a different pacemaker site fired.'},
+
+{id:2,chapter:28,sata:false,trap:false,
+stem:'A nurse cares for a client who has a heart rate averaging 56 beats/min with no adverse symptoms. Which activity modification would the nurse suggest to avoid further slowing of the heart rate?',
+options:[
+{letter:'A',text:'"Make certain that your bath water is warm."',correct:false,rationale:'Bath water temperature is not the relevant modification for bradycardia.'},
+{letter:'B',text:'"Avoid straining while having a bowel movement."',correct:true,rationale:'Bearing down (a Valsalva maneuver) stimulates the vagus nerve and slows the heart rate further — undesirable in bradycardia.'},
+{letter:'C',text:'"Limit your intake of caffeinated drinks to one a day."',correct:false,rationale:'Caffeine would tend to raise the heart rate, so it is not the concern here.'},
+{letter:'D',text:'"Avoid strenuous exercise such as running."',correct:false,rationale:'Exercise raises heart rate; it would not further slow it.'}
+],vocabTip:'<strong>Valsalva (straining at stool)</strong> → vagal stimulation → slows HR. Avoid in bradycardia.'},
+
+{id:3,chapter:28,sata:false,trap:false,
+stem:'A nurse is assessing patients on a medical-surgical unit. Which client would the nurse identify as being at greatest risk for atrial fibrillation?',
+options:[
+{letter:'A',text:'A 45-year-old who takes an aspirin daily.',correct:false,rationale:'Daily aspirin does not raise A-fib risk.'},
+{letter:'B',text:'A 50-year-old who is post coronary artery bypass graft (CABG) surgery.',correct:true,rationale:'A-fib occurs commonly in patients with cardiac disease/surgery. Post-CABG is the strongest risk among these.'},
+{letter:'C',text:'A 78-year-old who had a carotid endarterectomy.',correct:false,rationale:'Carotid endarterectomy is not a leading A-fib risk factor here.'},
+{letter:'D',text:'An 80-year-old with chronic obstructive pulmonary disease.',correct:false,rationale:'COPD is not the greatest A-fib risk among these options.'}
+],vocabTip:'<strong>A-fib risk:</strong> cardiac disease/surgery (CABG), HTN, HF, valve disease, hyperthyroid, prior stroke/TIA.'},
+
+{id:4,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse assesses a client with atrial fibrillation. Which manifestation would alert the nurse to the possibility of a serious complication from this condition?',
+options:[
+{letter:'A',text:'Sinus tachycardia',correct:false,rationale:'A rapid ventricular response is common in A-fib but is not the serious embolic complication.'},
+{letter:'B',text:'Speech alterations',correct:true,rationale:'A-fib raises the risk of embolic stroke. Changes in mentation, speech, sensory, or motor function signal an embolic event.'},
+{letter:'C',text:'Fatigue',correct:false,rationale:'Fatigue is a nonspecific complaint.'},
+{letter:'D',text:'Dyspnea with activity',correct:false,rationale:'Dyspnea results from decreased cardiac output, not the embolic complication being screened for.'}
+],vocabTip:'<strong>A-fib → clot → embolic stroke.</strong> Watch speech/mentation/sensory/motor changes.'},
+
+{id:5,chapter:28,sata:false,trap:false,
+stem:'A nurse evaluates prescriptions for a client with chronic atrial fibrillation. Which medication would the nurse expect to find to prevent a common complication of this condition?',
+options:[
+{letter:'A',text:'Sotalol',correct:false,rationale:'An antidysrhythmic, not the drug used to prevent emboli.'},
+{letter:'B',text:'Warfarin',correct:true,rationale:'A-fib puts patients at risk for emboli; they are treated with anticoagulants such as warfarin (or heparin/enoxaparin).'},
+{letter:'C',text:'Atropine',correct:false,rationale:'Atropine raises heart rate; it does not prevent emboli.'},
+{letter:'D',text:'Lidocaine',correct:false,rationale:'Lidocaine is an antidysrhythmic, not used to prevent emboli.'}
+],vocabTip:'<strong>A-fib → anticoagulate</strong> (warfarin/heparin/enoxaparin) to prevent embolic stroke.'},
+
+{id:6,chapter:28,sata:false,trap:false,
+stem:'A nurse administers prescribed adenosine to a client. Which response would the nurse assess for as the expected therapeutic response?',
+options:[
+{letter:'A',text:'Decreased intraocular pressure',correct:false,rationale:'Adenosine has no effect on intraocular pressure.'},
+{letter:'B',text:'Increased heart rate',correct:false,rationale:'Adenosine slows the heart; it does not increase the rate.'},
+{letter:'C',text:'Short period of asystole',correct:true,rationale:'Patients usually respond to adenosine with a short period of asystole, bradycardia with long pauses, nausea, or vomiting.'},
+{letter:'D',text:'Hypertensive crisis',correct:false,rationale:'Adenosine does not cause a hypertensive crisis.'}
+],vocabTip:'<strong>Adenosine →</strong> brief asystole/pause is EXPECTED (it resets SVT). Push fast, follow with a flush.'},
+
+{id:7,chapter:28,sata:false,trap:false,priority:true,
+stem:'A telemetry nurse assesses a client who has a heart rate of 35 beats/min on the cardiac monitor. Which assessment would the nurse complete next?',
+options:[
+{letter:'A',text:'Pulmonary auscultation',correct:false,rationale:'Part of a full assessment, but not the priority next step.'},
+{letter:'B',text:'Pulse strength and amplitude',correct:false,rationale:'Assessed during a full exam, but neurologic status comes next.'},
+{letter:'C',text:'Level of consciousness',correct:true,rationale:'A rate of 40 or less risks inadequate cerebral perfusion. Assess level of consciousness, dizziness, confusion, syncope, chest pain, and shortness of breath next.'},
+{letter:'D',text:'Mobility and gait stability',correct:false,rationale:'Not the priority with a critically low heart rate.'}
+],vocabTip:'<strong>HR ≤40 →</strong> check LOC/neuro status next (cerebral perfusion at risk).'},
+
+{id:8,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse cares for a client with an IV temporary pacemaker for bradycardia. The nurse observes a pacing spike but no QRS complex on the ECG. What action would the nurse take next?',
+options:[
+{letter:'A',text:'Administer intravenous diltiazem.',correct:false,rationale:'Diltiazem slows the heart — the opposite of what a paced patient losing capture needs.'},
+{letter:'B',text:'Assess vital signs and level of consciousness.',correct:true,rationale:'A pacing spike with no QRS means loss of capture — no ventricular depolarization/contraction. Assess cardiac output via vital signs and level of consciousness.'},
+{letter:'C',text:'Administer sublingual nitroglycerin.',correct:false,rationale:'Nitroglycerin does not address loss of capture and could drop BP further.'},
+{letter:'D',text:'Assess capillary refill and temperature.',correct:false,rationale:'Useful in a full exam, but not the immediate priority to gauge cardiac output.'}
+],vocabTip:'<strong>Pacing spike + no QRS = loss of capture.</strong> Assess VS & LOC — is the heart actually putting out?'},
+
+{id:9,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse prepares to defibrillate a client who is in ventricular fibrillation. Which intervention is appropriate for the nurse to perform prior to defibrillating this client?',
+options:[
+{letter:'A',text:'Make sure that the defibrillator is set to the synchronous mode.',correct:false,rationale:'Defibrillation is delivered in ASYNCHRONOUS mode (synchronized is for cardioversion).'},
+{letter:'B',text:'Administer 1 mg of intravenous epinephrine.',correct:false,rationale:'Defibrillation takes priority over medications.'},
+{letter:'C',text:'Test the equipment by delivering a smaller shock at 100 J.',correct:false,rationale:'This is an emergency — equipment is not tested at the time of defibrillation.'},
+{letter:'D',text:'Ensure that everyone is clear of contact with the client and the bed.',correct:true,rationale:'The rescuer commands "all clear" and confirms no one is touching the client or bed before delivering the shock, to avoid injury.'}
+],vocabTip:'<strong>Defib = ASYNCHRONOUS</strong> + "all clear" before shock. Defib comes before drugs in pulseless VF/VT.'},
+
+{id:10,chapter:28,sata:false,trap:false,
+stem:'After teaching a client who has an implantable cardioverter-defibrillator (ICD), a nurse assesses understanding. Which statement indicates correct understanding?',
+options:[
+{letter:'A',text:'"I would wear a snug-fitting shirt over the ICD."',correct:false,rationale:'Avoid tight clothing, which irritates the skin over the generator.'},
+{letter:'B',text:'"I will avoid sources of strong electromagnetic fields."',correct:true,rationale:'Strong electromagnetic fields (large generators, arc welding, metal detectors, antitheft devices, running alternators) can interfere with the ICD and must be avoided.'},
+{letter:'C',text:'"I would participate in a strenuous exercise program."',correct:false,rationale:'Strenuous activity that pushes the heart rate to the ICD cutoff can trigger inappropriate shocks.'},
+{letter:'D',text:'"Now I can discontinue my antidysrhythmic medication."',correct:false,rationale:'The client continues all prescribed medications.'}
+],vocabTip:'<strong>ICD teaching:</strong> avoid strong EMF, avoid tight clothing, no strenuous exercise above the cutoff, keep taking meds.'},
+
+{id:11,chapter:28,sata:false,trap:false,
+stem:'A nurse cares for a client with atrial fibrillation who reports fatigue when completing activities of daily living. What intervention would the nurse implement to address this concern?',
+options:[
+{letter:'A',text:'Administer oxygen therapy at 2 L per nasal cannula.',correct:false,rationale:'There is no indication for oxygen in this scenario.'},
+{letter:'B',text:'Provide the client with a sleeping pill to stimulate rest.',correct:false,rationale:'A sleeping pill does not address activity-related fatigue.'},
+{letter:'C',text:'Schedule periods of exercise and rest during the day.',correct:true,rationale:'A-fib risks decreased cardiac output and fatigue with ADLs. Scheduling alternating exercise and rest periods decreases fatigue.'},
+{letter:'D',text:'Ask assistive personnel (AP) to help bathe the client.',correct:false,rationale:'This does not help the client perform self-care activities.'}
+],vocabTip:'<strong>A-fib fatigue (↓CO) →</strong> pace activity with rest periods.'},
+
+{id:12,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse assists with the cardioversion of a client experiencing acute atrial fibrillation. What action would the nurse take prior to the cardioversion?',
+options:[
+{letter:'A',text:'Administer intravenous adenosine.',correct:false,rationale:'Adenosine is not part of cardioversion prep.'},
+{letter:'B',text:'Turn off oxygen therapy.',correct:true,rationale:'For safety, turn off any oxygen during cardioversion to prevent a fire from the electrical discharge.'},
+{letter:'C',text:'Ensure that a tongue blade is available.',correct:false,rationale:'A tongue blade is not indicated for cardioversion.'},
+{letter:'D',text:'Position the client on the left side.',correct:false,rationale:'The client is placed supine, not on the left side.'}
+],vocabTip:'<strong>Before cardioversion → turn OFF oxygen</strong> (fire risk). Client supine.'},
+
+{id:13,chapter:28,sata:false,trap:false,
+stem:'A nurse prepares to discharge a client with a cardiac dysrhythmia who is prescribed home health care services. Which priority information would be communicated to the home health nurse?',
+options:[
+{letter:'A',text:'Medication orders for home',correct:true,rationale:'The home health nurse must know current medications to assess, evaluate, and educate — the priority hand-off information.'},
+{letter:'B',text:'Immunization history',correct:false,rationale:'Useful background, but not the priority hand-off for a dysrhythmia client.'},
+{letter:'C',text:'Religious beliefs',correct:false,rationale:'May help plan care, but not the priority.'},
+{letter:'D',text:'Nutrition preferences',correct:false,rationale:'May help plan care, but not the priority.'}
+],vocabTip:'<strong>Hand-off priority = current medications.</strong>'},
+
+{id:14,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse assesses a client with tachycardia. Which clinical manifestation requires immediate intervention by the nurse?',
+options:[
+{letter:'A',text:'Midsternal chest pain',correct:true,rationale:'Chest pain (possible angina) means tachycardia is raising myocardial workload and oxygen demand beyond supply → ischemia and cell death. Immediate intervention.'},
+{letter:'B',text:'Increased urine output',correct:false,rationale:'Not life-threatening; does not require immediate intervention.'},
+{letter:'C',text:'Mild orthostatic hypotension',correct:false,rationale:'Not life-threatening in this context.'},
+{letter:'D',text:'P wave touching the T wave',correct:false,rationale:'Indicates significant tachycardia worth assessing, but not as critical as chest pain.'}
+],vocabTip:'<strong>Tachycardia + chest pain</strong> = O2 demand outstripping supply → ischemia. Act immediately.'},
+
+{id:15,chapter:28,sata:false,trap:false,
+stem:'A nurse teaches a client who experiences occasional premature atrial contractions (PACs) accompanied by palpitations that resolve spontaneously. Which statement would the nurse include?',
+options:[
+{letter:'A',text:'"Minimize or abstain from caffeine."',correct:true,rationale:'Infrequent PACs usually have no hemodynamic consequence. Explore lifestyle causes such as excessive caffeine and stress first.'},
+{letter:'B',text:'"Lie on your side until the attack subsides."',correct:false,rationale:'Positioning does not prevent or resolve PACs.'},
+{letter:'C',text:'"Use your oxygen when you experience PACs."',correct:false,rationale:'Oxygen is not necessary for benign PACs.'},
+{letter:'D',text:'"Take amiodarone daily to prevent PACs."',correct:false,rationale:'Daily antidysrhythmics are not indicated for infrequent PACs — try lifestyle changes first.'}
+],vocabTip:'<strong>Infrequent PACs →</strong> lifestyle first (↓caffeine, manage stress). Usually benign.'},
+
+{id:16,chapter:28,sata:false,trap:false,
+stem:'The nurse asks a client who has experienced ventricular dysrhythmias about substance abuse. The client asks, "Why do you want to know if I use cocaine?" What is the nurse’s best response?',
+options:[
+{letter:'A',text:'"Substance abuse puts patients at risk for many health issues."',correct:false,rationale:'Too vague — it does not answer the client’s specific question.'},
+{letter:'B',text:'"The hospital requires that I ask you about cocaine use."',correct:false,rationale:'Deflects responsibility and does not answer honestly.'},
+{letter:'C',text:'"Patients who use cocaine are at risk for fatal dysrhythmias."',correct:true,rationale:'Cocaine and illicit inhalants put patients at risk for potentially fatal dysrhythmias — an honest, direct answer to the question.'},
+{letter:'D',text:'"We can provide services for cessation of substance abuse."',correct:false,rationale:'Helpful offer, but it does not answer the client’s question.'}
+],vocabTip:'<strong>Cocaine/illicit inhalants → fatal dysrhythmia risk.</strong> Answer the client’s question honestly.'},
+
+{id:17,chapter:28,sata:false,trap:false,
+stem:'A nurse supervises assistive personnel (AP) applying ECG monitoring. Which statement would the nurse provide to the AP?',
+options:[
+{letter:'A',text:'"Clean the skin and clip hairs if needed."',correct:true,rationale:'For the best signal, the skin should be clean and hair clipped before applying electrodes.'},
+{letter:'B',text:'"Add gel to the electrodes prior to applying them."',correct:false,rationale:'No additional gel is needed.'},
+{letter:'C',text:'"Place the electrodes on the posterior chest."',correct:false,rationale:'Electrodes go on the ANTERIOR chest.'},
+{letter:'D',text:'"Turn off oxygen prior to monitoring the client."',correct:false,rationale:'Oxygen has no effect on ECG monitoring.'}
+],vocabTip:'<strong>ECG prep:</strong> clean/dry skin, clip hair, electrodes on anterior chest. Delegable to the AP.'},
+
+{id:18,chapter:28,sata:false,trap:false,
+stem:'A nurse assesses a client’s ECG. The strip shows an underlying regular sinus rhythm interrupted by occasional wide, bizarre QRS complexes that are NOT preceded by a P wave. How would the nurse document this rhythm?',
+options:[
+{letter:'A',text:'Ventricular tachycardia',correct:false,rationale:'VT would not have normal sinus beats present between the abnormal complexes.'},
+{letter:'B',text:'Ventricular fibrillation',correct:false,rationale:'VF is chaotic with no organized QRS complexes or sinus beats.'},
+{letter:'C',text:'Sinus rhythm with premature atrial contractions (PACs)',correct:false,rationale:'PACs are EARLY beats with an abnormal P wave and a NARROW QRS, not wide/bizarre complexes.'},
+{letter:'D',text:'Sinus rhythm with premature ventricular contractions (PVCs)',correct:true,rationale:'An underlying sinus rhythm with occasional wide, bizarre QRS complexes lacking a preceding P wave is sinus rhythm with PVCs.'}
+],vocabTip:'<strong>PVC = wide, bizarre QRS, NO preceding P.</strong> PAC = early beat, abnormal P, narrow QRS.'},
+
+{id:19,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse cares for a client on a cardiac monitor. The monitor shows a wide-complex tachycardia at roughly 160 beats/min (ventricular tachycardia). What action would the nurse take first?',
+options:[
+{letter:'A',text:'Assess airway, breathing, and circulation.',correct:true,rationale:'VT is potentially lethal. The nurse first assesses whether the client is alert, breathing, and has a pulse — that determines the next step (CPR/defibrillation if pulseless, cardioversion if a pulse is present).'},
+{letter:'B',text:'Administer an amiodarone bolus followed by a drip.',correct:false,rationale:'Amiodarone is appropriate but not the FIRST action.'},
+{letter:'C',text:'Cardiovert the client with a biphasic defibrillator.',correct:false,rationale:'Cardioversion is indicated only if the client has a pulse — assess first.'},
+{letter:'D',text:'Begin cardiopulmonary resuscitation (CPR).',correct:false,rationale:'CPR is started if the client is pulseless — assess ABC first to know.'}
+],vocabTip:'<strong>VT → check ABC/pulse first.</strong> Pulseless → CPR + defib. With a pulse → cardiovert.'},
+
+{id:20,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse admits a 75-year-old client with multiple chronic diseases. The monitor shows sinus bradycardia around 50 beats/min; the client is stable.<span class="data">BP 135/75 mm Hg | SpO2 94% on 2 L NC\nRhythm: sinus bradycardia ~50/min | Client asymptomatic</span> What action would the nurse take first?',
+options:[
+{letter:'A',text:'Begin external temporary pacing.',correct:false,rationale:'Pacing is not needed in a stable, asymptomatic client.'},
+{letter:'B',text:'Assess peripheral pulse strength.',correct:false,rationale:'Part of a full assessment, but not the first action for stable bradycardia.'},
+{letter:'C',text:'Ask the client what medications he or she takes.',correct:true,rationale:'The stable client needs the CAUSE found. Bradycardia is often caused by medications, and patients with multiple chronic diseases are often on many. Assess current medications first.'},
+{letter:'D',text:'Administer 1 mg of atropine.',correct:false,rationale:'Atropine is not needed for asymptomatic, stable bradycardia.'}
+],vocabTip:'<strong>Stable bradycardia →</strong> find the cause (assess meds) first; no pacing/atropine if asymptomatic.'},
+
+{id:21,chapter:28,sata:false,trap:false,priority:true,
+stem:'A nurse is caring for a client who suddenly becomes unresponsive and has no pulse. The cardiac monitor shows ventricular fibrillation. After calling for assistance and a defibrillator, what action would the nurse take next?',
+options:[
+{letter:'A',text:'Perform a pericardial thump.',correct:false,rationale:'A pericardial thump is not a treatment for ventricular fibrillation.'},
+{letter:'B',text:'Initiate cardiopulmonary resuscitation (CPR).',correct:true,rationale:'VF is lethal and treated with immediate defibrillation. While waiting for the defibrillator to arrive, the nurse begins CPR.'},
+{letter:'C',text:'Start an 18-gauge intravenous line.',correct:false,rationale:'IV access can be obtained by other team members after defibrillation.'},
+{letter:'D',text:'Ask the client’s family about code status.',correct:false,rationale:'Code status would already be known before this event.'}
+],vocabTip:'<strong>Pulseless VF → defibrillate ASAP.</strong> Do CPR while the defibrillator is coming.'},
+
+{id:22,chapter:28,sata:false,trap:false,
+stem:'A client is receiving an amiodarone IV infusion for unstable ventricular tachycardia. The nurse compares assessments over 2 hours.<span class="data">08:00 → HR 68, normal sinus rhythm, A&O, denies SOB/chest pain\n10:00 → HR 50, sinus bradycardia, A&O, denies SOB/chest pain, voids 420 mL clear urine</span> Based on the assessments, what action would the nurse take?',
+options:[
+{letter:'A',text:'Stop the infusion and flush the IV.',correct:false,rationale:'Abruptly stopping amiodarone could allow fatal dysrhythmias to recur.'},
+{letter:'B',text:'Slow the amiodarone infusion rate.',correct:true,rationale:'IV amiodarone can cause bradycardia and AV block. Since the client is asymptomatic with no AV block, slowing the infusion is correct — not stopping it abruptly.'},
+{letter:'C',text:'Administer IV normal saline.',correct:false,rationale:'IV fluids will not raise the heart rate and are not indicated.'},
+{letter:'D',text:'Ask the client to cough and deep breathe.',correct:false,rationale:'Coughing/deep breathing will not increase the heart rate and is not indicated.'}
+],vocabTip:'<strong>Amiodarone → bradycardia/AV block.</strong> If asymptomatic, SLOW the infusion — don’t stop it abruptly.'},
+
+{id:23,chapter:28,sata:true,trap:false,
+stem:'A nurse cares for a client with congestive heart failure who has a regular cardiac rhythm of 128 beats/min. For which physiologic alterations would the nurse assess? (Select all that apply.)',
+options:[
+{letter:'A',text:'Decrease in cardiac output',correct:true,rationale:'In CHF or long-term tachycardia, reduced ventricular filling time eventually lowers cardiac output.'},
+{letter:'B',text:'Increase in cardiac output',correct:false,rationale:'CO increases only initially in a healthy heart; in CHF it falls.'},
+{letter:'C',text:'Decrease in blood pressure',correct:true,rationale:'As cardiac output falls, blood pressure decreases.'},
+{letter:'D',text:'Increase in blood pressure',correct:false,rationale:'BP eventually decreases, not increases, in this setting.'},
+{letter:'E',text:'Decrease in urine output',correct:true,rationale:'Falling cardiac output and blood pressure reduce renal perfusion and urine output.'},
+{letter:'F',text:'Increase in urine output',correct:false,rationale:'Urine output falls, not rises.'}
+],vocabTip:'<strong>Sustained tachycardia in CHF:</strong> ↓filling → ↓CO → ↓BP → ↓urine output.'},
+
+{id:24,chapter:28,sata:true,trap:false,
+stem:'A nurse teaches a client with a new permanent pacemaker. Which instructions would the nurse include? (Select all that apply.)',
+options:[
+{letter:'A',text:'"Until your incision is healed, do not submerge it — take showers only."',correct:true,rationale:'Do not submerge the site until healed; afterward showers or baths are fine.'},
+{letter:'B',text:'"Report any pulse rates lower than your pacemaker settings."',correct:true,rationale:'Report rates lower than the pacemaker setting (or >100) — a sign of malfunction.'},
+{letter:'C',text:'"If you feel weak, apply pressure over your generator."',correct:false,rationale:'Never apply pressure over the generator.'},
+{letter:'D',text:'"Have your pacemaker turned off before having an MRI."',correct:false,rationale:'Never have an MRI — the pacemaker contains metal whether on or off.'},
+{letter:'E',text:'"Do not lift your left arm above your shoulder for 8 weeks."',correct:true,rationale:'Activity is restricted for ~8 weeks to let the pacemaker settle in place.'}
+],vocabTip:'<strong>Pacemaker teaching:</strong> showers only until healed, report low pulse, no L-arm overhead ×8 wks. NEVER MRI; never press the generator.'},
+
+{id:25,chapter:28,sata:true,trap:false,
+stem:'A nurse is teaching a client who has premature ectopic beats. Which education would the nurse include? (Select all that apply.)',
+options:[
+{letter:'A',text:'Smoking cessation',correct:true,rationale:'Stopping smoking is taught for premature/ectopic beats.'},
+{letter:'B',text:'Stress reduction and management',correct:true,rationale:'Managing stress helps reduce premature beats.'},
+{letter:'C',text:'Avoiding vagal stimulation',correct:false,rationale:'These clients are not at risk for vasovagal attacks — not part of teaching.'},
+{letter:'D',text:'Adverse effects of medications',correct:true,rationale:'Take medications as prescribed and report adverse effects.'},
+{letter:'E',text:'Foods high in potassium',correct:false,rationale:'These clients are not at risk for potassium imbalance from this condition.'},
+{letter:'F',text:'Types of aerobic exercise',correct:false,rationale:'Exercise is beneficial generally, but not specifically linked to this teaching.'}
+],vocabTip:'<strong>Premature/ectopic beats teaching:</strong> stop smoking, manage stress, know medication side effects.'}
+];
+
+let answered={};
+let selections={};
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;questions.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash((typeof EXAM_ID!=='undefined'&&EXAM_ID?EXAM_ID:'q')+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F','G','H'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+function _buildBreakdown(){var bd={};questions.forEach(function(q){if(!answered[q.id])return;var ch=q.chapter;if(!bd[ch])bd[ch]={correct:0,total:0};bd[ch].total++;var cl=q.options.filter(function(o){return o.correct;}).map(function(o){return o.letter;});var sel=selections[q.id]||[];if(cl.length===sel.length&&cl.every(function(l){return sel.includes(l);}))bd[ch].correct++;});return bd;}
+
+function buildQuiz(){_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+questions.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id=`qcard-${q.id}`;
+let badges=`<span class="badge badge-ch">CH ${q.chapter}</span>`;if(q.priority)badges+=`<span class="badge badge-priority">Priority</span>`;if(q.trap)badges+=`<span class="badge badge-trap">Trap</span>`;if(q.sata)badges+=`<span class="badge badge-sata">SATA</span>`;
+const optsHtml=q.options.map(o=>`<div class="opt" id="opt-${q.id}-${o.letter}" onclick="selectOption(${q.id},'${o.letter}',${q.sata})"><div class="opt-letter">${o.letter}.</div><div class="opt-text">${o.text}<div class="opt-rationale" id="rat-${q.id}-${o.letter}"><strong>${o.correct?'✓ Correct.':'✗ '}</strong>${o.rationale}</div></div></div>`).join('');
+card.innerHTML=`<div class="q-top"><span class="q-num">Q${idx+1}</span>${badges}</div><div class="q-stem">${q.stem}</div><div class="opts">${optsHtml}</div><button class="btn-submit" id="btn-${q.id}" onclick="submitAnswer(${q.id})" disabled>Submit</button><div class="vocab-tip" id="tip-${q.id}">${q.vocabTip}</div>`;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById(`opt-${qId}-${letter}`);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>document.getElementById(`opt-${qId}-${l}`).classList.remove('selected'));selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById(`btn-${qId}`).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=questions.find(x=>x.id===qId);
+const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);
+const isCorrect=correctLetters.length===selections[qId].length&&correctLetters.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});
+document.getElementById(`tip-${qId}`).style.display='block';
+const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+document.getElementById(`btn-${qId}`).disabled=true;document.getElementById(`btn-${qId}`).textContent=isCorrect?'Correct!':'Incorrect';
+updateProgress();saveState();
+if(Object.keys(answered).length===questions.length)showScore();
+}
+
+function updateProgress(){const pct=(Object.keys(answered).length/questions.length)*100;document.getElementById('progressBar').style.width=pct+'%';}
+
+function showScore(doSave){
+let correct=0;
+questions.forEach(q=>{if(answered[q.id]){const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[q.id]||[];if(correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l)))correct++;}});
+const pct=Math.round((correct/questions.length)*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=`${correct} of ${questions.length} correct`;
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const bd=_buildBreakdown();
+const record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString(),chapters:bd};
+if(doSave===false)return;
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length,topicBreakdown:bd});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-100)));
+}
+
+function restartQuiz(){answered={};selections={};window.__optsShuffled=false;localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';buildQuiz();}
+
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered,selections}));}
+
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const state=JSON.parse(saved);answered=state.answered||{};selections=state.selections||{};
+Object.keys(answered).forEach(qId=>{const q=questions.find(x=>x.id==qId);if(!q)return;const correctLetters=q.options.filter(o=>o.correct).map(o=>o.letter);const sel=selections[qId]||[];const isCorrect=correctLetters.length===sel.length&&correctLetters.every(l=>sel.includes(l));q.options.forEach(o=>{const el=document.getElementById(`opt-${qId}-${o.letter}`);if(sel.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(sel.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';document.getElementById(`rat-${qId}-${o.letter}`).style.display='block';});document.getElementById(`tip-${qId}`).style.display='block';const card=document.getElementById(`qcard-${qId}`);card.classList.add(isCorrect?'answered-correct':'answered-wrong');const btn=document.getElementById(`btn-${qId}`);btn.disabled=true;btn.textContent=isCorrect?'Correct!':'Incorrect';});
+updateProgress();if(Object.keys(answered).length===questions.length)showScore(false);}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
