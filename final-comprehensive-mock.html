@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS1 Comprehensive Final Mock &mdash; Ch 1-32 (50Q)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#c084fc}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#7c3aed,#c084fc);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch{background:#0a1f2a;color:#7dd3fc}
+.badge-blk{background:#1a1425;color:#c4b5fd}
+.badge-prof{background:#2a1a06;color:#fbbf24}
+.badge-hy{background:#1a2332;color:#94a3b8}
+.badge-trap{background:#2a0a0a;color:#f87171}
+.badge-sata{background:#1a1f2e;color:#c084fc;border:1px solid #7c3aed}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#c084fc;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#c084fc;background:#1a0a2a}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.05rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b;line-height:1.5}
+.btn-submit{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#6d28d9}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#150a1f;border-left:3px solid #c084fc;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#e9d5ff;line-height:1.5}
+.vocab-tip strong{color:#c084fc}
+.prof-quote{background:#1a1406;border-left:3px solid #fbbf24;border-radius:0 8px 8px 0;padding:.6rem 1rem;margin-top:.6rem;display:none;font-size:.78rem;color:#fde68a;font-style:italic}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#c084fc;margin:.5rem 0}
+.breakdown-wrap{margin-top:1.5rem;text-align:left}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.85rem}
+.breakdown-row .bd-label{color:#cbd5e1}
+.breakdown-row .bd-score{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>MS1 Comprehensive Final &mdash; Mock</h1>
+<p class="subtitle">All 32 chapters &middot; Foundations &rarr; Fluids &rarr; Immunity &rarr; Respiratory &rarr; Cardiovascular &middot; 50 Questions &middot; 5 SATA</p>
+</div>
+<div class="exam-info">This mirrors the real final: 50 questions, up to 5 select-all-that-apply, every chapter on the table, pulled from the same test bank your professor uses. No hints in the options. Answer cold, then read the rationale. Watch the per-unit breakdown at the end &mdash; it tells you exactly which unit to review before Thursday.</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Unit</span>
+<span><span class="dot" style="background:#7dd3fc"></span>Chapter</span>
+<span><span class="dot" style="background:#fbbf24"></span>Prof</span>
+<span><span class="dot" style="background:#94a3b8"></span>HY</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Comprehensive Final Mock Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">Your weakest unit is your study plan. Go where the red is.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms1-final-comprehensive-mock';
+const EXAM_LABEL='MS1 Comprehensive Final Mock — Ch 1-32 (50Q)';
+const BLOCKS={1:'Ch 1-9 · Foundations',2:'Ch 10-15 · Fluids/Lytes/ABG',3:'Ch 16-21 · Immunity/Cancer/Skin',4:'Ch 22-26 · Respiratory',5:'Ch 27-32 · Cardiovascular'};
+const ALL_Q=[
+
+{id:1,block:1,chapter:1,prof:true,
+stem:'A new nurse asks the preceptor what the single highest priority is when practicing as a professional medical-surgical nurse. The best response is:',
+options:[
+{letter:'A',text:'Ensuring client safety',correct:true,rationale:'Client safety is the overarching priority that governs every nursing action. All other goals — holistic care, avoiding errors, client-centered care — are important, but they all exist in service of keeping the patient safe. When in doubt on an exam, safety is almost always the umbrella answer.'},
+{letter:'B',text:'Attending to holistic client needs',correct:false,rationale:'Holistic care matters, but it is delivered within a framework of safety. You cannot meet psychosocial or spiritual needs if the patient is physically harmed first.'},
+{letter:'C',text:'Providing client-focused care',correct:false,rationale:'Client-focused care is a value, not the top priority. It describes an approach; safety describes the non-negotiable floor beneath every action.'},
+{letter:'D',text:'Never making a medication error',correct:false,rationale:'Preventing med errors is one specific piece of safety, not the whole priority. Framing it as "never" is also unrealistic; systems and safety culture reduce errors.'}
+],vocabTip:'<strong>Safety is the umbrella priority.</strong> When several answers are all "good nursing," pick the one that keeps the patient physically safe. Maslow and ABCs live under the safety umbrella.'},
+
+{id:2,block:1,chapter:6,prof:true,
+stem:'A postoperative patient rates their pain as 7/10 but is smiling and talking calmly with visitors. What is the nurse\'s best action?',
+options:[
+{letter:'A',text:'Treat the pain as reported and administer the ordered analgesic',correct:true,rationale:'Pain is whatever the patient says it is. The patient\'s self-report is the single most reliable indicator of pain — behavior, vital signs, and appearance do NOT override it. Smiling or talking does not mean the patient is not in pain (distraction, coping, culture). Medicate per the report.'},
+{letter:'B',text:'Document that the pain is likely exaggerated',correct:false,rationale:'Judging a report as "exaggerated" based on appearance is a classic error. The nurse cannot know the patient\'s internal experience; dismissing the report undertreats pain and violates the standard.'},
+{letter:'C',text:'Wait 30 minutes to see if the behavior changes',correct:false,rationale:'Delaying treatment while the patient reports 7/10 pain is inappropriate. There is no clinical reason to withhold ordered analgesia based on a calm demeanor.'},
+{letter:'D',text:'Reassess using only objective vital signs',correct:false,rationale:'Vital signs can be normal in real pain, especially chronic or well-compensated pain. Objective signs supplement but never replace the self-report.'}
+],vocabTip:'<strong>Pain = whatever the patient says it is, existing whenever they say it does.</strong> Self-report beats behavior and vitals every time. Don\'t let a smile talk you out of treating a 7/10.',
+profQuote:'"You do not get to decide how much pain your patient is in. They tell you, and you believe them."'},
+
+{id:3,block:1,chapter:4,prof:true,trap:true,
+stem:'A nurse reviews the medication list of an 82-year-old and notes they take 11 scheduled medications. This is best described as:',
+options:[
+{letter:'A',text:'Polypharmacy, which increases the risk of adverse drug events',correct:true,rationale:'Polypharmacy (commonly 5+ medications) is a major safety concern in older adults. Age-related decline in renal and hepatic function slows drug clearance, and interactions multiply with each added drug. It raises the risk of falls, confusion, and adverse events — prompting a medication review (e.g., Beers Criteria).'},
+{letter:'B',text:'Expected and appropriate for advanced age',correct:false,rationale:'Multiple chronic conditions are common, but simply accepting 11 drugs as "expected" ignores the real danger of interactions and adverse events. The nurse should flag it for review, not normalize it.'},
+{letter:'C',text:'Not a concern as long as the patient is adherent',correct:false,rationale:'Adherence to a risky regimen can actually increase harm. The issue is the number and interaction risk, not just whether the patient takes them.'},
+{letter:'D',text:'A problem only if the drugs are prescribed by different providers',correct:false,rationale:'While multiple prescribers worsen it, polypharmacy is defined by the number and complexity of medications, not solely by how many providers are involved.'}
+],vocabTip:'<strong>Polypharmacy = 5+ meds</strong>, high-risk in older adults due to slowed renal/hepatic clearance. Screen with the Beers Criteria (potentially inappropriate meds). Watch for falls, confusion, interactions.'},
+
+{id:4,block:1,chapter:2,prof:false,
+stem:'Using the clinical judgment model, a nurse notices a subtle change in a patient\'s status. Which action reflects the "recognize cues" step?',
+options:[
+{letter:'A',text:'Identifying that the patient\'s new restlessness and rising respiratory rate are relevant findings',correct:true,rationale:'Recognizing cues means noticing and identifying the significant data — separating the relevant signals (restlessness, rising RR) from background noise. It is the first step of the clinical judgment / nursing process before analyzing what they mean.'},
+{letter:'B',text:'Deciding the patient is developing hypoxia',correct:false,rationale:'That is "analyze cues / prioritize hypotheses" — interpreting what the cues mean. It comes after recognizing them.'},
+{letter:'C',text:'Applying oxygen and repositioning the patient',correct:false,rationale:'That is "take action" / implementation — the doing step, which follows recognizing and analyzing.'},
+{letter:'D',text:'Checking whether the interventions improved the patient',correct:false,rationale:'That is "evaluate outcomes" — the final step assessing whether actions worked.'}
+],vocabTip:'<strong>Clinical Judgment Model steps:</strong> Recognize cues → Analyze cues → Prioritize hypotheses → Generate solutions → Take action → Evaluate outcomes. "Recognize" = notice the relevant data.'},
+
+{id:5,block:1,chapter:3,prof:false,
+stem:'A nurse is delegating tasks to assistive personnel (AP). Which task is appropriate to delegate?',
+options:[
+{letter:'A',text:'Obtaining routine vital signs on a stable patient',correct:true,rationale:'Routine vital signs on a STABLE patient fall within the AP scope. Delegation follows the Five Rights: right task, right circumstance, right person, right direction, right supervision. Stable + routine + within training = delegate.'},
+{letter:'B',text:'Performing the admission assessment on a new patient',correct:false,rationale:'Initial assessment requires nursing judgment and cannot be delegated. The RN must perform and interpret the first assessment.'},
+{letter:'C',text:'Teaching the patient about a new medication',correct:false,rationale:'Patient teaching/education requires the nurse\'s knowledge and cannot be delegated to AP.'},
+{letter:'D',text:'Evaluating whether a PRN pain medication was effective',correct:false,rationale:'Evaluation of interventions requires nursing judgment and stays with the RN. AP can collect data but cannot evaluate outcomes.'}
+],vocabTip:'<strong>Never delegate the nursing process:</strong> Assessment, Analysis, Planning, Evaluation, and Teaching stay with the RN. AP can do stable/routine/predictable tasks (VS, ADLs, I&O, ambulation).'},
+
+{id:6,block:1,chapter:8,prof:true,
+stem:'A patient at end of life develops loud, gurgling respirations from pooled secretions ("death rattle"). What is the nurse\'s priority intervention?',
+options:[
+{letter:'A',text:'Reposition the patient and consider an anticholinergic to reduce secretions',correct:true,rationale:'The "death rattle" comes from secretions pooling in the airway when the patient can no longer clear them. Repositioning (side-lying) helps drainage, and anticholinergics (e.g., glycopyrrolate, scopolamine) dry secretions. Deep suctioning is generally avoided because it is distressing and stimulates more secretions.'},
+{letter:'B',text:'Perform deep oropharyngeal suctioning frequently',correct:false,rationale:'Aggressive deep suctioning is uncomfortable, can increase secretions, and is usually avoided at end of life. Gentle repositioning and medication are preferred.'},
+{letter:'C',text:'Restrict all fluids immediately to dry the airway',correct:false,rationale:'Abruptly restricting fluids is not the targeted intervention for the rattle and is not a comfort-focused priority; anticholinergics and positioning address the secretions directly.'},
+{letter:'D',text:'Reassure the family the sound means the patient is in pain',correct:false,rationale:'The rattle does not indicate the patient is in pain or distress — the patient is usually unaware. Telling the family it means pain increases their distress. Educate them that it is a normal part of the dying process.'}
+],vocabTip:'<strong>Death rattle = pooled secretions, not pain.</strong> Reposition side-lying + anticholinergic (glycopyrrolate/scopolamine). Avoid deep suctioning. Reassure the family it is expected and not distressing to the patient.'},
+
+{id:7,block:1,chapter:6,prof:true,sata:true,
+stem:'A nurse is planning care for a patient on scheduled opioid analgesia. Which interventions should the nurse include to manage predictable side effects and ensure safety? Select all that apply.',
+options:[
+{letter:'A',text:'Start a bowel regimen (stool softener/stimulant laxative) proactively',correct:true,rationale:'Opioid-induced constipation is predictable and does NOT resolve with tolerance. Start a prophylactic bowel regimen at the same time as scheduled opioids — do not wait for constipation to develop.'},
+{letter:'B',text:'Monitor sedation level and respiratory rate before and after doses',correct:true,rationale:'Sedation precedes respiratory depression. Monitoring the sedation scale and respiratory rate lets you catch over-sedation before the patient stops breathing. This is the key safety monitor for opioids.'},
+{letter:'C',text:'Keep naloxone available for significant respiratory depression',correct:true,rationale:'Naloxone is the opioid reversal agent. Having it available is appropriate for a patient on scheduled opioids in case of respiratory depression.'},
+{letter:'D',text:'Withhold the opioid whenever the patient is sleeping comfortably',correct:false,rationale:'A comfortably sleeping patient with an adequate respiratory rate should not automatically have scheduled opioids held — assess sedation and RR rather than reflexively withholding, which risks a pain crisis on waking. Hold for true over-sedation/low RR, not normal sleep.'},
+{letter:'E',text:'Encourage the patient to tolerate pain to avoid dependence',correct:false,rationale:'Encouraging patients to "tough it out" undertreats pain and is based on the myth that appropriate analgesia causes addiction. Fear of dependence should not drive undertreatment of legitimate pain.'}
+],vocabTip:'<strong>Opioid safety bundle:</strong> proactive bowel regimen (constipation never fades), monitor SEDATION then RR (sedation comes first), naloxone available. Don\'t undertreat out of addiction fear; don\'t hold for normal sleep.'},
+
+{id:8,block:1,chapter:9,prof:false,
+stem:'A patient scheduled for surgery says, "I signed the consent, but I still have questions about the risks." What is the nurse\'s best action?',
+options:[
+{letter:'A',text:'Notify the surgeon so they can address the patient\'s questions before surgery',correct:true,rationale:'Informed consent requires that the patient understands the procedure, risks, benefits, and alternatives. It is the SURGEON\'S (provider\'s) responsibility to explain these. If the patient has unanswered questions, consent may not be truly informed — the nurse must notify the provider. The nurse witnesses the signature and confirms understanding, but does not provide the procedural explanation.'},
+{letter:'B',text:'Explain the surgical risks to the patient in detail',correct:false,rationale:'Providing the explanation of the procedure and its risks is the provider\'s role, not the nurse\'s. The nurse reinforces and clarifies but does not obtain informed consent by explaining the surgery.'},
+{letter:'C',text:'Tell the patient it is too late since the consent is signed',correct:false,rationale:'A patient may withdraw consent at any time. Unanswered questions mean the consent process is incomplete; it is never "too late" to clarify.'},
+{letter:'D',text:'Proceed with pre-op preparation and document the concern',correct:false,rationale:'Proceeding while the patient has unresolved questions about risks violates informed consent. The provider must address the questions first.'}
+],vocabTip:'<strong>Informed consent = provider\'s job to explain</strong> (procedure, risks, benefits, alternatives). Nurse witnesses the signature + confirms understanding. Unanswered questions → notify the provider, don\'t proceed.'},
+
+{id:9,block:1,chapter:7,prof:false,
+stem:'A patient on prolonged bed rest is at risk for a contracture. Which intervention best prevents this complication?',
+options:[
+{letter:'A',text:'Perform range-of-motion exercises and maintain proper joint positioning',correct:true,rationale:'Contractures are permanent shortening of muscles/tendons from immobility. Regular range-of-motion (active or passive) plus functional positioning (e.g., splints, avoiding prolonged flexion) keeps joints mobile and prevents the shortening. Prevention is far easier than correction.'},
+{letter:'B',text:'Keep the affected joints continuously flexed for comfort',correct:false,rationale:'Prolonged flexion is exactly what CAUSES contractures. Joints should be moved through their full range and positioned in extension/neutral, not held flexed.'},
+{letter:'C',text:'Limit movement to prevent muscle fatigue',correct:false,rationale:'Immobility is the cause of contractures. Limiting movement worsens the risk, not reduces it.'},
+{letter:'D',text:'Apply cold packs to the joints twice daily',correct:false,rationale:'Cold does not prevent contractures. Movement and positioning are the interventions; cold may even stiffen tissues.'}
+],vocabTip:'<strong>Contracture = permanent muscle/tendon shortening from immobility.</strong> Prevent with ROM + functional positioning (avoid prolonged flexion). Much easier to prevent than to reverse.'},
+
+{id:10,block:1,chapter:4,prof:true,
+stem:'When assessing an older adult, which age-related change should the nurse expect as a NORMAL finding?',
+options:[
+{letter:'A',text:'Decreased skin turgor and thinner, more fragile skin',correct:true,rationale:'Loss of subcutaneous tissue and elastin makes skin thinner, drier, and less elastic with age — so decreased turgor over the sternum/forehead is a normal aging change and an unreliable hydration marker in elders. Assess hydration by mucous membranes and other signs instead.'},
+{letter:'B',text:'Acute confusion (delirium)',correct:false,rationale:'Delirium is NEVER a normal age change — it signals an acute problem (infection, hypoxia, drug effect, electrolyte imbalance) and must be investigated. Confusing it with "just aging" is a dangerous trap.'},
+{letter:'C',text:'A resting heart rate of 130 bpm',correct:false,rationale:'Tachycardia at rest is abnormal at any age and warrants evaluation. Aging does not cause a persistently elevated resting heart rate.'},
+{letter:'D',text:'Bright red rectal bleeding',correct:false,rationale:'GI bleeding is always abnormal and requires evaluation. It is not a normal consequence of aging.'}
+],vocabTip:'<strong>Normal aging ≠ delirium.</strong> Expected: thinner skin, decreased turgor, slower reflexes, reduced renal/hepatic clearance. NOT normal: acute confusion, tachycardia, bleeding — investigate those.',
+profQuote:'"New confusion in an older adult is a red flag, not a personality. Something is wrong — go find it."'},
+
+{id:11,block:2,chapter:11,prof:true,trap:true,
+stem:'A patient\'s serum potassium is 6.8 mEq/L. Which finding requires the nurse\'s MOST immediate attention?',
+options:[
+{letter:'A',text:'Peaked T waves on the cardiac monitor',correct:true,rationale:'Hyperkalemia (K+ >5.0) is dangerous because it destabilizes cardiac conduction. Peaked/tall T waves are the classic early ECG change and can progress to widened QRS, then ventricular fibrillation and cardiac arrest. Cardiac effects are the life threat — this is the priority finding. Treat with calcium gluconate (stabilizes membrane), then insulin+D50/albuterol (shift K+ in), then kayexalate/dialysis (remove).'},
+{letter:'B',text:'Muscle weakness in the legs',correct:false,rationale:'Muscle weakness is a real hyperkalemia symptom, but it is not the immediate life threat. The cardiac conduction changes are what kill the patient.'},
+{letter:'C',text:'Hyperactive bowel sounds and diarrhea',correct:false,rationale:'GI hyperactivity (diarrhea, cramping) occurs in hyperkalemia but is far less urgent than the cardiac rhythm changes.'},
+{letter:'D',text:'Mild irritability',correct:false,rationale:'Neuromuscular irritability is a symptom, but it is not the priority. The peaked T waves signal impending lethal dysrhythmia.'}
+],vocabTip:'<strong>Hyperkalemia (K+ >5.0) kills the heart.</strong> Peaked T waves → wide QRS → V-fib. Treatment order: calcium gluconate (protect heart) → insulin+D50 / albuterol (shift in) → kayexalate/dialysis (remove). Cardiac is always the priority.'},
+
+{id:12,block:2,chapter:11,prof:true,
+stem:'A patient with a serum sodium of 118 mEq/L is most at risk for which complication?',
+options:[
+{letter:'A',text:'Seizures from cerebral edema',correct:true,rationale:'Severe hyponatremia (Na+ <135; here 118) pulls water INTO brain cells by osmosis, causing cerebral edema. Neurologic effects dominate: headache, confusion, lethargy, and — when severe — seizures and coma. Correct sodium SLOWLY to avoid osmotic demyelination. Seizure precautions are essential.'},
+{letter:'B',text:'Deep vein thrombosis',correct:false,rationale:'Hyponatremia does not directly cause clotting. The danger is neurologic (cerebral edema), not thrombotic.'},
+{letter:'C',text:'Hypertensive crisis',correct:false,rationale:'Low sodium does not drive a hypertensive crisis. Fluid status varies, but the acute risk is neurologic from brain swelling.'},
+{letter:'D',text:'Respiratory alkalosis',correct:false,rationale:'Sodium level does not create respiratory alkalosis. The osmotic shift of water into brain cells is the concern.'}
+],vocabTip:'<strong>Hyponatremia (Na+ <135) = brain swells.</strong> Water shifts into cells → cerebral edema → headache, confusion, SEIZURES. Correct slowly (risk of osmotic demyelination if too fast). Seizure precautions.'},
+
+{id:13,block:2,chapter:11,prof:false,
+stem:'A patient reports numbness and tingling around the mouth and fingers. The nurse notes a positive Chvostek\'s sign. Which electrolyte imbalance does this indicate?',
+options:[
+{letter:'A',text:'Hypocalcemia',correct:true,rationale:'Perioral/finger paresthesia plus a positive Chvostek\'s sign (facial twitch when tapping the cheek) and Trousseau\'s sign (carpal spasm with BP cuff) indicate HYPOcalcemia (Ca <9). Low calcium increases neuromuscular excitability → tetany, spasms, seizures. Keep IV calcium and seizure precautions ready.'},
+{letter:'B',text:'Hypercalcemia',correct:false,rationale:'HIGH calcium causes the OPPOSITE — decreased excitability: lethargy, weakness, constipation, decreased reflexes ("bones, stones, groans, moans"). Chvostek\'s is a LOW-calcium sign.'},
+{letter:'C',text:'Hyperkalemia',correct:false,rationale:'Hyperkalemia affects cardiac conduction (peaked T waves), not the Chvostek/Trousseau tetany picture.'},
+{letter:'D',text:'Hypernatremia',correct:false,rationale:'High sodium causes thirst and neurologic changes from cellular dehydration, not the tetany signs of hypocalcemia.'}
+],vocabTip:'<strong>Chvostek (cheek) + Trousseau (cuff) = HYPOcalcemia (tetany).</strong> Low Ca → excitable nerves → spasms/seizures. High Ca → sluggish: bones, stones, groans, moans. Mag (Mg) behaves like calcium — low Mg mimics low Ca.'},
+
+{id:14,block:2,chapter:12,prof:true,
+stem:'An ABG shows pH 7.30, PaCO2 52 mmHg, HCO3 24 mEq/L. The nurse interprets this as:',
+options:[
+{letter:'A',text:'Respiratory acidosis, uncompensated',correct:true,rationale:'pH 7.30 = acidotic (low). PaCO2 52 = high (acidic) and moves in the SAME direction as the disturbance → the problem is respiratory. HCO3 24 is normal, so the kidneys have not compensated yet. Low pH + high CO2 + normal HCO3 = uncompensated respiratory acidosis (e.g., hypoventilation, COPD, opioid overdose).'},
+{letter:'B',text:'Metabolic acidosis, uncompensated',correct:false,rationale:'Metabolic acidosis would show a LOW HCO3 as the primary problem. Here HCO3 is normal (24) and CO2 is the abnormal value, so it is respiratory.'},
+{letter:'C',text:'Respiratory alkalosis, partially compensated',correct:false,rationale:'Alkalosis requires a HIGH pH. This pH is low (7.30), so it is acidosis, not alkalosis.'},
+{letter:'D',text:'Metabolic alkalosis, fully compensated',correct:false,rationale:'Full compensation would return the pH to normal (7.35-7.45). This pH is abnormal (7.30) and the value is acidotic, so it is not compensated alkalosis.'}
+],vocabTip:'<strong>ROME:</strong> Respiratory Opposite (pH & CO2 move opposite in resp), Metabolic Equal (pH & HCO3 move same). Steps: 1) pH acid or alkalotic? 2) Which value matches — CO2 (resp) or HCO3 (metabolic)? 3) Other value normal = uncompensated.'},
+
+{id:15,block:2,chapter:12,prof:true,
+stem:'A patient with severe vomiting for 3 days is most likely to develop which acid-base imbalance?',
+options:[
+{letter:'A',text:'Metabolic alkalosis',correct:true,rationale:'Prolonged vomiting removes hydrochloric acid (H+ and Cl-) from the stomach, raising the pH → metabolic alkalosis. Expect high pH, high HCO3, and often hypokalemia and hypochloremia. Watch for compensatory hypoventilation (retaining CO2 to lower pH).'},
+{letter:'B',text:'Metabolic acidosis',correct:false,rationale:'Metabolic acidosis comes from GAINING acid or LOSING bicarb — e.g., diarrhea (loses HCO3), DKA, renal failure, lactic acidosis. Vomiting loses acid, so it causes alkalosis, not acidosis.'},
+{letter:'C',text:'Respiratory acidosis',correct:false,rationale:'Respiratory acidosis is a ventilation problem (retained CO2). Vomiting is a metabolic (GI acid loss) problem.'},
+{letter:'D',text:'Respiratory alkalosis',correct:false,rationale:'Respiratory alkalosis comes from hyperventilation blowing off CO2 (anxiety, pain, fever). Vomiting causes a metabolic disturbance.'}
+],vocabTip:'<strong>Vomiting = lose acid = metabolic ALKALOSIS. Diarrhea = lose bicarb = metabolic ACIDOSIS.</strong> "Vomit up top, alkalosis; diarrhea down below, acidosis." Vomiting also drops K+ and Cl-.'},
+
+{id:16,block:2,chapter:13,prof:true,trap:true,
+stem:'A nurse assesses a peripheral IV site and finds it cool, pale, and swollen, with the infusion slowing. The patient reports tightness. This indicates:',
+options:[
+{letter:'A',text:'Infiltration — the catheter has dislodged into the surrounding tissue',correct:true,rationale:'INFILTRATION = IV fluid leaking into surrounding tissue. Hallmarks: COOL, pale, swollen (edematous), taut skin, and a slowed/stopped infusion. Action: STOP the infusion, remove the catheter, elevate the limb, apply warm or cool compress per protocol, and restart at a new site. Cool + swollen = infiltration.'},
+{letter:'B',text:'Phlebitis — inflammation of the vein',correct:false,rationale:'PHLEBITIS presents with WARMTH, redness, and a palpable cord along the vein — an inflammatory picture. This site is COOL and pale, which points to infiltration, not phlebitis. (Trap: don\'t swap the two.)'},
+{letter:'C',text:'A normal, well-functioning IV site',correct:false,rationale:'Swelling, coolness, pallor, and a slowing infusion are never normal. The IV must be removed.'},
+{letter:'D',text:'Systemic sepsis from the IV',correct:false,rationale:'Sepsis produces systemic signs (fever, tachycardia, hypotension). Localized coolness and swelling are a local infiltration, not systemic infection.'}
+],vocabTip:'<strong>Infiltration = COOL, pale, swollen, slowed flow</strong> (fluid in tissue). <strong>Phlebitis = WARM, red, cord-like</strong> (vein inflamed). Both → stop and remove. Temperature is your discriminator: cool = infiltration, warm = phlebitis.'},
+
+{id:17,block:2,chapter:13,prof:false,
+stem:'A patient is receiving 0.9% normal saline. The nurse classifies this IV fluid as:',
+options:[
+{letter:'A',text:'Isotonic — stays in the vascular space to expand volume',correct:true,rationale:'0.9% NS is ISOTONIC (same osmolality as plasma). It stays in the intravascular/extracellular space without shifting water into or out of cells, making it the go-to for volume expansion, resuscitation, and blood administration. Other isotonics: LR, D5W (isotonic in the bag).'},
+{letter:'B',text:'Hypotonic — shifts water into the cells',correct:false,rationale:'Hypotonic fluids (0.45% NS, 0.33% NS) have LOWER osmolality and drive water INTO cells (treat cellular dehydration). 0.9% NS is isotonic, not hypotonic.'},
+{letter:'C',text:'Hypertonic — pulls water out of the cells',correct:false,rationale:'Hypertonic fluids (3% NS, D10W, D5NS) have HIGHER osmolality and pull water OUT of cells into the vessels. 0.9% NS is isotonic.'},
+{letter:'D',text:'A colloid that draws fluid by oncotic pressure',correct:false,rationale:'Colloids (albumin, blood) contain large molecules that pull fluid by oncotic pressure. 0.9% NS is a crystalloid, not a colloid.'}
+],vocabTip:'<strong>Isotonic (0.9% NS, LR) stays in the vessel</strong> — volume expansion. <strong>Hypotonic (0.45% NS) → into cells</strong> (rehydrate cells; risk cerebral edema). <strong>Hypertonic (3% NS) → out of cells</strong> (risk fluid overload).'},
+
+{id:18,block:2,chapter:14,prof:true,sata:true,
+stem:'Fifteen minutes into a packed red blood cell transfusion, a patient develops fever, chills, flank pain, and dark urine. Which actions should the nurse take? Select all that apply.',
+options:[
+{letter:'A',text:'Stop the transfusion immediately',correct:true,rationale:'These are signs of an acute hemolytic transfusion reaction (ABO incompatibility) — a medical emergency. The very FIRST action is to STOP the blood immediately to prevent further hemolysis.'},
+{letter:'B',text:'Keep the vein open with normal saline using new tubing',correct:true,rationale:'After stopping the blood, maintain IV access with 0.9% normal saline via NEW tubing (don\'t keep infusing the residual blood in the old line). This supports blood pressure and renal perfusion and preserves the line for emergency meds.'},
+{letter:'C',text:'Notify the provider and the blood bank',correct:true,rationale:'The provider must be notified to direct treatment, and the blood bank needs the blood bag and tubing returned to investigate the mismatch. Reactions are always reported.'},
+{letter:'D',text:'Monitor vital signs and urine output closely',correct:true,rationale:'Hemolysis can cause hypotension, shock, and acute kidney injury (hemoglobin clogs the tubules → dark urine). Close monitoring of vitals and urine output is essential.'},
+{letter:'E',text:'Slow the transfusion and continue while observing the patient',correct:false,rationale:'NEVER slow-and-continue a suspected hemolytic reaction — continuing to infuse incompatible blood worsens hemolysis and can be fatal. The blood must be stopped completely.'}
+],vocabTip:'<strong>Transfusion reaction = STOP the blood FIRST</strong>, then NS via new tubing, notify provider + blood bank, monitor VS/urine, return the bag. Fever/chills/flank pain/dark urine = hemolytic (ABO). Never keep it running.'},
+
+{id:19,block:2,chapter:11,prof:false,
+stem:'A patient with heart failure has gained 4 lb (1.8 kg) in 2 days with new bibasilar crackles and bounding pulses. The nurse recognizes this as:',
+options:[
+{letter:'A',text:'Fluid volume overload',correct:true,rationale:'Rapid weight gain (1 kg ≈ 1 L of fluid), crackles, bounding pulses, JVD, and edema signal fluid volume EXCESS. Daily weight is the most sensitive indicator of fluid status. Management: restrict fluids/sodium, give the ordered diuretic, monitor electrolytes, and position upright.'},
+{letter:'B',text:'Fluid volume deficit',correct:false,rationale:'Deficit (dehydration) shows weight LOSS, thready/weak pulse, poor turgor, dry membranes, and hypotension — the opposite of this picture.'},
+{letter:'C',text:'Third spacing without volume change',correct:false,rationale:'While fluid can shift, the total weight gain and crackles indicate true excess vascular/pulmonary volume, not just a compartment shift.'},
+{letter:'D',text:'Normal day-to-day variation',correct:false,rationale:'A 4-lb gain in 2 days with crackles is never normal in heart failure — it is an early warning of decompensation and must be acted on.'}
+],vocabTip:'<strong>1 kg (2.2 lb) = 1 L of fluid.</strong> Overload = weight gain, crackles, bounding pulse, JVD, edema. Deficit = weight loss, weak thready pulse, dry membranes. Daily weight (same time, same scale) is the best fluid monitor.'},
+
+{id:20,block:2,chapter:11,prof:true,
+stem:'A patient with a serum potassium of 2.8 mEq/L has an order for IV potassium replacement. What is the most important safety rule?',
+options:[
+{letter:'A',text:'Never administer potassium by IV push; always dilute and infuse slowly',correct:true,rationale:'IV potassium is NEVER given by IV push or bolus — it can cause fatal cardiac arrest. It must be diluted and infused slowly via pump (typically no faster than 10 mEq/hr on a general unit), with cardiac monitoring for faster rates. Also assess renal function and urine output before giving. Hypokalemia (K+ <3.5) itself causes dysrhythmias, flat T waves, and U waves.'},
+{letter:'B',text:'Give it as a rapid IV push to correct the level quickly',correct:false,rationale:'IV push potassium is lethal — it stops the heart. This is a never-event. It must always be diluted and infused slowly.'},
+{letter:'C',text:'Administer it undiluted to avoid fluid overload',correct:false,rationale:'Potassium must be diluted; undiluted potassium is caustic to veins and dangerous to the heart. Fluid overload is managed by controlling total volume, not by concentrating potassium.'},
+{letter:'D',text:'Withhold cardiac monitoring since the level is only mildly low',correct:false,rationale:'K+ 2.8 is significantly low and dysrhythmogenic. Cardiac monitoring is appropriate, not optional, during replacement.'}
+],vocabTip:'<strong>IV potassium: NEVER push, NEVER bolus, NEVER undiluted.</strong> Always dilute + pump slowly (≤10 mEq/hr peripherally), check urine output/renal function first, monitor the heart. Hypokalemia signs: flat T, U waves, dysrhythmias, weakness.',
+profQuote:'"Potassium by IV push is a way to kill your patient. It always goes diluted and slow, on a pump, never straight in."'},
+
+{id:21,block:3,chapter:17,prof:true,trap:true,
+stem:'A patient stung by a bee develops hives, wheezing, throat tightness, and a blood pressure of 78/40. What is the nurse\'s FIRST action?',
+options:[
+{letter:'A',text:'Administer intramuscular epinephrine',correct:true,rationale:'This is anaphylaxis — a Type I (IgE-mediated) hypersensitivity reaction causing massive histamine release, bronchoconstriction, and vasodilation/shock. EPINEPHRINE is the first-line, life-saving drug: it bronchodilates, vasoconstricts, and reverses the reaction. Give IM (vastus lateralis) immediately, then support airway, oxygen, IV fluids, and antihistamines/steroids as adjuncts.'},
+{letter:'B',text:'Give an oral antihistamine and reassess in 15 minutes',correct:false,rationale:'Antihistamines are adjuncts and too slow for airway/shock. In anaphylaxis, epinephrine comes FIRST — waiting on an oral antihistamine could be fatal.'},
+{letter:'C',text:'Apply oxygen and continue to monitor',correct:false,rationale:'Oxygen is supportive and necessary, but it does not reverse the reaction. Epinephrine is the priority drug; oxygen follows.'},
+{letter:'D',text:'Administer IV corticosteroids',correct:false,rationale:'Steroids prevent the late-phase reaction but take hours to work. They do not address the immediate airway and hemodynamic collapse — epinephrine does.'}
+],vocabTip:'<strong>Anaphylaxis (Type I, IgE) → EPINEPHRINE first, IM.</strong> It reverses bronchospasm + shock. Antihistamines/steroids/O2 are adjuncts. Don\'t let "give Benadryl" distract you — epi always leads.'},
+
+{id:22,block:3,chapter:16,prof:false,
+stem:'A patient has a white blood cell differential showing a marked increase in neutrophils, including many immature "band" cells (a "left shift"). This most likely indicates:',
+options:[
+{letter:'A',text:'An acute bacterial infection',correct:true,rationale:'Neutrophils are the first responders to bacterial invasion. A rising neutrophil count with increased immature bands ("shift to the left") means the bone marrow is rushing out cells to fight an acute BACTERIAL infection. Neutrophils = bacteria.'},
+{letter:'B',text:'A parasitic or allergic process',correct:false,rationale:'Parasites and allergies raise EOSINOPHILS, not neutrophils/bands. Different cell, different trigger.'},
+{letter:'C',text:'A chronic viral infection',correct:false,rationale:'Viral infections typically raise LYMPHOCYTES. Neutrophilia with a left shift points to bacteria, not a virus.'},
+{letter:'D',text:'A normal, healthy differential',correct:false,rationale:'A prominent left shift is not normal — it signals the marrow is mobilizing against an active bacterial infection.'}
+],vocabTip:'<strong>Left shift = immature neutrophils (bands) = acute bacterial infection.</strong> Cell-to-cause map: Neutrophils→bacteria, Lymphocytes→virus, Eosinophils→allergy/parasites, Basophils→inflammation/allergy, Monocytes→chronic infection.'},
+
+{id:23,block:3,chapter:18,prof:true,trap:true,
+stem:'A patient receiving chemotherapy has an absolute neutrophil count (ANC) of 480/mm3. What is the nurse\'s priority concern?',
+options:[
+{letter:'A',text:'Severe neutropenia with high infection risk — implement neutropenic precautions',correct:true,rationale:'An ANC below 500/mm3 is severe neutropenia — the patient cannot mount a normal response to infection, and a minor infection can become fatal sepsis. The classic trap: the patient may NOT show typical signs (a low-grade fever may be the ONLY sign because there aren\'t enough neutrophils to make pus/redness). Implement neutropenic precautions: private room, strict hand hygiene, no fresh flowers/raw produce, avoid crowds, monitor temperature, and treat any fever as an emergency.'},
+{letter:'B',text:'Increased bleeding risk requiring bleeding precautions',correct:false,rationale:'Bleeding risk is tied to PLATELETS (thrombocytopenia), not the neutrophil count. ANC reflects infection risk. Don\'t confuse the two.'},
+{letter:'C',text:'Anemia requiring activity restriction',correct:false,rationale:'Anemia relates to red blood cells/hemoglobin. The ANC specifically measures infection-fighting neutrophils.'},
+{letter:'D',text:'Fluid overload from chemotherapy',correct:false,rationale:'ANC has nothing to do with fluid status. It is the marker for neutropenia and infection risk.'}
+],vocabTip:'<strong>ANC <500 = severe neutropenia = infection emergency.</strong> May have NO classic signs — fever alone can be the only clue and is an emergency. Neutropenic precautions. (Platelets = bleeding; neutrophils = infection — keep them separate.)',
+profQuote:'"A neutropenic patient with a fever is a 911. They can\'t make pus or redness, so a fever might be all you get — and it means sepsis until proven otherwise."'},
+
+{id:24,block:3,chapter:18,prof:true,
+stem:'A patient with a rapidly growing lymphoma begins chemotherapy and develops high potassium, high phosphate, high uric acid, and low calcium. The nurse recognizes this oncologic emergency as:',
+options:[
+{letter:'A',text:'Tumor lysis syndrome',correct:true,rationale:'Tumor lysis syndrome (TLS) occurs when large numbers of cancer cells break apart rapidly (often just after starting chemo for bulky, fast-growing tumors), dumping their contents into the blood: HIGH potassium, HIGH phosphate, HIGH uric acid, and LOW calcium (binds the phosphate). Risks: lethal dysrhythmias and acute kidney injury. Prevent/treat with aggressive hydration, allopurinol/rasburicase, and electrolyte management.'},
+{letter:'B',text:'Syndrome of inappropriate antidiuretic hormone (SIADH)',correct:false,rationale:'SIADH causes water retention and dilutional HYPOnatremia, not the potassium/phosphate/uric acid picture of cell breakdown.'},
+{letter:'C',text:'Superior vena cava syndrome',correct:false,rationale:'SVC syndrome is a compression problem (facial/upper-body swelling, distended veins), not a metabolic/electrolyte derangement.'},
+{letter:'D',text:'Hypercalcemia of malignancy',correct:false,rationale:'Hypercalcemia is HIGH calcium; TLS causes LOW calcium (phosphate binds it). The lab pattern here is TLS.'}
+],vocabTip:'<strong>Tumor lysis syndrome = cells burst → HIGH K+, PO4, uric acid; LOW Ca.</strong> Just after chemo on bulky tumors. Risks: dysrhythmias + AKI. Prevent: hydrate + allopurinol/rasburicase. "Everything up except calcium."'},
+
+{id:25,block:3,chapter:19,prof:true,
+stem:'A patient is admitted with active pulmonary tuberculosis. Which type of isolation precaution is required?',
+options:[
+{letter:'A',text:'Airborne precautions with a negative-pressure room and an N95 respirator',correct:true,rationale:'TB spreads by tiny airborne droplet nuclei that stay suspended in air. It requires AIRBORNE precautions: a negative-pressure (AIIR) room, an N95 (fit-tested) respirator for staff, and the door kept closed. Remember the airborne diseases: "My Chicken Hez TB" — Measles, Chickenpox (varicella), Herpes zoster (disseminated), TB.'},
+{letter:'B',text:'Droplet precautions with a surgical mask',correct:false,rationale:'Droplet precautions (surgical mask, ~6-ft spread) are for larger droplets — influenza, pertussis, meningitis. TB\'s tiny nuclei stay airborne and need an N95 + negative pressure, not just a surgical mask.'},
+{letter:'C',text:'Contact precautions with gown and gloves only',correct:false,rationale:'Contact precautions (gown/gloves) are for MDROs, C. diff, scabies — organisms spread by touch. TB is inhaled, requiring airborne precautions.'},
+{letter:'D',text:'Standard precautions alone',correct:false,rationale:'Standard precautions are the baseline for all patients but are insufficient for airborne TB, which needs the added N95 + negative-pressure room.'}
+],vocabTip:'<strong>TB = AIRBORNE:</strong> negative-pressure room + N95 + door closed. Airborne = "My Chicken Hez TB" (Measles, Chickenpox/varicella, Herpes zoster disseminated, TB). Droplet = surgical mask (flu, pertussis, meningitis). Contact = gown/gloves (MDRO, C.diff).'},
+
+{id:26,block:3,chapter:19,prof:true,trap:true,
+stem:'A patient has Clostridioides difficile (C. diff) infection. Which infection-control measure is essential and specific to C. diff?',
+options:[
+{letter:'A',text:'Wash hands with soap and water rather than using alcohol-based sanitizer',correct:true,rationale:'C. diff forms SPORES that alcohol-based hand rubs do NOT kill. Hands must be washed with SOAP AND WATER to physically remove spores. Also use contact precautions (gown, gloves) and clean the room with a sporicidal agent (bleach). This is the classic trap — sanitizer feels right but fails against spores.'},
+{letter:'B',text:'Alcohol-based hand sanitizer is sufficient after each contact',correct:false,rationale:'Alcohol does NOT kill C. diff spores. Relying on sanitizer spreads the organism. Soap and water is mandatory.'},
+{letter:'C',text:'Airborne precautions with an N95 respirator',correct:false,rationale:'C. diff spreads by the fecal-oral/contact route, not airborne. N95 and negative pressure are not indicated; contact precautions are.'},
+{letter:'D',text:'No special precautions are needed if the patient is continent',correct:false,rationale:'C. diff requires contact precautions and soap-and-water hand hygiene regardless of continence, because spores contaminate the environment.'}
+],vocabTip:'<strong>C. diff = SPORES → soap & water (alcohol does NOT kill spores) + contact precautions + bleach clean.</strong> Same rule for norovirus. Sanitizer is the trap answer.'},
+
+{id:27,block:3,chapter:21,prof:true,sata:true,
+stem:'A nurse assesses a stage 3 pressure injury. Which characteristics apply to a stage 3 injury? Select all that apply.',
+options:[
+{letter:'A',text:'Full-thickness skin loss with visible subcutaneous fat',correct:true,rationale:'Stage 3 = full-thickness loss extending into the subcutaneous tissue, so adipose (fat) may be visible in the wound bed. It has gone deeper than the dermis.'},
+{letter:'B',text:'May have slough, undermining, or tunneling',correct:true,rationale:'Stage 3 injuries can show slough (yellow/tan devitalized tissue) and features like undermining and tunneling, as long as those do not obscure the wound depth.'},
+{letter:'C',text:'Muscle, bone, or tendon is NOT exposed',correct:true,rationale:'The defining line between stage 3 and stage 4 is depth: in stage 3, fat may show but muscle/bone/tendon are NOT visible or palpable. Exposed muscle/bone/tendon = stage 4.'},
+{letter:'D',text:'Intact skin with a localized area of non-blanchable redness',correct:false,rationale:'That describes stage 1 (intact skin, non-blanchable erythema). Stage 3 has full-thickness open tissue loss, not intact skin.'},
+{letter:'E',text:'Exposed bone and tendon are visible in the wound bed',correct:false,rationale:'Exposed bone/muscle/tendon defines STAGE 4, not stage 3. Once you see those structures, it is stage 4.'}
+],vocabTip:'<strong>PI staging:</strong> 1 = intact, non-blanchable red · 2 = partial-thickness, shiny/open blister · 3 = full-thickness, FAT visible (no muscle/bone) · 4 = muscle/BONE/tendon exposed · Unstageable = base covered by slough/eschar · DTPI = deep purple/maroon intact.'},
+
+{id:28,block:3,chapter:21,prof:true,
+stem:'A patient has burns to the entire front and back of the right leg and the anterior trunk. Using the Rule of Nines, what is the approximate percent total body surface area (TBSA) burned in an adult?',
+options:[
+{letter:'A',text:'36%',correct:true,rationale:'Rule of Nines (adult): each entire leg = 18% (front 9% + back 9%), anterior trunk = 18%. Entire right leg (18%) + anterior trunk (18%) = 36% TBSA. TBSA guides fluid resuscitation (Parkland formula: 4 mL × kg × %TBSA, half in the first 8 hours).'},
+{letter:'B',text:'18%',correct:false,rationale:'18% covers only one part (either the whole leg OR the anterior trunk). Both together are 36%.'},
+{letter:'C',text:'27%',correct:false,rationale:'27% would be one leg (18%) plus one anterior trunk half (9%). The full anterior trunk is 18%, giving 36% total.'},
+{letter:'D',text:'45%',correct:false,rationale:'45% overestimates — it would require additional surfaces. A whole leg plus the anterior trunk is 36%.'}
+],vocabTip:'<strong>Rule of Nines (adult):</strong> head 9%, each arm 9%, each leg 18%, anterior trunk 18%, posterior trunk 18%, genitals 1%. TBSA drives Parkland: 4 mL × kg × %TBSA, ½ in first 8 hrs (from time of burn). Titrate to urine output.'},
+
+{id:29,block:3,chapter:20,prof:false,
+stem:'A nurse is teaching about the ABCDE method for evaluating a suspicious mole for melanoma. The "E" stands for:',
+options:[
+{letter:'A',text:'Evolving — a change in size, shape, color, or symptoms over time',correct:true,rationale:'ABCDE for melanoma: Asymmetry, Border (irregular), Color (varied), Diameter (>6 mm), and EVOLVING (any change over time). A mole that changes is the most important warning sign and should be evaluated by a provider.'},
+{letter:'B',text:'Elevation above the skin surface only',correct:false,rationale:'Elevation is not the "E." The E is Evolving/change. Flat lesions can also be melanoma.'},
+{letter:'C',text:'Erythema surrounding the lesion',correct:false,rationale:'Redness around a lesion is not part of the ABCDE mnemonic. The E is for Evolving.'},
+{letter:'D',text:'Exudate or drainage from the lesion',correct:false,rationale:'Drainage is not the ABCDE "E." Change over time (Evolving) is the key concept.'}
+],vocabTip:'<strong>ABCDE melanoma:</strong> Asymmetry, Border irregular, Color varied, Diameter >6 mm (pencil eraser), Evolving (changing). Evolving/change is the biggest red flag — report any mole that changes.'},
+
+{id:30,block:3,chapter:17,prof:false,
+stem:'A patient with systemic lupus erythematosus (SLE) asks how to prevent flares. The nurse\'s best teaching includes:',
+options:[
+{letter:'A',text:'Avoid direct sun exposure and use sunscreen, because UV light can trigger flares',correct:true,rationale:'SLE is an autoimmune disease where UV light is a well-known flare trigger (it can worsen the malar "butterfly" rash and systemic activity). Teach sun avoidance, protective clothing, and broad-spectrum sunscreen. Also: manage stress and infection, take hydroxychloroquine as prescribed, and monitor for organ involvement (lupus nephritis).'},
+{letter:'B',text:'Spend extra time in the sun to boost vitamin D and immunity',correct:false,rationale:'Sun EXPOSURE triggers lupus flares — the opposite of helpful. Patients must protect against UV, not seek it.'},
+{letter:'C',text:'Stop all medications once symptoms improve',correct:false,rationale:'Stopping maintenance therapy (e.g., hydroxychloroquine) risks a flare. SLE requires ongoing management even when the patient feels well.'},
+{letter:'D',text:'Estrogen therapy is encouraged to reduce inflammation',correct:false,rationale:'Estrogen can worsen lupus activity and is generally avoided/used cautiously. It is not a flare-prevention strategy.'}
+],vocabTip:'<strong>SLE triggers: SUN (UV), stress, infection.</strong> Teach sun protection + sunscreen, don\'t stop hydroxychloroquine, watch for lupus nephritis. Malar butterfly rash + anti-dsDNA are hallmark. Avoid estrogen.'},
+
+{id:31,block:4,chapter:22,prof:true,trap:true,
+stem:'A postoperative patient becomes restless and anxious with an SpO2 of 92%. The nurse recognizes this as which stage of hypoxia?',
+options:[
+{letter:'A',text:'An early sign — restlessness is the first indicator of hypoxia',correct:true,rationale:'RESTLESSNESS, anxiety, and irritability are the EARLIEST signs of hypoxia — the oxygen-hungry brain reacts before saturation crashes or cyanosis appears. Never sedate a restless patient without first assessing oxygenation. Late signs are bradycardia, cyanosis, and decreased LOC.'},
+{letter:'B',text:'A late sign requiring immediate intubation',correct:false,rationale:'Restlessness is EARLY, not late. Late hypoxia shows bradycardia, cyanosis, and falling consciousness. Assess and oxygenate first; intubation is not automatic at this stage.'},
+{letter:'C',text:'An expected postoperative behavior needing no action',correct:false,rationale:'New restlessness with a borderline SpO2 is never "no action." It must be assessed as possible hypoxia.'},
+{letter:'D',text:'A sign the patient needs a sedative to rest',correct:false,rationale:'Sedating a hypoxic patient is dangerous — it can depress respirations further and mask deterioration. Assess oxygenation, do not sedate.'}
+],vocabTip:'<strong>Earliest hypoxia sign = restlessness/anxiety/irritability</strong> (brain first). Late = bradycardia, cyanosis, ↓LOC. Cyanosis is a LATE and unreliable sign. Never sedate a restless hypoxic patient — find the cause.',
+profQuote:'"Restless and anxious is the brain screaming for oxygen. That is your first clue, long before the numbers fall apart."'},
+
+{id:32,block:4,chapter:24,prof:true,
+stem:'A patient with COPD has an SpO2 of 90% and a PaCO2 that is chronically elevated. What is the appropriate oxygen target?',
+options:[
+{letter:'A',text:'Titrate oxygen to keep SpO2 around 88-92%',correct:true,rationale:'In COPD with chronic CO2 retention, the target SpO2 is 88-92%. Giving high-flow oxygen to push saturation to 100% can blunt the hypoxic respiratory drive and reduce ventilation, worsening CO2 retention (CO2 narcosis). Give the LOWEST oxygen that maintains 88-92%. This does not mean withholding oxygen from a hypoxic patient — treat dangerous hypoxia, but titrate carefully.'},
+{letter:'B',text:'Apply high-flow oxygen to achieve SpO2 of 100%',correct:false,rationale:'Driving a chronic-retainer COPD patient to 100% can suppress their drive to breathe and cause CO2 narcosis. The target is a controlled 88-92%.'},
+{letter:'C',text:'Withhold all supplemental oxygen',correct:false,rationale:'You never withhold oxygen from a truly hypoxic patient. The point is careful titration to 88-92%, not zero oxygen.'},
+{letter:'D',text:'Maintain SpO2 below 85% to preserve respiratory drive',correct:false,rationale:'85% is dangerously hypoxic. The safe controlled window is 88-92%, not below 85%.'}
+],vocabTip:'<strong>COPD SpO2 target = 88-92%.</strong> Too much O2 → suppresses hypoxic drive → CO2 narcosis (drowsy, ↑CO2). Give the least O2 that keeps 88-92%. Never withhold O2 from real hypoxia — just titrate.'},
+
+{id:33,block:4,chapter:24,prof:true,trap:true,
+stem:'A patient in a severe asthma exacerbation was wheezing loudly, but the nurse now notes a "silent chest" with no audible wheezing. This finding indicates:',
+options:[
+{letter:'A',text:'Worsening obstruction and impending respiratory failure',correct:true,rationale:'A SILENT chest in status asthmaticus is an ominous sign — airflow is so severely obstructed that there is not enough air movement to produce a wheeze. It signals impending respiratory failure and requires immediate emergency intervention (bronchodilators, steroids, prepare for intubation). The disappearance of wheezing is NOT improvement.'},
+{letter:'B',text:'Resolution of the asthma attack',correct:false,rationale:'This is the deadly trap. Absent wheezing here means air is barely moving, not that the airways opened. It is deterioration, not resolution.'},
+{letter:'C',text:'A normal finding after bronchodilator therapy',correct:false,rationale:'True improvement includes better air movement, easier breathing, and rising saturation — not a silent chest with a struggling patient. Context (severe distress) tells you this is worsening.'},
+{letter:'D',text:'That the patient no longer needs monitoring',correct:false,rationale:'A silent chest demands MORE monitoring and emergency care, not less. It is a pre-arrest sign.'}
+],vocabTip:'<strong>Silent chest in asthma = EMERGENCY</strong>, not relief. No air moving = no wheeze. Impending respiratory failure → bronchodilators, steroids, prepare to intubate. Loss of wheezing + rising CO2 + fatigue = the patient is crashing.'},
+
+{id:34,block:4,chapter:26,prof:true,
+stem:'A patient with a chest tube has continuous bubbling in the water-seal chamber. The nurse recognizes this as:',
+options:[
+{letter:'A',text:'An air leak that should be investigated',correct:true,rationale:'CONTINUOUS bubbling in the WATER-SEAL chamber indicates an air leak — either from the patient (pleural space) or somewhere in the system (loose connection). Check the tubing/connections first (tape them), and assess the insertion site. Intermittent bubbling with respiration/coughing can be normal as trapped air escapes, but CONTINUOUS bubbling is abnormal. (Note: continuous GENTLE bubbling in the SUCTION-control chamber is expected.)'},
+{letter:'B',text:'Normal and expected in the water-seal chamber',correct:false,rationale:'Continuous bubbling in the water-seal chamber is NOT normal — it points to an air leak. Expected water-seal movement is tidaling (rise and fall with breathing), not continuous bubbling.'},
+{letter:'C',text:'A sign the lung has fully re-expanded',correct:false,rationale:'Full re-expansion is signaled by cessation of tidaling and drainage, not by continuous bubbling. Bubbling means air is still moving through the system.'},
+{letter:'D',text:'An indication to immediately clamp the chest tube',correct:false,rationale:'You generally do NOT clamp a chest tube (risk of tension pneumothorax). Investigate the leak by checking connections; do not clamp except per specific, brief protocol.'}
+],vocabTip:'<strong>Chest tube:</strong> water-seal = TIDALING normal, CONTINUOUS bubbling = AIR LEAK (check connections). Suction-control chamber = gentle continuous bubbling is normal. Don\'t routinely clamp (tension pneumo). Dislodged tube → occlusive dressing taped on 3 sides.'},
+
+{id:35,block:4,chapter:26,prof:true,sata:true,
+stem:'A nurse is identifying patients at high risk for pulmonary embolism (PE). Which factors increase PE risk? Select all that apply.',
+options:[
+{letter:'A',text:'Prolonged immobility or long-distance travel',correct:true,rationale:'Stasis of blood (Virchow\'s triad) from immobility, long flights, or bed rest promotes clot formation in the deep veins, which can embolize to the lungs. A leading modifiable risk factor.'},
+{letter:'B',text:'Recent orthopedic surgery (hip/knee)',correct:true,rationale:'Major orthopedic surgery causes immobility plus vessel/tissue trauma and a hypercoagulable state — all three arms of Virchow\'s triad — making DVT/PE a major postoperative risk. Prophylaxis (anticoagulation, SCDs, early ambulation) is standard.'},
+{letter:'C',text:'Active malignancy',correct:true,rationale:'Cancer creates a hypercoagulable state, significantly increasing clot risk. Malignancy is a well-established PE risk factor.'},
+{letter:'D',text:'Estrogen-based oral contraceptives or pregnancy',correct:true,rationale:'Estrogen and pregnancy increase clotting factors and venous stasis, raising DVT/PE risk. This is a key teaching point, especially combined with smoking.'},
+{letter:'E',text:'Regular aerobic exercise and ambulation',correct:false,rationale:'Regular movement PREVENTS venous stasis and lowers clot risk. Activity is protective, not a risk factor.'}
+],vocabTip:'<strong>PE/DVT risk = Virchow\'s triad:</strong> stasis (immobility, travel, surgery), hypercoagulability (cancer, estrogen, pregnancy), endothelial injury (trauma, surgery). Prevent with ambulation, SCDs, anticoagulation. Sudden dyspnea + pleuritic pain + drop in PETCO2 = suspect PE.'},
+
+{id:36,block:4,chapter:26,prof:true,
+stem:'A patient develops sudden dyspnea, tracheal deviation AWAY from the affected side, absent breath sounds on one side, and hypotension. The nurse suspects:',
+options:[
+{letter:'A',text:'Tension pneumothorax — a medical emergency',correct:true,rationale:'A TENSION pneumothorax traps air in the pleural space under pressure, collapsing the lung and SHIFTING the mediastinum/trachea AWAY from the affected side. This compresses the heart and great vessels → hypotension, distended neck veins, and cardiovascular collapse. It is a life-threatening emergency requiring immediate needle decompression followed by a chest tube.'},
+{letter:'B',text:'Simple pneumonia',correct:false,rationale:'Pneumonia develops over hours-days with fever, cough, and consolidation — not sudden tracheal deviation and hemodynamic collapse.'},
+{letter:'C',text:'An asthma attack',correct:false,rationale:'Asthma causes bilateral wheezing and air trapping, not unilateral absent breath sounds with tracheal shift away and hypotension.'},
+{letter:'D',text:'Pleural effusion',correct:false,rationale:'A pleural effusion accumulates fluid gradually (dullness to percussion). Sudden tracheal deviation with hypotension is the tension pneumothorax picture.'}
+],vocabTip:'<strong>Tension pneumothorax:</strong> trachea deviates AWAY from the bad side, absent breath sounds, hypotension, JVD → needle decompression NOW, then chest tube. Trachea shifting away + hemodynamic collapse = the emergency.'},
+
+{id:37,block:4,chapter:25,prof:true,
+stem:'A patient is prescribed a full course of anti-tuberculosis medication (RIPE therapy). What is the most important teaching point?',
+options:[
+{letter:'A',text:'Take all medications for the full 6-9 month course, even after feeling better',correct:true,rationale:'TB requires prolonged multi-drug therapy (Rifampin, Isoniazid, Pyrazinamide, Ethambutol). The biggest risk is nonadherence → drug-resistant TB (MDR-TB). Patients MUST complete the entire course; directly observed therapy (DOT) is often used to ensure adherence. Also teach that rifampin turns body fluids orange-red (harmless) and to monitor for hepatotoxicity.'},
+{letter:'B',text:'Stop the medications once the cough resolves',correct:false,rationale:'Stopping early is exactly what breeds drug-resistant TB. The full course must be completed regardless of symptom improvement.'},
+{letter:'C',text:'Orange-red urine means an allergic reaction; stop the drug',correct:false,rationale:'Rifampin harmlessly turns urine, sweat, and tears orange-red. This is expected, NOT an allergy — do not stop the drug for this.'},
+{letter:'D',text:'Alcohol use is fine during treatment',correct:false,rationale:'Several TB drugs (especially isoniazid, rifampin, pyrazinamide) are hepatotoxic. Alcohol compounds liver injury and should be avoided.'}
+],vocabTip:'<strong>TB = RIPE (Rifampin, Isoniazid, Pyrazinamide, Ethambutol) for 6-9 months — FINISH it all</strong> (nonadherence → MDR-TB, use DOT). Rifampin = orange-red fluids (normal). Watch liver (avoid alcohol). Ethambutol = eye/vision changes. Isoniazid = give B6 for neuropathy.'},
+
+{id:38,block:4,chapter:24,prof:false,
+stem:'A nurse is teaching a patient with COPD about pursed-lip breathing. What is the primary benefit?',
+options:[
+{letter:'A',text:'It keeps airways open longer and helps exhale trapped air',correct:true,rationale:'Pursed-lip breathing creates back-pressure (positive pressure) that splints the airways open during exhalation, preventing the early collapse that traps air in COPD. This promotes fuller exhalation of CO2, reduces air trapping, and eases dyspnea. Teach: inhale through the nose, exhale slowly through pursed lips (like blowing out a candle), exhale twice as long as inhale.'},
+{letter:'B',text:'It increases the respiratory rate to blow off more oxygen',correct:false,rationale:'The goal is to SLOW breathing and improve exhalation of CO2, not speed up the rate. You also don\'t want to "blow off oxygen."'},
+{letter:'C',text:'It forces more air in during a rapid, deep inhalation',correct:false,rationale:'Pursed-lip breathing works on EXHALATION (against pursed lips), not forced inhalation. The problem in COPD is getting air OUT.'},
+{letter:'D',text:'It eliminates the need for bronchodilator therapy',correct:false,rationale:'It is a supportive breathing technique, not a replacement for prescribed bronchodilators. Both are used together.'}
+],vocabTip:'<strong>Pursed-lip breathing = exhale against resistance → splints airways open → releases trapped air (less CO2 retention, less dyspnea).</strong> Inhale through nose, exhale slow through pursed lips, exhale twice as long as inhale. COPD is an EXHALATION problem.'},
+
+{id:39,block:4,chapter:23,prof:true,trap:true,
+stem:'A patient who had transsphenoidal (nasal approach) pituitary surgery reports frequent swallowing and clear drainage down the throat. What does the nurse suspect?',
+options:[
+{letter:'A',text:'Cerebrospinal fluid (CSF) leak — test the drainage for glucose/halo sign',correct:true,rationale:'After nasal/sinus/skull-base surgery, constant swallowing and clear postnasal drainage suggest a CSF leak. Test the fluid: CSF is positive for glucose and produces a "halo/ring sign" (a clear ring around blood on gauze). A CSF leak is a route for meningitis — notify the provider, keep the head of bed elevated, and avoid nose-blowing, straining, and coughing.'},
+{letter:'B',text:'Normal mucus drainage requiring no action',correct:false,rationale:'Persistent clear drainage with constant swallowing after this surgery is not simply mucus — it must be evaluated for CSF. Dismissing it risks missing a meningitis-prone leak.'},
+{letter:'C',text:'An expected side effect of anesthesia',correct:false,rationale:'Anesthesia does not cause ongoing clear nasal drainage days after surgery. The concern is a CSF leak.'},
+{letter:'D',text:'Simple allergic rhinitis',correct:false,rationale:'Given the recent skull-base surgery, a new clear leak is presumed CSF until proven otherwise — not allergic rhinitis.'}
+],vocabTip:'<strong>Clear nasal/throat drainage after nasal/skull-base surgery = suspect CSF leak.</strong> Tests: glucose POSITIVE + halo/ring sign on gauze. Risk = meningitis. HOB up, no nose-blowing/straining/coughing, notify provider.'},
+
+{id:40,block:4,chapter:22,prof:false,
+stem:'A patient will have a thoracentesis. Before the procedure, which nursing action is most important?',
+options:[
+{letter:'A',text:'Confirm informed consent is signed and position the patient sitting upright leaning over a table',correct:true,rationale:'Thoracentesis (needle removal of pleural fluid) requires informed consent and proper positioning — sitting upright, leaning forward over a bedside table — to widen the intercostal spaces and keep the diaphragm down, away from the needle. During/after: the patient must hold still and avoid coughing during insertion; afterward monitor for pneumothorax (sudden dyspnea, chest pain). No more than ~1000 mL is removed at once to avoid re-expansion pulmonary edema.'},
+{letter:'B',text:'Place the patient flat and supine',correct:false,rationale:'Supine positioning does not open the intercostal spaces for a posterior/lateral approach and raises the diaphragm toward the needle. Upright, leaning forward is correct.'},
+{letter:'C',text:'Encourage the patient to cough continuously during needle insertion',correct:false,rationale:'Coughing during insertion is dangerous — it moves the chest and risks lung puncture. The patient should hold still and avoid coughing while the needle is placed.'},
+{letter:'D',text:'Withhold oxygen during the procedure',correct:false,rationale:'Oxygen is provided as needed; there is no reason to withhold it. Positioning and consent are the priorities.'}
+],vocabTip:'<strong>Thoracentesis: consent + sit upright leaning over table</strong> (opens intercostal spaces). Hold still, no coughing during insertion. After: watch for pneumothorax (sudden dyspnea/chest pain). Remove ≤1000 mL to avoid re-expansion pulmonary edema.'},
+
+{id:41,block:5,chapter:29,prof:true,
+stem:'A patient with heart failure presents with crackles, dyspnea, orthopnea, and a frothy cough. The nurse recognizes these as signs of which type of failure?',
+options:[
+{letter:'A',text:'Left-sided heart failure',correct:true,rationale:'LEFT = LUNGS. When the left ventricle fails, blood backs up into the pulmonary circulation → pulmonary congestion: crackles, dyspnea, orthopnea, paroxysmal nocturnal dyspnea, and pink frothy sputum. These are all lung findings, pointing to left-sided failure.'},
+{letter:'B',text:'Right-sided heart failure',correct:false,rationale:'RIGHT = REST of the body (systemic): JVD, peripheral/sacral edema, hepatomegaly, ascites, weight gain. Lung findings like crackles and orthopnea are LEFT-sided.'},
+{letter:'C',text:'High-output failure',correct:false,rationale:'High-output failure (from anemia, hyperthyroidism) is uncommon and defined by mechanism, not this classic pulmonary congestion pattern, which is left-sided.'},
+{letter:'D',text:'Isolated valvular stenosis',correct:false,rationale:'The symptom cluster describes left ventricular failure with pulmonary congestion, not an isolated valve lesion.'}
+],vocabTip:'<strong>LEFT = LUNGS</strong> (crackles, dyspnea, orthopnea, PND, pink frothy sputum). <strong>RIGHT = REST of body</strong> (JVD, peripheral/sacral edema, hepatomegaly, ascites, weight gain). Left backs up into lungs; right backs up into systemic veins.',
+profQuote:'"Left is lungs, right is the rest of the body. That single word tells you exactly where to assess."'},
+
+{id:42,block:5,chapter:29,prof:true,trap:true,
+stem:'A patient with heart failure takes digoxin. The nurse should HOLD the dose and notify the provider if the apical pulse is:',
+options:[
+{letter:'A',text:'Below 60 beats per minute',correct:true,rationale:'Digoxin slows the heart rate (negative chronotrope). HOLD digoxin and notify the provider if the APICAL pulse (counted for a full minute) is below 60 bpm in an adult. Also watch for digoxin toxicity: nausea/vomiting, anorexia, visual changes (yellow-green halos), and dysrhythmias — especially with hypokalemia, which potentiates toxicity. The threshold is 60, not 50 and not 80.'},
+{letter:'B',text:'Below 80 beats per minute',correct:false,rationale:'80 is a normal heart rate — holding at <80 would inappropriately withhold needed therapy. The hold threshold is <60.'},
+{letter:'C',text:'Below 50 beats per minute',correct:false,rationale:'Waiting until <50 is too low; the standard is to hold at <60 bpm in adults. Don\'t drift the threshold down.'},
+{letter:'D',text:'Above 100 beats per minute',correct:false,rationale:'Digoxin lowers heart rate, so tachycardia is not the reason to hold it. The concern is bradycardia (<60).'}
+],vocabTip:'<strong>Digoxin: hold if apical pulse <60 (full minute) and notify provider.</strong> Toxicity: N/V, anorexia, yellow-green halos, dysrhythmias. HYPOkalemia increases toxicity risk. Therapeutic level 0.5-2.0 ng/mL. Threshold is 60 — not 50, not 80.'},
+
+{id:43,block:5,chapter:32,prof:true,
+stem:'A patient reports crushing substernal chest pain radiating to the left arm. The provider suspects acute coronary syndrome. Which lab is the most specific marker of myocardial infarction?',
+options:[
+{letter:'A',text:'Troponin',correct:true,rationale:'Troponin (I or T) is the most cardiac-SPECIFIC and sensitive biomarker for myocardial injury. It rises within a few hours of infarction, peaks, and stays elevated for days, making it the gold standard for diagnosing MI. Serial troponins are drawn. CK-MB and myoglobin are less specific.'},
+{letter:'B',text:'B-type natriuretic peptide (BNP)',correct:false,rationale:'BNP reflects ventricular stretch/volume overload — it is the marker for HEART FAILURE, not the specific marker for myocardial infarction.'},
+{letter:'C',text:'Myoglobin',correct:false,rationale:'Myoglobin rises early but is NOT cardiac-specific (it also rises with any muscle injury), so it cannot confirm MI on its own. Troponin is the specific confirmatory marker.'},
+{letter:'D',text:'White blood cell count',correct:false,rationale:'WBC may rise nonspecifically with inflammation but says nothing specific about myocardial injury. Troponin is the answer.'}
+],vocabTip:'<strong>Troponin = most specific MI marker</strong> (rises in hours, stays days; draw serially). <strong>BNP = heart failure</strong> (ventricular stretch). Myoglobin = early but non-specific. Don\'t confuse troponin (MI) with BNP (HF).'},
+
+{id:44,block:5,chapter:32,prof:true,
+stem:'A patient arrives with an acute ST-elevation MI (STEMI). Which intervention is the priority to restore coronary blood flow?',
+options:[
+{letter:'A',text:'Emergent percutaneous coronary intervention (PCI) within the recommended time window',correct:true,rationale:'For STEMI, the priority is rapid REPERFUSION — opening the blocked artery. Percutaneous coronary intervention (PCI/angioplasty with stent) is the preferred method, ideally with a door-to-balloon time under 90 minutes. If PCI is unavailable in time, fibrinolytics are given. Time is muscle — the faster flow is restored, the more myocardium is salvaged. Initial care also includes aspirin, oxygen if hypoxic, nitroglycerin, and morphine for pain.'},
+{letter:'B',text:'Schedule an outpatient stress test',correct:false,rationale:'A stress test is for stable evaluation, never for an active STEMI. An acute infarct requires emergent reperfusion, not outpatient testing.'},
+{letter:'C',text:'Administer oral beta-blockers and discharge home',correct:false,rationale:'An active STEMI is an emergency requiring reperfusion and admission — not discharge. Beta-blockers are adjuncts, not the reperfusion strategy.'},
+{letter:'D',text:'Encourage bed rest and reassess in the morning',correct:false,rationale:'Delaying care in a STEMI causes irreversible myocardial death. "Time is muscle" — reperfuse now.'}
+],vocabTip:'<strong>STEMI = emergent reperfusion. PCI is preferred (door-to-balloon <90 min); fibrinolytics if PCI unavailable.</strong> "Time is muscle." Initial: MONA-B ideas — aspirin, O2 if needed, nitro, morphine, plus antiplatelets. Fast flow = saved heart.'},
+
+{id:45,block:5,chapter:30,prof:true,trap:true,
+stem:'A patient has peripheral ARTERIAL disease (PAD). Which assessment finding is expected?',
+options:[
+{letter:'A',text:'Intermittent claudication and pain relieved by dangling the legs',correct:true,rationale:'PAD = poor ARTERIAL inflow. Findings: intermittent claudication (cramping pain with activity), cool/pale extremities, diminished pulses, shiny hairless skin, and pain that WORSENS with elevation and IMPROVES with dependency (dangling) because gravity helps arterial flow. Position arterial patients with legs DOWN.'},
+{letter:'B',text:'Warm legs with brown discoloration relieved by elevation',correct:false,rationale:'Warmth, brownish hyperpigmentation, and relief with ELEVATION describe VENOUS insufficiency — the opposite problem. This is the classic PAD-vs-venous trap.'},
+{letter:'C',text:'Bounding pedal pulses with pink, warm feet',correct:false,rationale:'Bounding pulses and warm, well-perfused feet indicate good arterial flow — not PAD, which shows diminished/absent pulses and cool, pale skin.'},
+{letter:'D',text:'Edema that improves with dependent positioning',correct:false,rationale:'Dependent positioning helping edema points to venous congestion, not arterial disease. Arterial pain improves with dependency, but arterial disease is not primarily an edema problem.'}
+],vocabTip:'<strong>PAD (arterial): pain with activity (claudication), cool/pale, diminished pulses, hairless shiny skin, pain BETTER when legs DOWN.</strong> Venous: warm, brown discoloration, edema, ulcers at ankle, BETTER when legs UP. Arterial down, venous up.'},
+
+{id:46,block:5,chapter:31,prof:true,
+stem:'A patient in early (compensated) shock is most likely to show which finding?',
+options:[
+{letter:'A',text:'Tachycardia with a normal or slightly narrowed blood pressure',correct:true,rationale:'In EARLY/compensated shock, the body activates compensatory mechanisms: the heart rate rises (tachycardia) and vessels constrict to maintain perfusion, so blood pressure is often still normal or only slightly changed. Increased heart rate is one of the earliest signs. Catching shock HERE — before BP falls — is key. By the time BP drops significantly, the patient is decompensating.'},
+{letter:'B',text:'Profound hypotension and unresponsiveness',correct:false,rationale:'Marked hypotension and altered consciousness occur in LATER (progressive/decompensated) shock, after compensation fails — not early shock.'},
+{letter:'C',text:'Bradycardia with warm, flushed skin',correct:false,rationale:'Most shock states cause tachycardia and cool, clammy skin (except early distributive/septic, which can be warm). Bradycardia is not typical of early hypovolemic/cardiogenic shock.'},
+{letter:'D',text:'Increased urine output',correct:false,rationale:'Shock reduces renal perfusion → DECREASED urine output (oliguria) is an early warning, not increased output.'}
+],vocabTip:'<strong>Early/compensated shock: tachycardia FIRST, BP still near-normal, cool clammy skin, restlessness, ↓urine output.</strong> Catch it before the BP falls — a dropping BP means late/decompensated shock. Rising HR + falling urine output are early clues.'},
+
+{id:47,block:5,chapter:28,prof:true,
+stem:'A patient is in atrial fibrillation with a rapid ventricular response. Beyond rate control, why is anticoagulation a priority?',
+options:[
+{letter:'A',text:'Blood pools in the fibrillating atria, forming clots that can cause an embolic stroke',correct:true,rationale:'In atrial fibrillation the atria quiver instead of contracting, so blood STAGNATES (especially in the left atrial appendage) and forms clots. A clot can dislodge and travel to the brain → embolic stroke. That is why anticoagulation (e.g., warfarin, or a DOAC like apixaban/rivaroxaban) is central to A-fib management — stroke prevention.'},
+{letter:'B',text:'Anticoagulants convert the rhythm back to normal sinus',correct:false,rationale:'Anticoagulants do NOT convert the rhythm — antidysrhythmics or cardioversion do that. Anticoagulation prevents clots/stroke, a separate goal.'},
+{letter:'C',text:'Anticoagulants slow the ventricular rate',correct:false,rationale:'Rate control comes from beta-blockers, calcium channel blockers, or digoxin — not anticoagulants. Anticoagulation targets clot/stroke risk.'},
+{letter:'D',text:'They prevent the atria from fibrillating',correct:false,rationale:'Anticoagulants have no effect on the electrical activity of the atria. Their role is purely to prevent thromboembolism.'}
+],vocabTip:'<strong>A-fib: atria quiver → blood pools → clots → embolic STROKE.</strong> Anticoagulate (warfarin/INR 2-3, or DOACs) to prevent stroke. Rate control = beta-blocker/CCB/digoxin. Rhythm/conversion = antidysrhythmics or cardioversion (needs anticoagulation first if >48 hrs).'},
+
+{id:48,block:5,chapter:28,prof:true,
+stem:'A monitored patient suddenly shows ventricular fibrillation and is unresponsive with no pulse. What is the nurse\'s priority action?',
+options:[
+{letter:'A',text:'Begin high-quality CPR and defibrillate as soon as possible',correct:true,rationale:'Ventricular fibrillation is a pulseless, lethal rhythm — the ventricles quiver and pump no blood. The priority is immediate CPR and DEFIBRILLATION (unsynchronized shock) to reset the heart, along with calling for help/code. Defibrillation is the definitive treatment for pulseless V-fib and pulseless V-tach; early defibrillation dramatically improves survival.'},
+{letter:'B',text:'Administer synchronized cardioversion',correct:false,rationale:'Synchronized cardioversion is timed to the R wave and used for UNSTABLE rhythms WITH a pulse (e.g., unstable A-fib, SVT, V-tach with a pulse). V-fib has no organized QRS to sync to — it requires UNsynchronized defibrillation.'},
+{letter:'C',text:'Give oral amiodarone and reassess',correct:false,rationale:'Oral medication has no role in a pulseless arrest. CPR and defibrillation come first; IV antiarrhythmics (amiodarone) are given during the code, not oral.'},
+{letter:'D',text:'Check the 12-lead ECG before doing anything',correct:false,rationale:'You do not delay CPR/defibrillation to obtain a 12-lead in a witnessed pulseless V-fib arrest. Act on the monitored rhythm and pulselessness immediately.'}
+],vocabTip:'<strong>Pulseless V-fib / pulseless V-tach → CPR + DEFIBRILLATION (unsynchronized).</strong> Synchronized CARDIOVERSION = unstable rhythm WITH a pulse. Defib for no pulse; cardiovert (sync) for a pulse. Early defibrillation saves lives.'},
+
+{id:49,block:5,chapter:29,prof:true,sata:true,
+stem:'A nurse is providing discharge teaching to a patient with heart failure. Which instructions should be included? Select all that apply.',
+options:[
+{letter:'A',text:'Weigh yourself daily at the same time and report a gain of 2-3 lb in a day or 5 lb in a week',correct:true,rationale:'Daily weight is the most sensitive early indicator of fluid retention. A gain of 2-3 lb in a day (or ~5 lb in a week) signals worsening failure and fluid overload — report it promptly so therapy can be adjusted before decompensation.'},
+{letter:'B',text:'Follow a low-sodium diet and read food labels',correct:true,rationale:'Sodium restriction reduces fluid retention and cardiac workload. Teaching to read labels and avoid high-sodium processed/canned/fast foods is core heart failure self-management.'},
+{letter:'C',text:'Take medications as prescribed and do not stop them when feeling better',correct:true,rationale:'Heart failure medications (ACE inhibitors/ARBs, beta-blockers, diuretics) manage a chronic condition. Stopping them when symptoms improve leads to relapse. Adherence is essential.'},
+{letter:'D',text:'Report increasing shortness of breath, swelling, or fatigue',correct:true,rationale:'These are signs of worsening heart failure/fluid overload. Early reporting allows intervention before an emergency admission.'},
+{letter:'E',text:'Use a salt substitute liberally to replace table salt',correct:false,rationale:'Many salt substitutes are POTASSIUM chloride. Combined with common HF drugs (ACE inhibitors/ARBs, potassium-sparing diuretics), they can cause dangerous HYPERKALEMIA. Salt substitutes are not a safe free swap — check with the provider.'}
+],vocabTip:'<strong>HF discharge: daily weight (report +2-3 lb/day or +5 lb/week), low sodium + read labels, take meds even when feeling well, report worsening dyspnea/edema/fatigue.</strong> TRAP: salt substitutes = potassium chloride → hyperkalemia with ACE/ARB. 1 kg = 1 L.'},
+
+{id:50,block:5,chapter:30,prof:true,trap:true,
+stem:'A patient with a known abdominal aortic aneurysm (AAA) suddenly reports severe, tearing back and abdominal pain with hypotension. What does the nurse suspect and do?',
+options:[
+{letter:'A',text:'Suspected aortic rupture/dissection — a surgical emergency; notify the provider and prepare for immediate intervention',correct:true,rationale:'Sudden severe "tearing" or "ripping" back/abdominal pain with hypotension in a patient with an AAA signals aneurysm RUPTURE or dissection — a life-threatening emergency. The aorta is leaking. Do NOT palpate the abdomen (can worsen rupture). Notify the provider/rapid response immediately, keep the patient still, monitor vitals, establish large-bore IV access, and prepare for emergent surgery. This is time-critical.'},
+{letter:'B',text:'Deeply palpate the abdomen to assess the aneurysm size',correct:false,rationale:'NEVER deeply palpate a known or suspected AAA/rupture — palpation can precipitate or worsen rupture. This is a key safety trap.'},
+{letter:'C',text:'Administer an oral analgesic and reassess in an hour',correct:false,rationale:'A suspected aortic rupture cannot wait an hour — the patient can exsanguinate. This requires immediate emergency response, not oral pain medication and delay.'},
+{letter:'D',text:'Encourage ambulation to relieve the back pain',correct:false,rationale:'Ambulation is dangerous with a possible rupture. Keep the patient still and get emergency surgical help.'}
+],vocabTip:'<strong>AAA rupture = sudden tearing/ripping back-abdominal pain + hypotension = EMERGENCY.</strong> Do NOT palpate the abdomen. Notify provider/rapid response, keep still, large-bore IV, prep for emergent surgery. Steady expansion may be silent — sudden severe pain = leaking/rupturing.'}
+
+];
+let answered={};
+let selections={};
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+ALL_Q.forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id='qcard-'+q.id;
+let badges='<span class="badge badge-blk">'+(BLOCKS[q.block]||'').split(' · ')[0]+'</span>';
+badges+='<span class="badge badge-ch">CH '+q.chapter+'</span>';
+badges+=q.prof?'<span class="badge badge-prof">Prof</span>':'<span class="badge badge-hy">HY</span>';
+if(q.trap)badges+='<span class="badge badge-trap">Trap</span>';
+if(q.sata)badges+='<span class="badge badge-sata">SATA</span>';
+const optsHtml=q.options.map(o=>'<div class="opt" id="opt-'+q.id+'-'+o.letter+'" onclick="selectOption('+q.id+',\''+o.letter+'\','+q.sata+')"><div class="opt-letter">'+o.letter+'.</div><div class="opt-text">'+o.text+'<div class="opt-rationale" id="rat-'+q.id+'-'+o.letter+'">'+o.rationale+'</div></div></div>').join('');
+const profHtml=q.profQuote?'<div class="prof-quote" id="prof-'+q.id+'">Why it matters &mdash; '+q.profQuote+'</div>':'';
+const sataHint=q.sata?'<div class="sata-hint">Select ALL that apply</div>':'';
+card.innerHTML='<div class="q-top"><span class="q-num">Q'+(idx+1)+'</span>'+badges+'</div><div class="q-stem">'+q.stem+'</div>'+sataHint+'<div class="opts">'+optsHtml+'</div><button class="btn-submit" id="btn-'+q.id+'" onclick="submitAnswer('+q.id+')" disabled>Submit</button><div class="vocab-tip" id="tip-'+q.id+'">'+q.vocabTip+'</div>'+profHtml;
+area.appendChild(card);
+});
+loadState();
+}
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById('opt-'+qId+'-'+letter);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const p=document.getElementById('opt-'+qId+'-'+l);if(p)p.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById('btn-'+qId).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correct=q.options.filter(o=>o.correct).map(o=>o.letter);
+const ok=correct.length===selections[qId].length&&correct.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';});
+document.getElementById('tip-'+qId).style.display='block';
+const pf=document.getElementById('prof-'+qId);if(pf)pf.style.display='block';
+const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':'answered-wrong');
+const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';
+updateProgress();saveState();
+if(Object.keys(answered).length===ALL_Q.length)showScore();
+}
+
+function updateProgress(){document.getElementById('progressBar').style.width=(Object.keys(answered).length/ALL_Q.length*100)+'%';}
+
+function _buildBreakdown(){
+const tally={};
+ALL_Q.forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;const cc=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];if(cc.length===s.length&&cc.every(l=>s.includes(l)))tally[b].c++;});
+let html='';
+Object.keys(BLOCKS).forEach(b=>{if(!tally[b])return;const t=tally[b];const pct=Math.round(t.c/t.t*100);const col=pct>=80?'#22c55e':pct>=66?'#fbbf24':'#f87171';html+='<div class="breakdown-row"><span class="bd-label">'+BLOCKS[b]+'</span><span class="bd-score" style="color:'+col+'">'+t.c+'/'+t.t+' &middot; '+pct+'%</span></div>';});
+document.getElementById('breakdownArea').innerHTML=html;
+}
+
+function showScore(doSave){
+let correct=0;ALL_Q.forEach(q=>{if(answered[q.id]){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];if(c.length===s.length&&c.every(l=>s.includes(l)))correct++;}});
+const pct=Math.round(correct/ALL_Q.length*100);
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=correct+' of '+ALL_Q.length+' correct';
+_buildBreakdown();
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+const rec={score:pct,correct:correct,total:ALL_Q.length,date:new Date().toLocaleDateString()};
+if(doSave===false)return;
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:ALL_Q.length});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-100)));
+}
+
+function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered:answered,selections:selections}));}
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const pf=document.getElementById('prof-'+qId);if(pf)pf.style.display='block';const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';}});
+updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore(false);}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+buildQuiz();
+</script>
+<script src="encourage.js"></script>
+</body>
+</html>
