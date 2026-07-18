@@ -84,6 +84,15 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
 .status-complete{background:#052e16;color:#4ade80}
 .subject-body{background:#0e1219;border:1px solid #ec4899;border-top:none;border-radius:0 0 16px 16px;padding:14px 14px 16px;display:none}
 .subject-body.open{display:block}
+
+/* Semester calendar card */
+.cal-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#1a1420,#171a24);border:1px solid #3f2b4d;border-radius:14px;padding:15px 18px;margin-bottom:22px;text-decoration:none;transition:.2s}
+.cal-card:hover{border-color:#ec4899;transform:translateY(-2px);background:linear-gradient(135deg,#21182b,#1a1e2a)}
+.cal-icon{font-size:1.6rem;flex-shrink:0}
+.cal-text{flex:1;display:flex;flex-direction:column;gap:3px}
+.cal-title{font-family:'DM Serif Display',serif;font-size:1.05rem;color:#f8fafc}
+.cal-desc{font-size:.73rem;color:#94a3b8;line-height:1.35}
+.cal-arrow{font-size:1.5rem;color:#ec4899;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -107,6 +116,16 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
     <input type="text" id="searchInput" class="search-input" placeholder="Search all study tools&hellip;" autocomplete="off">
   </div>
   <div class="search-empty" id="searchEmpty">No study tools match your search.</div>
+
+  <!-- Semester Calendar -->
+  <a class="cal-card" href="semester-calendar.html">
+    <span class="cal-icon">&#128197;</span>
+    <span class="cal-text">
+      <span class="cal-title">Semester at a Glance</span>
+      <span class="cal-desc">Week-by-week map &middot; exams, quizzes &amp; crunch weeks flagged</span>
+    </span>
+    <span class="cal-arrow">&rsaquo;</span>
+  </a>
 
   <div id="subjectContainer">
 

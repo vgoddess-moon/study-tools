@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semester Calendar — vgoddess-moon</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',system-ui,sans-serif;min-height:100vh;padding:24px 16px 60px}
+.wrap{max-width:640px;margin:0 auto}
+.back{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#64748b;text-decoration:none;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;transition:.2s}
+.back:hover{color:#ec4899}
+h1{font-family:'DM Serif Display',serif;font-size:1.9rem;margin-bottom:4px;background:linear-gradient(135deg,#ec4899,#f472b6,#e09a3a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:#64748b;letter-spacing:.14em;text-transform:uppercase;margin-bottom:20px}
+
+/* Disclaimer */
+.note{background:#161b24;border:1px solid #29313d;border-left:3px solid #fbbf24;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:.78rem;color:#cbd5e1;line-height:1.5}
+.note b{color:#fbbf24}
+
+/* Summary strip */
+.summary{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.stat{flex:1;min-width:130px;background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:12px 14px}
+.stat.danger{border-color:#ef4444;background:#1a0f11}
+.stat .n{font-family:'DM Serif Display',serif;font-size:1.6rem;color:#f8fafc;line-height:1}
+.stat.danger .n{color:#f87171}
+.stat .l{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:#64748b;letter-spacing:.08em;text-transform:uppercase;margin-top:5px}
+
+/* Legend */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#94a3b8;letter-spacing:.04em}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dot.crunch{background:#ef4444}
+.dot.dbl{background:#b91c1c;box-shadow:0 0 6px #ef4444}
+.dot.exam{background:#ec4899}
+.dot.quiz{background:#fbbf24}
+
+/* Week cards */
+.week{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:.2s}
+.week.crunch{border-color:#ef4444;background:#170f12}
+.week.dbl{border-color:#ef4444;background:#1c0f11;box-shadow:0 0 0 1px #ef4444,0 6px 20px -8px rgba(239,68,68,.5)}
+.week.off{border-style:dashed;border-color:#334155;background:#0e1219;opacity:.85}
+.week-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.wk-num{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;color:#64748b;letter-spacing:.08em;background:#0c0f14;border:1px solid #29313d;border-radius:8px;padding:3px 8px;white-space:nowrap}
+.wk-date{font-family:'DM Serif Display',serif;font-size:1.05rem;color:#f1f5f9;flex:1}
+.wk-flag{font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:9px;white-space:nowrap}
+.flag-crunch{background:#450a0a;color:#fca5a5}
+.flag-dbl{background:#7f1d1d;color:#fee2e2}
+.flag-final{background:#3b0764;color:#e9d5ff}
+.flag-off{background:#1e293b;color:#94a3b8}
+
+.rows{display:flex;flex-direction:column;gap:7px}
+.row{display:flex;gap:9px;align-items:baseline;font-size:.82rem;line-height:1.4}
+.row .k{font-family:'IBM Plex Mono',monospace;font-size:.56rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#64748b;width:44px;flex-shrink:0;padding-top:2px}
+.row .v{color:#cbd5e1;flex:1}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:.56rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:8px;white-space:nowrap;display:inline-block;margin:1px 3px 1px 0}
+.t-mc{background:#2a1030;color:#f0abfc}
+.t-ms{background:#1e1433;color:#c4b5fd}
+.t-quiz{background:#1c1a10;color:#fbbf24}
+.t-exam{background:#831843;color:#f9a8d4}
+.t-retake{background:#3f2416;color:#fdba74}
+.t-final{background:#3b0764;color:#e9d5ff}
+a.t-exam,a.t-final{text-decoration:none;transition:.2s}
+a.t-exam:hover,a.t-final:hover{filter:brightness(1.25);text-decoration:underline}
+.link-note{font-family:'IBM Plex Mono',monospace;font-size:.54rem;color:#475569;margin-left:2px}
+.foot{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#475569;text-align:center;margin-top:24px;letter-spacing:.05em;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; Back to Study Tools</a>
+  <h1>Semester at a Glance</h1>
+  <p class="sub">Med Surg 2 &amp; Maternal Child &middot; Fall 2026</p>
+
+  <div class="note">
+    <b>&#9888; Projected — confirm on Jul 27.</b> Dates mirror last semester's schedule mapped onto an <b>Aug 3 start with the holiday week (Aug 10&ndash;16) off</b>. Classes meet <b>Mon &amp; Tue evenings</b> this term (which subject falls on which day depends on the Fort St. Lucie clinical). The <b>exam &amp; quiz sequence is reliable</b> even if exact dates shift a few days.
+  </div>
+
+  <div class="summary">
+    <div class="stat danger"><div class="n" id="statDbl">0</div><div class="l">Double-exam weeks</div></div>
+    <div class="stat danger"><div class="n" id="statCrunch">0</div><div class="l">Exam + quiz weeks</div></div>
+    <div class="stat"><div class="n" id="statExam">0</div><div class="l">Total exams</div></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot dbl"></i>Two exams (danger)</span>
+    <span><i class="dot crunch"></i>Exam + quiz</span>
+    <span><i class="dot exam"></i>Exam</span>
+    <span><i class="dot quiz"></i>Quiz</span>
+  </div>
+
+  <div id="weeks"></div>
+
+  <div class="foot">Data-driven &middot; edit the WEEKS array after the official syllabus drops<br>vgoddess-moon &middot; you're ahead of this, not behind it</div>
+</div>
+
+<script>
+// Exam labels link to their primer when built; href:null shows "(primer coming)"
+var WEEKS = [
+  {wk:"Wk 1", date:"Aug 3 – 7", mc:"Ch 2, 3, 4", ms:"Ch 61, 62"},
+  {wk:"—", date:"Aug 10 – 16", off:"Holiday break — no class"},
+  {wk:"Wk 2", date:"Aug 17 – 21", mc:"Ch 5, 6", ms:"Ch 63, 64, 65", quiz:"MS Quiz #1 assigned"},
+  {wk:"Wk 3", date:"Aug 24 – 28", mc:"Ch 7, 8", ms:"Ch 33, 34", quiz:"MC Quiz #1 due",
+    exams:[{label:"MS Exam #1 (Ch 61–65)", href:"ms2-ch61-primer.html", ready:true}], crunch:true},
+  {wk:"Wk 4", date:"Aug 31 – Sep 4", mc:"Ch 9", ms:"Ch 35–38", quiz:"MS Quiz #2",
+    exams:[{label:"MC Exam #1 (Ch 2–8)", href:"mat-ch2-primer.html", ready:true}], retake:"MS #1 retake", crunch:true},
+  {wk:"Wk 5", date:"Sep 7 – 11", mc:"Ch 10, 11", ms:"Ch 39, 40",
+    exams:[{label:"MS Exam #2 (Ch 33–38)", href:null}], retake:"MC #1 retake"},
+  {wk:"Wk 6", date:"Sep 14 – 18", mc:"Ch 12, 13", ms:"Ch 41, 42", retake:"MS #2 retake"},
+  {wk:"Wk 7", date:"Sep 21 – 25", mc:"Ch 14", ms:"Ch 43, 44", quiz:"MS Quiz #3"},
+  {wk:"Wk 8", date:"Sep 28 – Oct 2", mc:"Ch 15", ms:"Ch 45, 46",
+    exams:[{label:"MC Exam #2 (Ch 9–15)", href:null},{label:"MS Exam #3 (Ch 39–44)", href:null}], dbl:true},
+  {wk:"Wk 9", date:"Oct 5 – 9", mc:"Ch 21, 22", ms:"Ch 47, 48", quiz:"MC Quiz #2", retake:"MC #2 retake", crunch:true},
+  {wk:"Wk 10", date:"Oct 12 – 16", mc:"Ch 24, 34", ms:"Ch 49, 50", quiz:"MC Quiz #3", retake:"MS #3 retake", crunch:true},
+  {wk:"Wk 11", date:"Oct 19 – 23", mc:"Ch 25, 26", ms:"Ch 51, 52", quiz:"MS Quiz #4"},
+  {wk:"Wk 12", date:"Oct 26 – 30", mc:"Ch 29", ms:"Ch 53, 54",
+    exams:[{label:"MC Exam #3 (Ch 21–29, 34)", href:null},{label:"MS Exam #4 (Ch 45–52)", href:null}], dbl:true},
+  {wk:"Wk 13", date:"Nov 2 – 6", mc:"Ch 27, 28", ms:"Ch 55, 56", retake:"MC #3 + MS #4 retakes"},
+  {wk:"Wk 14", date:"Nov 9 – 13", mc:"Ch 31, 33", ms:"Ch 57–60",
+    exams:[{label:"MS Exam #5 (Ch 53–60)", href:null}]},
+  {wk:"Wk 15", date:"Nov 16 – 20", mc:"Ch 30, 32",
+    finals:[{label:"MC Final", href:null},{label:"MS Final", href:null}]},
+  {wk:"Wk 16", date:"Nov 23 – 27", retake:"MC Final + MS Final retakes · EOT"}
+];
+
+function tag(cls, txt){ return '<span class="tag '+cls+'">'+txt+'</span>'; }
+function examTag(e, cls){
+  var t = cls==='t-final'?'t-final':'t-exam';
+  if(e.href){ return '<a class="tag '+t+'" href="'+e.href+'">'+e.label+(e.ready?' ✓':'')+'</a>'; }
+  return '<span class="tag '+t+'" style="opacity:.72">'+e.label+'</span><span class="link-note">primer coming</span>';
+}
+
+var html='', nDbl=0, nCrunch=0, nExam=0;
+WEEKS.forEach(function(w){
+  if(w.exams){ nExam += w.exams.length; }
+  if(w.finals){ nExam += w.finals.length; }
+  if(w.dbl){ nDbl++; }
+  if(w.crunch){ nCrunch++; }
+
+  var cls='week', flag='';
+  if(w.off){ cls+=' off'; flag='<span class="wk-flag flag-off">Off</span>'; }
+  else if(w.dbl){ cls+=' dbl'; flag='<span class="wk-flag flag-dbl">&#9888; 2 Exams</span>'; }
+  else if(w.crunch){ cls+=' crunch'; flag='<span class="wk-flag flag-crunch">&#9888; Exam + Quiz</span>'; }
+  else if(w.finals){ cls+=' dbl'; flag='<span class="wk-flag flag-final">Finals</span>'; }
+
+  html+='<div class="'+cls+'"><div class="week-head">';
+  html+='<span class="wk-num">'+w.wk+'</span><span class="wk-date">'+w.date+'</span>'+flag+'</div>';
+
+  if(w.off){
+    html+='<div class="rows"><div class="row"><span class="v" style="color:#94a3b8">'+w.off+'</span></div></div></div>';
+    return;
+  }
+
+  html+='<div class="rows">';
+  if(w.mc){ html+='<div class="row"><span class="k">Mat</span><span class="v">'+tag('t-mc','MC')+w.mc+'</span></div>'; }
+  if(w.ms){ html+='<div class="row"><span class="k">MedS</span><span class="v">'+tag('t-ms','MS')+w.ms+'</span></div>'; }
+  if(w.quiz){ html+='<div class="row"><span class="k">Quiz</span><span class="v">'+tag('t-quiz',w.quiz)+'</span></div>'; }
+  if(w.exams){
+    var ex=''; w.exams.forEach(function(e){ ex+=examTag(e,'t-exam'); });
+    html+='<div class="row"><span class="k">Exam</span><span class="v">'+ex+'</span></div>';
+  }
+  if(w.finals){
+    var fn=''; w.finals.forEach(function(e){ fn+=examTag(e,'t-final'); });
+    html+='<div class="row"><span class="k">Final</span><span class="v">'+fn+'</span></div>';
+  }
+  if(w.retake){ html+='<div class="row"><span class="k">Retake</span><span class="v">'+tag('t-retake',w.retake)+'</span></div>'; }
+  html+='</div></div>';
+});
+
+document.getElementById('weeks').innerHTML=html;
+document.getElementById('statDbl').textContent=nDbl;
+document.getElementById('statCrunch').textContent=nCrunch;
+document.getElementById('statExam').textContent=nExam;
+</script>
+</body>
+</html>
