@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 34 &mdash; Hematologic Conditions Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 34 &mdash; Hematologic Conditions</h1>
+<p class="subtitle">MS2 Exam 2 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, lab interpretation, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Hematologic Conditions Must-Knows</h3>
+<svg viewBox="0 0 820 340" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="340" fill="#0c0f14"/>
+<rect x="20" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="145" y="45" fill="#fca5a5" font-size="15" font-weight="700" text-anchor="middle">Anemia Types</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Iron-def: low iron/ferritin</text>
+<text x="35" y="95" fill="#e2e8f0" font-size="13">Pernicious: B12 (no intrinsic</text>
+<text x="35" y="114" fill="#e2e8f0" font-size="13">factor) &rarr; lifelong B12 shots</text>
+<text x="35" y="137" fill="#e2e8f0" font-size="13">Folic acid: alcohol, poor diet</text>
+<text x="35" y="160" fill="#e2e8f0" font-size="13">Aplastic: marrow fails (pancyto)</text>
+<rect x="285" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="410" y="45" fill="#fbbf24" font-size="15" font-weight="700" text-anchor="middle">Sickle Cell Crisis</text>
+<text x="300" y="72" fill="#e2e8f0" font-size="13">Priority problem: PAIN</text>
+<text x="300" y="95" fill="#e2e8f0" font-size="13">+ tissue/organ hypoxia</text>
+<text x="300" y="118" fill="#e2e8f0" font-size="13">Tx: O2, hydration, IV opioids</text>
+<text x="300" y="141" fill="#e2e8f0" font-size="13">Hydroxyurea &darr; crises</text>
+<text x="300" y="162" fill="#94a3b8" font-size="12">Triggers: dehydration, cold, low O2</text>
+<rect x="550" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="675" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Leukemia / Neutropenia</text>
+<text x="565" y="72" fill="#e2e8f0" font-size="13">WBCs abnormal &rarr; no protection</text>
+<text x="565" y="95" fill="#e2e8f0" font-size="13">Infection = #1 cause of death</text>
+<text x="565" y="118" fill="#e2e8f0" font-size="13">May have NO fever/classic signs</text>
+<text x="565" y="141" fill="#f87171" font-size="13">"Not acting right" = assess infection</text>
+<text x="565" y="162" fill="#94a3b8" font-size="12">Neutropenic precautions</text>
+<rect x="20" y="190" width="380" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="210" y="215" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Transfusion Safety</text>
+<text x="35" y="242" fill="#e2e8f0" font-size="13">Verify ID with 2 nurses (most impt)</text>
+<text x="35" y="265" fill="#e2e8f0" font-size="13">Y-tubing with 0.9% NS ONLY</text>
+<text x="35" y="288" fill="#e2e8f0" font-size="13">Stay first 15 min; slow start</text>
+<text x="35" y="310" fill="#f87171" font-size="13">Reaction &rarr; STOP, NS, notify</text>
+<rect x="415" y="190" width="385" height="130" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="607" y="215" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Bleeding Disorders</text>
+<text x="430" y="242" fill="#e2e8f0" font-size="13">ITP/thrombocytopenia: low platelets</text>
+<text x="430" y="265" fill="#e2e8f0" font-size="13">Hemophilia: factor VIII/IX (X-linked)</text>
+<text x="430" y="288" fill="#e2e8f0" font-size="13">DIC: clot then bleed everywhere</text>
+<text x="430" y="310" fill="#94a3b8" font-size="12">All &rarr; bleeding precautions</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch34-primer';
+const EXAM_LABEL='MS2 Ch 34 — Hematologic Conditions (25Q)';
+const BLOCKS={A:'Anemias',B:'Sickle Cell Disease',C:'Leukemia & Lymphoma',D:'Bleeding Disorders',E:'Transfusion Therapy'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:34,type:'Assessment',
+stem:'A patient with fatigue and pallor has a low hemoglobin, low hematocrit, and decreased serum iron. Which type of anemia does the nurse suspect?',
+options:[
+{letter:'A',text:'Iron-deficiency anemia',correct:true,rationale:'Iron-deficiency anemia is marked by decreased hemoglobin, hematocrit, and serum iron (and low ferritin). It is the most common anemia and results from inadequate intake, poor absorption, or chronic blood loss such as GI bleeding or heavy menses.'},
+{letter:'B',text:'Pernicious anemia',correct:false,rationale:'Pernicious anemia comes from vitamin B12 deficiency due to lack of intrinsic factor, not low iron. Iron studies would be normal; you would see neurologic symptoms and large (macrocytic) cells.'},
+{letter:'C',text:'Aplastic anemia',correct:false,rationale:'Aplastic anemia is bone marrow failure with pancytopenia (all cell lines low), not an isolated low iron picture.'},
+{letter:'D',text:'Polycythemia vera',correct:false,rationale:'Polycythemia vera is an excess of red blood cells, the opposite of anemia.'}
+],vocabTip:'<strong>Iron-deficiency anemia: low Hgb, Hct, serum iron, and ferritin.</strong> Most common anemia. Causes: blood loss (GI, menses), poor intake, malabsorption. Teach iron-rich foods and take oral iron with vitamin C on an empty stomach.'},
+
+{id:2,block:'A',chapter:34,type:'Teaching',trap:true,
+stem:'A patient is prescribed oral ferrous sulfate for iron-deficiency anemia. Which instruction does the nurse include?',
+options:[
+{letter:'A',text:'"Take it with orange juice or vitamin C, and expect your stools to turn dark."',correct:true,rationale:'Vitamin C (ascorbic acid) enhances iron absorption, and iron is best absorbed on an empty stomach. Iron normally turns stools dark green or black, an expected, harmless change patients should anticipate so they are not alarmed.'},
+{letter:'B',text:'"Take it with milk or an antacid to protect your stomach."',correct:false,rationale:'Calcium in milk and antacids significantly reduces iron absorption. They should be separated from the iron dose, not taken together.'},
+{letter:'C',text:'"Black stools mean you are bleeding and must stop the iron."',correct:false,rationale:'Dark or black stools are an expected effect of oral iron, not a sign of GI bleeding. Stopping the iron is unnecessary; true melena would be tarry and foul.'},
+{letter:'D',text:'"Crush the enteric-coated tablet and mix it in food."',correct:false,rationale:'Crushing an enteric-coated or sustained-release form defeats its design and can cause GI upset or altered absorption. Liquid iron should be taken through a straw to protect teeth.'}
+],vocabTip:'<strong>Oral iron: empty stomach + vitamin C for absorption; avoid milk/antacids/caffeine.</strong> Expect dark stools (harmless). Use a straw for liquid iron to prevent tooth staining. Constipation is common, so increase fiber and fluids.'},
+
+{id:3,block:'A',chapter:34,type:'Teaching',
+stem:'A patient with pernicious anemia asks whether eating more B12-rich foods will cure the condition. What is the nurse\'s best response?',
+options:[
+{letter:'A',text:'"Because your body lacks intrinsic factor, you will need lifelong vitamin B12 injections."',correct:true,rationale:'Pernicious anemia results from a lack of intrinsic factor, so dietary B12 cannot be absorbed in the intestine no matter how much is eaten. The treatment is lifelong vitamin B12 given by injection (or high-dose intranasal), bypassing the absorption problem.'},
+{letter:'B',text:'"Yes, simply eating more meat and eggs will correct it."',correct:false,rationale:'Without intrinsic factor, oral or dietary B12 is not absorbed, so increasing intake alone will not correct pernicious anemia. Injections are required.'},
+{letter:'C',text:'"You should take an iron supplement instead."',correct:false,rationale:'Iron does not treat a B12 deficiency. Pernicious anemia is corrected with B12 replacement, not iron.'},
+{letter:'D',text:'"This condition resolves on its own within a few weeks."',correct:false,rationale:'Pernicious anemia is chronic and requires ongoing B12 replacement. It does not resolve spontaneously.'}
+],vocabTip:'<strong>Pernicious anemia = B12 deficiency from missing intrinsic factor &rarr; lifelong B12 injections.</strong> Watch for neuro signs: paresthesias, ataxia, and a beefy red sore tongue (glossitis). Dietary B12 is in animal products (meat, fish, eggs, dairy).'},
+
+{id:4,block:'A',chapter:34,type:'SATA',sata:true,
+stem:'A patient is at risk for folic acid deficiency anemia. Which factors in the history support this risk? Select all that apply.',
+options:[
+{letter:'A',text:'Chronic alcohol use',correct:true,rationale:'Alcohol interferes with folate absorption and metabolism and often accompanies poor dietary intake, making chronic alcohol use a leading cause of folic acid deficiency.'},
+{letter:'B',text:'A diet lacking green leafy vegetables and citrus',correct:true,rationale:'Folate comes from green leafy vegetables, citrus fruits, and fortified grains. A diet lacking these lowers folate intake.'},
+{letter:'C',text:'Pregnancy',correct:true,rationale:'Pregnancy increases folate demand for fetal growth, so needs can outstrip intake, which is why folic acid supplementation is recommended.'},
+{letter:'D',text:'Malabsorption disorders such as Crohn disease',correct:true,rationale:'Intestinal malabsorption reduces folate uptake, contributing to deficiency.'},
+{letter:'E',text:'A diet consistently high in citrus and leafy greens',correct:false,rationale:'A diet rich in folate sources protects against deficiency; it does not cause it.'}
+],vocabTip:'<strong>Folic acid deficiency: alcohol, poor diet, pregnancy, malabsorption.</strong> Unlike B12 deficiency, folate deficiency does NOT cause neurologic symptoms. Both cause macrocytic (large-cell) anemia. Folate sources: leafy greens, citrus, fortified grains.'},
+
+{id:5,block:'A',chapter:34,type:'Assessment',
+stem:'A patient with aplastic anemia has a complete blood count showing low red cells, low white cells, and low platelets. Which set of risks should guide the nurse\'s care?',
+options:[
+{letter:'A',text:'Anemia, infection, and bleeding all at once',correct:true,rationale:'Aplastic anemia is bone marrow failure producing pancytopenia. Low RBCs cause anemia/fatigue, low WBCs cause infection risk, and low platelets cause bleeding risk, so the nurse combines protective and bleeding precautions with fatigue management.'},
+{letter:'B',text:'Only an increased risk of clotting',correct:false,rationale:'Low platelets increase bleeding, not clotting. Aplastic anemia does not primarily cause a hypercoagulable state.'},
+{letter:'C',text:'Only fluid overload',correct:false,rationale:'Fluid overload is not the hallmark of aplastic anemia. The hallmark is pancytopenia with its triple risk.'},
+{letter:'D',text:'Only an elevated white blood cell count',correct:false,rationale:'Aplastic anemia lowers the white count (increasing infection risk); it does not elevate it.'}
+],vocabTip:'<strong>Aplastic anemia = marrow failure = pancytopenia (RBC, WBC, platelets all low).</strong> Triple risk: fatigue (anemia), infection (leukopenia), bleeding (thrombocytopenia). Causes include toxins, radiation, chemo, and some drugs.'},
+
+{id:6,block:'B',chapter:34,type:'Priority',
+stem:'A patient is admitted in sickle cell crisis. Which client problem is the priority for the nurse to address?',
+options:[
+{letter:'A',text:'Severe pain',correct:true,rationale:'The priority problem in sickle cell crisis is severe pain from sickled cells occluding vessels and causing tissue ischemia. Aggressive pain control, along with oxygen and hydration, is central to managing a crisis.'},
+{letter:'B',text:'Constipation',correct:false,rationale:'Constipation may occur (partly from opioids) but is not the priority. Pain from vaso-occlusion is the urgent concern.'},
+{letter:'C',text:'Impaired skin integrity',correct:false,rationale:'Leg ulcers can occur in SCD, but during an acute crisis the priority is the severe pain of vaso-occlusion, not skin integrity.'},
+{letter:'D',text:'Knowledge deficit',correct:false,rationale:'Teaching is important but not the acute priority. Relieving severe pain and correcting hypoxia and dehydration come first.'}
+],vocabTip:'<strong>Sickle cell crisis priority = PAIN (vaso-occlusion &rarr; ischemia).</strong> Core treatment: oxygen (hypoxia), hydration (dehydration is a trigger), and IV opioids. Also rest and warmth; avoid cold, which promotes sickling.'},
+
+{id:7,block:'B',chapter:34,type:'Teaching',trap:true,
+stem:'A patient hospitalized in sickle cell crisis frequently requests IV opioids for severe pain. A new nurse worries the patient is "drug seeking." What is the best guidance?',
+options:[
+{letter:'A',text:'Sickle cell pain is real and severe; treat it with prescribed opioids, often IV for up to 48 hours',correct:true,rationale:'Vaso-occlusive crisis causes genuine, severe pain. Frequent requests reflect undertreated pain, not addiction. Guidelines support aggressive analgesia, commonly IV opioids around the clock for the first 24 to 48 hours, titrated to relief.'},
+{letter:'B',text:'Withhold opioids to avoid causing addiction',correct:false,rationale:'Withholding analgesia for a painful crisis is inappropriate and cruel. Fear of addiction should not drive undertreatment of legitimate severe pain.'},
+{letter:'C',text:'Offer only acetaminophen for the pain',correct:false,rationale:'Acetaminophen alone is inadequate for the severe pain of a crisis. Opioids are the mainstay during acute vaso-occlusion.'},
+{letter:'D',text:'Tell the patient pain is expected and nothing can be done',correct:false,rationale:'This dismisses treatable severe pain. Effective analgesia is a priority in crisis care.'}
+],vocabTip:'<strong>SCD crisis: aggressive analgesia, often IV opioids for 24-48h.</strong> Frequent requests usually mean undertreated pain, not addiction. Add oxygen, IV fluids, and rest. Long-term, hydroxyurea reduces the frequency of crises.'},
+
+{id:8,block:'B',chapter:34,type:'Teaching',
+stem:'A nurse teaches a patient with sickle cell disease how to prevent crises at home. Which instruction is correct?',
+options:[
+{letter:'A',text:'"Drink plenty of fluids and avoid getting cold or overexerting."',correct:true,rationale:'Dehydration, cold exposure, low oxygen, infection, and physical or emotional stress all promote sickling. Staying well hydrated, keeping warm, avoiding high altitude and strenuous overexertion, and treating infections promptly help prevent crises.'},
+{letter:'B',text:'"Restrict your fluids to rest your kidneys."',correct:false,rationale:'Fluid restriction promotes dehydration, a major trigger of sickling. Patients should stay well hydrated.'},
+{letter:'C',text:'"Spend time at high altitudes for the fresh air."',correct:false,rationale:'High altitude lowers available oxygen and can trigger sickling. It should be avoided.'},
+{letter:'D',text:'"Ignore minor infections since they do not matter."',correct:false,rationale:'Infection is a common crisis trigger and dangerous in SCD. Infections should be treated promptly, not ignored.'}
+],vocabTip:'<strong>SCD crisis triggers: dehydration, cold, low oxygen (altitude), infection, and stress.</strong> Prevention: hydrate, stay warm, avoid altitude/overexertion, get vaccinated, and treat infections early. Hydroxyurea helps long term.'},
+
+{id:9,block:'C',chapter:34,type:'Assessment',
+stem:'An assistive personnel asks why a patient with leukemia and a high white blood cell count is still at high risk for infection. What is the nurse\'s best explanation?',
+options:[
+{letter:'A',text:'"In leukemia the white cells are abnormal and cannot fight infection, so the patient is still unprotected."',correct:true,rationale:'Leukemia produces large numbers of immature, abnormal white blood cells that do not function normally. Despite a high WBC count, these cells cannot mount an effective immune response, and they crowd out healthy cells, leaving the patient immunocompromised.'},
+{letter:'B',text:'"The high white count means the patient cannot get infections."',correct:false,rationale:'A high count of dysfunctional leukemic cells does not provide protection. The patient remains highly vulnerable to infection.'},
+{letter:'C',text:'"Infection risk is only related to low red blood cells."',correct:false,rationale:'Infection risk relates to the number and function of white blood cells, not red cells. In leukemia the WBCs are abnormal and ineffective.'},
+{letter:'D',text:'"The patient only needs standard precautions and no extra care."',correct:false,rationale:'Immunocompromised leukemia patients often need protective precautions and vigilant infection monitoring, more than standard precautions alone.'}
+],vocabTip:'<strong>Leukemia: many abnormal, non-functional WBCs that do not protect and crowd out normal cells.</strong> Result: high infection risk despite a high WBC count, plus anemia and bleeding as normal lines are suppressed.'},
+
+{id:10,block:'C',chapter:34,type:'Priority',
+stem:'The family of a neutropenic patient reports the patient "is not acting right." What is the priority nursing action?',
+options:[
+{letter:'A',text:'Assess for signs of infection and check the temperature',correct:true,rationale:'Infection is the most common cause of death in neutropenic patients, and they often lack classic signs like fever or purulent drainage because they cannot mount an inflammatory response. A subtle change in mental status may be the only early clue, so the nurse assesses for infection immediately.'},
+{letter:'B',text:'Reassure the family it is a normal reaction to hospitalization',correct:false,rationale:'A behavior change in a neutropenic patient can signal serious infection or sepsis and should never be dismissed as normal.'},
+{letter:'C',text:'Encourage the patient to nap and reassess in a few hours',correct:false,rationale:'Delaying assessment risks missing early sepsis, which can deteriorate rapidly in an immunocompromised patient.'},
+{letter:'D',text:'Restrict visitors and document the report only',correct:false,rationale:'While limiting exposure matters, documentation alone delays urgent evaluation. The priority is to assess for infection now.'}
+],vocabTip:'<strong>Neutropenia: infection is the #1 cause of death, and classic signs (fever, pus) may be ABSENT.</strong> Any subtle change (confusion, malaise) can signal infection. A single temperature of 100.4&deg;F (38&deg;C) in a neutropenic patient is an emergency.'},
+
+{id:11,block:'C',chapter:34,type:'SATA',sata:true,
+stem:'A patient with leukemia is neutropenic. Which protective (neutropenic) precautions should the nurse implement? Select all that apply.',
+options:[
+{letter:'A',text:'Perform meticulous hand hygiene',correct:true,rationale:'Hand hygiene is the single most effective way to prevent transmitting organisms to an immunocompromised patient.'},
+{letter:'B',text:'Avoid fresh flowers and standing water in the room',correct:true,rationale:'Fresh flowers, plants, and standing water harbor fungi and bacteria (such as Pseudomonas) that endanger a neutropenic patient, so they are kept out of the room.'},
+{letter:'C',text:'Avoid raw fruits, vegetables, and undercooked foods',correct:true,rationale:'A low-bacteria (neutropenic) diet avoids raw or undercooked foods that can carry organisms. Well-cooked foods reduce infection risk.'},
+{letter:'D',text:'Screen visitors and staff for illness',correct:true,rationale:'Keeping sick visitors and staff away protects the patient, whose weakened defenses cannot fight even minor infections.'},
+{letter:'E',text:'Take a rectal temperature every 4 hours',correct:false,rationale:'Rectal temperatures, suppositories, and enemas are avoided because they can injure the rectal mucosa and introduce bacteria into the bloodstream. Use oral or temporal routes instead.'}
+],vocabTip:'<strong>Neutropenic precautions: hand hygiene, no fresh flowers/plants/standing water, low-bacteria diet (no raw produce), screen visitors, NO rectal temps/suppositories/enemas.</strong> Private room; monitor closely for subtle infection.'},
+
+{id:12,block:'C',chapter:34,type:'Assessment',
+stem:'A nurse assesses a patient with suspected Hodgkin lymphoma. Which classic finding does the nurse expect?',
+options:[
+{letter:'A',text:'A painless, enlarged lymph node, often in the neck',correct:true,rationale:'Hodgkin lymphoma classically presents with painless enlargement of a lymph node, frequently in the cervical (neck) region, along with possible fever, night sweats, and weight loss (the "B symptoms"). The Reed-Sternberg cell is the diagnostic hallmark.'},
+{letter:'B',text:'A painful, red, warm lymph node',correct:false,rationale:'A painful, red, warm node suggests infection or inflammation. Hodgkin lymphoma nodes are characteristically painless.'},
+{letter:'C',text:'Sudden crushing chest pain',correct:false,rationale:'Chest pain is not a hallmark of Hodgkin lymphoma. Painless lymphadenopathy is the classic sign.'},
+{letter:'D',text:'A migrating rash across the trunk',correct:false,rationale:'A migrating rash is not typical. The hallmark is a painless enlarged lymph node with possible B symptoms.'}
+],vocabTip:'<strong>Hodgkin lymphoma: painless enlarged (often cervical) node + "B symptoms" (fever, drenching night sweats, weight loss).</strong> Reed-Sternberg cells are diagnostic. It is highly curable, especially when found early.'},
+
+{id:13,block:'C',chapter:34,type:'Teaching',
+stem:'A patient with leukemia reports severe fatigue that interferes with daily activities. Which nursing action best addresses this problem?',
+options:[
+{letter:'A',text:'Help the patient prioritize activities and schedule rest periods',correct:true,rationale:'Fatigue is common in leukemia from anemia and the disease process. Energy conservation, clustering care, prioritizing important activities, and planning rest periods help the patient function while conserving limited energy.'},
+{letter:'B',text:'Insist the patient remain on strict bed rest at all times',correct:false,rationale:'Complete immobility worsens deconditioning and risks complications. Balancing activity with rest is preferred over strict bed rest.'},
+{letter:'C',text:'Encourage vigorous daily exercise to build stamina',correct:false,rationale:'Vigorous exercise can exhaust an already fatigued, anemic patient. Activity should be paced and balanced with rest.'},
+{letter:'D',text:'Withhold all assistance so the patient stays independent',correct:false,rationale:'Refusing help can overtax the patient. Appropriate assistance plus energy conservation better supports function.'}
+],vocabTip:'<strong>Cancer/leukemia fatigue: energy conservation, prioritize tasks, cluster care, schedule rest.</strong> Treat contributing anemia and ensure nutrition. Balance activity with rest rather than enforcing total bed rest or overexertion.'},
+
+{id:14,block:'D',chapter:34,type:'Assessment',
+stem:'A patient has immune thrombocytopenic purpura (ITP). Which assessment finding does the nurse most expect?',
+options:[
+{letter:'A',text:'Petechiae, easy bruising, and a low platelet count',correct:true,rationale:'ITP is an autoimmune destruction of platelets. The low platelet count produces petechiae, ecchymoses (easy bruising), and mucosal bleeding such as gums or nosebleeds. Bleeding precautions are needed.'},
+{letter:'B',text:'A high platelet count with clotting',correct:false,rationale:'ITP lowers platelets, causing bleeding, not clotting. A high platelet count is the opposite of ITP.'},
+{letter:'C',text:'Elevated hemoglobin and polycythemia',correct:false,rationale:'ITP affects platelets, not red cell mass. Polycythemia is unrelated.'},
+{letter:'D',text:'Neutrophilia with no bleeding',correct:false,rationale:'ITP is a platelet disorder that causes bleeding. It is not defined by a high neutrophil count.'}
+],vocabTip:'<strong>ITP = autoimmune platelet destruction &rarr; low platelets, petechiae, bruising, mucosal bleeding.</strong> Treated with corticosteroids, IVIG, and sometimes splenectomy. Institute bleeding precautions and avoid aspirin/NSAIDs.'},
+
+{id:15,block:'D',chapter:34,type:'Assessment',
+stem:'A nurse cares for a patient with hemophilia A. Which statement about this disorder is accurate?',
+options:[
+{letter:'A',text:'It is an inherited deficiency of clotting factor VIII that mainly affects males',correct:true,rationale:'Hemophilia A is an X-linked recessive deficiency of clotting factor VIII, so it predominantly affects males, who have one X chromosome. Patients bleed excessively, including into joints (hemarthrosis), and are treated with factor replacement.'},
+{letter:'B',text:'It is caused by too many platelets',correct:false,rationale:'Hemophilia is a clotting factor deficiency, not a platelet excess. Platelet counts are typically normal.'},
+{letter:'C',text:'It is an acquired vitamin C deficiency',correct:false,rationale:'Hemophilia is inherited (genetic factor deficiency), not an acquired vitamin C problem. Vitamin C deficiency is scurvy.'},
+{letter:'D',text:'It affects only females',correct:false,rationale:'Because it is X-linked recessive, hemophilia A mainly affects males; females are usually carriers.'}
+],vocabTip:'<strong>Hemophilia A = factor VIII deficiency; X-linked recessive (mostly males).</strong> Hallmark: hemarthrosis (bleeding into joints) and prolonged bleeding after injury. Treat with factor VIII replacement; avoid aspirin/NSAIDs and contact sports.'},
+
+{id:16,block:'D',chapter:34,type:'Priority',
+stem:'A postpartum patient develops disseminated intravascular coagulation (DIC). Which finding reflects the paradox of this condition?',
+options:[
+{letter:'A',text:'Widespread clotting depletes clotting factors, leading to simultaneous bleeding',correct:true,rationale:'In DIC, the clotting cascade is massively and abnormally activated, forming clots throughout small vessels. This consumes platelets and clotting factors, so the patient then bleeds uncontrollably (oozing from IV sites, gums, and incisions) even while microclots damage organs.'},
+{letter:'B',text:'The blood becomes unable to clot from birth',correct:false,rationale:'DIC is an acquired, acute consumptive process, not a lifelong inability to clot. It is triggered by conditions like sepsis, obstetric complications, or trauma.'},
+{letter:'C',text:'Only clotting occurs, with no bleeding at all',correct:false,rationale:'The hallmark of DIC is that clotting and bleeding occur together, because the clotting consumes the factors needed to stop bleeding.'},
+{letter:'D',text:'Platelet counts rise dramatically',correct:false,rationale:'Platelets are consumed in the widespread clotting, so the count falls, contributing to bleeding.'}
+],vocabTip:'<strong>DIC: massive clotting consumes platelets/factors &rarr; then uncontrolled bleeding.</strong> Triggers: sepsis, obstetric complications, trauma, cancer. Watch for oozing from sites plus organ ischemia. Treat the underlying cause and replace factors/platelets.'},
+
+{id:17,block:'D',chapter:34,type:'SATA',sata:true,
+stem:'A patient with a very low platelet count needs bleeding precautions. Which interventions are appropriate? Select all that apply.',
+options:[
+{letter:'A',text:'Use a soft toothbrush for oral care',correct:true,rationale:'A soft toothbrush prevents gum trauma and bleeding in a thrombocytopenic patient.'},
+{letter:'B',text:'Use an electric razor instead of a blade',correct:true,rationale:'An electric razor avoids nicks and cuts that could bleed when platelets are low.'},
+{letter:'C',text:'Avoid aspirin and NSAIDs',correct:true,rationale:'Aspirin and NSAIDs impair platelet function and increase bleeding, so they are avoided.'},
+{letter:'D',text:'Avoid rectal temperatures, suppositories, and enemas',correct:true,rationale:'Rectal procedures can tear fragile mucosa and cause bleeding, so they are avoided in bleeding precautions.'},
+{letter:'E',text:'Give intramuscular injections whenever possible',correct:false,rationale:'IM injections create deep puncture sites that can bleed and form hematomas. They are avoided; when injections are unavoidable, use the smallest needle and apply pressure.'}
+],vocabTip:'<strong>Bleeding precautions: soft toothbrush, electric razor, no aspirin/NSAIDs, no rectal temps/suppositories/enemas, avoid IM injections, prevent falls.</strong> Watch for petechiae, bruising, and blood in urine/stool.'},
+
+{id:18,block:'E',chapter:34,type:'Priority',
+stem:'A nurse is preparing to administer a unit of packed red blood cells. Which action is most important before starting the transfusion?',
+options:[
+{letter:'A',text:'Verify the patient identity and blood product with a second qualified nurse',correct:true,rationale:'The most important safety step is a two-person verification of the patient identifiers against the blood product (blood type, unit number, and expiration) at the bedside. Most fatal hemolytic reactions come from misidentification, so this check prevents giving the wrong blood.'},
+{letter:'B',text:'Warm the blood in a microwave first',correct:false,rationale:'Blood is never warmed in a microwave, which can hemolyze cells. Only an approved blood warmer is used when warming is indicated.'},
+{letter:'C',text:'Prime the tubing with dextrose 5% in water',correct:false,rationale:'Only 0.9% normal saline is compatible with blood. Dextrose solutions cause red cells to clump and lyse.'},
+{letter:'D',text:'Start the infusion rapidly to finish quickly',correct:false,rationale:'Transfusions begin slowly with close monitoring in the first 15 minutes, when most serious reactions occur. Rapid initiation is unsafe.'}
+],vocabTip:'<strong>Transfusion safety: two-nurse bedside ID/product verification (most important), Y-tubing with 0.9% NS only, start slow, stay first 15 min.</strong> Most fatal reactions result from patient misidentification.'},
+
+{id:19,block:'E',chapter:34,type:'Priority',trap:true,
+stem:'Fifteen minutes into a blood transfusion, a patient develops fever, chills, flank pain, and dark urine. What is the nurse\'s first action?',
+options:[
+{letter:'A',text:'Stop the transfusion and keep the line open with normal saline',correct:true,rationale:'These signs suggest an acute hemolytic transfusion reaction, a medical emergency. The first action is to STOP the blood immediately and keep the IV patent with normal saline through new tubing, then notify the provider and blood bank and monitor for shock and renal injury.'},
+{letter:'B',text:'Slow the transfusion and continue watching',correct:false,rationale:'Slowing is not enough for a suspected hemolytic reaction. The blood must be stopped completely to prevent further harm.'},
+{letter:'C',text:'Give the next unit to dilute the reaction',correct:false,rationale:'Giving more blood would worsen a hemolytic reaction. All transfusion is stopped immediately.'},
+{letter:'D',text:'Document the findings and reassess in an hour',correct:false,rationale:'Delaying action during an acute reaction is dangerous. Stopping the transfusion and maintaining the line with saline come first.'}
+],vocabTip:'<strong>Transfusion reaction: STOP the blood first, keep line open with NS (new tubing), then notify provider/blood bank.</strong> Hemolytic signs: fever, chills, flank/back pain, dark urine, hypotension. Return the bag and tubing to the blood bank.'},
+
+{id:20,block:'E',chapter:34,type:'Assessment',
+stem:'A patient receiving a transfusion suddenly has dyspnea, crackles, and a bounding pulse with a rising blood pressure. Which complication does the nurse suspect?',
+options:[
+{letter:'A',text:'Transfusion-associated circulatory overload (TACO)',correct:true,rationale:'Rapid or large-volume transfusion can overload the circulation, especially in older adults or those with heart or kidney disease. Dyspnea, crackles, a bounding pulse, distended neck veins, and rising blood pressure signal circulatory overload; slow or stop the infusion, sit the patient up, and give oxygen and a diuretic as ordered.'},
+{letter:'B',text:'A mild allergic reaction',correct:false,rationale:'Allergic reactions cause hives, itching, and sometimes wheezing, not the fluid-overload picture of crackles and a bounding pulse with rising pressure.'},
+{letter:'C',text:'An acute hemolytic reaction',correct:false,rationale:'Hemolytic reactions present with fever, chills, flank pain, and dark urine from red cell destruction, not primarily with signs of fluid overload.'},
+{letter:'D',text:'Hypovolemic shock',correct:false,rationale:'The findings show too much circulating volume (overload), the opposite of hypovolemia. Hypovolemia would cause hypotension and a weak, thready pulse.'}
+],vocabTip:'<strong>TACO (circulatory overload): dyspnea, crackles, bounding pulse, JVD, rising BP.</strong> Risk highest in elderly/cardiac/renal patients. Prevent by transfusing slowly; treat by slowing/stopping, upright position, oxygen, and diuretics.'},
+
+{id:21,block:'E',chapter:34,type:'SATA',sata:true,
+stem:'The nurse reviews standards for safe blood administration. Which statements are correct? Select all that apply.',
+options:[
+{letter:'A',text:'Only 0.9% normal saline is compatible with blood products',correct:true,rationale:'Normal saline is the only compatible IV solution; dextrose lyses cells and lactated Ringer\'s (with calcium) can promote clotting in the line.'},
+{letter:'B',text:'The nurse stays with the patient for the first 15 minutes',correct:true,rationale:'Most severe reactions occur early, so the nurse remains present and monitors closely for the first 15 minutes, starting the infusion slowly.'},
+{letter:'C',text:'A unit of blood should infuse within 4 hours',correct:true,rationale:'To limit bacterial growth, a unit must be completely infused within 4 hours of leaving the blood bank; if the patient cannot tolerate that rate, smaller aliquots are ordered.'},
+{letter:'D',text:'Baseline vital signs are taken before starting',correct:true,rationale:'Baseline vital signs provide a comparison to detect a reaction, so they are obtained before beginning and monitored per protocol during the transfusion.'},
+{letter:'E',text:'Blood can hang at room temperature for 8 hours',correct:false,rationale:'Blood must be infused within 4 hours; hanging it for 8 hours risks bacterial growth and is unsafe.'}
+],vocabTip:'<strong>Blood administration: NS only, baseline VS, start slow, stay first 15 min, infuse within 4 hours.</strong> Use a filtered blood administration set and confirm consent and a patent large-bore IV before starting.'},
+
+{id:22,block:'A',chapter:34,type:'Vocab',
+stem:'A lab result shows the patient has an excess of circulating red blood cells with thickened blood. Which term applies?',
+options:[
+{letter:'A',text:'Polycythemia',correct:true,rationale:'Polycythemia is an excess of red blood cells that increases blood viscosity, raising the risk of clots, hypertension, and stroke. Management includes hydration and therapeutic phlebotomy to remove excess cells.'},
+{letter:'B',text:'Anemia',correct:false,rationale:'Anemia is a deficiency of red blood cells, the opposite of the excess described.'},
+{letter:'C',text:'Leukopenia',correct:false,rationale:'Leukopenia is a low white blood cell count, unrelated to a red cell excess.'},
+{letter:'D',text:'Thrombocytopenia',correct:false,rationale:'Thrombocytopenia is a low platelet count, not an excess of red cells.'}
+],vocabTip:'<strong>Polycythemia = too many RBCs &rarr; thick blood &rarr; clot/stroke risk.</strong> Treat with hydration and therapeutic phlebotomy; encourage mobility to prevent clots. Polycythemia vera is a chronic myeloproliferative form.'},
+
+{id:23,block:'C',chapter:34,type:'Teaching',
+stem:'A patient starting chemotherapy for leukemia is at risk for tumor lysis syndrome. Which instruction supports prevention?',
+options:[
+{letter:'A',text:'"Drink plenty of fluids; you may also receive allopurinol to protect your kidneys."',correct:true,rationale:'As chemotherapy destroys large numbers of leukemia cells, they release potassium, phosphorus, and uric acid, which can injure the kidneys. Generous hydration and allopurinol (which lowers uric acid) help protect renal function during treatment.'},
+{letter:'B',text:'"Restrict all fluids during chemotherapy."',correct:false,rationale:'Fluid restriction concentrates the released uric acid and electrolytes and increases kidney injury risk. Hydration is protective, not restriction.'},
+{letter:'C',text:'"Eat a diet very high in potassium."',correct:false,rationale:'Tumor lysis already releases potassium, risking hyperkalemia. A high-potassium diet would compound the danger.'},
+{letter:'D',text:'"Avoid all laboratory monitoring during treatment."',correct:false,rationale:'Close monitoring of electrolytes and renal function is essential during chemotherapy to catch tumor lysis early. Avoiding labs is unsafe.'}
+],vocabTip:'<strong>Tumor lysis syndrome: cell breakdown releases K+, phosphate, uric acid &rarr; kidney injury and hyperkalemia.</strong> Prevent with hydration, allopurinol/rasburicase, and close electrolyte/renal monitoring during chemo.'},
+
+{id:24,block:'B',chapter:34,type:'Assessment',
+stem:'A patient in sickle cell crisis is dehydrated in the emergency department. Which fluid does the nurse anticipate administering?',
+options:[
+{letter:'A',text:'A hypotonic IV solution to rehydrate and reduce blood viscosity',correct:true,rationale:'Patients in sickle cell crisis are often dehydrated, which thickens the blood and worsens sickling and vaso-occlusion. Hydration with a hypotonic fluid helps rehydrate cells, dilute the blood, and improve flow, along with oxygen and pain control.'},
+{letter:'B',text:'A rapid infusion of packed red blood cells for volume',correct:false,rationale:'Blood is not used simply for volume in crisis, and rapid transfusion is not the rehydration strategy. IV fluids address the dehydration.'},
+{letter:'C',text:'No fluids, to avoid overloading the patient',correct:false,rationale:'Withholding fluids leaves the patient dehydrated, which perpetuates sickling. Rehydration is a core part of crisis care.'},
+{letter:'D',text:'A caffeinated oral beverage only',correct:false,rationale:'Caffeine can promote diuresis and does not adequately rehydrate a patient in crisis. IV hydration is used for significant dehydration.'}
+],vocabTip:'<strong>SCD crisis: rehydrate (often hypotonic IV fluids) + oxygen + pain control.</strong> Dehydration thickens blood and worsens sickling. Fluids reduce viscosity and improve perfusion to ischemic tissue.'},
+
+{id:25,block:'E',chapter:34,type:'Teaching',
+stem:'A patient asks why the nurse must check vital signs before and shortly after starting a blood transfusion. What is the best explanation?',
+options:[
+{letter:'A',text:'"Comparing your vital signs helps us detect a reaction early, when it is most treatable."',correct:true,rationale:'Baseline vital signs give a reference point, and rechecking shortly after starting (and staying for the first 15 minutes) lets the nurse catch fever, chills, tachycardia, or blood pressure changes that signal a transfusion reaction early, when intervention is most effective.'},
+{letter:'B',text:'"It is only a formality and does not affect your care."',correct:false,rationale:'Vital sign monitoring is a critical safety measure, not a formality. It is how early reactions are detected.'},
+{letter:'C',text:'"We check them so we can transfuse faster."',correct:false,rationale:'Monitoring is about safety and early reaction detection, not increasing the rate. Transfusions start slowly regardless.'},
+{letter:'D',text:'"Vital signs tell us your blood type."',correct:false,rationale:'Blood type is determined by type and crossmatch lab testing, not vital signs. Vital signs detect reactions.'}
+],vocabTip:'<strong>Transfusion monitoring: baseline VS, recheck at 15 min and per protocol, stay the first 15 min.</strong> Early signs of reaction: fever, chills, flushing, itching, back/flank pain, dyspnea. Catching them early guides a rapid stop-and-treat response.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>
