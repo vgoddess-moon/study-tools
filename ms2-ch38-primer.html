@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 38 &mdash; Neurologic Emergencies Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 38 &mdash; Critical Care: Neurologic Emergencies</h1>
+<p class="subtitle">MS2 Exam 2 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Neuro Emergency Must-Knows</h3>
+<svg viewBox="0 0 820 340" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="340" fill="#0c0f14"/>
+<rect x="20" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="145" y="45" fill="#fca5a5" font-size="15" font-weight="700" text-anchor="middle">Ischemic Stroke / tPA</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Alteplase window: 3&ndash;4.5 hrs</text>
+<text x="35" y="95" fill="#f87171" font-size="13">TIME OF ONSET = most important</text>
+<text x="35" y="118" fill="#e2e8f0" font-size="13">No tPA if on anticoag/antiplatelet</text>
+<text x="35" y="141" fill="#e2e8f0" font-size="13">Severe HA during tPA &rarr; STOP infusion</text>
+<text x="35" y="160" fill="#94a3b8" font-size="12">TIA &rarr; clopidogrel/aspirin</text>
+<rect x="285" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="410" y="45" fill="#fbbf24" font-size="15" font-weight="700" text-anchor="middle">Right vs Left Brain</text>
+<text x="300" y="72" fill="#e2e8f0" font-size="13">LEFT brain: aphasia, slow/cautious</text>
+<text x="300" y="95" fill="#e2e8f0" font-size="13">(Language = Left)</text>
+<text x="300" y="118" fill="#e2e8f0" font-size="13">RIGHT brain: impulsive, poor</text>
+<text x="300" y="141" fill="#e2e8f0" font-size="13">judgment, safety risk, neglect</text>
+<text x="300" y="162" fill="#94a3b8" font-size="12">Opposite-side weakness</text>
+<rect x="550" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="675" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Increased ICP</text>
+<text x="565" y="72" fill="#f87171" font-size="13">Earliest sign: &darr; LOC</text>
+<text x="565" y="95" fill="#e2e8f0" font-size="13">Mannitol (osmotic diuretic)</text>
+<text x="565" y="118" fill="#e2e8f0" font-size="13">HOB up; neck midline, no flexion</text>
+<text x="565" y="141" fill="#e2e8f0" font-size="13">Don't cluster care; limit stimuli</text>
+<text x="565" y="162" fill="#94a3b8" font-size="12">Late: Cushing triad, blown pupil</text>
+<rect x="20" y="190" width="380" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="210" y="215" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Traumatic Brain Injury</text>
+<text x="35" y="242" fill="#f87171" font-size="13">1st: airway/breathing (ABCs)</text>
+<text x="35" y="265" fill="#e2e8f0" font-size="13">FEVER = poor sign &rarr; assess first</text>
+<text x="35" y="288" fill="#e2e8f0" font-size="13">Personality changes common/permanent</text>
+<text x="35" y="310" fill="#94a3b8" font-size="12">Rewarming &rarr; watch dysrhythmias</text>
+<rect x="415" y="190" width="385" height="130" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="607" y="215" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Swallowing &amp; Safety</text>
+<text x="430" y="242" fill="#e2e8f0" font-size="13">Stroke &rarr; NPO until SLP swallow eval</text>
+<text x="430" y="265" fill="#e2e8f0" font-size="13">Outcome met = CLEAR lung sounds</text>
+<text x="430" y="288" fill="#e2e8f0" font-size="13">Cerebellar stroke &rarr; ataxia, gait belt</text>
+<text x="430" y="310" fill="#94a3b8" font-size="12">Hemianopsia &rarr; scan/turn head</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch38-primer';
+const EXAM_LABEL='MS2 Ch 38 — Critical Care: Neurologic Emergencies (25Q)';
+const BLOCKS={A:'Stroke & TIA',B:'Fibrinolytic (Alteplase) Therapy',C:'Increased ICP Management',D:'Traumatic Brain Injury',E:'Craniotomy, Brain Tumor & Complications'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:38,type:'Teaching',
+stem:'A client reports a brief episode of dizziness, inability to speak, and left leg numbness. His neurologic exam is now normal. Which drug would the nurse plan to teach the client about?',
+options:[
+{letter:'A',text:'Alteplase',correct:false,rationale:'Alteplase is a fibrinolytic for an acute ischemic stroke in progress, not for a resolved TIA.'},
+{letter:'B',text:'Clopidogrel',correct:true,rationale:'These transient symptoms that fully resolved describe a TIA. Antiplatelet therapy (aspirin or clopidogrel) is prescribed to prevent platelet aggregation and reduce future stroke risk.'},
+{letter:'C',text:'Heparin sodium',correct:false,rationale:'Heparin is not the standard discharge drug for a TIA.'},
+{letter:'D',text:'Mannitol',correct:false,rationale:'Mannitol is an osmotic diuretic for increased ICP, not for TIA prevention.'}
+],vocabTip:'<strong>TIA = temporary, fully reversible neuro deficit ("mini-stroke") — a warning sign.</strong> Treat with antiplatelets (aspirin/clopidogrel) to prevent a future ischemic stroke.'},
+
+{id:2,block:'A',chapter:38,type:'Assessment',
+stem:'Before discharging a client after a transient ischemic attack (TIA), which factor would the nurse identify as placing the client at high risk for a stroke?',
+options:[
+{letter:'A',text:'Age greater than or equal to 75',correct:false,rationale:'The age risk threshold is ≥60, so this is true but the keyed strongest predictor here is unilateral weakness.'},
+{letter:'B',text:'Blood pressure greater than or equal to 160/95',correct:false,rationale:'The BP risk threshold is ≥140/90; this value qualifies, but unilateral weakness is the emphasized high-risk feature.'},
+{letter:'C',text:'Unilateral weakness during the TIA',correct:true,rationale:'One-sided (unilateral) weakness during a TIA is a strong predictor of subsequent stroke.'},
+{letter:'D',text:'TIA symptoms lasting less than a minute',correct:false,rationale:'Longer symptom duration raises risk; less than a minute is a short, lower-risk duration.'}
+],vocabTip:'<strong>Post-TIA stroke risk (ABCD²): Age ≥60, BP ≥140/90, unilateral weakness/speech deficit, longer duration, diabetes.</strong> Unilateral weakness is a key warning.'},
+
+{id:3,block:'A',chapter:38,type:'Assessment',
+stem:'A nurse takes a history from the daughter of a client with new stroke symptoms. Which statement suggests the client likely had an EMBOLIC stroke?',
+options:[
+{letter:'A',text:'"His symptoms came on slowly over several hours."',correct:false,rationale:'Gradual onset is more typical of a thrombotic stroke.'},
+{letter:'B',text:'"He became increasingly lethargic and drowsy."',correct:false,rationale:'Decreasing LOC is more characteristic of a hemorrhagic stroke.'},
+{letter:'C',text:'"He reported a severe headache before other symptoms."',correct:false,rationale:'A severe headache preceding symptoms points to a hemorrhagic stroke.'},
+{letter:'D',text:'"He has a long history of atrial fibrillation."',correct:true,rationale:'Atrial fibrillation is the major cause of embolic stroke; clots form in the heart and travel to the brain, causing sudden symptoms while the client stays alert.'}
+],vocabTip:'<strong>Embolic stroke = sudden onset, often from atrial fibrillation; client stays alert.</strong> Thrombotic = gradual; hemorrhagic = severe headache + decreasing LOC. History points to the type.'},
+
+{id:4,block:'A',chapter:38,type:'Teaching',
+stem:'A nurse teaches assistive personnel (AP) about caring for a male client with an acute ischemic stroke and LEFT-sided weakness. Which AP statement indicates understanding?',
+options:[
+{letter:'A',text:'"I will use yes/no questions when communicating with the client."',correct:false,rationale:'Aphasia is more common with LEFT-brain (right-sided weakness) strokes; this client had a right-brain stroke.'},
+{letter:'B',text:'"I will remind the client frequently not to get out of bed without help."',correct:true,rationale:'Left-sided weakness indicates a RIGHT-brain stroke. These clients are impulsive with poor judgment, so frequent safety reminders prevent falls.'},
+{letter:'C',text:'"I will offer a urinal every hour due to incontinence."',correct:false,rationale:'Nothing indicates urinary incontinence in this client.'},
+{letter:'D',text:'"I will feed the client slowly with pureed foods."',correct:false,rationale:'No swallowing deficit is described; the client should be NPO until an SLP swallow evaluation regardless.'}
+],vocabTip:'<strong>Right-brain stroke (left-sided weakness): impulsive, poor judgment, safety risk, neglect of the left side.</strong> Left-brain stroke (right-sided weakness): aphasia, slow, cautious. "Left = Language."'},
+
+{id:5,block:'A',chapter:38,type:'Implementation',
+stem:'A nurse receives report on a client who had a stroke with homonymous hemianopsia. Which action by the nurse is most appropriate?',
+options:[
+{letter:'A',text:'Assess for bladder and bowel retention or incontinence',correct:false,rationale:'Hemianopsia is a visual field deficit, not related to bladder or bowel function.'},
+{letter:'B',text:'Listen to lung sounds after eating for diminished breath sounds',correct:false,rationale:'This addresses aspiration/swallowing, not a visual field deficit.'},
+{letter:'C',text:'Support the client’s left side when sitting',correct:false,rationale:'This addresses trunk/motor control, not visual field loss.'},
+{letter:'D',text:'Remind the client to move the head from side to side to increase the visual field',correct:true,rationale:'Homonymous hemianopsia is loss of the same half of vision in both eyes; scanning by turning the head compensates for the missing field.'}
+],vocabTip:'<strong>Homonymous hemianopsia = loss of the same visual half-field in both eyes.</strong> Teach head-turning/scanning; place items and approach from the unaffected side initially, then encourage scanning to the affected side.'},
+
+{id:6,block:'A',chapter:38,type:'Priority',
+stem:'A client is admitted with a cerebellar stroke. Which intervention is most appropriate for the plan of care?',
+options:[
+{letter:'A',text:'Ambulate only with a gait belt',correct:true,rationale:'A cerebellar stroke causes ataxia (abnormal, unsteady gait). A gait belt and assistance protect the client from falls.'},
+{letter:'B',text:'Encourage double swallowing',correct:false,rationale:'Double swallowing addresses dysphagia, which is not the cerebellar deficit.'},
+{letter:'C',text:'Monitor lung sounds after eating',correct:false,rationale:'This targets aspiration, not the balance/coordination problem of a cerebellar stroke.'},
+{letter:'D',text:'Perform postvoid residuals',correct:false,rationale:'Postvoid residuals assess bladder emptying, not ataxia.'}
+],vocabTip:'<strong>Cerebellar stroke → ataxia (unsteady gait) → fall risk → gait belt + assist.</strong> The cerebellum governs balance and coordination.'},
+
+{id:7,block:'A',chapter:38,type:'Assessment',
+stem:'A nurse provides community stroke screening. Which person is at highest risk for a stroke?',
+options:[
+{letter:'A',text:'A 27-year-old heavy cocaine user',correct:true,rationale:'Heavy drug use, especially cocaine, is a significant modifiable risk factor for stroke due to vasoconstriction and hypertension.'},
+{letter:'B',text:'A 30-year-old who drinks one beer a day',correct:false,rationale:'One beer a day is not considered heavy drinking and is a low risk.'},
+{letter:'C',text:'A 40-year-old who uses seasonal antihistamines',correct:false,rationale:'Seasonal, non-abused antihistamine use is a low risk.'},
+{letter:'D',text:'A 65-year-old who is active and on no medications',correct:false,rationale:'This person has only age as a risk factor and is otherwise healthy.'}
+],vocabTip:'<strong>Cocaine/heavy drug use is a major stroke risk (vasospasm, HTN).</strong> Other leading risks: hypertension, atrial fib, smoking, diabetes, high cholesterol, obesity.'},
+
+{id:8,block:'A',chapter:38,type:'SATA',sata:true,
+stem:'A nurse assesses a client with a confirmed LEFT middle cerebral artery occlusion. Which findings would the nurse expect? (Select all that apply.)',
+options:[
+{letter:'A',text:'Ataxia',correct:false,rationale:'Ataxia is associated with cerebellar strokes, not a middle cerebral artery occlusion.'},
+{letter:'B',text:'Dysphagia',correct:true,rationale:'Difficulty swallowing is common with MCA strokes.'},
+{letter:'C',text:'Aphasia',correct:true,rationale:'The left MCA supplies language centers, so aphasia is expected.'},
+{letter:'D',text:'Apraxia',correct:true,rationale:'Apraxia (inability to perform learned movements) occurs with MCA strokes.'},
+{letter:'E',text:'Hemiparesis/hemiplegia',correct:true,rationale:'Motor cortex involvement causes weakness/paralysis on the opposite (right) side.'},
+{letter:'F',text:'Ptosis',correct:true,rationale:'Ptosis can occur with the facial/motor involvement of an MCA stroke.'}
+],vocabTip:'<strong>Left MCA stroke: aphasia, apraxia, dysphagia, right hemiparesis, ptosis.</strong> The MCA feeds motor, sensory, and language centers. Ataxia = cerebellar, not MCA.'},
+
+{id:9,block:'B',chapter:38,type:'Priority',trap:true,
+stem:'A client with a stroke is being evaluated for fibrinolytic therapy. Which information is most important for the nurse to obtain?',
+options:[
+{letter:'A',text:'Loss of bladder control',correct:false,rationale:'Bladder control does not determine fibrinolytic eligibility.'},
+{letter:'B',text:'Other medical conditions',correct:false,rationale:'Comorbidities matter but are not the single most critical piece of information.'},
+{letter:'C',text:'Progression of symptoms',correct:false,rationale:'Progression is useful but secondary to knowing exactly when symptoms started.'},
+{letter:'D',text:'Time of symptom onset',correct:true,rationale:'Fibrinolytics must be given within 3 to 4.5 hours of symptom onset, so the exact onset time determines eligibility and is the most important information.'}
+],vocabTip:'<strong>tPA/alteplase window = 3 to 4.5 hours from symptom onset → "time is brain."</strong> Establishing the exact last-known-well time is the critical assessment. Must rule out hemorrhage with CT first.'},
+
+{id:10,block:'B',chapter:38,type:'Assessment',
+stem:'The nurse is preparing to administer IV alteplase for an acute ischemic stroke. Which statement about this drug is correct?',
+options:[
+{letter:'A',text:'"It is recommended within 90 minutes after ED admission."',correct:false,rationale:'The window is based on symptom onset (3–4.5 hours), not a fixed 90 minutes after admission.'},
+{letter:'B',text:'"It is given as a bolus over 3 minutes, then a continuous infusion."',correct:false,rationale:'Alteplase for stroke is given as a bolus followed by an infusion over about 60 minutes, not a 3-minute bolus then continuous.'},
+{letter:'C',text:'"The maximum dose, including bolus, is 120 mg."',correct:false,rationale:'The maximum stroke dose is 90 mg, not 120 mg.'},
+{letter:'D',text:'"It is not given to clients already on anticoagulant or antiplatelet therapy."',correct:true,rationale:'Alteplase dissolves clots and can cause bleeding. Clients already on anticoagulants or antiplatelets are at high bleeding risk and are not candidates.'}
+],vocabTip:'<strong>Alteplase contraindications: recent bleeding/surgery, anticoagulant/antiplatelet use, hemorrhagic stroke, uncontrolled HTN.</strong> Bleeding is the main adverse effect — monitor closely.'},
+
+{id:11,block:'B',chapter:38,type:'Priority',
+stem:'A client receiving IV alteplase reports a sudden severe headache. What is the nurse’s first action?',
+options:[
+{letter:'A',text:'Perform a comprehensive pain assessment',correct:false,rationale:'Stopping the drug takes priority over a detailed pain assessment when bleeding is suspected.'},
+{letter:'B',text:'Discontinue the infusion of the drug',correct:true,rationale:'A sudden severe headache during alteplase can signal intracranial bleeding. Stopping the infusion immediately is the first action to limit further bleeding.'},
+{letter:'C',text:'Conduct a neurologic assessment',correct:false,rationale:'Assessment follows stopping the drug; the priority is to halt further bleeding risk.'},
+{letter:'D',text:'Administer an antihypertensive drug',correct:false,rationale:'This may follow, but the immediate first action is to stop the infusion.'}
+],vocabTip:'<strong>Severe headache during tPA = suspected intracranial hemorrhage → STOP the infusion first.</strong> Then assess neuro status, check BP, and notify the provider. Bleeding is the feared complication.'},
+
+{id:12,block:'C',chapter:38,type:'Assessment',
+stem:'A nurse cares for a client with a hemorrhagic stroke. Which assessment finding is the EARLIEST sign of increasing intracranial pressure?',
+options:[
+{letter:'A',text:'Projectile vomiting',correct:false,rationale:'Projectile vomiting is a later sign of increased ICP.'},
+{letter:'B',text:'Dilated and nonreactive pupils',correct:false,rationale:'A fixed, dilated pupil is a late sign of increased ICP.'},
+{letter:'C',text:'Severe hypertension',correct:false,rationale:'Hypertension (part of Cushing triad) is a late sign.'},
+{letter:'D',text:'Decreased level of consciousness',correct:true,rationale:'A decreasing LOC is the earliest and most sensitive sign of rising intracranial pressure.'}
+],vocabTip:'<strong>Earliest ICP sign = decreasing LOC. Late signs = Cushing triad (HTN with widened pulse pressure, bradycardia, irregular respirations) + fixed dilated pupil.</strong>'},
+
+{id:13,block:'C',chapter:38,type:'Priority',
+stem:'A client with a traumatic brain injury has increasing intracranial pressure. Which drug will the nurse anticipate administering?',
+options:[
+{letter:'A',text:'Phenytoin',correct:false,rationale:'Phenytoin prevents seizures but does not reduce ICP directly.'},
+{letter:'B',text:'Lorazepam',correct:false,rationale:'Lorazepam is a benzodiazepine for seizures/anxiety, not for lowering ICP.'},
+{letter:'C',text:'Mannitol',correct:true,rationale:'Mannitol, an osmotic diuretic, pulls fluid from cerebral tissue to reduce cerebral edema and ICP. A loop diuretic like furosemide may also be used.'},
+{letter:'D',text:'Morphine',correct:false,rationale:'Morphine can depress respirations and mask neurologic changes; it does not treat elevated ICP.'}
+],vocabTip:'<strong>Increased ICP → osmotic diuretic (mannitol) to pull fluid out of the brain.</strong> Also elevate HOB ~30°, keep head midline, hyperventilate cautiously, and avoid activities that raise ICP.'},
+
+{id:14,block:'C',chapter:38,type:'SATA',sata:true,
+stem:'A nurse cares for a client with increasing intracranial pressure following a stroke. Which evidence-based actions are indicated? (Select all that apply.)',
+options:[
+{letter:'A',text:'Hyperoxygenate the client before and after suctioning',correct:true,rationale:'Hyperoxygenation before/after suctioning prevents hypoxia-related spikes in ICP.'},
+{letter:'B',text:'Avoid sudden or extreme hip or neck flexion',correct:true,rationale:'Extreme flexion impedes venous drainage and raises ICP; keep the head midline and neutral.'},
+{letter:'C',text:'Provide oxygen to maintain SaO2 of 95% or greater',correct:true,rationale:'Adequate oxygenation prevents hypoxia, which would worsen cerebral edema and ICP.'},
+{letter:'D',text:'Maintain the client supine at all times',correct:false,rationale:'Flat supine positioning raises ICP; the HOB should be elevated (~30°).'},
+{letter:'E',text:'Avoid clustering nursing activities and procedures',correct:true,rationale:'Clustering care causes cumulative ICP spikes; space activities to allow recovery.'},
+{letter:'F',text:'Provide environmental stimulation to improve cognition',correct:false,rationale:'Excess stimulation raises ICP; keep the environment calm and quiet.'}
+],vocabTip:'<strong>ICP care: HOB up ~30°, head midline (no flexion), hyperoxygenate around suctioning, space out care, quiet room.</strong> Avoid supine-flat, clustering care, and overstimulation.'},
+
+{id:15,block:'D',chapter:38,type:'Priority',
+stem:'A client is admitted with a traumatic brain injury. What is the nurse’s priority assessment?',
+options:[
+{letter:'A',text:'Complete neurologic assessment',correct:false,rationale:'The neuro assessment follows stabilization of the airway and breathing.'},
+{letter:'B',text:'Comprehensive pain assessment',correct:false,rationale:'Pain assessment is not the priority over airway/breathing.'},
+{letter:'C',text:'Airway and breathing assessment',correct:true,rationale:'Even with a brain injury, the ABCs (airway, breathing, circulation) are the priority. Ensuring a patent airway and adequate ventilation prevents secondary brain injury from hypoxia.'},
+{letter:'D',text:'Functional assessment',correct:false,rationale:'Functional assessment is performed later after the client is stabilized.'}
+],vocabTip:'<strong>TBI priority = ABCs. Hypoxia and hypercapnia worsen brain injury.</strong> Secure the airway and ventilation first; a detailed neuro exam comes after stabilization.'},
+
+{id:16,block:'D',chapter:38,type:'Priority',trap:true,
+stem:'The nurse is caring for four clients with traumatic brain injuries. Which client would the nurse assess first?',
+options:[
+{letter:'A',text:'Client with amnesia for the incident',correct:false,rationale:'Amnesia for the event is a common, expected finding after TBI.'},
+{letter:'B',text:'Client with a Glasgow Coma Scale score of 12',correct:false,rationale:'A GCS of 12 is a relatively stable, expected finding.'},
+{letter:'C',text:'Client with a PaCO2 of 36 mm Hg on a ventilator',correct:false,rationale:'A PaCO2 of 36 is within normal/therapeutic range for a TBI client.'},
+{letter:'D',text:'Client with a temperature of 102°F (38.9°C)',correct:true,rationale:'Fever is a poor prognostic indicator in brain injury; it increases metabolic demand and worsens outcomes. This client needs assessment first.'}
+],vocabTip:'<strong>Fever worsens brain injury (raises metabolic demand and ICP) — a poor prognostic sign.</strong> Prioritize the febrile TBI client; maintain normothermia.'},
+
+{id:17,block:'D',chapter:38,type:'Teaching',
+stem:'At a follow-up visit after a moderate traumatic brain injury, the spouse is frustrated that the client’s personality has changed. What response by the nurse is most appropriate?',
+options:[
+{letter:'A',text:'Explain that personality changes are common following brain injuries',correct:true,rationale:'Personality and behavior changes are common, often permanent, after a head injury. Educating the spouse validates the experience and sets realistic expectations.'},
+{letter:'B',text:'Ask the client why he or she is behaving differently',correct:false,rationale:'The client likely cannot control or explain the behavior, so this is not helpful.'},
+{letter:'C',text:'Refer the client and spouse to a support group only',correct:false,rationale:'A referral may help, but the nurse should also provide education, not just refer.'},
+{letter:'D',text:'Tell the spouse this is expected and to learn to cope',correct:false,rationale:'This belittles the spouse’s feelings and is not therapeutic.'}
+],vocabTip:'<strong>Personality/behavior changes are common and often permanent after TBI (frontal lobe injury).</strong> Educate and support caregivers; referrals help but pair them with teaching.'},
+
+{id:18,block:'D',chapter:38,type:'Assessment',trap:true,
+stem:'A client with a severe traumatic brain injury has an organ donor card in his wallet. Which nursing action is appropriate?',
+options:[
+{letter:'A',text:'Request a directive from the client’s primary provider',correct:false,rationale:'In most agencies the provider does not need to write an order to honor a donor card.'},
+{letter:'B',text:'Ask the family if they agree to organ donation',correct:false,rationale:'Family consent is not required when the client has designated donation.'},
+{letter:'C',text:'Wait until brain death is determined before acting',correct:false,rationale:'The organ procurement organization should be contacted early, not after waiting.'},
+{letter:'D',text:'Contact the local organ procurement organization as soon as possible',correct:true,rationale:'The client’s documented wish to donate is respected by notifying the organ procurement organization promptly, even if the family disagrees.'}
+],vocabTip:'<strong>Honor a documented organ donor designation — notify the organ procurement organization early.</strong> Family consent and a provider order are generally not required to respect the client’s wishes.'},
+
+{id:19,block:'E',chapter:38,type:'Priority',
+stem:'After a craniotomy, the nurse finds dry sticky mucous membranes, acute confusion, and restlessness. IV fluids are running at 75 mL/hr. What action would the nurse take first?',
+options:[
+{letter:'A',text:'Assess the client’s urinary output',correct:false,rationale:'Urine output is useful but the priority is to confirm the suspected electrolyte problem.'},
+{letter:'B',text:'Assess the client’s serum sodium level',correct:true,rationale:'Dry sticky membranes, confusion, and restlessness suggest hypernatremia, a possible post-craniotomy complication. Checking the serum sodium confirms it before intervening.'},
+{letter:'C',text:'Increase the rate of the IV infusion',correct:false,rationale:'Changing fluids before confirming the sodium level could be inappropriate; assess first.'},
+{letter:'D',text:'Provide oral care every hour',correct:false,rationale:'Oral care is helpful but does not take priority over identifying the underlying electrolyte problem.'}
+],vocabTip:'<strong>Post-craniotomy: watch for hypernatremia (diabetes insipidus) and hyponatremia (SIADH).</strong> Dry membranes + confusion + restlessness → check serum sodium. Assess the lab before acting.'},
+
+{id:20,block:'D',chapter:38,type:'Assessment',
+stem:'A client who had therapeutic hypothermia after a traumatic brain injury is slowly rewarmed. For which finding would the nurse monitor during rewarming?',
+options:[
+{letter:'A',text:'Cardiac dysrhythmias',correct:true,rationale:'Fluid and electrolyte shifts during rewarming can trigger cardiac dysrhythmias, so continuous cardiac monitoring is essential.'},
+{letter:'B',text:'Loss of consciousness',correct:false,rationale:'Loss of consciousness is not a typical rewarming complication.'},
+{letter:'C',text:'Nausea and vomiting',correct:false,rationale:'N/V is not the primary rewarming concern.'},
+{letter:'D',text:'Fever',correct:false,rationale:'Controlled rewarming targets normothermia; fever is not the expected finding.'}
+],vocabTip:'<strong>Rewarming after therapeutic hypothermia → monitor for cardiac dysrhythmias (electrolyte/fluid shifts).</strong> Rewarm slowly with continuous cardiac and electrolyte monitoring.'},
+
+{id:21,block:'E',chapter:38,type:'Teaching',
+stem:'A client with a brain tumor is receiving phenytoin. The spouse asks why, since the client has no seizure disorder. What response by the nurse is correct?',
+options:[
+{letter:'A',text:'"Increased pressure from the tumor can cause seizures."',correct:true,rationale:'Brain tumors increase intracranial pressure and irritate brain tissue, which can provoke seizures. Phenytoin is given prophylactically.'},
+{letter:'B',text:'"Preventing febrile seizures with a tumor is important."',correct:false,rationale:'Febrile seizures are unrelated to brain tumors.'},
+{letter:'C',text:'"Seizures always occur in clients with brain tumors."',correct:false,rationale:'Seizures are possible but do not always occur.'},
+{letter:'D',text:'"This drug is used to sedate a client with a brain tumor."',correct:false,rationale:'Phenytoin is an anticonvulsant, not a sedative.'}
+],vocabTip:'<strong>Brain tumors can provoke seizures → phenytoin given prophylactically.</strong> Do not stop antiepileptics abruptly; monitor levels and watch for gingival hyperplasia.'},
+
+{id:22,block:'E',chapter:38,type:'SATA',sata:true,
+stem:'A nurse is discharging a client after carotid artery angioplasty with stenting. Which signs and symptoms should the family report to the provider immediately? (Select all that apply.)',
+options:[
+{letter:'A',text:'Muscle weakness',correct:true,rationale:'New muscle weakness can indicate a stroke and must be reported.'},
+{letter:'B',text:'Hoarseness',correct:true,rationale:'Hoarseness can result from the procedure (nerve irritation) and should be reported.'},
+{letter:'C',text:'Acute confusion',correct:true,rationale:'Acute confusion can signal a stroke or complication.'},
+{letter:'D',text:'Mild neck discomfort',correct:false,rationale:'Mild neck discomfort is expected; SEVERE neck pain/swelling would be reportable.'},
+{letter:'E',text:'Severe headache',correct:true,rationale:'A severe headache can indicate bleeding or stroke.'},
+{letter:'F',text:'Dysphagia',correct:true,rationale:'Difficulty swallowing can indicate a stroke or procedural complication.'}
+],vocabTip:'<strong>Post carotid stenting: report new weakness, confusion, severe headache, dysphagia (possible stroke) and hoarseness/severe neck swelling (procedure).</strong> Mild neck soreness is expected.'},
+
+{id:23,block:'A',chapter:38,type:'SATA',sata:true,
+stem:'A nurse teaches heart-health and stroke-prevention practices. Which evidence-based practices would the nurse include? (Select all that apply.)',
+options:[
+{letter:'A',text:'Blood pressure control',correct:true,rationale:'Controlling hypertension is a leading modifiable stroke-prevention measure.'},
+{letter:'B',text:'Aspirin use',correct:true,rationale:'Antiplatelet aspirin therapy helps prevent clot-related strokes in appropriate clients.'},
+{letter:'C',text:'Smoking cessation',correct:true,rationale:'Quitting smoking significantly reduces stroke and cardiovascular risk.'},
+{letter:'D',text:'Low-carbohydrate diet',correct:false,rationale:'There is no consensus that a specific low-carb diet prevents stroke.'},
+{letter:'E',text:'Cholesterol management',correct:true,rationale:'Managing cholesterol reduces atherosclerosis and stroke risk.'},
+{letter:'F',text:'Increased red wine consumption',correct:false,rationale:'Red wine does not protect against stroke; increasing alcohol is not recommended.'}
+],vocabTip:'<strong>Stroke prevention: control BP and cholesterol, aspirin (when indicated), stop smoking.</strong> No specific diet or red wine is proven protective; excess alcohol raises risk.'},
+
+{id:24,block:'A',chapter:38,type:'Priority',trap:true,
+stem:'A client is admitted with a sudden decline in level of consciousness. What is the nurse’s action at this time?',
+options:[
+{letter:'A',text:'Assess the client for hypoglycemia and hypoxia',correct:true,rationale:'A sudden decline in LOC has many possible causes. The nurse first evaluates common reversible causes such as hypoglycemia and hypoxia before assuming a stroke.'},
+{letter:'B',text:'Place the client on his or her side',correct:false,rationale:'Side-lying prevents aspiration if vomiting, but nothing indicates nausea/vomiting here.'},
+{letter:'C',text:'Prepare for administration of a fibrinolytic agent',correct:false,rationale:'Fibrinolytics assume a confirmed ischemic stroke, which has not been established by imaging.'},
+{letter:'D',text:'Start a continuous IV heparin infusion',correct:false,rationale:'Anticoagulation assumes an ischemic cause that is not yet confirmed and could be dangerous if hemorrhage is present.'}
+],vocabTip:'<strong>Sudden ↓LOC: rule out reversible causes (hypoglycemia, hypoxia) first.</strong> Never give fibrinolytics/anticoagulants until imaging confirms an ischemic (non-hemorrhagic) cause.'},
+
+{id:25,block:'D',chapter:38,type:'SATA',sata:true,
+stem:'The nurse assesses a client with a MILD traumatic brain injury. Which signs and symptoms would the nurse expect? (Select all that apply.)',
+options:[
+{letter:'A',text:'Sensitivity to light and sound',correct:true,rationale:'Photophobia and sound sensitivity are common with a mild TBI/concussion.'},
+{letter:'B',text:'Reports "feeling foggy"',correct:true,rationale:'Mental fogginess/difficulty concentrating is characteristic of a mild TBI.'},
+{letter:'C',text:'Unconscious for an hour after injury',correct:false,rationale:'In mild TBI, any loss of consciousness is less than 30 minutes; an hour indicates a more severe injury.'},
+{letter:'D',text:'Elevated temperature',correct:false,rationale:'Fever is not a feature of mild TBI.'},
+{letter:'E',text:'Widened pulse pressure',correct:false,rationale:'A widened pulse pressure indicates increased ICP, not a mild TBI.'}
+],vocabTip:'<strong>Mild TBI/concussion: light/sound sensitivity, mental fogginess, headache, brief (<30 min) or no LOC.</strong> Fever and widened pulse pressure point to more serious injury/increased ICP.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>
