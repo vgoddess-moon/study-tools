@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maternity Ch 6 &mdash; Prenatal Testing &amp; Danger Signs Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 6 &mdash; Prenatal Testing &amp; Danger Signs</h1>
+<p class="subtitle">Maternity Exam 1 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, calculation, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Prenatal Testing &amp; Danger Signs Must-Knows</h3>
+<svg viewBox="0 0 820 320" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="320" fill="#0c0f14"/>
+<rect x="20" y="20" width="380" height="130" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="210" y="45" fill="#f87171" font-size="15" font-weight="700" text-anchor="middle">Danger Signs (report NOW)</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Vaginal bleeding, gush of fluid</text>
+<text x="35" y="95" fill="#e2e8f0" font-size="13">Severe headache, visual changes, edema</text>
+<text x="35" y="118" fill="#e2e8f0" font-size="13">Epigastric pain, decreased fetal movement</text>
+<text x="35" y="140" fill="#94a3b8" font-size="12">Fever, dysuria, persistent vomiting</text>
+<rect x="415" y="20" width="385" height="130" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="607" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Screening Tests</text>
+<text x="430" y="72" fill="#e2e8f0" font-size="13">AFP: high = NTD; low = Down syndrome</text>
+<text x="430" y="95" fill="#e2e8f0" font-size="13">Glucose tolerance test: 24 to 28 weeks</text>
+<text x="430" y="118" fill="#e2e8f0" font-size="13">Group B strep swab: 36 to 37 weeks</text>
+<text x="430" y="140" fill="#94a3b8" font-size="12">Kick counts start ~28 wk (10 in 2 h)</text>
+<rect x="20" y="170" width="380" height="130" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="210" y="195" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Diagnostic Tests</text>
+<text x="35" y="222" fill="#e2e8f0" font-size="13">Amniocentesis: after ~15 wk, genetics</text>
+<text x="35" y="245" fill="#e2e8f0" font-size="13">CVS: 10 to 13 wk, chorionic villi</text>
+<text x="35" y="268" fill="#e2e8f0" font-size="13">Ultrasound: dating, anatomy, fluid</text>
+<text x="35" y="291" fill="#94a3b8" font-size="12">Full bladder for early transabdominal US</text>
+<rect x="415" y="170" width="385" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="607" y="195" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Fetal Well-Being &amp; Rh</text>
+<text x="430" y="222" fill="#e2e8f0" font-size="13">NST: reactive = healthy (accelerations)</text>
+<text x="430" y="245" fill="#e2e8f0" font-size="13">BPP: 5 areas, 8 to 10 reassuring</text>
+<text x="430" y="268" fill="#e2e8f0" font-size="13">Rh&minus; mother: RhoGAM at 28 wk &amp; postpartum</text>
+<text x="430" y="291" fill="#94a3b8" font-size="12">CST: late decels = positive (bad)</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='mat-ch6-primer';
+const EXAM_LABEL='Maternity Ch 6 — Prenatal Testing & Danger Signs (25Q)';
+const BLOCKS={A:'Danger Signs',B:'Blood & Serum Screening',C:'Ultrasound & Diagnostic Tests',D:'Fetal Well-Being Tests',E:'Rh Factor & Group B Strep'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:6,type:'Priority',
+stem:'A woman at 30 weeks calls the clinic. Which report is a prenatal danger sign requiring immediate evaluation?',
+options:[
+{letter:'A',text:'A sudden gush of fluid from the vagina',correct:true,rationale:'A sudden gush of fluid may indicate rupture of membranes, which risks infection and cord prolapse and requires prompt evaluation. Other danger signs include vaginal bleeding, severe headache, visual changes, and decreased fetal movement.'},
+{letter:'B',text:'Mild ankle swelling at the end of the day',correct:false,rationale:'Mild dependent ankle edema relieved by rest is a normal late-pregnancy discomfort, not a danger sign.'},
+{letter:'C',text:'Occasional painless Braxton Hicks contractions',correct:false,rationale:'Irregular, painless Braxton Hicks contractions are normal practice contractions, not an emergency.'},
+{letter:'D',text:'Increased clear vaginal discharge without odor',correct:false,rationale:'Increased clear, odorless discharge (leukorrhea) is a normal change; foul odor, itching, or bleeding would be concerning.'}
+],vocabTip:'<strong>Prenatal danger signs: vaginal bleeding, gush of fluid, severe/persistent headache, visual changes, facial/hand edema, epigastric pain, decreased fetal movement, fever, dysuria.</strong> Teach patients to report these immediately.'},
+
+{id:2,block:'A',chapter:6,type:'Priority',trap:true,
+stem:'A pregnant patient at 34 weeks reports a severe headache, blurred vision, and swelling of her face and hands. What is the nurse\'s priority concern?',
+options:[
+{letter:'A',text:'Preeclampsia',correct:true,rationale:'Severe headache, visual disturbances, and facial and hand edema are classic warning signs of preeclampsia, a hypertensive disorder of pregnancy that can progress to seizures (eclampsia). These require immediate evaluation of blood pressure, reflexes, and labs.'},
+{letter:'B',text:'Normal third-trimester fatigue',correct:false,rationale:'These are warning signs of a serious hypertensive disorder, not ordinary fatigue.'},
+{letter:'C',text:'Common heartburn of pregnancy',correct:false,rationale:'Heartburn does not cause headache, visual changes, and facial edema; this cluster points to preeclampsia.'},
+{letter:'D',text:'Expected dependent edema',correct:false,rationale:'Dependent edema affects the lower legs; sudden facial and hand swelling with headache and visual changes suggests preeclampsia.'}
+],vocabTip:'<strong>Preeclampsia red flags: severe headache, visual changes, epigastric/RUQ pain, sudden face/hand edema, hypertension, proteinuria.</strong> Can progress to eclampsia (seizures). Report and evaluate immediately.'},
+
+{id:3,block:'A',chapter:6,type:'SATA',sata:true,
+stem:'A nurse teaches a pregnant patient which symptoms to report immediately. Which are prenatal danger signs? Select all that apply.',
+options:[
+{letter:'A',text:'Vaginal bleeding',correct:true,rationale:'Any vaginal bleeding in pregnancy is a danger sign that may indicate placental problems or other complications.'},
+{letter:'B',text:'Persistent severe headache with visual changes',correct:true,rationale:'These suggest preeclampsia and require prompt evaluation.'},
+{letter:'C',text:'A marked decrease in fetal movement',correct:true,rationale:'Reduced fetal movement can signal fetal compromise and should be evaluated promptly.'},
+{letter:'D',text:'Painful urination with fever',correct:true,rationale:'Dysuria with fever suggests a urinary tract or kidney infection, which can trigger preterm labor and needs treatment.'},
+{letter:'E',text:'Mild fatigue relieved by rest',correct:false,rationale:'Mild fatigue that improves with rest is a normal pregnancy experience, not a danger sign.'}
+],vocabTip:'<strong>Report immediately: bleeding, gush of fluid, severe headache/visual changes, epigastric pain, decreased fetal movement, fever/dysuria, persistent vomiting, regular preterm contractions.</strong>'},
+
+{id:4,block:'A',chapter:6,type:'Teaching',
+stem:'A patient at 28 weeks is taught to do daily fetal movement (kick) counts. Which instruction is correct?',
+options:[
+{letter:'A',text:'Count until you feel 10 movements; report if it takes longer than 2 hours',correct:true,rationale:'A common kick-count method is to count fetal movements until reaching 10; feeling 10 movements within about 2 hours is reassuring. Fewer than 10 in 2 hours, or a noticeable decrease, should be reported for further evaluation. Counting usually begins around 28 weeks.'},
+{letter:'B',text:'Count only once a week for 5 minutes',correct:false,rationale:'Kick counts are done regularly (often daily), not once weekly for a few minutes; a set count over a defined time is used.'},
+{letter:'C',text:'Stop counting once you feel the first movement of the day',correct:false,rationale:'The method counts to a target number (such as 10) over a period, not just the first movement.'},
+{letter:'D',text:'Only count movements while walking briskly',correct:false,rationale:'Counts are typically done resting or lying on the side after a meal, when the fetus is often active, not only while exercising.'}
+],vocabTip:'<strong>Kick counts (~28 wk): count to 10 movements; 10 in ~2 hours is reassuring. Fewer than 10 in 2 hours or decreased movement then report.</strong> Best done resting on the side after eating.'},
+
+{id:5,block:'A',chapter:6,type:'Assessment',
+stem:'A patient at 26 weeks reports painless bright red vaginal bleeding. Before any vaginal exam, what does the nurse recognize?',
+options:[
+{letter:'A',text:'A vaginal or digital exam should be avoided until placenta previa is ruled out',correct:true,rationale:'Painless bright red bleeding in the second half of pregnancy suggests placenta previa. A digital or vaginal exam could provoke severe hemorrhage, so it must be avoided until an ultrasound rules out previa. The patient needs prompt evaluation.'},
+{letter:'B',text:'A digital cervical exam should be done immediately',correct:false,rationale:'A digital exam is contraindicated with suspected previa because it can trigger massive bleeding; ultrasound is done first.'},
+{letter:'C',text:'This is normal bloody show and no action is needed',correct:false,rationale:'Bloody show is scant mucus-streaked blood near labor; frank painless bleeding at 26 weeks is abnormal and needs evaluation.'},
+{letter:'D',text:'She should be told to wait a week and monitor at home',correct:false,rationale:'Vaginal bleeding is a danger sign requiring prompt evaluation, not delayed home monitoring.'}
+],vocabTip:'<strong>Painless bright red bleeding (2nd half) = suspect placenta previa then NO vaginal/digital exam until ultrasound rules it out.</strong> Painful bleeding with a rigid uterus suggests abruption.'},
+
+{id:6,block:'B',chapter:6,type:'Assessment',
+stem:'A patient asks what a high maternal serum alpha-fetoprotein (MSAFP) level may indicate. What is the nurse\'s best response?',
+options:[
+{letter:'A',text:'It may indicate a neural tube defect such as spina bifida',correct:true,rationale:'An elevated maternal serum alpha-fetoprotein level is associated with open neural tube defects (spina bifida, anencephaly) and sometimes with underestimated gestational age or multiple gestation. Abnormal results prompt further testing such as ultrasound.'},
+{letter:'B',text:'It always confirms the baby has Down syndrome',correct:false,rationale:'A high AFP is linked to neural tube defects; low AFP is associated with Down syndrome. Neither confirms a diagnosis alone.'},
+{letter:'C',text:'It measures the mother\'s blood sugar',correct:false,rationale:'AFP is a screening protein for fetal anomalies, not a blood glucose measurement.'},
+{letter:'D',text:'It diagnoses gestational hypertension',correct:false,rationale:'AFP does not assess blood pressure disorders; it screens for neural tube and chromosomal conditions.'}
+],vocabTip:'<strong>MSAFP: HIGH then neural tube defects (also multiples, wrong dates); LOW then Down syndrome (trisomy 21).</strong> It is a screen; abnormal results need ultrasound or further diagnostic testing.'},
+
+{id:7,block:'B',chapter:6,type:'Assessment',
+stem:'A woman asks what the quad screen tests for. What is the nurse\'s best explanation?',
+options:[
+{letter:'A',text:'It screens for neural tube defects and chromosomal conditions like Down syndrome',correct:true,rationale:'The quad screen measures AFP, hCG, estriol, and inhibin A to estimate the risk of neural tube defects and chromosomal abnormalities such as trisomy 21 and 18. It is a screening test performed in the second trimester, not a diagnosis.'},
+{letter:'B',text:'It diagnoses the exact genetic disorder of the fetus',correct:false,rationale:'The quad screen estimates risk; it does not diagnose. Diagnosis requires tests like amniocentesis.'},
+{letter:'C',text:'It measures the fetal heart rate',correct:false,rationale:'The quad screen is a maternal blood test for anomaly risk, not a measure of fetal heart rate.'},
+{letter:'D',text:'It confirms the sex of the baby',correct:false,rationale:'The quad screen assesses risk for defects, not fetal sex determination.'}
+],vocabTip:'<strong>Quad screen (2nd trimester): AFP, hCG, estriol, inhibin A then risk of neural tube defects and trisomies. It is a SCREEN, not a diagnosis.</strong> Abnormal results are followed by ultrasound or amniocentesis.'},
+
+{id:8,block:'B',chapter:6,type:'Vocab',
+stem:'A nurse explains that a screening test differs from a diagnostic test. Which statement correctly describes a screening test?',
+options:[
+{letter:'A',text:'It estimates the risk or likelihood of a condition, not a definitive diagnosis',correct:true,rationale:'Screening tests (such as the quad screen or first-trimester screen) estimate the probability that a condition is present. An abnormal screen indicates increased risk and leads to diagnostic testing (such as amniocentesis) to confirm or rule out the condition.'},
+{letter:'B',text:'It always provides a definitive diagnosis',correct:false,rationale:'That describes a diagnostic test; screening only estimates risk.'},
+{letter:'C',text:'It replaces the need for any further testing',correct:false,rationale:'An abnormal screen usually leads to further diagnostic testing, not the end of evaluation.'},
+{letter:'D',text:'It is only performed after birth',correct:false,rationale:'Prenatal screening tests are done during pregnancy to assess fetal risk, not only after birth.'}
+],vocabTip:'<strong>Screening = estimates risk (quad screen, NIPT). Diagnostic = confirms (amniocentesis, CVS).</strong> An abnormal screen is not a diagnosis; it prompts confirmatory testing.'},
+
+{id:9,block:'C',chapter:6,type:'Teaching',
+stem:'A patient is scheduled for an early transabdominal ultrasound at 10 weeks. Which preparation instruction is correct?',
+options:[
+{letter:'A',text:'Drink water beforehand so the bladder is full',correct:true,rationale:'For an early transabdominal ultrasound, a full bladder lifts the uterus and provides a better acoustic window to visualize the fetus. Later in pregnancy, when the uterus is large, a full bladder is not required. Transvaginal ultrasound does not need a full bladder.'},
+{letter:'B',text:'Come with a completely empty bladder',correct:false,rationale:'An empty bladder gives poor visualization for an early transabdominal scan; a full bladder is preferred.'},
+{letter:'C',text:'Fast for 12 hours before the scan',correct:false,rationale:'Fasting is not required for an obstetric ultrasound; bladder fullness is the key for an early transabdominal scan.'},
+{letter:'D',text:'Take a laxative to empty the bowel',correct:false,rationale:'Bowel prep is not needed for obstetric ultrasound; a full bladder aids early transabdominal imaging.'}
+],vocabTip:'<strong>Early transabdominal ultrasound: full bladder improves imaging. Later pregnancy: not needed. Transvaginal: empty bladder.</strong> Ultrasound dates the pregnancy, checks anatomy, fluid, and placenta.'},
+
+{id:10,block:'C',chapter:6,type:'Assessment',
+stem:'A woman asks why an ultrasound is done in pregnancy. Which is an accurate purpose of obstetric ultrasound?',
+options:[
+{letter:'A',text:'To confirm gestational age, assess anatomy, fluid, and placental location',correct:true,rationale:'Ultrasound confirms viability and gestational age, evaluates fetal anatomy and growth, measures amniotic fluid, and locates the placenta. It also guides procedures like amniocentesis. It is noninvasive and considered safe.'},
+{letter:'B',text:'To deliver medication directly to the fetus',correct:false,rationale:'Ultrasound is an imaging tool; it does not deliver medication to the fetus.'},
+{letter:'C',text:'To measure the mother\'s blood glucose',correct:false,rationale:'Ultrasound images structures; it does not measure blood glucose.'},
+{letter:'D',text:'To induce labor',correct:false,rationale:'Ultrasound is diagnostic imaging and does not induce labor.'}
+],vocabTip:'<strong>Ultrasound: dates pregnancy, checks viability, anatomy, growth, amniotic fluid, placental location; guides procedures.</strong> Noninvasive and safe. Early transabdominal scans need a full bladder.'},
+
+{id:11,block:'C',chapter:6,type:'Assessment',
+stem:'A patient at 16 weeks is scheduled for amniocentesis for genetic testing. Which statement about the procedure is accurate?',
+options:[
+{letter:'A',text:'Amniotic fluid is withdrawn under ultrasound guidance to test fetal cells',correct:true,rationale:'Amniocentesis, usually done after about 15 weeks, uses ultrasound guidance to insert a needle through the abdomen and withdraw amniotic fluid. Fetal cells and substances in the fluid are analyzed for genetic disorders, neural tube defects, and later for fetal lung maturity. Risks include a small chance of miscarriage, infection, and fluid leakage.'},
+{letter:'B',text:'It is performed at 6 weeks for early genetic results',correct:false,rationale:'Amniocentesis is generally done after 15 weeks; at 6 weeks there is not enough fluid and it is unsafe. Chorionic villus sampling is the earlier option.'},
+{letter:'C',text:'No ultrasound is used during the procedure',correct:false,rationale:'Ultrasound guidance is essential to locate the fetus and placenta and to avoid injury during amniocentesis.'},
+{letter:'D',text:'It carries no risk to the pregnancy',correct:false,rationale:'Amniocentesis carries small risks including miscarriage, infection, and amniotic fluid leakage, so informed consent is needed.'}
+],vocabTip:'<strong>Amniocentesis: after ~15 wk, ultrasound-guided fluid sampling for genetics/NTD (and later lung maturity). Risks: miscarriage, infection, fluid leak.</strong> CVS (10 to 13 wk) is the earlier diagnostic option.'},
+
+{id:12,block:'C',chapter:6,type:'Vocab',
+stem:'A woman wants the earliest possible diagnostic genetic test. Which test can be done in the first trimester using placental tissue?',
+options:[
+{letter:'A',text:'Chorionic villus sampling (CVS)',correct:true,rationale:'CVS is performed around 10 to 13 weeks and samples chorionic villi (placental tissue) for chromosomal and genetic analysis. It provides earlier results than amniocentesis but does not detect neural tube defects and carries a small risk of miscarriage.'},
+{letter:'B',text:'Amniocentesis',correct:false,rationale:'Amniocentesis is usually done after 15 weeks, later than CVS, so it is not the earliest first-trimester diagnostic option.'},
+{letter:'C',text:'Nonstress test',correct:false,rationale:'A nonstress test assesses fetal heart rate reactivity in the third trimester; it is not a genetic diagnostic test.'},
+{letter:'D',text:'Group B strep culture',correct:false,rationale:'The group B strep culture screens for a bacterium near term; it is not a genetic test.'}
+],vocabTip:'<strong>CVS: 10 to 13 wk, samples placental (chorionic) villi for genetics; earlier than amnio but does NOT detect neural tube defects.</strong> Small miscarriage risk. Amniocentesis after ~15 wk.'},
+
+{id:13,block:'D',chapter:6,type:'Assessment',
+stem:'A nonstress test (NST) shows two accelerations of the fetal heart rate of at least 15 beats above baseline lasting 15 seconds within 20 minutes. How does the nurse interpret this?',
+options:[
+{letter:'A',text:'Reactive, a reassuring sign of fetal well-being',correct:true,rationale:'A reactive NST (typically two or more accelerations of at least 15 bpm above baseline lasting at least 15 seconds within 20 minutes in a term fetus) indicates adequate fetal oxygenation and an intact autonomic nervous system. It is reassuring.'},
+{letter:'B',text:'Nonreactive, requiring immediate cesarean',correct:false,rationale:'The described accelerations meet criteria for a reactive (reassuring) test; a nonreactive test lacks adequate accelerations and prompts further testing, not automatic cesarean.'},
+{letter:'C',text:'A positive contraction stress test',correct:false,rationale:'This describes an NST, not a contraction stress test. A positive CST refers to late decelerations with contractions.'},
+{letter:'D',text:'Evidence of fetal distress requiring resuscitation',correct:false,rationale:'Accelerations are reassuring; they indicate well-being, not distress.'}
+],vocabTip:'<strong>NST reactive = 2+ accelerations of 15 bpm x 15 sec in 20 min (reassuring). Nonreactive then further testing (BPP/CST).</strong> Accelerations reflect good oxygenation; the fetus is often stimulated by movement.'},
+
+{id:14,block:'D',chapter:6,type:'Assessment',
+stem:'A biophysical profile (BPP) is scored. Which combination of components does the BPP assess?',
+options:[
+{letter:'A',text:'Fetal breathing, movement, tone, amniotic fluid, and NST',correct:true,rationale:'The biophysical profile combines five parameters, each scored 0 or 2: fetal breathing movements, gross body movements, fetal tone, amniotic fluid volume, and a nonstress test. A total of 8 to 10 is reassuring; lower scores suggest possible fetal compromise.'},
+{letter:'B',text:'Maternal blood pressure, weight, and urine protein',correct:false,rationale:'Those are maternal assessments; the BPP evaluates fetal parameters plus amniotic fluid and the NST.'},
+{letter:'C',text:'Cervical dilation, effacement, and station',correct:false,rationale:'Those are labor progress measures, not components of the biophysical profile.'},
+{letter:'D',text:'Only the fetal heart rate',correct:false,rationale:'The BPP includes five components, not just the fetal heart rate.'}
+],vocabTip:'<strong>BPP = 5 parts (breathing, movement, tone, amniotic fluid, NST), each 0 or 2. Score 8 to 10 reassuring; 6 equivocal; 4 or less concerning.</strong> Combines ultrasound findings with the NST.'},
+
+{id:15,block:'D',chapter:6,type:'Assessment',trap:true,
+stem:'A contraction stress test (CST) shows late decelerations of the fetal heart rate with each contraction. How is this result interpreted?',
+options:[
+{letter:'A',text:'Positive, suggesting inadequate placental oxygen reserve',correct:true,rationale:'A positive CST shows late decelerations with most contractions, indicating uteroplacental insufficiency, the fetus may not tolerate the stress of labor. Despite the alarming label, "positive" is the abnormal, concerning result and prompts closer evaluation and possible intervention.'},
+{letter:'B',text:'Negative and reassuring',correct:false,rationale:'A negative CST (no late decelerations) is the reassuring result; late decelerations make this test positive and concerning.'},
+{letter:'C',text:'Normal reactive fetal heart tracing',correct:false,rationale:'Late decelerations are not reassuring; a positive CST indicates possible placental insufficiency.'},
+{letter:'D',text:'Evidence the placenta is functioning perfectly',correct:false,rationale:'Late decelerations suggest impaired placental oxygen reserve, the opposite of perfect function.'}
+],vocabTip:'<strong>CST: POSITIVE = late decels with contractions (BAD, placental insufficiency). NEGATIVE = no late decels (GOOD).</strong> The naming is counterintuitive: positive is the worrisome result.'},
+
+{id:16,block:'D',chapter:6,type:'SATA',sata:true,
+stem:'A nurse prepares a patient for a nonstress test. Which nursing actions or teaching points are appropriate? Select all that apply.',
+options:[
+{letter:'A',text:'Position the patient in a semi-Fowler or side-lying position',correct:true,rationale:'A semi-Fowler or lateral tilt avoids supine hypotension while allowing external monitoring during the NST.'},
+{letter:'B',text:'Apply external fetal heart rate and tocodynamometer monitors',correct:true,rationale:'The NST uses external monitors to record fetal heart rate and any contractions.'},
+{letter:'C',text:'Have the patient press a button when she feels fetal movement',correct:true,rationale:'Marking movements helps correlate accelerations with fetal activity during the test.'},
+{letter:'D',text:'Encourage a light snack beforehand to stimulate fetal activity',correct:true,rationale:'Eating can raise maternal glucose and stimulate fetal movement, improving the chance of a reactive test.'},
+{letter:'E',text:'Keep the patient flat on her back for the whole test',correct:false,rationale:'Lying flat supine can cause vena cava compression and hypotension; a lateral tilt or semi-Fowler position is used instead.'}
+],vocabTip:'<strong>NST prep: semi-Fowler/side-lying, external FHR + toco monitors, mark movements, offer a snack.</strong> Reactive = 2 accelerations of 15 bpm x 15 sec in 20 min. Avoid flat supine positioning.'},
+
+{id:17,block:'D',chapter:6,type:'Teaching',
+stem:'A patient asks what "decreased fetal movement" means and when to report it. What is the nurse\'s best teaching?',
+options:[
+{letter:'A',text:'A noticeable drop in the baby\'s usual movement should be reported promptly',correct:true,rationale:'A significant decrease from the fetus\'s normal movement pattern can signal fetal compromise and should be reported for evaluation (often an NST or BPP). Daily kick counts help the mother recognize her baby\'s baseline activity.'},
+{letter:'B',text:'Fetal movement normally stops for several days at a time',correct:false,rationale:'Fetal movement should be regularly present; a prolonged absence is abnormal and needs evaluation.'},
+{letter:'C',text:'Movement changes never matter after 28 weeks',correct:false,rationale:'Movement patterns are especially important to monitor in the third trimester; decreases should be reported.'},
+{letter:'D',text:'She should wait a week before reporting reduced movement',correct:false,rationale:'A noticeable decrease should be reported promptly, not after a week, because it may indicate compromise.'}
+],vocabTip:'<strong>Decreased fetal movement then report promptly (evaluate with NST/BPP). Kick counts help the mother learn her baby\'s baseline.</strong> A significant drop from the usual pattern is the warning.'},
+
+{id:18,block:'E',chapter:6,type:'Assessment',
+stem:'An Rh-negative pregnant woman asks why she needs Rh immune globulin (RhoGAM). What is the nurse\'s best explanation?',
+options:[
+{letter:'A',text:'It prevents her body from making antibodies against Rh-positive fetal blood',correct:true,rationale:'If an Rh-negative mother is exposed to Rh-positive fetal blood, she can form anti-Rh antibodies that may attack the red cells of a current or future Rh-positive fetus (hemolytic disease). RhoGAM prevents this sensitization. It is given around 28 weeks and within 72 hours after birth of an Rh-positive infant, and after any bleeding event.'},
+{letter:'B',text:'It raises the mother\'s blood pressure',correct:false,rationale:'RhoGAM prevents Rh sensitization; it does not treat blood pressure.'},
+{letter:'C',text:'It treats gestational diabetes',correct:false,rationale:'RhoGAM has nothing to do with glucose control; it prevents Rh antibody formation.'},
+{letter:'D',text:'It is only given if the mother is Rh-positive',correct:false,rationale:'RhoGAM is for Rh-negative mothers to prevent sensitization; Rh-positive mothers do not need it.'}
+],vocabTip:'<strong>Rh&minus; mother + Rh+ fetus: RhoGAM prevents maternal antibody formation. Give at ~28 wk and within 72 h postpartum, plus after bleeding/amnio/trauma.</strong> Prevents hemolytic disease of the newborn.'},
+
+{id:19,block:'E',chapter:6,type:'SATA',sata:true,
+stem:'A nurse reviews when Rh immune globulin (RhoGAM) is indicated for an unsensitized Rh-negative woman. Select all situations that apply.',
+options:[
+{letter:'A',text:'Within 72 hours after birth of an Rh-positive infant',correct:true,rationale:'Postpartum RhoGAM within 72 hours prevents sensitization from fetal Rh-positive blood exposure at birth.'},
+{letter:'B',text:'Routinely at about 28 weeks of gestation',correct:true,rationale:'A prophylactic dose at ~28 weeks protects against sensitization from small antepartum bleeds.'},
+{letter:'C',text:'After amniocentesis',correct:true,rationale:'Invasive procedures like amniocentesis can cause fetomaternal bleeding, so RhoGAM is given.'},
+{letter:'D',text:'After significant abdominal trauma or bleeding in pregnancy',correct:true,rationale:'Trauma or bleeding may expose the mother to fetal blood, warranting RhoGAM.'},
+{letter:'E',text:'Routinely for every Rh-positive mother',correct:false,rationale:'RhoGAM is for Rh-negative mothers; Rh-positive mothers cannot become Rh-sensitized and do not need it.'}
+],vocabTip:'<strong>RhoGAM (Rh&minus; mother): ~28 wk, within 72 h postpartum of an Rh+ infant, and after amniocentesis, bleeding, or trauma.</strong> Prevents anti-Rh antibody formation and future hemolytic disease.'},
+
+{id:20,block:'E',chapter:6,type:'Assessment',
+stem:'A patient is scheduled for a group B streptococcus (GBS) screening. At what point in pregnancy is this typically done?',
+options:[
+{letter:'A',text:'A vaginal and rectal swab at about 36 to 37 weeks',correct:true,rationale:'Group B strep screening is done by a vaginal and rectal swab at approximately 36 to 37 weeks. If positive, intravenous antibiotics (usually penicillin) are given during labor to prevent transmission of GBS to the newborn, which can cause serious neonatal infection.'},
+{letter:'B',text:'A blood test in the first trimester',correct:false,rationale:'GBS screening is a vaginal-rectal swab late in pregnancy, not a first-trimester blood test.'},
+{letter:'C',text:'A urine test at 12 weeks',correct:false,rationale:'GBS colonization is screened by swab around 36 to 37 weeks, not by a 12-week urine test.'},
+{letter:'D',text:'Only after the baby is born',correct:false,rationale:'Screening is done before birth (36 to 37 weeks) so intrapartum antibiotics can be given if positive.'}
+],vocabTip:'<strong>GBS: vaginal-rectal swab at 36 to 37 wk. If positive then IV penicillin in labor to protect the newborn.</strong> GBS can cause serious neonatal sepsis, pneumonia, and meningitis.'},
+
+{id:21,block:'E',chapter:6,type:'Priority',
+stem:'A woman who screened positive for group B strep is now in active labor. What is the nurse\'s priority action?',
+options:[
+{letter:'A',text:'Administer the prescribed intravenous antibiotic during labor',correct:true,rationale:'For a GBS-positive mother, intrapartum IV antibiotics (typically penicillin) reduce the risk of transmitting GBS to the newborn. Giving the antibiotic during labor, ideally at least 4 hours before birth, is the priority to protect the infant.'},
+{letter:'B',text:'Delay antibiotics until after delivery',correct:false,rationale:'Antibiotics must be given during labor (before birth) to protect the newborn; waiting until after delivery misses the window.'},
+{letter:'C',text:'Give oral antibiotics at home after discharge',correct:false,rationale:'IV antibiotics during labor, not oral antibiotics after discharge, prevent newborn GBS infection.'},
+{letter:'D',text:'No treatment is needed if the mother feels well',correct:false,rationale:'GBS colonization is often asymptomatic in the mother; intrapartum antibiotics are still needed to protect the baby.'}
+],vocabTip:'<strong>GBS-positive in labor: IV penicillin (or alternative) during labor, ideally 4+ hours before birth.</strong> Protects the newborn from early-onset GBS disease. Colonization is usually asymptomatic in the mother.'},
+
+{id:22,block:'E',chapter:6,type:'Assessment',
+stem:'A patient at 26 weeks is scheduled for a glucose tolerance screening. When is this routinely performed and why?',
+options:[
+{letter:'A',text:'At 24 to 28 weeks to screen for gestational diabetes',correct:true,rationale:'Routine screening for gestational diabetes is done at 24 to 28 weeks, when placental hormones (including hPL) most increase insulin resistance. A one-hour glucose challenge is commonly used first; an abnormal result leads to a three-hour glucose tolerance test.'},
+{letter:'B',text:'At 6 weeks to detect type 1 diabetes',correct:false,rationale:'Routine gestational diabetes screening is at 24 to 28 weeks, not 6 weeks; earlier testing is reserved for high-risk women.'},
+{letter:'C',text:'Only after delivery',correct:false,rationale:'Screening is done during pregnancy (24 to 28 weeks) to detect gestational diabetes; a postpartum test checks for resolution in some cases.'},
+{letter:'D',text:'At 36 weeks routinely for all women',correct:false,rationale:'The routine window is 24 to 28 weeks; 36 weeks would be too late for standard screening.'}
+],vocabTip:'<strong>Gestational diabetes screen: 24 to 28 wk (1-hour glucose challenge; if abnormal then 3-hour GTT).</strong> Insulin resistance peaks then from placental hormones (hPL). High-risk women are screened earlier.'},
+
+{id:23,block:'E',chapter:6,type:'Teaching',
+stem:'A patient asks how to prepare for the three-hour oral glucose tolerance test (OGTT). Which instruction is correct?',
+options:[
+{letter:'A',text:'Fast beforehand; a fasting sample is drawn, then blood is drawn hourly after the glucose drink',correct:true,rationale:'For the three-hour OGTT, the patient fasts (usually overnight). A fasting blood sample is drawn, she drinks a concentrated glucose solution, and blood is drawn at one, two, and three hours. Two or more elevated values indicate gestational diabetes.'},
+{letter:'B',text:'Eat a large high-sugar breakfast right before the test',correct:false,rationale:'The three-hour OGTT requires fasting first; eating beforehand invalidates the fasting value.'},
+{letter:'C',text:'No fasting is needed and only one sample is taken',correct:false,rationale:'The three-hour OGTT requires fasting and multiple timed samples, not a single non-fasting draw.'},
+{letter:'D',text:'Drink extra water with sugar the night before',correct:false,rationale:'Adding sugar the night before disrupts the fasting baseline; the patient should fast as instructed.'}
+],vocabTip:'<strong>3-hour OGTT: fast overnight then fasting draw then glucose drink then draws at 1, 2, 3 h. Two or more elevated values = gestational diabetes.</strong> The 1-hour challenge is non-fasting.'},
+
+{id:24,block:'E',chapter:6,type:'Vocab',
+stem:'A nurse documents scant, mucus-streaked bloody vaginal discharge in a patient near term. Which term describes this normal late finding?',
+options:[
+{letter:'A',text:'Bloody show',correct:true,rationale:'Bloody show is the pink or blood-streaked mucus passed as the cervix softens and dilates near the onset of labor, often after loss of the mucus plug. It is a normal sign that labor may be approaching, unlike frank vaginal bleeding, which is a danger sign.'},
+{letter:'B',text:'Placenta previa',correct:false,rationale:'Placenta previa causes painless bright red frank bleeding, not scant mucus-streaked show.'},
+{letter:'C',text:'Abruptio placentae',correct:false,rationale:'Abruption causes painful bleeding with a rigid, tender uterus, not normal bloody show.'},
+{letter:'D',text:'Hemorrhage',correct:false,rationale:'Hemorrhage is heavy, abnormal blood loss; bloody show is scant, mucus-streaked, and normal near labor.'}
+],vocabTip:'<strong>Bloody show = scant pink/blood-streaked mucus as the cervix ripens near labor (normal). Frank bright red bleeding is a danger sign (previa/abruption).</strong>'},
+
+{id:25,block:'E',chapter:6,type:'Priority',trap:true,
+stem:'A pregnant patient at 33 weeks reports epigastric (upper stomach) pain and right upper quadrant tenderness. Why is this concerning to the nurse?',
+options:[
+{letter:'A',text:'It can be a warning sign of severe preeclampsia or HELLP syndrome',correct:true,rationale:'Epigastric or right upper quadrant pain in the second half of pregnancy can indicate liver involvement in severe preeclampsia or HELLP syndrome (hemolysis, elevated liver enzymes, low platelets). It is a serious danger sign requiring prompt evaluation of blood pressure, labs, and fetal status.'},
+{letter:'B',text:'It is a normal sign that labor is starting',correct:false,rationale:'Epigastric or RUQ pain is not a normal labor sign; it can signal serious liver involvement in preeclampsia or HELLP.'},
+{letter:'C',text:'It only means the baby is pressing on the stomach',correct:false,rationale:'While pressure can cause mild discomfort, new epigastric or RUQ pain must be evaluated for preeclampsia or HELLP, not dismissed.'},
+{letter:'D',text:'It is expected heartburn needing no evaluation',correct:false,rationale:'This pain pattern warrants evaluation because it can reflect a hypertensive emergency, unlike simple heartburn.'}
+],vocabTip:'<strong>Epigastric/RUQ pain late in pregnancy then suspect severe preeclampsia or HELLP (hemolysis, elevated liver enzymes, low platelets). Report immediately.</strong> Check BP, labs, and fetal status.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>

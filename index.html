@@ -61,12 +61,35 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
 
 /* Sub-section labels inside accordion */
 .sub-label{font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:#64748b;letter-spacing:.12em;text-transform:uppercase;margin:12px 0 4px 4px}
+
+/* Search / Filter */
+.search-wrap{position:relative;margin-bottom:22px}
+.search-input{width:100%;background:#13181f;border:1px solid #29313d;border-radius:12px;padding:12px 16px 12px 40px;color:#e2e8f0;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:.2s}
+.search-input:focus{border-color:#ec4899}
+.search-input::placeholder{color:#64748b}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#64748b;font-size:.85rem;pointer-events:none}
+.search-empty{display:none;text-align:center;color:#64748b;font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.05em;padding:16px}
+
+/* Subject containers */
+.subject{margin-bottom:16px}
+.subject-header{display:flex;align-items:center;gap:10px;background:#161b24;border:1px solid #29313d;border-radius:16px;padding:18px 20px;cursor:pointer;user-select:none;transition:.2s;width:100%}
+.subject-header:hover{border-color:#ec4899;background:#1a1420}
+.subject-header.open{border-radius:16px 16px 0 0;border-bottom-color:#2a1525;background:#1a1420;border-color:#ec4899}
+.subject-chevron{font-size:.8rem;color:#ec4899;transition:transform .25s ease;width:20px;text-align:center;flex-shrink:0}
+.subject-header.open .subject-chevron{transform:rotate(90deg)}
+.subject-title{font-family:'DM Serif Display',serif;font-size:1.3rem;color:#f8fafc;flex:1}
+.subject-status{font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:11px;white-space:nowrap;flex-shrink:0}
+.status-active{background:#831843;color:#f9a8d4}
+.status-upcoming{background:#422006;color:#fbbf24}
+.status-complete{background:#052e16;color:#4ade80}
+.subject-body{background:#0e1219;border:1px solid #ec4899;border-top:none;border-radius:0 0 16px 16px;padding:14px 14px 16px;display:none}
+.subject-body.open{display:block}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Study Tools</h1>
-  <p class="sub">vgoddess-moon &middot; Med Surg 1 &amp; 2</p>
+  <p class="sub">vgoddess-moon &middot; Med Surg 1 &amp; 2 &middot; Maternity</p>
 
   <!-- Exam Banner -->
   <div class="exam-banner" id="examBanner" style="display:none">
@@ -78,53 +101,175 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
     <div class="eta" id="examEta">—</div>
   </div>
 
-  <!-- ACTIVE: Next Semester (MS2 + Maternity) -->
-  <div class="section-label" style="margin-top:0;color:#f472b6">&#9733; Current &middot; Next Semester Primers</div>
+  <!-- Search / Filter -->
+  <div class="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="searchInput" class="search-input" placeholder="Search all study tools&hellip;" autocomplete="off">
+  </div>
+  <div class="search-empty" id="searchEmpty">No study tools match your search.</div>
 
-  <div class="accordion">
-    <div class="accordion-header" onclick="toggleAccordion(this)">
-      <span class="accordion-chevron">&#9654;</span>
-      <span class="accordion-title">Med Surg 2 &mdash; Exam 1</span>
-      <span class="accordion-tag tag-progress">Primer</span>
-      <span class="accordion-tag tag-count">Ch 61-65</span>
+  <div id="subjectContainer">
+
+  <!-- SUBJECT: Med Surg 2 -->
+  <div class="subject" data-subject="med-surg-2">
+    <div class="subject-header" onclick="toggleAccordion(this)">
+      <span class="subject-chevron">&#9654;</span>
+      <span class="subject-title">Med Surg 2</span>
+      <span class="subject-status"></span>
     </div>
-    <div class="accordion-body">
-      <div class="sub-label">Before-lecture &middot; 25Q &middot; chapter by chapter &middot; 5 SATA</div>
-      <a class="card" href="ms2-exam1-primer.html" data-exam-id="ms2-exam1-primer">
-        <div class="card-top">
-          <div>
-            <div class="card-title">MS2 Exam 1 Primer &mdash; Ch 61-65 <span style="color:#c084fc;font-size:.75rem">BEFORE LECTURE</span></div>
-            <div class="card-desc">Reproductive assessment &middot; Breast &middot; Gynecologic &middot; Male &middot; STIs &middot; mixed types (priority, teaching, assessment, calculation) &middot; rationales on every option &middot; per-chapter breakdown &middot; labs SVG</div>
-          </div>
-          <span class="badge" style="background:#1e1433;color:#c4b5fd">Primer</span>
+    <div class="subject-body">
+      <div class="accordion" data-exam-block="exam-1">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-chevron">&#9654;</span>
+          <span class="accordion-title">Exam 1 &mdash; Reproductive</span>
+          <span class="accordion-tag tag-progress">Primer</span>
+          <span class="accordion-tag tag-count">Ch 61-65</span>
         </div>
-      </a>
+        <div class="accordion-body">
+          <div class="sub-label">Before-lecture &middot; 25Q each &middot; one file per chapter &middot; 3+ SATA &middot; rationales on every option</div>
+          <a class="card" href="ms2-ch61-primer.html" data-exam-id="ms2-ch61-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 61 &mdash; Reproductive Assessment</div>
+                <div class="card-desc">25Q &middot; Menstrual/sexual history &middot; breast &amp; pelvic exam &middot; Pap &amp; HPV &middot; hormones (FSH/LH/estrogen) &middot; mammography teaching</div>
+              </div>
+              <span class="badge" style="background:#1e1433;color:#c4b5fd">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="ms2-ch62-primer.html" data-exam-id="ms2-ch62-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 62 &mdash; Breast Conditions</div>
+                <div class="card-desc">25Q &middot; Benign vs malignant &middot; fibrocystic &middot; BSE technique &middot; mastitis &middot; mastectomy care &middot; lymphedema precautions</div>
+              </div>
+              <span class="badge" style="background:#1e1433;color:#c4b5fd">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="ms2-ch63-primer.html" data-exam-id="ms2-ch63-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 63 &mdash; Gynecologic Conditions</div>
+                <div class="card-desc">25Q &middot; Endometriosis &middot; fibroids &middot; PCOS &middot; PID &middot; prolapse &middot; toxic shock &middot; hysterectomy care</div>
+              </div>
+              <span class="badge" style="background:#1e1433;color:#c4b5fd">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="ms2-ch64-primer.html" data-exam-id="ms2-ch64-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 64 &mdash; Male Reproductive Conditions</div>
+                <div class="card-desc">25Q &middot; BPH &amp; TURP &middot; prostate/testicular cancer &middot; testicular self-exam &middot; ED &middot; epididymitis &middot; vasectomy</div>
+              </div>
+              <span class="badge" style="background:#1e1433;color:#c4b5fd">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="ms2-ch65-primer.html" data-exam-id="ms2-ch65-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 65 &mdash; Sexually Transmitted Infections</div>
+                <div class="card-desc">25Q &middot; Chlamydia &middot; gonorrhea &middot; syphilis stages &middot; herpes &middot; HPV &middot; PID risk &middot; partner treatment &amp; reporting</div>
+              </div>
+              <span class="badge" style="background:#1e1433;color:#c4b5fd">Primer</span>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="accordion">
-    <div class="accordion-header" onclick="toggleAccordion(this)">
-      <span class="accordion-chevron">&#9654;</span>
-      <span class="accordion-title">Maternity &mdash; Exam 1</span>
-      <span class="accordion-tag tag-progress">Primer</span>
-      <span class="accordion-tag tag-count">Ch 2-8</span>
+  <!-- SUBJECT: Maternity -->
+  <div class="subject" data-subject="maternity">
+    <div class="subject-header" onclick="toggleAccordion(this)">
+      <span class="subject-chevron">&#9654;</span>
+      <span class="subject-title">Maternity</span>
+      <span class="subject-status"></span>
     </div>
-    <div class="accordion-body">
-      <div class="sub-label">Before-lecture &middot; 25Q &middot; chapter by chapter &middot; from professor's slides</div>
-      <a class="card" href="mat-exam1-primer.html" data-exam-id="mat-exam1-primer">
-        <div class="card-top">
-          <div>
-            <div class="card-title">Maternity Exam 1 Primer &mdash; Ch 2-8 <span style="color:#c084fc;font-size:.75rem">BEFORE LECTURE</span></div>
-            <div class="card-desc">Women's health/Fetal development &middot; Prenatal &middot; Intrapartum + Pain &middot; N&auml;gele's rule, danger signs, FHR decels, stages of labor, Apgar &middot; must-know values SVG</div>
-          </div>
-          <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+    <div class="subject-body">
+      <div class="accordion" data-exam-block="exam-1">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-chevron">&#9654;</span>
+          <span class="accordion-title">Exam 1 &mdash; Foundations to Birth</span>
+          <span class="accordion-tag tag-progress">Primer</span>
+          <span class="accordion-tag tag-count">Ch 2-8</span>
         </div>
-      </a>
+        <div class="accordion-body">
+          <div class="sub-label">Before-lecture &middot; 25Q each &middot; one file per chapter &middot; 3+ SATA &middot; must-know values SVG</div>
+          <a class="card" href="mat-ch2-primer.html" data-exam-id="mat-ch2-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 2 &mdash; Women's Health &amp; Self-Care</div>
+                <div class="card-desc">25Q &middot; Menstrual cycle basics &middot; contraception &middot; menopause &middot; screening schedule &middot; health promotion</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="mat-ch3-primer.html" data-exam-id="mat-ch3-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 3 &mdash; Reproductive Anatomy &amp; the Menstrual Cycle</div>
+                <div class="card-desc">25Q &middot; Female/male anatomy &middot; ovarian &amp; uterine cycle &middot; hormones &middot; ovulation &middot; PCOS</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="mat-ch4-primer.html" data-exam-id="mat-ch4-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 4 &mdash; Conception &amp; Fetal Development</div>
+                <div class="card-desc">25Q &middot; Fertilization &middot; implantation &middot; placenta &middot; germ layers &middot; trimester milestones &middot; teratogens</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="mat-ch5-primer.html" data-exam-id="mat-ch5-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 5 &mdash; Prenatal Adaptations &amp; Care</div>
+                <div class="card-desc">25Q &middot; N&auml;gele&rsquo;s rule &middot; GTPAL &middot; presumptive/probable/positive signs &middot; weight gain &middot; prenatal visits</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="mat-ch6-primer.html" data-exam-id="mat-ch6-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 6 &mdash; Prenatal Testing &amp; Danger Signs</div>
+                <div class="card-desc">25Q &middot; Danger signs &middot; MSAFP/quad screen &middot; ultrasound &middot; amnio/CVS &middot; NST/BPP &middot; RhoGAM &middot; GBS</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="mat-ch7-primer.html" data-exam-id="mat-ch7-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 7 &mdash; Labor &amp; Birth</div>
+                <div class="card-desc">25Q &middot; 4 Ps &middot; stages of labor &middot; VEAL CHOP decels &middot; station &amp; dilation &middot; Apgar &middot; newborn care</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+          <a class="card" href="mat-ch8-primer.html" data-exam-id="mat-ch8-primer">
+            <div class="card-top">
+              <div>
+                <div class="card-title">Ch 8 &mdash; Pain Management in Labor</div>
+                <div class="card-desc">25Q &middot; Gate control &middot; nonpharmacologic &middot; epidural/spinal &middot; opioids &amp; naloxone &middot; safety priorities</div>
+              </div>
+              <span class="badge" style="background:#2a1030;color:#f0abfc">Primer</span>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- MS1 ARCHIVE (complete) -->
-  <div class="section-label">&#10003; Med Surg 1 &middot; Complete &middot; Archive</div>
+  <!-- SUBJECT: Med Surg 1 -->
+  <div class="subject" data-subject="med-surg-1">
+    <div class="subject-header" onclick="toggleAccordion(this)">
+      <span class="subject-chevron">&#9654;</span>
+      <span class="subject-title">Med Surg 1</span>
+      <span class="subject-status"></span>
+    </div>
+    <div class="subject-body">
 
   <!-- This week: Quiz 3 Case Study -->
   <div class="sub-label" style="margin-left:0">Quiz 3 &middot; Clara Case Study</div>
@@ -888,6 +1033,10 @@ h1{font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:4px;backgro
     </div>
   </div>
 
+    </div><!-- /med-surg-1 subject-body -->
+  </div><!-- /med-surg-1 subject -->
+  </div><!-- /subjectContainer -->
+
   <!-- Foundations -->
   <div class="section-label">Foundations &middot; All Exams</div>
   <a class="card" href="medterm-decoder.html" data-exam-id="ms1-medterm-decoder">
@@ -950,6 +1099,88 @@ function toggleAccordion(header){
     body.classList.add('open');
   }
 }
+
+/* ---- Subject IA config (single source of truth) ---- */
+const subjects={
+  "med-surg-1":{status:"complete"},
+  "med-surg-2":{status:"active",examBlock:"exam-1"},
+  "maternity":{status:"active",examBlock:"exam-1"}
+};
+const statusLabel={active:"Active",upcoming:"Upcoming",complete:"Complete"};
+const statusOrder={active:0,upcoming:1,complete:2};
+
+/* Render status badges + sort subjects Active -> Upcoming -> Complete */
+function initSubjects(){
+  const container=document.getElementById('subjectContainer');
+  document.querySelectorAll('.subject').forEach(function(subj){
+    const cfg=subjects[subj.dataset.subject]||{};
+    const badge=subj.querySelector('.subject-status');
+    if(badge&&cfg.status){
+      badge.textContent=statusLabel[cfg.status];
+      badge.classList.add('status-'+cfg.status);
+    }
+  });
+  const subs=Array.prototype.slice.call(container.querySelectorAll('.subject'));
+  subs.sort(function(a,b){
+    const sa=statusOrder[(subjects[a.dataset.subject]||{}).status];
+    const sb=statusOrder[(subjects[b.dataset.subject]||{}).status];
+    return (sa==null?9:sa)-(sb==null?9:sb);
+  });
+  subs.forEach(function(s){container.appendChild(s);});
+}
+
+/* Config-driven default open/closed state (active subjects + their current exam block) */
+function applyDefaultState(){
+  document.querySelectorAll('.subject').forEach(function(subj){
+    const cfg=subjects[subj.dataset.subject]||{};
+    const header=subj.querySelector('.subject-header');
+    const body=subj.querySelector('.subject-body');
+    const open=cfg.status==='active';
+    header.classList.toggle('open',open);
+    body.classList.toggle('open',open);
+    subj.querySelectorAll('.subject-body > .accordion').forEach(function(acc){
+      const eb=acc.getAttribute('data-exam-block');
+      const h=acc.querySelector('.accordion-header');
+      const b=acc.querySelector('.accordion-body');
+      const o=!!(cfg.examBlock&&eb===cfg.examBlock);
+      h.classList.toggle('open',o);
+      b.classList.toggle('open',o);
+    });
+    subj.style.display='';
+  });
+}
+
+/* Search: filter cards by text, reveal matching containers, restore config state when cleared */
+function applySearch(q){
+  q=(q||'').trim().toLowerCase();
+  const searching=q.length>0;
+  const cards=document.querySelectorAll('.card');
+  cards.forEach(function(card){
+    const match=!searching||card.textContent.toLowerCase().indexOf(q)>-1;
+    card.style.display=match?'':'none';
+  });
+  document.querySelectorAll('.subject-body > .accordion').forEach(function(acc){
+    if(!searching){acc.style.display='';return;}
+    const hasVisible=Array.prototype.some.call(acc.querySelectorAll('.card'),function(c){return c.style.display!=='none';});
+    acc.style.display=hasVisible?'':'none';
+    acc.querySelector('.accordion-header').classList.toggle('open',hasVisible);
+    acc.querySelector('.accordion-body').classList.toggle('open',hasVisible);
+  });
+  document.querySelectorAll('.subject').forEach(function(subj){
+    if(!searching)return;
+    const hasVisible=Array.prototype.some.call(subj.querySelectorAll('.card'),function(c){return c.style.display!=='none';});
+    subj.style.display=hasVisible?'':'none';
+    subj.querySelector('.subject-header').classList.toggle('open',hasVisible);
+    subj.querySelector('.subject-body').classList.toggle('open',hasVisible);
+  });
+  if(!searching){applyDefaultState();}
+  const anyVisible=Array.prototype.some.call(cards,function(c){return c.style.display!=='none';});
+  document.getElementById('searchEmpty').style.display=(searching&&!anyVisible)?'block':'none';
+}
+
+initSubjects();
+applyDefaultState();
+document.getElementById('searchInput').addEventListener('input',function(){applySearch(this.value);});
 
 /* Exam countdown banner */
 const exams=[
@@ -1049,8 +1280,18 @@ const examIds={
   'ms1-quiz3-clara-v1':'clara-case-v1.html',
   'ms1-quiz3-clara-v2':'clara-case-v2.html',
   'ms1-medterm-decoder':'medterm-decoder.html',
-  'ms2-exam1-primer':'ms2-exam1-primer.html',
-  'mat-exam1-primer':'mat-exam1-primer.html'
+  'ms2-ch61-primer':'ms2-ch61-primer.html',
+  'ms2-ch62-primer':'ms2-ch62-primer.html',
+  'ms2-ch63-primer':'ms2-ch63-primer.html',
+  'ms2-ch64-primer':'ms2-ch64-primer.html',
+  'ms2-ch65-primer':'ms2-ch65-primer.html',
+  'mat-ch2-primer':'mat-ch2-primer.html',
+  'mat-ch3-primer':'mat-ch3-primer.html',
+  'mat-ch4-primer':'mat-ch4-primer.html',
+  'mat-ch5-primer':'mat-ch5-primer.html',
+  'mat-ch6-primer':'mat-ch6-primer.html',
+  'mat-ch7-primer':'mat-ch7-primer.html',
+  'mat-ch8-primer':'mat-ch8-primer.html'
 };
 
 Object.keys(examIds).forEach(function(id){

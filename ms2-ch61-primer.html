@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 61 &mdash; Reproductive Assessment Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 61 &mdash; Reproductive Assessment</h1>
+<p class="subtitle">MS2 Exam 1 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, calculation, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Reproductive Labs &amp; Assessment Must-Knows</h3>
+<svg viewBox="0 0 820 320" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="320" fill="#0c0f14"/>
+<rect x="20" y="20" width="250" height="130" rx="8" fill="#13181f" stroke="#7c3aed"/>
+<text x="145" y="45" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">PSA (prostate)</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Normal: 0 to 2.5 ng/mL</text>
+<text x="35" y="95" fill="#fbbf24" font-size="13">&gt; 4 ng/mL = concerning</text>
+<text x="35" y="118" fill="#94a3b8" font-size="12">Draw BEFORE DRE</text>
+<text x="35" y="138" fill="#94a3b8" font-size="12">(exam falsely raises it)</text>
+<rect x="285" y="20" width="250" height="130" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="410" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Hormone Values</text>
+<text x="300" y="72" fill="#e2e8f0" font-size="13">Testosterone M: 280 to 1080</text>
+<text x="300" y="95" fill="#e2e8f0" font-size="13">Prolactin M: 3 to 13 ng/mL</text>
+<text x="300" y="118" fill="#e2e8f0" font-size="13">Prolactin W: 3 to 27 ng/mL</text>
+<text x="300" y="140" fill="#94a3b8" font-size="12">FSH/LH rise in menopause</text>
+<rect x="550" y="20" width="250" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="675" y="45" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Latex-Fruit Syndrome</text>
+<text x="565" y="72" fill="#e2e8f0" font-size="13">Banana</text>
+<text x="565" y="95" fill="#e2e8f0" font-size="13">Avocado</text>
+<text x="565" y="118" fill="#e2e8f0" font-size="13">Kiwi</text>
+<text x="565" y="140" fill="#e2e8f0" font-size="13">Chestnut</text>
+<rect x="20" y="170" width="380" height="130" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="210" y="195" fill="#fbbf24" font-size="15" font-weight="700" text-anchor="middle">Prep Rules</text>
+<text x="35" y="222" fill="#e2e8f0" font-size="13">Pap: no douche/intercourse/vaginal</text>
+<text x="35" y="242" fill="#e2e8f0" font-size="13">meds 24h; not during menses</text>
+<text x="35" y="265" fill="#e2e8f0" font-size="13">Mammogram: no deodorant/lotion/powder</text>
+<text x="35" y="288" fill="#e2e8f0" font-size="13">Semen: abstain 2 to 3 days, deliver &lt;1h</text>
+<rect x="415" y="170" width="385" height="130" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="607" y="195" fill="#f87171" font-size="15" font-weight="700" text-anchor="middle">Key Vocab</text>
+<text x="430" y="222" fill="#e2e8f0" font-size="13">Dyspareunia = painful intercourse</text>
+<text x="430" y="245" fill="#e2e8f0" font-size="13">Menorrhagia = heavy/prolonged menses</text>
+<text x="430" y="268" fill="#e2e8f0" font-size="13">Metrorrhagia = bleeding between periods</text>
+<text x="430" y="291" fill="#e2e8f0" font-size="13">Cryptorchidism = undescended testis</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch61-primer';
+const EXAM_LABEL='MS2 Ch 61 — Reproductive Assessment (25Q)';
+const BLOCKS={A:'Labs & Hormone Values',B:'Female Assessment & Diagnostics',C:'Male Assessment & Diagnostics',D:'Procedures & Safety',E:'Vocabulary & Terms'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:61,type:'Assessment',
+stem:'A 60-year-old man\'s prostate-specific antigen (PSA) result is 6.2 ng/mL. How does the nurse interpret this value?',
+options:[
+{letter:'A',text:'Elevated and needs provider follow-up',correct:true,rationale:'Normal PSA is roughly 0 to 2.5 ng/mL, and a value above 4 is concerning for prostate enlargement, prostatitis, or cancer. A PSA of 6.2 is elevated and warrants further evaluation such as a digital rectal exam and possible biopsy.'},
+{letter:'B',text:'Within the expected normal range',correct:false,rationale:'6.2 is above the normal ceiling of about 2.5 and above the 4 threshold of concern. It is not normal.'},
+{letter:'C',text:'Low and suggestive of hypogonadism',correct:false,rationale:'PSA does not measure androgen status. A low testosterone would suggest hypogonadism, not a PSA of 6.2.'},
+{letter:'D',text:'Falsely low from recent ejaculation',correct:false,rationale:'Ejaculation and rectal exams tend to falsely raise PSA, not lower it. Regardless, 6.2 is elevated.'}
+],vocabTip:'<strong>PSA normal ~0 to 2.5 ng/mL; &gt;4 is concerning.</strong> A rising trend over time matters as much as a single value. Elevation is not specific to cancer, so it is paired with a DRE and possible biopsy.'},
+
+{id:2,block:'A',chapter:61,type:'Teaching',trap:true,
+stem:'A provider orders a PSA level and a digital rectal exam (DRE) for the same visit. How should the nurse sequence the two?',
+options:[
+{letter:'A',text:'Draw the PSA before the rectal exam',correct:true,rationale:'Prostate manipulation during a DRE can transiently raise the PSA and produce a falsely elevated result. Drawing the blood first preserves an accurate baseline.'},
+{letter:'B',text:'Perform the rectal exam before drawing the PSA',correct:false,rationale:'Doing the DRE first can falsely elevate the PSA, muddying interpretation. The blood should be drawn first.'},
+{letter:'C',text:'The order does not affect the PSA result',correct:false,rationale:'Order matters. Manipulation of the prostate can raise PSA, so the sequence is clinically important.'},
+{letter:'D',text:'Have the patient ejaculate first to lower the value',correct:false,rationale:'Recent ejaculation can also raise PSA and is avoided before the test. It does not lower the value.'}
+],vocabTip:'<strong>Draw PSA BEFORE DRE, catheterization, ejaculation, or prostate biopsy.</strong> All of these manipulate the gland and transiently raise the value. Advise no ejaculation for about 24 hours before a scheduled PSA.'},
+
+{id:3,block:'A',chapter:61,type:'Assessment',
+stem:'The nurse reviews a 40-year-old male patient\'s labs. Which testosterone value falls within the expected normal male range?',
+options:[
+{letter:'A',text:'500 ng/dL',correct:true,rationale:'Normal male total testosterone is roughly 280 to 1080 ng/dL. A value of 500 sits comfortably within that range.'},
+{letter:'B',text:'150 ng/dL',correct:false,rationale:'150 is below the ~280 lower limit and would suggest hypogonadism, warranting evaluation.'},
+{letter:'C',text:'1500 ng/dL',correct:false,rationale:'1500 is above the ~1080 upper limit and is abnormally high, not a normal value.'},
+{letter:'D',text:'40 ng/dL',correct:false,rationale:'40 is markedly low and abnormal for an adult male, far below the normal range.'}
+],vocabTip:'<strong>Male total testosterone ~280 to 1080 ng/dL.</strong> Low testosterone (hypogonadism) causes low libido, fatigue, decreased muscle mass, and erectile dysfunction. Levels are highest in the morning, so specimens are usually drawn AM.'},
+
+{id:4,block:'A',chapter:61,type:'Assessment',
+stem:'A woman who is not pregnant or breastfeeding has a prolactin level of 60 ng/mL and reports milky nipple discharge. How does the nurse interpret this?',
+options:[
+{letter:'A',text:'Elevated prolactin that needs evaluation for a pituitary cause',correct:true,rationale:'Normal prolactin in women is about 3 to 27 ng/mL (men 3 to 13). A level of 60 with galactorrhea in a non-pregnant, non-lactating woman is abnormally high and may reflect a prolactinoma or medication effect, requiring workup.'},
+{letter:'B',text:'A normal value that requires no follow-up',correct:false,rationale:'60 is more than double the upper normal limit for women. It is not normal and the galactorrhea supports the elevation.'},
+{letter:'C',text:'A low value causing the discharge',correct:false,rationale:'Low prolactin would not cause galactorrhea. The value is elevated, not low.'},
+{letter:'D',text:'Expected because all adult women have some discharge',correct:false,rationale:'Milky discharge outside pregnancy or lactation is abnormal and, with a high prolactin, needs evaluation.'}
+],vocabTip:'<strong>Prolactin: women 3 to 27 ng/mL, men 3 to 13.</strong> High prolactin (prolactinoma, certain antipsychotics) causes galactorrhea, amenorrhea, and infertility in women and low libido in men. Galactorrhea outside pregnancy/lactation is always abnormal.'},
+
+{id:5,block:'A',chapter:61,type:'SATA',sata:true,
+stem:'A 52-year-old woman is being evaluated for menopause. Which findings would the nurse expect to support this? Select all that apply.',
+options:[
+{letter:'A',text:'Elevated FSH and LH levels',correct:true,rationale:'As ovarian function declines, estrogen falls and the pituitary releases more FSH and LH in response. Elevated FSH is a hallmark lab finding of menopause.'},
+{letter:'B',text:'Hot flashes and night sweats',correct:true,rationale:'Vasomotor symptoms such as hot flashes and night sweats are classic menopausal complaints from fluctuating and falling estrogen.'},
+{letter:'C',text:'Vaginal dryness',correct:true,rationale:'Declining estrogen thins and dries the vaginal mucosa (atrophic changes), a common menopausal finding that can cause dyspareunia.'},
+{letter:'D',text:'Absence of menses for 12 consecutive months',correct:true,rationale:'Menopause is confirmed clinically after 12 consecutive months without a menstrual period.'},
+{letter:'E',text:'Rising estrogen levels',correct:false,rationale:'Estrogen falls in menopause, it does not rise. The low estrogen is what drives the symptoms and the compensatory rise in FSH and LH.'}
+],vocabTip:'<strong>Menopause: estrogen DOWN, FSH and LH UP; 12 months without menses confirms it.</strong> Low estrogen drives hot flashes, night sweats, vaginal atrophy/dryness, mood changes, and accelerated bone loss (osteoporosis risk).'},
+
+{id:6,block:'B',chapter:61,type:'Teaching',
+stem:'A nurse teaches a patient how to prepare for a Papanicolaou (Pap) test. Which instruction is correct?',
+options:[
+{letter:'A',text:'Avoid douching and intercourse for 24 hours before',correct:true,rationale:'For an accurate Pap smear the patient should avoid douching, intercourse, tampons, and vaginal medications or creams for about 24 hours beforehand, and should not be menstruating. These can wash away or obscure cervical cells and alter results.'},
+{letter:'B',text:'Douche the morning of the test for cleanliness',correct:false,rationale:'Douching removes the cervical cells the test needs and is specifically avoided before a Pap. It can produce an inadequate sample.'},
+{letter:'C',text:'Schedule the test during the heaviest menstrual flow',correct:false,rationale:'Blood interferes with cytology reading. The test is best done when the patient is not menstruating.'},
+{letter:'D',text:'Insert a vaginal antifungal cream that morning',correct:false,rationale:'Vaginal creams coat the cervix and obscure cells. Avoid them for 24 hours before the test.'}
+],vocabTip:'<strong>Pap prep: no douching, intercourse, tampons, or vaginal meds for 24h; not during menses.</strong> The test samples cervical cells to screen for cervical cancer and HPV changes. Anything in the vagina can wash away or hide the cells.'},
+
+{id:7,block:'B',chapter:61,type:'Teaching',
+stem:'A patient is scheduled for a screening mammogram. Which instruction does the nurse give for the day of the exam?',
+options:[
+{letter:'A',text:'Do not use deodorant, lotion, or powder on the chest or underarms',correct:true,rationale:'Deodorants, powders, and lotions contain metallic or radiopaque particles that can mimic calcifications and create artifacts on the mammogram, leading to false readings. The patient should arrive with clean, product-free skin.'},
+{letter:'B',text:'Apply deodorant generously to reduce odor during the exam',correct:false,rationale:'Deodorant can appear as suspicious flecks on the image and is specifically avoided on the day of the exam.'},
+{letter:'C',text:'Take nothing by mouth for 8 hours before',correct:false,rationale:'A mammogram does not require fasting. NPO status is unnecessary.'},
+{letter:'D',text:'Schedule the mammogram right before an expected period',correct:false,rationale:'Breasts are most tender premenstrually. Scheduling about a week after menses, when breasts are least tender, improves comfort.'}
+],vocabTip:'<strong>Mammogram prep: no deodorant, powder, lotion, or perfume on chest/underarms.</strong> These cause artifacts resembling calcifications. Best timing is about a week after menses when breasts are least tender. No fasting needed.'},
+
+{id:8,block:'B',chapter:61,type:'Teaching',
+stem:'A premenopausal woman asks when in her cycle she should perform a breast self-exam. What does the nurse advise?',
+options:[
+{letter:'A',text:'About one week after the menstrual period starts',correct:true,rationale:'The best time is a few days to a week after menses begins, when hormonal breast swelling and tenderness are lowest, making lumps easier to detect and reducing false alarms from cyclic nodularity.'},
+{letter:'B',text:'Right before the period is due',correct:false,rationale:'Just before menses the breasts are most swollen, tender, and lumpy from hormones, which makes the exam harder to interpret.'},
+{letter:'C',text:'During the heaviest days of menstrual flow',correct:false,rationale:'Breasts can still be tender and swollen during menses. The clearest window is after the period, not during it.'},
+{letter:'D',text:'Only on the first day of each month regardless of cycle',correct:false,rationale:'For menstruating women, timing to the cycle (a week after menses) is preferred. A fixed calendar day is used for postmenopausal women.'}
+],vocabTip:'<strong>Breast self-exam: about 1 week after menses starts (least tender).</strong> Postmenopausal women pick a consistent monthly date. Self-exam supplements, not replaces, clinical exams and mammography.'},
+
+{id:9,block:'B',chapter:61,type:'Assessment',
+stem:'A patient has an abnormal Pap result and is scheduled for a colposcopy. The patient asks what this test does. What is the nurse\'s best explanation?',
+options:[
+{letter:'A',text:'It magnifies the cervix so abnormal areas can be seen and biopsied',correct:true,rationale:'Colposcopy uses a lighted magnifying scope to examine the cervix, vagina, and vulva after an abnormal Pap. Acetic acid highlights abnormal cells, and suspicious areas can be biopsied for diagnosis.'},
+{letter:'B',text:'It removes the entire uterus through the vagina',correct:false,rationale:'That describes a vaginal hysterectomy, not a colposcopy. Colposcopy is a diagnostic visualization, not organ removal.'},
+{letter:'C',text:'It uses dye to check whether the fallopian tubes are open',correct:false,rationale:'That describes hysterosalpingography, a fertility test. Colposcopy examines the cervix.'},
+{letter:'D',text:'It measures hormone levels in the blood',correct:false,rationale:'Colposcopy is a visual and biopsy procedure, not a blood test.'}
+],vocabTip:'<strong>Colposcopy: magnified look at the cervix after an abnormal Pap, with acetic acid + possible biopsy.</strong> After a cervical biopsy, teach the patient to expect dark (coffee-ground) discharge from Monsel\'s solution and to avoid tampons and intercourse as directed.'},
+
+{id:10,block:'B',chapter:61,type:'SATA',sata:true,
+stem:'A patient is scheduled for a transvaginal ultrasound using a covered transducer. The nurse reviews the patient\'s allergies for latex cross-sensitivity. Which foods are associated with a latex allergy? Select all that apply.',
+options:[
+{letter:'A',text:'Banana',correct:true,rationale:'Banana is part of the latex-fruit cross-reactivity group. Proteins in these fruits resemble latex proteins, so a latex-allergic patient may react to a latex transducer cover.'},
+{letter:'B',text:'Avocado',correct:true,rationale:'Avocado is one of the classic latex cross-reactive foods. Screen for it before using any latex-containing device.'},
+{letter:'C',text:'Kiwi',correct:true,rationale:'Kiwi is a well-known latex cross-reactive food. A reported kiwi allergy is a red flag for latex sensitivity.'},
+{letter:'D',text:'White rice',correct:false,rationale:'Rice is not part of the latex-fruit syndrome and does not indicate latex cross-sensitivity.'},
+{letter:'E',text:'Chicken breast',correct:false,rationale:'Poultry has no association with latex allergy. The latex-fruit group is banana, avocado, kiwi, and chestnut.'}
+],vocabTip:'<strong>Latex-fruit syndrome: banana, avocado, kiwi, chestnut.</strong> An allergy to these predicts latex sensitivity. Ask before using latex gloves, catheters, or transducer covers, and use latex-free equipment if any are reported.'},
+
+{id:11,block:'C',chapter:61,type:'Teaching',
+stem:'A nurse teaches a young man how and when to perform a testicular self-exam. Which instruction is correct?',
+options:[
+{letter:'A',text:'Examine the testicles monthly during or after a warm shower',correct:true,rationale:'Warmth relaxes the scrotum, making the testicles easier to palpate. Monthly self-exam helps a man learn his normal anatomy so he can detect a new painless lump early, when testicular cancer is highly curable.'},
+{letter:'B',text:'Examine only once a year at the annual physical',correct:false,rationale:'Monthly self-exam is recommended so changes are caught early between provider visits.'},
+{letter:'C',text:'Perform the exam after applying an ice pack',correct:false,rationale:'Cold tightens the scrotum and retracts the testicles, making palpation difficult. Warmth is preferred.'},
+{letter:'D',text:'Squeeze the testicle firmly to check for pain',correct:false,rationale:'The technique is gentle rolling between thumb and fingers, feeling for lumps, not painful squeezing. Testicular cancer lumps are typically painless.'}
+],vocabTip:'<strong>Testicular self-exam: monthly, during/after a warm shower, roll each testicle gently feeling for a painless lump.</strong> Most common in men 15 to 35. A hard painless nodule is the classic warning sign and needs prompt evaluation.'},
+
+{id:12,block:'C',chapter:61,type:'Assessment',
+stem:'During a prostate exam the nurse reviews the provider\'s findings. Which description is more typical of benign prostatic hyperplasia than of cancer?',
+options:[
+{letter:'A',text:'A smooth, rubbery, symmetrically enlarged gland',correct:true,rationale:'Benign prostatic hyperplasia classically feels smooth, uniform, rubbery, and symmetrically enlarged on digital rectal exam. Cancer more often feels hard, irregular, and fixed with a nodule.'},
+{letter:'B',text:'A hard, irregular, fixed nodule',correct:false,rationale:'A stony-hard, irregular, fixed nodule is the classic feel of prostate cancer, not benign enlargement.'},
+{letter:'C',text:'A boggy, exquisitely tender gland',correct:false,rationale:'A boggy, tender prostate suggests prostatitis (inflammation), not benign hyperplasia.'},
+{letter:'D',text:'A gland fixed to surrounding tissue',correct:false,rationale:'Fixation to surrounding structures suggests malignant invasion, not benign hyperplasia.'}
+],vocabTip:'<strong>DRE: BPH = smooth, rubbery, symmetric; cancer = hard, irregular, fixed nodule; prostatitis = boggy, tender.</strong> Pair a hard nodule with an elevated PSA to raise suspicion for malignancy and prompt biopsy.'},
+
+{id:13,block:'C',chapter:61,type:'Teaching',
+stem:'A man is scheduled for a semen analysis as part of a fertility workup. Which instruction does the nurse provide?',
+options:[
+{letter:'A',text:'Abstain from ejaculation for 2 to 3 days and deliver the specimen within about 1 hour',correct:true,rationale:'A short abstinence of 2 to 3 days optimizes sperm count and motility, and the fresh specimen must reach the lab within about an hour, kept at body temperature, to keep sperm viable for accurate analysis.'},
+{letter:'B',text:'Abstain from ejaculation for at least 2 weeks first',correct:false,rationale:'Prolonged abstinence increases the number of older, less motile sperm and skews results. Two to three days is optimal.'},
+{letter:'C',text:'Refrigerate the specimen overnight before bringing it in',correct:false,rationale:'Refrigeration and delay kill sperm. The sample must be kept warm and delivered promptly.'},
+{letter:'D',text:'Collect the specimen in any household container with soap residue',correct:false,rationale:'Soap and spermicidal residue kill sperm. A sterile lab-provided container is used.'}
+],vocabTip:'<strong>Semen analysis: abstain 2 to 3 days, collect in a sterile container, keep warm, deliver within ~1 hour.</strong> Prolonged abstinence, cold, soap, or lubricants can invalidate the result. It is a first-line test for male infertility.'},
+
+{id:14,block:'C',chapter:61,type:'Assessment',
+stem:'A nurse assesses a newborn and cannot palpate one testis in the scrotum. Which term describes this finding?',
+options:[
+{letter:'A',text:'Cryptorchidism',correct:true,rationale:'Cryptorchidism is an undescended testis, one that has not moved down into the scrotum. It is important to identify because uncorrected cryptorchidism raises the risk of infertility and testicular cancer.'},
+{letter:'B',text:'Hydrocele',correct:false,rationale:'A hydrocele is a fluid collection around the testis causing scrotal swelling, not an absent or undescended testis.'},
+{letter:'C',text:'Varicocele',correct:false,rationale:'A varicocele is a dilated, tortuous scrotal vein (bag-of-worms feel), not an undescended testis.'},
+{letter:'D',text:'Epididymitis',correct:false,rationale:'Epididymitis is inflammation of the epididymis, usually painful, not a positioning problem of the testis.'}
+],vocabTip:'<strong>Cryptorchidism = undescended testis.</strong> Increases risk of infertility and testicular cancer if uncorrected, so it is repaired (orchiopexy) in infancy. Compare hydrocele (fluid), varicocele (bag of worms), and spermatocele (sperm-filled cyst).'},
+
+{id:15,block:'C',chapter:61,type:'Vocab',
+stem:'A male patient is noted to have enlargement of the breast tissue. Which term should the nurse use to document this?',
+options:[
+{letter:'A',text:'Gynecomastia',correct:true,rationale:'Gynecomastia is benign enlargement of male breast tissue, often from a hormonal imbalance (relative excess of estrogen), certain medications, or liver disease. It is the correct documentation term.'},
+{letter:'B',text:'Galactorrhea',correct:false,rationale:'Galactorrhea is milky nipple discharge, not enlargement of breast tissue.'},
+{letter:'C',text:'Priapism',correct:false,rationale:'Priapism is a prolonged, often painful erection, unrelated to breast tissue.'},
+{letter:'D',text:'Phimosis',correct:false,rationale:'Phimosis is a foreskin that cannot be retracted over the glans, not a breast finding.'}
+],vocabTip:'<strong>Gynecomastia = enlarged male breast tissue.</strong> Causes include puberty, aging, spironolactone, cimetidine, some antipsychotics, marijuana, and liver disease. Compare priapism (prolonged erection) and phimosis (nonretractable foreskin).'},
+
+{id:16,block:'D',chapter:61,type:'Teaching',trap:true,
+stem:'A patient reports mild shoulder pain the day after a diagnostic laparoscopy. What is the nurse\'s best response?',
+options:[
+{letter:'A',text:'This is from the CO2 gas and usually eases in a day or two',correct:true,rationale:'During laparoscopy carbon dioxide is used to inflate the abdomen. Residual CO2 irritates the phrenic nerve and diaphragm, causing referred shoulder pain that typically resolves within 24 to 48 hours. Walking, warmth, and mild analgesics help it pass.'},
+{letter:'B',text:'This signals a serious bleed and you need emergency surgery',correct:false,rationale:'Isolated mild referred shoulder pain after laparoscopy is expected from CO2, not a sign of hemorrhage. Alarming the patient is inappropriate.'},
+{letter:'C',text:'You are having a heart attack and I will call a code',correct:false,rationale:'Referred shoulder pain from insufflation gas is not cardiac. This response is inaccurate and frightening.'},
+{letter:'D',text:'You must have slept in a bad position last night',correct:false,rationale:'Dismissing it as posture ignores the known cause. Teaching the patient about the CO2 gas is more accurate and reassuring.'}
+],vocabTip:'<strong>Post-laparoscopy shoulder pain = referred pain from CO2 insufflation irritating the diaphragm/phrenic nerve.</strong> It is benign and resolves in 24 to 48 hours. Ambulation and a heating pad help the gas dissipate.'},
+
+{id:17,block:'D',chapter:61,type:'Teaching',
+stem:'A woman is scheduled for a hysterosalpingography (HSG) as part of an infertility workup. What does the nurse teach her to expect?',
+options:[
+{letter:'A',text:'Contrast dye outlines the uterus and tubes, and she may feel cramping and referred shoulder pain',correct:true,rationale:'HSG instills radiopaque contrast through the cervix to check whether the fallopian tubes are open (patent). Patients commonly feel cramping during dye instillation and may have transient referred shoulder pain from dye irritating the diaphragm. Mild spotting afterward is normal.'},
+{letter:'B',text:'The entire uterus will be removed during the test',correct:false,rationale:'HSG is a diagnostic imaging test, not surgery. Nothing is removed.'},
+{letter:'C',text:'She should expect heavy bleeding that soaks a pad every hour',correct:false,rationale:'Heavy bleeding is not expected; only light spotting is normal. Soaking a pad hourly would be reported.'},
+{letter:'D',text:'She must remain NPO for 12 hours because of general anesthesia',correct:false,rationale:'HSG is done without general anesthesia and does not require prolonged fasting. It is an outpatient imaging procedure.'}
+],vocabTip:'<strong>Hysterosalpingography (HSG): dye + X-ray to check fallopian tube patency and uterine shape.</strong> Expect cramping, possible referred shoulder pain, and light spotting. Done in the follicular phase after menses to avoid disrupting a pregnancy.'},
+
+{id:18,block:'D',chapter:61,type:'Priority',
+stem:'A patient is 2 hours post-diagnostic laparoscopy. Which finding requires immediate provider notification rather than routine monitoring?',
+options:[
+{letter:'A',text:'Firm, distended abdomen with tachycardia and falling blood pressure',correct:true,rationale:'A rigid, distended abdomen with tachycardia and hypotension suggests internal bleeding or bowel injury, serious complications of laparoscopy. This combination is a red flag that requires urgent evaluation.'},
+{letter:'B',text:'Mild referred shoulder pain',correct:false,rationale:'Shoulder pain from residual CO2 gas is an expected, benign finding after laparoscopy and resolves within a day or two.'},
+{letter:'C',text:'Small amount of serosanguineous drainage at the port sites',correct:false,rationale:'A small amount of pink-tinged drainage at the incision is normal early after surgery.'},
+{letter:'D',text:'Sleepiness that improves with gentle stimulation',correct:false,rationale:'Residual drowsiness from anesthesia that lifts with stimulation is expected during recovery.'}
+],vocabTip:'<strong>After laparoscopy: shoulder pain and mild port-site oozing are expected; a rigid distended abdomen with rising HR and falling BP signals internal bleeding or organ injury.</strong> Trend the vitals and abdominal exam together.'},
+
+{id:19,block:'D',chapter:61,type:'Teaching',
+stem:'A patient just had a cervical biopsy during colposcopy. Which instruction is correct for home care?',
+options:[
+{letter:'A',text:'Expect dark, coffee-ground discharge and avoid tampons and intercourse as directed',correct:true,rationale:'Monsel\'s (ferric subsulfate) solution used to stop biopsy bleeding produces a dark, coffee-ground or black vaginal discharge for a few days. Avoiding tampons, douching, and intercourse for the directed period lets the cervix heal and prevents infection or bleeding.'},
+{letter:'B',text:'Use tampons to absorb any discharge',correct:false,rationale:'Nothing should be placed in the vagina while the biopsy site heals. Pads are used, not tampons.'},
+{letter:'C',text:'Resume intercourse the same evening',correct:false,rationale:'Intercourse is avoided for the directed healing period to prevent bleeding and infection at the biopsy site.'},
+{letter:'D',text:'Report the dark discharge immediately as abnormal bleeding',correct:false,rationale:'Dark coffee-ground discharge from Monsel\'s solution is expected, not an emergency. Heavy bright-red bleeding, fever, or foul odor would be reported.'}
+],vocabTip:'<strong>After cervical biopsy: dark/coffee-ground discharge from Monsel\'s solution is normal; use pads, avoid tampons/douching/intercourse as directed.</strong> Report heavy bright-red bleeding, fever, or foul-smelling discharge (infection).'},
+
+{id:20,block:'D',chapter:61,type:'SATA',sata:true,
+stem:'The nurse prepares a patient with a known latex allergy for a pelvic exam. Which actions protect the patient? Select all that apply.',
+options:[
+{letter:'A',text:'Use non-latex (nitrile) gloves for the exam',correct:true,rationale:'Substituting latex-free nitrile gloves removes the primary source of latex exposure during the exam.'},
+{letter:'B',text:'Use a latex-free speculum cover and equipment',correct:true,rationale:'All equipment that contacts the patient, including transducer covers and catheters, must be latex-free to prevent a reaction.'},
+{letter:'C',text:'Schedule the patient as the first case of the day',correct:true,rationale:'Scheduling first reduces airborne latex particles that accumulate in a room as latex products are used through the day, lowering exposure risk.'},
+{letter:'D',text:'Keep powdered latex gloves nearby as a backup',correct:false,rationale:'Powdered latex gloves aerosolize latex proteins and are the most dangerous source for a sensitive patient. They should be removed from the environment entirely.'},
+{letter:'E',text:'Give the patient a banana before the exam to build tolerance',correct:false,rationale:'Banana is a latex cross-reactive food and could trigger a reaction, and allergen exposure does not build tolerance. This is unsafe.'}
+],vocabTip:'<strong>Latex-safe care: nitrile gloves, latex-free equipment, schedule first case, remove powdered latex from the room.</strong> Latex-fruit cross-reactive foods (banana, avocado, kiwi, chestnut) should also be avoided. Have emergency anaphylaxis meds available.'},
+
+{id:21,block:'E',chapter:61,type:'Vocab',
+stem:'A woman reports painful sexual intercourse. Which term should the nurse use to document this finding?',
+options:[
+{letter:'A',text:'Dyspareunia',correct:true,rationale:'Dyspareunia means painful intercourse. It can stem from vaginal dryness, infection, endometriosis, or atrophy, and is the precise documentation term for this complaint.'},
+{letter:'B',text:'Amenorrhea',correct:false,rationale:'Amenorrhea is the absence of menstruation, not painful intercourse.'},
+{letter:'C',text:'Menorrhagia',correct:false,rationale:'Menorrhagia is abnormally heavy or prolonged menstrual bleeding, unrelated to intercourse pain.'},
+{letter:'D',text:'Metrorrhagia',correct:false,rationale:'Metrorrhagia is bleeding between periods. It does not describe pain with intercourse.'}
+],vocabTip:'<strong>Dyspareunia = painful intercourse.</strong> Common causes: vaginal dryness/atrophy (low estrogen), infection, endometriosis. Distinguish it from the bleeding-pattern terms in this chapter.'},
+
+{id:22,block:'E',chapter:61,type:'Vocab',
+stem:'A 25-year-old patient reports she has not had a menstrual period in 4 months and a pregnancy test is negative. Which term documents this finding?',
+options:[
+{letter:'A',text:'Amenorrhea',correct:true,rationale:'Amenorrhea is the absence of menstruation. Secondary amenorrhea (periods that stop after previously occurring) can result from pregnancy, excessive exercise, low body weight, stress, thyroid disorders, or high prolactin.'},
+{letter:'B',text:'Menorrhagia',correct:false,rationale:'Menorrhagia is heavy or prolonged bleeding, the opposite of absent menses.'},
+{letter:'C',text:'Dysmenorrhea',correct:false,rationale:'Dysmenorrhea is painful menstruation, not absence of menses.'},
+{letter:'D',text:'Metrorrhagia',correct:false,rationale:'Metrorrhagia is bleeding between periods, not the absence of periods.'}
+],vocabTip:'<strong>Amenorrhea = no menses.</strong> Primary = never started by expected age; secondary = periods stop for 3+ months after being established. Always rule out pregnancy first. Also linked to high prolactin and low body weight.'},
+
+{id:23,block:'E',chapter:61,type:'Vocab',
+stem:'A patient describes soaking through a pad every hour and passing large clots during her period lasting 9 days. Which term best documents this?',
+options:[
+{letter:'A',text:'Menorrhagia',correct:true,rationale:'Menorrhagia is abnormally heavy or prolonged menstrual bleeding, such as soaking pads hourly, passing large clots, or bleeding longer than 7 days. It can lead to iron-deficiency anemia.'},
+{letter:'B',text:'Metrorrhagia',correct:false,rationale:'Metrorrhagia is bleeding between menstrual periods, not heavy bleeding during the period itself.'},
+{letter:'C',text:'Amenorrhea',correct:false,rationale:'Amenorrhea is the absence of menstruation, the opposite of heavy bleeding.'},
+{letter:'D',text:'Oligomenorrhea',correct:false,rationale:'Oligomenorrhea is infrequent, light periods, not heavy prolonged bleeding.'}
+],vocabTip:'<strong>Menorrhagia = heavy/prolonged menses (hourly pad soaking, large clots, &gt;7 days).</strong> Watch for iron-deficiency anemia. Contrast oligomenorrhea (infrequent light periods) and metrorrhagia (bleeding between periods).'},
+
+{id:24,block:'E',chapter:61,type:'Vocab',
+stem:'A patient reports light vaginal bleeding that occurs between her regular menstrual periods. Which term documents this pattern?',
+options:[
+{letter:'A',text:'Metrorrhagia',correct:true,rationale:'Metrorrhagia is bleeding or spotting that occurs between menstrual periods. It can be caused by hormonal contraceptives, polyps, infection, or, importantly, malignancy, so persistent intermenstrual bleeding warrants evaluation.'},
+{letter:'B',text:'Menorrhagia',correct:false,rationale:'Menorrhagia is heavy or prolonged bleeding during the period, not spotting between periods.'},
+{letter:'C',text:'Amenorrhea',correct:false,rationale:'Amenorrhea is the absence of menstruation, not intermenstrual bleeding.'},
+{letter:'D',text:'Dyspareunia',correct:false,rationale:'Dyspareunia is painful intercourse, unrelated to a bleeding pattern.'}
+],vocabTip:'<strong>Metrorrhagia = bleeding BETWEEN periods (intermenstrual).</strong> Memory aid: "metro" trains run between stations, so metrorrhagia is bleeding between periods. Persistent intermenstrual or postmenopausal bleeding needs a cancer workup.'},
+
+{id:25,block:'E',chapter:61,type:'Vocab',
+stem:'A 48-year-old woman reports irregular cycles, occasional hot flashes, and mood changes but still has some periods. Which term best describes this phase?',
+options:[
+{letter:'A',text:'Perimenopause',correct:true,rationale:'Perimenopause is the transitional phase before menopause when hormone levels fluctuate, producing irregular cycles, hot flashes, and mood changes while some menstrual bleeding still occurs. Menopause itself is confirmed only after 12 months without a period.'},
+{letter:'B',text:'Menopause',correct:false,rationale:'Menopause is confirmed after 12 consecutive months with no menses. This patient still has periods, so she is in the transition, not menopause.'},
+{letter:'C',text:'Menarche',correct:false,rationale:'Menarche is the first menstrual period at puberty, not the perimenopausal transition.'},
+{letter:'D',text:'Amenorrhea',correct:false,rationale:'Amenorrhea is the absence of menses. This patient still menstruates irregularly, so it does not apply.'}
+],vocabTip:'<strong>Perimenopause = the transition (fluctuating hormones, irregular cycles, hot flashes) with periods still occurring; menopause = 12 months with none.</strong> Menarche is the first period. Pregnancy is still possible during perimenopause.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>

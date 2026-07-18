@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maternity Ch 7 &mdash; Labor &amp; Birth Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 7 &mdash; Labor &amp; Birth</h1>
+<p class="subtitle">Maternity Exam 1 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, calculation, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Labor &amp; Birth Must-Knows</h3>
+<svg viewBox="0 0 820 320" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="320" fill="#0c0f14"/>
+<rect x="20" y="20" width="380" height="130" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="210" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">The 4 Ps</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Powers: contractions &amp; pushing</text>
+<text x="35" y="95" fill="#e2e8f0" font-size="13">Passage: pelvis &amp; birth canal</text>
+<text x="35" y="118" fill="#e2e8f0" font-size="13">Passenger: fetus, position, lie</text>
+<text x="35" y="140" fill="#94a3b8" font-size="12">Psyche: coping &amp; support</text>
+<rect x="415" y="20" width="385" height="130" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="607" y="45" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Stages of Labor</text>
+<text x="430" y="72" fill="#e2e8f0" font-size="13">1st: onset to full dilation (10 cm)</text>
+<text x="430" y="95" fill="#e2e8f0" font-size="13">2nd: full dilation to birth</text>
+<text x="430" y="118" fill="#e2e8f0" font-size="13">3rd: birth to placenta delivery</text>
+<text x="430" y="140" fill="#94a3b8" font-size="12">4th: 1 to 4 h recovery</text>
+<rect x="20" y="170" width="380" height="130" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="210" y="195" fill="#f87171" font-size="15" font-weight="700" text-anchor="middle">FHR Decelerations</text>
+<text x="35" y="222" fill="#e2e8f0" font-size="13">EARLY: head compression (OK)</text>
+<text x="35" y="245" fill="#e2e8f0" font-size="13">VARIABLE: cord compression</text>
+<text x="35" y="268" fill="#e2e8f0" font-size="13">LATE: placental insufficiency (bad)</text>
+<text x="35" y="291" fill="#94a3b8" font-size="12">VEAL CHOP; baseline 110 to 160</text>
+<rect x="415" y="170" width="385" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="607" y="195" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Progress &amp; Newborn</text>
+<text x="430" y="222" fill="#e2e8f0" font-size="13">Station 0 = at the ischial spines</text>
+<text x="430" y="245" fill="#e2e8f0" font-size="13">Dilation 0 to 10 cm; effacement 0 to 100%</text>
+<text x="430" y="268" fill="#e2e8f0" font-size="13">Apgar at 1 &amp; 5 min (0 to 10)</text>
+<text x="430" y="291" fill="#94a3b8" font-size="12">Vitamin K &amp; eye prophylaxis after birth</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='mat-ch7-primer';
+const EXAM_LABEL='Maternity Ch 7 — Labor & Birth (25Q)';
+const BLOCKS={A:'The 4 Ps & Onset',B:'Stages of Labor',C:'Fetal Monitoring & Decels',D:'Labor Progress & Position',E:'Birth & Immediate Newborn Care'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:7,type:'Vocab',
+stem:'A nurse teaches about the "4 Ps" that affect labor. Which component refers to the uterine contractions and maternal pushing?',
+options:[
+{letter:'A',text:'Powers',correct:true,rationale:'The Powers are the forces of labor: involuntary uterine contractions (primary power) that dilate and efface the cervix, and voluntary maternal pushing (secondary power) in the second stage. The four Ps are Powers, Passage, Passenger, and Psyche.'},
+{letter:'B',text:'Passage',correct:false,rationale:'Passage refers to the maternal pelvis and birth canal, not the contractile forces.'},
+{letter:'C',text:'Passenger',correct:false,rationale:'Passenger refers to the fetus (size, lie, presentation, position), not the forces of labor.'},
+{letter:'D',text:'Psyche',correct:false,rationale:'Psyche refers to the woman\'s psychological state and coping, not the contractions.'}
+],vocabTip:'<strong>4 Ps: Powers (contractions/pushing), Passage (pelvis/canal), Passenger (fetus), Psyche (coping/support).</strong> Primary power = contractions; secondary power = maternal pushing in stage 2.'},
+
+{id:2,block:'A',chapter:7,type:'Vocab',
+stem:'Which "P" of labor refers to the size, presentation, and position of the fetus?',
+options:[
+{letter:'A',text:'Passenger',correct:true,rationale:'The Passenger is the fetus, including its size, lie, attitude, presentation, and position, plus the placenta. Fetal factors strongly influence how labor progresses and whether the fetus can pass through the pelvis.'},
+{letter:'B',text:'Powers',correct:false,rationale:'Powers are the contractile and pushing forces, not the fetus.'},
+{letter:'C',text:'Passage',correct:false,rationale:'Passage is the maternal pelvis and soft tissues, not the fetus.'},
+{letter:'D',text:'Psyche',correct:false,rationale:'Psyche is the maternal psychological state, not the fetus.'}
+],vocabTip:'<strong>Passenger = the fetus (size, lie, attitude, presentation, position) and placenta.</strong> Vertex (occiput) presentation is most favorable; breech and transverse lie complicate birth.'},
+
+{id:3,block:'A',chapter:7,type:'Assessment',trap:true,
+stem:'A woman calls unsure if she is in true labor. Which finding best indicates true labor rather than false labor?',
+options:[
+{letter:'A',text:'Regular contractions that intensify and cause cervical change',correct:true,rationale:'True labor is defined by regular contractions that increase in frequency, duration, and intensity and produce progressive cervical dilation and effacement. Contractions often start in the back and radiate to the front and do not ease with rest or position change.'},
+{letter:'B',text:'Irregular contractions that stop with walking or rest',correct:false,rationale:'Contractions that are irregular and ease with activity or rest and cause no cervical change indicate false labor (Braxton Hicks).'},
+{letter:'C',text:'Discomfort felt only in the abdomen that eases with a warm bath',correct:false,rationale:'False labor discomfort is typically felt in the front/abdomen and relieved by comfort measures; true labor causes cervical change.'},
+{letter:'D',text:'Contractions that decrease when the woman changes position',correct:false,rationale:'Contractions that lessen with position change suggest false labor; true labor contractions persist and progress.'}
+],vocabTip:'<strong>True labor: regular, intensifying contractions + cervical change; often start in the back. False labor: irregular, ease with rest/activity, no cervical change.</strong> Cervical change is the key differentiator.'},
+
+{id:4,block:'A',chapter:7,type:'Priority',
+stem:'A patient reports her "water broke" with a large gush of clear fluid. What is the nurse\'s priority assessment?',
+options:[
+{letter:'A',text:'Assess the fetal heart rate',correct:true,rationale:'After rupture of membranes, the priority is to assess the fetal heart rate to detect cord prolapse or compression, which can cause fetal bradycardia or variable decelerations. The nurse also notes the time, color, odor, and amount of fluid.'},
+{letter:'B',text:'Send her home to rest',correct:false,rationale:'Rupture of membranes requires evaluation, not sending her home; the priority is checking fetal well-being.'},
+{letter:'C',text:'Immediately prepare for a cesarean birth',correct:false,rationale:'Rupture alone does not indicate cesarean; the fetal heart rate is assessed first to evaluate for cord problems.'},
+{letter:'D',text:'Restrict all fluids by mouth for 24 hours',correct:false,rationale:'Blanket fluid restriction is not the priority; assessing the fetal heart rate after rupture is.'}
+],vocabTip:'<strong>After ROM: assess FHR first (rule out cord prolapse), then note Time, Color, Odor, Amount (TACO). Green fluid = meconium; foul odor = infection.</strong>'},
+
+{id:5,block:'A',chapter:7,type:'Vocab',
+stem:'A nurse documents the fetal relationship of the presenting part to the maternal pelvis. Which term describes whether the head or buttocks enters the pelvis first?',
+options:[
+{letter:'A',text:'Presentation',correct:true,rationale:'Presentation refers to the fetal part that enters the pelvic inlet first, cephalic (head), breech (buttocks or feet), or shoulder. Cephalic vertex presentation is the most common and favorable for vaginal birth.'},
+{letter:'B',text:'Station',correct:false,rationale:'Station describes how far the presenting part has descended relative to the ischial spines, not which part presents.'},
+{letter:'C',text:'Attitude',correct:false,rationale:'Attitude is the degree of fetal flexion or extension, not which part presents first.'},
+{letter:'D',text:'Effacement',correct:false,rationale:'Effacement is thinning of the cervix, not the fetal presenting part.'}
+],vocabTip:'<strong>Presentation = the part entering first (cephalic/vertex best, breech, shoulder). Lie = fetal spine vs maternal spine. Attitude = flexion. Position = presenting part vs pelvis (e.g., LOA).</strong>'},
+
+{id:6,block:'B',chapter:7,type:'Assessment',
+stem:'A nurse describes the first stage of labor. Which statement is accurate?',
+options:[
+{letter:'A',text:'It extends from the onset of labor to full cervical dilation (10 cm)',correct:true,rationale:'The first stage of labor begins with the onset of regular contractions and ends when the cervix is fully dilated at 10 cm. It has three phases: latent, active, and transition. It is usually the longest stage.'},
+{letter:'B',text:'It extends from full dilation to birth of the baby',correct:false,rationale:'That describes the second stage; the first stage ends at full dilation.'},
+{letter:'C',text:'It extends from birth to delivery of the placenta',correct:false,rationale:'That describes the third stage; the first stage is from onset to full dilation.'},
+{letter:'D',text:'It is the recovery period after the placenta is delivered',correct:false,rationale:'That describes the fourth stage; the first stage precedes birth.'}
+],vocabTip:'<strong>Stage 1: onset then 10 cm (latent, active, transition). Stage 2: 10 cm then birth. Stage 3: birth then placenta. Stage 4: ~1 to 4 h recovery.</strong> Stage 1 is usually the longest.'},
+
+{id:7,block:'B',chapter:7,type:'Vocab',
+stem:'A laboring woman becomes irritable, nauseated, and says she "can\'t do this anymore" at 8 to 10 cm dilation. Which phase of the first stage is this?',
+options:[
+{letter:'A',text:'Transition phase',correct:true,rationale:'The transition phase (about 8 to 10 cm) is the shortest but most intense part of the first stage. Contractions are strong, frequent, and long, and women often feel irritable, nauseated, shaky, and overwhelmed, sometimes with an urge to push.'},
+{letter:'B',text:'Latent phase',correct:false,rationale:'The latent phase (about 0 to 6 cm) has milder, more manageable contractions, not the intense transition symptoms.'},
+{letter:'C',text:'Active phase',correct:false,rationale:'The active phase (about 6 to 8 cm) has stronger contractions but usually less of the overwhelmed, "cannot go on" feeling seen at transition.'},
+{letter:'D',text:'Placental phase',correct:false,rationale:'The placental phase is part of the third stage after birth, not a phase of cervical dilation.'}
+],vocabTip:'<strong>First-stage phases: latent (0 to 6 cm, mild), active (6 to 8 cm, stronger), transition (8 to 10 cm, intense, irritable, nausea, urge to push).</strong> Transition is shortest and hardest.'},
+
+{id:8,block:'B',chapter:7,type:'Priority',
+stem:'A multiparous woman at 9 cm suddenly says she feels the urge to push and pressure in her rectum. What should the nurse do first?',
+options:[
+{letter:'A',text:'Assess cervical dilation to determine if she is fully dilated',correct:true,rationale:'A strong urge to push and rectal pressure often signal complete dilation and the start of the second stage. The nurse should assess the cervix to confirm full dilation before the woman pushes, because pushing on an incompletely dilated cervix can cause swelling or laceration. Rapid progress is common in multiparas.'},
+{letter:'B',text:'Tell her to push hard immediately',correct:false,rationale:'Pushing before full dilation is confirmed can injure the cervix; the nurse should assess dilation first.'},
+{letter:'C',text:'Leave the room to prepare paperwork',correct:false,rationale:'This is a critical moment suggesting imminent second stage; the nurse should stay and assess, not leave.'},
+{letter:'D',text:'Place her flat and restrict movement',correct:false,rationale:'The priority is assessing dilation; positioning flat is not indicated and can reduce comfort and perfusion.'}
+],vocabTip:'<strong>Urge to push + rectal pressure then check dilation. Pushing before 10 cm can cause cervical edema/laceration.</strong> Multiparas can progress quickly; be ready for a rapid second stage.'},
+
+{id:9,block:'B',chapter:7,type:'SATA',sata:true,
+stem:'During the third stage of labor, which signs indicate that the placenta has separated and is ready to be delivered? Select all that apply.',
+options:[
+{letter:'A',text:'A sudden gush of blood from the vagina',correct:true,rationale:'A small sudden gush of blood accompanies separation of the placenta from the uterine wall.'},
+{letter:'B',text:'Apparent lengthening of the umbilical cord',correct:true,rationale:'As the placenta descends, the visible cord lengthens at the introitus.'},
+{letter:'C',text:'The uterus becomes globular and firmer',correct:true,rationale:'The uterus changes to a firm, globular shape as it contracts down after separation.'},
+{letter:'D',text:'The fundus rises upward in the abdomen',correct:true,rationale:'The uterus rises as the separated placenta moves into the lower segment.'},
+{letter:'E',text:'The cord shortens and retracts into the vagina',correct:false,rationale:'The cord lengthens, not shortens, as the placenta separates and descends.'}
+],vocabTip:'<strong>Placental separation signs: gush of blood, cord lengthening, globular firm uterus rising up.</strong> After delivery, ensure the uterus stays firm; a boggy fundus then massage (atony risk).'},
+
+{id:10,block:'B',chapter:7,type:'Priority',
+stem:'Immediately after delivery of the placenta, the nurse assesses a soft, boggy uterus. What is the priority action?',
+options:[
+{letter:'A',text:'Massage the fundus',correct:true,rationale:'A soft, boggy uterus indicates uterine atony, the leading cause of early postpartum hemorrhage. Fundal massage stimulates the uterus to contract and control bleeding. If it does not firm, uterotonic medications and further evaluation follow.'},
+{letter:'B',text:'Encourage the mother to sleep',correct:false,rationale:'A boggy uterus is a bleeding emergency; the priority is to firm the uterus with massage, not to let her rest.'},
+{letter:'C',text:'Restrict fluids',correct:false,rationale:'Fluid restriction does not treat atony; fundal massage (and uterotonics if needed) does.'},
+{letter:'D',text:'Delay all assessment for one hour',correct:false,rationale:'Delaying assessment risks hemorrhage; the fundus must be managed immediately.'}
+],vocabTip:'<strong>Boggy uterus = atony = #1 cause of early postpartum hemorrhage. First action: massage the fundus.</strong> If it stays boggy, give uterotonics (oxytocin) and evaluate. A firm, midline fundus is the goal.'},
+
+{id:11,block:'C',chapter:7,type:'Assessment',
+stem:'What is the normal baseline fetal heart rate at term?',
+options:[
+{letter:'A',text:'110 to 160 beats per minute',correct:true,rationale:'The normal baseline fetal heart rate at term is 110 to 160 beats per minute, measured over a 10-minute period excluding accelerations and decelerations. A rate above 160 is tachycardia and below 110 is bradycardia, both of which warrant evaluation.'},
+{letter:'B',text:'60 to 100 beats per minute',correct:false,rationale:'That is a normal adult heart rate; the fetal baseline is higher, 110 to 160.'},
+{letter:'C',text:'180 to 200 beats per minute',correct:false,rationale:'A baseline of 180 to 200 is fetal tachycardia, above the normal 110 to 160 range.'},
+{letter:'D',text:'80 to 100 beats per minute',correct:false,rationale:'80 to 100 is below the normal fetal range and would indicate bradycardia.'}
+],vocabTip:'<strong>Normal fetal heart rate baseline: 110 to 160 bpm. Above 160 = tachycardia; below 110 = bradycardia.</strong> Moderate variability and accelerations are reassuring signs of oxygenation.'},
+
+{id:12,block:'C',chapter:7,type:'Assessment',
+stem:'The fetal heart rate shows decelerations that mirror the contractions, beginning and ending with each contraction. How does the nurse interpret this?',
+options:[
+{letter:'A',text:'Early decelerations from head compression, generally benign',correct:true,rationale:'Early decelerations are gradual, symmetric drops that mirror the contraction (nadir at the peak), caused by fetal head compression during descent. They are benign and require no intervention. In VEAL CHOP, Early deceleration = Head compression.'},
+{letter:'B',text:'Late decelerations from placental insufficiency',correct:false,rationale:'Late decelerations begin after the contraction peaks and return to baseline after it ends; they are not mirror images and are concerning, unlike the described early decelerations.'},
+{letter:'C',text:'Variable decelerations from cord compression',correct:false,rationale:'Variable decelerations are abrupt and vary in timing and shape, caused by cord compression, not the smooth mirror pattern described.'},
+{letter:'D',text:'Fetal tachycardia',correct:false,rationale:'Tachycardia is a baseline above 160, not a deceleration pattern mirroring contractions.'}
+],vocabTip:'<strong>VEAL CHOP: Variable=Cord, Early=Head, Accelerations=OK, Late=Placental. Early decels mirror the contraction and are benign.</strong>'},
+
+{id:13,block:'C',chapter:7,type:'SATA',sata:true,
+stem:'The fetal monitor shows late decelerations. Which intrauterine resuscitation measures should the nurse implement? Select all that apply.',
+options:[
+{letter:'A',text:'Reposition the mother to her left side',correct:true,rationale:'Left lateral positioning relieves vena cava compression and improves uteroplacental perfusion.'},
+{letter:'B',text:'Increase the rate of the primary IV fluids',correct:true,rationale:'A fluid bolus supports maternal blood volume and placental perfusion.'},
+{letter:'C',text:'Stop the oxytocin infusion',correct:true,rationale:'Oxytocin intensifies contractions, which worsen placental perfusion, so it is discontinued.'},
+{letter:'D',text:'Administer oxygen by face mask and notify the provider',correct:true,rationale:'Oxygen improves fetal oxygen delivery, and the provider is notified of the nonreassuring pattern.'},
+{letter:'E',text:'Encourage vigorous maternal pushing',correct:false,rationale:'Pushing does not correct late decelerations and can increase fetal stress; resuscitation measures come first.'}
+],vocabTip:'<strong>Late decels (placental insufficiency): reposition left, IV fluid bolus, STOP oxytocin, O2, notify provider (intrauterine resuscitation).</strong> Late and prolonged decels are nonreassuring.'},
+
+{id:14,block:'C',chapter:7,type:'Priority',
+stem:'The fetal heart rate shows variable decelerations. Besides repositioning, which underlying cause should the nurse suspect and address?',
+options:[
+{letter:'A',text:'Umbilical cord compression',correct:true,rationale:'Variable decelerations are abrupt, V- or U-shaped drops caused by umbilical cord compression. Repositioning the mother (side to side or knee-chest) often relieves the pressure. If associated with rupture of membranes, the nurse checks for a prolapsed cord, an emergency.'},
+{letter:'B',text:'Fetal head compression',correct:false,rationale:'Head compression causes early decelerations, not variable ones.'},
+{letter:'C',text:'Placental insufficiency',correct:false,rationale:'Placental insufficiency causes late decelerations; variable decelerations are from cord compression.'},
+{letter:'D',text:'Maternal fever alone',correct:false,rationale:'Maternal fever can raise the baseline (tachycardia) but is not the cause of variable decelerations; cord compression is.'}
+],vocabTip:'<strong>Variable decels = cord compression. Reposition (side-lying, knee-chest); check for prolapsed cord after ROM.</strong> Prolapsed cord is an emergency: lift the presenting part off the cord and call for help.'},
+
+{id:15,block:'D',chapter:7,type:'Vocab',
+stem:'A nurse documents that the fetal presenting part is at station 0. What does this indicate?',
+options:[
+{letter:'A',text:'The presenting part is at the level of the ischial spines',correct:true,rationale:'Station describes the level of the presenting part relative to the maternal ischial spines. Station 0 means the presenting part is at the ischial spines and is engaged. Negative stations are above the spines; positive stations are below, moving toward birth.'},
+{letter:'B',text:'The presenting part is high above the pelvic inlet',correct:false,rationale:'A high presenting part would be a negative station (such as &minus;3), not 0.'},
+{letter:'C',text:'The baby is crowning at the perineum',correct:false,rationale:'Crowning corresponds to a high positive station (about +3 to +4), not station 0.'},
+{letter:'D',text:'The cervix is fully dilated',correct:false,rationale:'Station measures descent, not dilation; full dilation is a separate assessment (10 cm).'}
+],vocabTip:'<strong>Station: presenting part vs ischial spines. 0 = at the spines (engaged); negative = above; positive = below (toward birth). +4 near crowning.</strong>'},
+
+{id:16,block:'D',chapter:7,type:'Vocab',
+stem:'A nurse documents cervical effacement of 100%. What does this mean?',
+options:[
+{letter:'A',text:'The cervix has fully thinned out',correct:true,rationale:'Effacement is the thinning and shortening of the cervix, expressed as a percentage. At 100% effacement the cervix is completely thinned (paper-thin). Effacement often precedes or accompanies dilation, especially in first labors.'},
+{letter:'B',text:'The cervix is dilated to 10 cm',correct:false,rationale:'Effacement is thinning, not dilation. Dilation to 10 cm is measured separately.'},
+{letter:'C',text:'The cervix is completely closed',correct:false,rationale:'100% effacement means fully thinned, not closed; a closed, thick cervix would be 0% effaced.'},
+{letter:'D',text:'The placenta has fully separated',correct:false,rationale:'Effacement refers to the cervix, not the placenta.'}
+],vocabTip:'<strong>Effacement = cervical thinning (0 to 100%). Dilation = cervical opening (0 to 10 cm). In first labors effacement often precedes dilation.</strong>'},
+
+{id:17,block:'D',chapter:7,type:'Assessment',
+stem:'A nurse performs Leopold maneuvers. What is the purpose of this assessment?',
+options:[
+{letter:'A',text:'To determine fetal presentation, lie, and position by palpating the abdomen',correct:true,rationale:'Leopold maneuvers are a systematic four-step abdominal palpation to identify the fetal lie, presentation, position, and degree of descent, and to help locate the best spot to auscultate the fetal heart rate. The bladder should be empty first.'},
+{letter:'B',text:'To measure cervical dilation directly',correct:false,rationale:'Cervical dilation is assessed by vaginal exam, not by abdominal Leopold maneuvers.'},
+{letter:'C',text:'To rupture the membranes',correct:false,rationale:'Leopold maneuvers are palpation for fetal position; they do not rupture membranes.'},
+{letter:'D',text:'To measure maternal blood pressure',correct:false,rationale:'Leopold maneuvers assess the fetus, not maternal blood pressure.'}
+],vocabTip:'<strong>Leopold maneuvers: 4-step abdominal palpation for fetal lie, presentation, position, descent; guides FHR auscultation.</strong> Have the woman empty her bladder first for comfort and accuracy.'},
+
+{id:18,block:'D',chapter:7,type:'SATA',sata:true,
+stem:'A nurse cares for a woman in the active phase of the first stage of labor. Which nursing actions are appropriate? Select all that apply.',
+options:[
+{letter:'A',text:'Monitor fetal heart rate and contraction pattern',correct:true,rationale:'Ongoing assessment of the fetal heart rate and contractions detects problems early and guides care.'},
+{letter:'B',text:'Encourage position changes and ambulation as tolerated',correct:true,rationale:'Upright positions and movement can promote comfort and labor progress when there are no contraindications.'},
+{letter:'C',text:'Offer nonpharmacologic comfort measures such as breathing and counterpressure',correct:true,rationale:'Comfort techniques support coping and pain management during active labor.'},
+{letter:'D',text:'Assess maternal vital signs at appropriate intervals',correct:true,rationale:'Periodic vital signs monitor for fever, hypertension, and other changes affecting mother and fetus.'},
+{letter:'E',text:'Keep the mother flat on her back at all times',correct:false,rationale:'Flat supine positioning can cause vena cava compression and hypotension; side-lying and upright positions are preferred.'}
+],vocabTip:'<strong>Active labor care: monitor FHR/contractions, encourage movement and position changes, offer comfort measures, check vitals, support coping.</strong> Avoid prolonged flat supine positioning.'},
+
+{id:19,block:'E',chapter:7,type:'Assessment',
+stem:'A newborn is assessed at 1 minute with a heart rate of 130, strong cry, active movement, some flexion, and pink body with blue extremities. What Apgar factor is not fully met?',
+options:[
+{letter:'A',text:'Color (acrocyanosis scores 1, not 2)',correct:true,rationale:'Apgar scores 5 signs (heart rate, respiratory effort, muscle tone, reflex irritability, color), each 0 to 2. A pink body with blue hands and feet (acrocyanosis) scores 1 for color. The others described (heart rate above 100, strong cry, active movement) score 2, so color is the incomplete factor.'},
+{letter:'B',text:'Heart rate',correct:false,rationale:'A heart rate of 130 (above 100) scores the full 2 points, so it is met.'},
+{letter:'C',text:'Respiratory effort',correct:false,rationale:'A strong cry indicates good respiratory effort, scoring 2, so it is met.'},
+{letter:'D',text:'Muscle tone',correct:false,rationale:'Active movement reflects good tone, scoring 2; it is met.'}
+],vocabTip:'<strong>Apgar (0 to 2 each): Heart rate, Respirations, Muscle tone, Reflex, Color. Done at 1 and 5 minutes. Acrocyanosis (blue hands/feet) is common and scores 1 for color.</strong>'},
+
+{id:20,block:'E',chapter:7,type:'Priority',
+stem:'Immediately after birth, what is the highest priority nursing action for the newborn?',
+options:[
+{letter:'A',text:'Establish and maintain a clear airway and support breathing',correct:true,rationale:'The airway is the top priority at birth. The nurse dries and stimulates the newborn, positions the airway, and suctions if needed (mouth before nose) to ensure effective breathing. Maintaining warmth and preventing heat loss follow closely.'},
+{letter:'B',text:'Administer the vitamin K injection first',correct:false,rationale:'Vitamin K is given after the airway and thermoregulation are secured; it is not the first priority.'},
+{letter:'C',text:'Obtain the newborn\'s first bath',correct:false,rationale:'Bathing is delayed and is not a priority; airway and warmth come first.'},
+{letter:'D',text:'Apply the identification bands before anything else',correct:false,rationale:'ID bands are important but not before ensuring the airway and breathing.'}
+],vocabTip:'<strong>Newborn priority at birth: airway/breathing first (dry, stimulate, position, suction mouth then nose), then warmth (prevent heat loss).</strong> ABCs and thermoregulation lead care.'},
+
+{id:21,block:'E',chapter:7,type:'Teaching',
+stem:'A nurse prepares to give the newborn vitamin K. What is the rationale for this injection?',
+options:[
+{letter:'A',text:'Newborns have low vitamin K, so it is given to prevent bleeding',correct:true,rationale:'Newborns have immature gut flora and low vitamin K stores, so they cannot yet make adequate clotting factors. A single intramuscular dose of vitamin K in the vastus lateralis prevents vitamin K deficiency bleeding (hemorrhagic disease of the newborn).'},
+{letter:'B',text:'It prevents eye infections from birth',correct:false,rationale:'Eye prophylaxis (erythromycin ointment), not vitamin K, prevents ophthalmia neonatorum.'},
+{letter:'C',text:'It boosts the newborn\'s immune antibodies',correct:false,rationale:'Vitamin K supports clotting, not immune antibody levels.'},
+{letter:'D',text:'It treats newborn jaundice',correct:false,rationale:'Vitamin K does not treat jaundice; phototherapy and feeding address hyperbilirubinemia.'}
+],vocabTip:'<strong>Vitamin K IM (vastus lateralis) at birth: prevents vitamin K deficiency bleeding (newborns lack gut flora and clotting factors).</strong> Erythromycin eye ointment prevents ophthalmia neonatorum.'},
+
+{id:22,block:'E',chapter:7,type:'Assessment',
+stem:'A nurse explains newborn eye prophylaxis to parents. Which statement is accurate?',
+options:[
+{letter:'A',text:'Erythromycin ointment is applied to prevent eye infection from bacteria during birth',correct:true,rationale:'Erythromycin ophthalmic ointment is applied to the newborn\'s eyes to prevent ophthalmia neonatorum, particularly from gonorrhea and chlamydia acquired during passage through the birth canal. It may be delayed up to an hour to promote initial parent-infant bonding.'},
+{letter:'B',text:'The ointment improves the newborn\'s vision',correct:false,rationale:'Eye prophylaxis prevents infection; it does not improve vision.'},
+{letter:'C',text:'It is given to prevent bleeding',correct:false,rationale:'Bleeding prevention is the role of vitamin K, not eye ointment.'},
+{letter:'D',text:'It must be applied before the airway is secured',correct:false,rationale:'Airway and warmth come first; eye prophylaxis can be delayed briefly, especially for bonding.'}
+],vocabTip:'<strong>Erythromycin eye ointment: prevents ophthalmia neonatorum (gonorrhea/chlamydia exposure at birth). Can delay ~1 h for bonding.</strong> Vitamin K prevents bleeding; the two are separate.'},
+
+{id:23,block:'E',chapter:7,type:'Priority',
+stem:'To promote bonding and thermoregulation right after an uncomplicated vaginal birth, which intervention should the nurse prioritize?',
+options:[
+{letter:'A',text:'Place the newborn skin-to-skin on the mother\'s chest',correct:true,rationale:'Immediate skin-to-skin contact keeps the newborn warm (using the mother\'s body heat), stabilizes heart rate and blood sugar, promotes bonding, and encourages early breastfeeding. The infant is dried and covered with a warm blanket, and a hat is applied to reduce heat loss.'},
+{letter:'B',text:'Place the newborn alone under bright lights',correct:false,rationale:'Isolating the newborn under lights does not promote bonding and can increase heat loss; skin-to-skin is preferred.'},
+{letter:'C',text:'Give the first full bath immediately',correct:false,rationale:'An immediate bath increases heat loss and interrupts bonding; bathing is delayed.'},
+{letter:'D',text:'Keep the newborn in the nursery away from the mother',correct:false,rationale:'Separating mother and baby hinders bonding and thermoregulation; skin-to-skin contact is recommended.'}
+],vocabTip:'<strong>Skin-to-skin after birth: warmth, stable HR and glucose, bonding, early breastfeeding. Dry the baby, add a hat and warm blanket.</strong> Delay the first bath to reduce heat loss.'},
+
+{id:24,block:'E',chapter:7,type:'Vocab',
+stem:'A nurse documents the fetal head recede between contractions and then advance again during pushing. When the head no longer recedes and encircles the vaginal opening, which term applies?',
+options:[
+{letter:'A',text:'Crowning',correct:true,rationale:'Crowning occurs when the widest part of the fetal head distends the vaginal opening and no longer recedes between contractions, signaling that birth is imminent. The nurse prepares for delivery and supports controlled emergence of the head.'},
+{letter:'B',text:'Lightening',correct:false,rationale:'Lightening is the earlier descent of the fetus into the pelvis before labor, not the head at the vaginal opening.'},
+{letter:'C',text:'Engagement',correct:false,rationale:'Engagement is when the presenting part reaches the ischial spines (station 0), earlier than crowning.'},
+{letter:'D',text:'Effacement',correct:false,rationale:'Effacement is cervical thinning, not the appearance of the head at the introitus.'}
+],vocabTip:'<strong>Crowning = fetal head encircles the vaginal opening and no longer recedes then birth imminent.</strong> Support controlled delivery of the head to prevent perineal trauma.'},
+
+{id:25,block:'E',chapter:7,type:'Assessment',
+stem:'A nurse reviews the fourth stage of labor with a student. Which statement best describes it?',
+options:[
+{letter:'A',text:'It is the 1 to 4 hours after birth focused on recovery and close maternal monitoring',correct:true,rationale:'The fourth stage of labor is the first 1 to 4 hours after delivery of the placenta, when the mother is closely monitored for hemorrhage (fundal firmness and position, lochia), stable vital signs, and comfort. Bonding and initial breastfeeding are also supported.'},
+{letter:'B',text:'It is the phase of full cervical dilation',correct:false,rationale:'Full dilation is the end of the first stage, not the fourth stage.'},
+{letter:'C',text:'It is the delivery of the placenta',correct:false,rationale:'Placental delivery is the third stage; the fourth stage is the recovery period that follows.'},
+{letter:'D',text:'It is the onset of regular contractions',correct:false,rationale:'Onset of contractions marks the start of the first stage, not the fourth.'}
+],vocabTip:'<strong>Stage 4: first 1 to 4 h after birth then monitor fundus (firm, midline), lochia, vitals for hemorrhage; support bonding/breastfeeding.</strong> A boggy fundus or heavy lochia signals hemorrhage.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>

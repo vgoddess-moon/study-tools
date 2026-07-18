@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maternity Ch 8 &mdash; Pain Management in Labor Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 8 &mdash; Pain Management in Labor</h1>
+<p class="subtitle">Maternity Exam 1 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, calculation, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Labor Pain Management Must-Knows</h3>
+<svg viewBox="0 0 820 320" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="320" fill="#0c0f14"/>
+<rect x="20" y="20" width="380" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="210" y="45" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Nonpharmacologic</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Breathing, relaxation, imagery</text>
+<text x="35" y="95" fill="#e2e8f0" font-size="13">Effleurage, counterpressure, massage</text>
+<text x="35" y="118" fill="#e2e8f0" font-size="13">Hydrotherapy, position changes, ball</text>
+<text x="35" y="140" fill="#94a3b8" font-size="12">Gate control theory basis</text>
+<rect x="415" y="20" width="385" height="130" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="607" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Regional Anesthesia</text>
+<text x="430" y="72" fill="#e2e8f0" font-size="13">Epidural: main risk = hypotension</text>
+<text x="430" y="95" fill="#e2e8f0" font-size="13">Pre-load IV fluids before epidural</text>
+<text x="430" y="118" fill="#e2e8f0" font-size="13">Spinal: rapid onset (C-section)</text>
+<text x="430" y="140" fill="#94a3b8" font-size="12">Pudendal: perineum for birth</text>
+<rect x="20" y="170" width="380" height="130" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="210" y="195" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Opioids &amp; Reversal</text>
+<text x="35" y="222" fill="#e2e8f0" font-size="13">Butorphanol, nalbuphine, fentanyl</text>
+<text x="35" y="245" fill="#e2e8f0" font-size="13">Risk: maternal/neonatal resp. depression</text>
+<text x="35" y="268" fill="#e2e8f0" font-size="13">Naloxone reverses opioid depression</text>
+<text x="35" y="291" fill="#94a3b8" font-size="12">Avoid opioids near imminent birth</text>
+<rect x="415" y="170" width="385" height="130" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="607" y="195" fill="#f87171" font-size="15" font-weight="700" text-anchor="middle">Priority Safety</text>
+<text x="430" y="222" fill="#e2e8f0" font-size="13">Epidural then watch BP (hypotension)</text>
+<text x="430" y="245" fill="#e2e8f0" font-size="13">Hypotension: left tilt, fluids, O2</text>
+<text x="430" y="268" fill="#e2e8f0" font-size="13">General anesthesia: aspiration risk</text>
+<text x="430" y="291" fill="#94a3b8" font-size="12">Have naloxone available for newborn</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='mat-ch8-primer';
+const EXAM_LABEL='Maternity Ch 8 — Pain Management in Labor (25Q)';
+const BLOCKS={A:'Pain Theory & Nonpharmacologic',B:'Epidural & Spinal',C:'Opioids & Systemic Meds',D:'Regional Blocks & General Anesthesia',E:'Nursing Priorities & Safety'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:8,type:'Vocab',
+stem:'A nurse explains why back rubs and effleurage help reduce labor pain. Which theory supports these techniques?',
+options:[
+{letter:'A',text:'Gate control theory',correct:true,rationale:'Gate control theory proposes that stimulating large sensory nerve fibers (through touch, massage, effleurage, counterpressure, or warmth) can "close the gate" and reduce transmission of pain signals to the brain. This underlies many nonpharmacologic comfort measures in labor.'},
+{letter:'B',text:'Germ theory',correct:false,rationale:'Germ theory explains infectious disease, not pain modulation in labor.'},
+{letter:'C',text:'Cell theory',correct:false,rationale:'Cell theory concerns the basic units of life, not pain transmission.'},
+{letter:'D',text:'Fluid mosaic theory',correct:false,rationale:'The fluid mosaic model describes cell membranes, not pain relief.'}
+],vocabTip:'<strong>Gate control theory: nonpainful stimuli (touch, massage, counterpressure, warmth) "close the gate" then fewer pain signals reach the brain.</strong> Basis for effleurage, massage, hydrotherapy, and TENS.'},
+
+{id:2,block:'A',chapter:8,type:'Vocab',
+stem:'A support person lightly strokes the laboring woman\'s abdomen in a circular motion. Which nonpharmacologic technique is this?',
+options:[
+{letter:'A',text:'Effleurage',correct:true,rationale:'Effleurage is light, rhythmic stroking (often of the abdomen) used during contractions to provide distraction and comfort based on gate control theory. It is a common, low-risk nonpharmacologic method.'},
+{letter:'B',text:'Counterpressure',correct:false,rationale:'Counterpressure is firm pressure applied to the lower back (often the sacrum), not light abdominal stroking.'},
+{letter:'C',text:'Hydrotherapy',correct:false,rationale:'Hydrotherapy is the use of water (shower or tub) for comfort, not stroking.'},
+{letter:'D',text:'Effacement',correct:false,rationale:'Effacement is cervical thinning, not a comfort technique.'}
+],vocabTip:'<strong>Effleurage = light circular abdominal stroking (comfort/distraction). Counterpressure = firm sacral pressure (helps back labor).</strong> Both use gate control theory.'},
+
+{id:3,block:'A',chapter:8,type:'SATA',sata:true,
+stem:'A woman with back labor from an occiput-posterior position asks what may ease the intense low-back pain. Which measures should the nurse suggest? Select all that apply.',
+options:[
+{letter:'A',text:'Firm sacral counterpressure',correct:true,rationale:'Firm pressure on the sacrum counters the fetal head pressing on the sacrum and relieves back labor pain.'},
+{letter:'B',text:'A hands-and-knees position',correct:true,rationale:'The hands-and-knees position relieves pressure on the sacrum and can help the fetus rotate.'},
+{letter:'C',text:'Pelvic rocking or tilting',correct:true,rationale:'Pelvic rocking eases back discomfort and promotes fetal position changes.'},
+{letter:'D',text:'Applying warmth to the lower back',correct:true,rationale:'Warmth relaxes muscles and reduces perception of back pain.'},
+{letter:'E',text:'Lying flat and still on the back',correct:false,rationale:'Supine positioning worsens back labor and risks vena cava compression; upright and hands-and-knees positions are preferred.'}
+],vocabTip:'<strong>Back labor (often OP position): firm sacral counterpressure, hands-and-knees, pelvic rocking, warmth.</strong> These counter the fetal head pressing on the sacrum. Avoid flat supine.'},
+
+{id:4,block:'A',chapter:8,type:'Teaching',
+stem:'A patient in early labor wants to use hydrotherapy. Which teaching is accurate?',
+options:[
+{letter:'A',text:'A warm shower or tub can promote relaxation and ease contraction pain',correct:true,rationale:'Hydrotherapy (warm shower or immersion tub) promotes relaxation, may reduce pain perception, and can help labor progress. Water should be comfortably warm (not hot), and the fetal heart rate is monitored. It is generally used once labor is established.'},
+{letter:'B',text:'The water should be as hot as possible',correct:false,rationale:'Water that is too hot can raise maternal temperature and stress the fetus; it should be comfortably warm.'},
+{letter:'C',text:'Hydrotherapy eliminates the need to monitor the fetus',correct:false,rationale:'Fetal monitoring continues during hydrotherapy; it does not replace assessment.'},
+{letter:'D',text:'It is only safe after the baby is born',correct:false,rationale:'Hydrotherapy is used during labor for comfort, not only after birth.'}
+],vocabTip:'<strong>Hydrotherapy: warm (not hot) shower/tub then relaxation, less pain, may aid progress. Keep monitoring FHR; avoid overheating.</strong> Often used once labor is established.'},
+
+{id:5,block:'A',chapter:8,type:'SATA',sata:true,
+stem:'A nurse reviews nonpharmacologic pain relief options with a laboring woman. Which measures are appropriate? Select all that apply.',
+options:[
+{letter:'A',text:'Paced breathing and relaxation techniques',correct:true,rationale:'Controlled breathing and relaxation reduce tension and help manage pain without medication.'},
+{letter:'B',text:'Effleurage and sacral counterpressure',correct:true,rationale:'Touch-based measures use gate control theory to ease pain, including back labor.'},
+{letter:'C',text:'Position changes and use of a birthing ball',correct:true,rationale:'Upright positions and a birthing ball promote comfort and can aid labor progress.'},
+{letter:'D',text:'Warm hydrotherapy (shower or tub)',correct:true,rationale:'Warm water promotes relaxation and can decrease pain perception.'},
+{letter:'E',text:'Continuous flat supine positioning',correct:false,rationale:'Lying flat on the back can cause vena cava compression and worsen discomfort; it is not a comfort measure.'}
+],vocabTip:'<strong>Nonpharmacologic: breathing/relaxation, effleurage, counterpressure, position changes, birthing ball, hydrotherapy, imagery.</strong> All low-risk and based on gate control/relaxation. Avoid flat supine.'},
+
+{id:6,block:'B',chapter:8,type:'Priority',trap:true,
+stem:'A laboring woman receives an epidural. Which complication should the nurse monitor for most closely immediately afterward?',
+options:[
+{letter:'A',text:'Maternal hypotension',correct:true,rationale:'Epidural anesthesia causes vasodilation that can lead to maternal hypotension, which reduces placental perfusion and can cause fetal heart rate changes. The nurse monitors blood pressure frequently, pre-loads IV fluids, and positions the woman with a lateral tilt.'},
+{letter:'B',text:'Severe hypertension',correct:false,rationale:'Epidurals typically lower blood pressure through vasodilation; hypotension, not hypertension, is the main concern.'},
+{letter:'C',text:'Immediate hemorrhage',correct:false,rationale:'Hemorrhage is not the primary immediate epidural complication; hypotension is.'},
+{letter:'D',text:'Rapid cervical dilation',correct:false,rationale:'Epidurals do not speed dilation; the priority monitoring is for hypotension.'}
+],vocabTip:'<strong>Epidural: main risk = maternal hypotension (vasodilation) then reduced placental perfusion. Prevent/treat: IV fluid preload, lateral tilt, monitor BP, ephedrine/phenylephrine, O2.</strong>'},
+
+{id:7,block:'B',chapter:8,type:'Priority',
+stem:'Before an epidural is placed, which nursing action helps prevent maternal hypotension?',
+options:[
+{letter:'A',text:'Administer an IV fluid bolus as ordered',correct:true,rationale:'Pre-loading with an IV crystalloid bolus expands intravascular volume and helps offset the vasodilation and hypotension caused by epidural anesthesia. Baseline vital signs and fetal heart rate are also obtained beforehand.'},
+{letter:'B',text:'Restrict all IV fluids',correct:false,rationale:'Restricting fluids increases the risk of hypotension; a fluid bolus is given before an epidural.'},
+{letter:'C',text:'Place the woman flat on her back',correct:false,rationale:'Flat supine positioning worsens hypotension via vena cava compression; a lateral tilt is used.'},
+{letter:'D',text:'Give an antihypertensive medication',correct:false,rationale:'An antihypertensive would further lower blood pressure; the concern with epidurals is hypotension, prevented with fluids.'}
+],vocabTip:'<strong>Epidural prep: IV fluid bolus (preload) to prevent hypotension; obtain baseline BP and FHR; keep a lateral tilt.</strong> Treat hypotension with fluids, position, and vasopressors as ordered.'},
+
+{id:8,block:'B',chapter:8,type:'Assessment',
+stem:'A patient with an epidural has a blood pressure drop to 84/50 with fetal heart rate decelerations. What is the priority nursing action?',
+options:[
+{letter:'A',text:'Reposition to a lateral tilt, increase IV fluids, and give oxygen',correct:true,rationale:'Epidural-induced hypotension reduces placental perfusion, causing fetal decelerations. The nurse turns the woman to a lateral (side-lying) position, increases IV fluids, administers oxygen, and prepares to give a vasopressor (such as ephedrine or phenylephrine) per protocol, while notifying the provider.'},
+{letter:'B',text:'Place the woman in high Fowler and restrict fluids',correct:false,rationale:'Sitting fully upright and restricting fluids would worsen hypotension; lateral positioning and fluids are needed.'},
+{letter:'C',text:'Encourage her to push immediately',correct:false,rationale:'Pushing does not treat hypotension; correcting maternal blood pressure to restore placental perfusion is the priority.'},
+{letter:'D',text:'Discontinue fetal monitoring',correct:false,rationale:'Fetal monitoring is essential to evaluate the response; it should continue, not stop.'}
+],vocabTip:'<strong>Epidural hypotension + decels: lateral tilt, IV fluid bolus, O2, vasopressor (ephedrine/phenylephrine), notify provider.</strong> Restoring maternal BP restores placental perfusion.'},
+
+{id:9,block:'B',chapter:8,type:'Assessment',
+stem:'A nurse compares spinal and epidural anesthesia. Which statement about spinal anesthesia is accurate?',
+options:[
+{letter:'A',text:'It has a rapid onset and is often used for cesarean birth',correct:true,rationale:'Spinal anesthesia is injected into the subarachnoid (intrathecal) space and has a rapid, dense onset, making it useful for cesarean sections and some operative births. Like epidurals, it can cause hypotension, and a post-dural-puncture headache is a possible complication.'},
+{letter:'B',text:'It takes several hours to take effect',correct:false,rationale:'Spinal anesthesia works quickly; it is not slow in onset.'},
+{letter:'C',text:'It never causes hypotension',correct:false,rationale:'Spinal anesthesia can cause hypotension, similar to epidurals, so blood pressure is monitored.'},
+{letter:'D',text:'It provides no surgical anesthesia',correct:false,rationale:'Spinal anesthesia provides dense surgical anesthesia, which is why it is used for cesarean birth.'}
+],vocabTip:'<strong>Spinal: intrathecal, rapid dense block (cesareans). Risks: hypotension, post-dural-puncture headache.</strong> Epidural: slower, titratable, catheter-based for labor and surgery.'},
+
+{id:10,block:'B',chapter:8,type:'Assessment',
+stem:'A patient who had spinal anesthesia reports a severe headache that worsens when sitting up and improves when lying flat. What does the nurse suspect?',
+options:[
+{letter:'A',text:'Post-dural-puncture (spinal) headache',correct:true,rationale:'A post-dural-puncture headache results from cerebrospinal fluid leakage after the dura is punctured. It is classically positional, worse when upright and relieved by lying flat. Management includes hydration, caffeine, analgesics, and sometimes an epidural blood patch.'},
+{letter:'B',text:'Normal postpartum fatigue',correct:false,rationale:'A positional headache after dural puncture is a specific complication, not ordinary fatigue.'},
+{letter:'C',text:'Preeclampsia',correct:false,rationale:'Preeclampsia headache is not typically relieved by lying flat and is accompanied by hypertension and other signs; the positional pattern here points to post-dural-puncture headache.'},
+{letter:'D',text:'Dehydration only, needing no follow-up',correct:false,rationale:'While hydration helps, the positional headache after spinal anesthesia is a recognized complication that may need specific treatment such as a blood patch.'}
+],vocabTip:'<strong>Post-dural-puncture headache: positional (worse upright, better flat) from CSF leak. Treat: hydration, caffeine, analgesics, blood patch.</strong> More common after dural puncture.'},
+
+{id:11,block:'C',chapter:8,type:'Vocab',
+stem:'A laboring woman is given butorphanol for pain. To which drug class does this belong?',
+options:[
+{letter:'A',text:'Opioid (agonist-antagonist) analgesic',correct:true,rationale:'Butorphanol is an opioid agonist-antagonist analgesic used for labor pain. Like other opioids it can cause maternal and neonatal respiratory depression and sedation, so it is used cautiously and avoided close to birth.'},
+{letter:'B',text:'Antihypertensive',correct:false,rationale:'Butorphanol relieves pain; it is not an antihypertensive.'},
+{letter:'C',text:'Antibiotic',correct:false,rationale:'Butorphanol is an analgesic, not an antibiotic.'},
+{letter:'D',text:'Uterine stimulant',correct:false,rationale:'Butorphanol is a pain reliever, not a uterotonic like oxytocin.'}
+],vocabTip:'<strong>Butorphanol/nalbuphine = opioid agonist-antagonists for labor pain. Risks: maternal/neonatal respiratory depression, sedation.</strong> Avoid near imminent birth; keep naloxone available.'},
+
+{id:12,block:'C',chapter:8,type:'Priority',trap:true,
+stem:'An opioid analgesic is requested by a woman who is likely to deliver within the next 30 minutes. Why might the nurse question giving it now?',
+options:[
+{letter:'A',text:'It can cause neonatal respiratory depression if given close to birth',correct:true,rationale:'Opioids cross the placenta and can depress the newborn\'s respirations, especially if given within about 1 to 4 hours of birth (peak effect). When birth is imminent, giving an opioid risks a depressed, sluggish newborn, so timing is carefully considered and naloxone is available.'},
+{letter:'B',text:'It will speed up labor too much',correct:false,rationale:'Opioids do not accelerate labor; the concern near birth is neonatal respiratory depression.'},
+{letter:'C',text:'It always stops contractions completely',correct:false,rationale:'Opioids do not reliably stop contractions; the timing concern is neonatal depression.'},
+{letter:'D',text:'It raises the newborn\'s blood sugar dangerously',correct:false,rationale:'The relevant risk is respiratory depression in the newborn, not hyperglycemia.'}
+],vocabTip:'<strong>Opioids cross the placenta then neonatal respiratory depression, worst if given ~1 to 4 h before birth. Avoid near imminent delivery; have naloxone ready.</strong>'},
+
+{id:13,block:'C',chapter:8,type:'Priority',
+stem:'A newborn is born with respiratory depression after the mother received an opioid shortly before delivery. Which medication should the nurse anticipate for the newborn?',
+options:[
+{letter:'A',text:'Naloxone',correct:true,rationale:'Naloxone is an opioid antagonist that reverses opioid-induced respiratory depression. It may be given to a newborn depressed from maternal opioids, with resuscitation and ventilation support as needed. It should not be given to a newborn of an opioid-dependent mother because it can precipitate withdrawal and seizures.'},
+{letter:'B',text:'Oxytocin',correct:false,rationale:'Oxytocin is a uterotonic for the mother, not a treatment for neonatal respiratory depression.'},
+{letter:'C',text:'Vitamin K',correct:false,rationale:'Vitamin K prevents bleeding; it does not reverse opioid respiratory depression.'},
+{letter:'D',text:'Erythromycin',correct:false,rationale:'Erythromycin is eye prophylaxis, not a reversal agent for opioids.'}
+],vocabTip:'<strong>Naloxone: reverses opioid respiratory depression (mother or newborn). Support ventilation too.</strong> Avoid in newborns of opioid-dependent mothers (precipitates withdrawal/seizures).'},
+
+{id:14,block:'C',chapter:8,type:'Teaching',
+stem:'A woman receiving an IV opioid in labor asks how to stay safe afterward. Which teaching is appropriate?',
+options:[
+{letter:'A',text:'Stay in bed with the side rails up and call for help to get up',correct:true,rationale:'Opioids cause sedation and dizziness, increasing fall risk. Safety measures include keeping the woman in bed with side rails up, assisting her when she gets up, and monitoring her respiratory rate and level of sedation. Continuous fetal monitoring also continues.'},
+{letter:'B',text:'Get up and walk alone right after the dose',correct:false,rationale:'Walking alone after an opioid risks falls from sedation and dizziness; assistance is needed.'},
+{letter:'C',text:'Ignore drowsiness as unimportant',correct:false,rationale:'Drowsiness and sedation are important to monitor because they signal opioid effect and fall risk.'},
+{letter:'D',text:'Stop fetal monitoring after the dose',correct:false,rationale:'Fetal monitoring continues after opioids to detect any effect on the fetus.'}
+],vocabTip:'<strong>Post-opioid safety: sedation and dizziness then bed with side rails up, assist to stand, monitor respirations/sedation, continue FHR monitoring.</strong> Fall precautions apply.'},
+
+{id:15,block:'D',chapter:8,type:'Vocab',
+stem:'A pudendal block is administered just before a vaginal birth. What area does it primarily anesthetize?',
+options:[
+{letter:'A',text:'The perineum and lower vagina',correct:true,rationale:'A pudendal block anesthetizes the pudendal nerve, numbing the perineum, lower vagina, and vulva. It is given late in the second stage to provide perineal anesthesia for birth, episiotomy, or repair, and it does not relieve contraction pain.'},
+{letter:'B',text:'The entire abdomen',correct:false,rationale:'A pudendal block is local to the perineal area, not the whole abdomen.'},
+{letter:'C',text:'The upper chest',correct:false,rationale:'A pudendal block does not affect the chest; it targets the perineum.'},
+{letter:'D',text:'Both legs completely',correct:false,rationale:'A pudendal block numbs the perineum, not the full legs (as a spinal might).'}
+],vocabTip:'<strong>Pudendal block: numbs perineum, lower vagina, vulva for birth/episiotomy/repair (late 2nd stage). Does NOT relieve contraction pain.</strong> A local block infiltrates the perineum for repair.'},
+
+{id:16,block:'D',chapter:8,type:'Priority',trap:true,
+stem:'A woman requires general anesthesia for an emergency cesarean birth. Which maternal complication is the priority concern?',
+options:[
+{letter:'A',text:'Aspiration of stomach contents',correct:true,rationale:'General anesthesia carries a risk of aspiration of gastric contents because pregnancy slows gastric emptying and relaxes the esophageal sphincter. Aspiration prophylaxis (such as a nonparticulate antacid, and sometimes H2 blockers), rapid-sequence induction, and cricoid pressure reduce this risk.'},
+{letter:'B',text:'Excess milk production',correct:false,rationale:'Milk production is not the acute anesthetic risk; aspiration is the priority concern.'},
+{letter:'C',text:'Immediate uterine rupture from the medication',correct:false,rationale:'General anesthetics do not directly rupture the uterus; aspiration is the key risk.'},
+{letter:'D',text:'Permanent loss of sensation in the legs',correct:false,rationale:'General anesthesia causes unconsciousness, not permanent leg sensory loss; aspiration is the priority.'}
+],vocabTip:'<strong>General anesthesia risks: maternal aspiration (slowed gastric emptying) and neonatal depression. Prophylaxis: nonparticulate antacid, rapid-sequence induction, cricoid pressure.</strong>'},
+
+{id:17,block:'D',chapter:8,type:'Assessment',
+stem:'After a cesarean birth under general anesthesia, the newborn is drowsy with slow respirations. What is the likely cause?',
+options:[
+{letter:'A',text:'General anesthetic agents crossing the placenta and depressing the newborn',correct:true,rationale:'General anesthesia agents cross the placenta and can depress the newborn, causing drowsiness and slow respirations, particularly if the interval from induction to delivery is prolonged. The team supports the newborn\'s airway and breathing and monitors closely.'},
+{letter:'B',text:'The newborn is simply cold',correct:false,rationale:'While cold stress matters, respiratory depression after general anesthesia is most likely from the anesthetic agents crossing to the fetus.'},
+{letter:'C',text:'The newborn received too much vitamin K',correct:false,rationale:'Vitamin K does not cause respiratory depression; the anesthetic agents are the likely cause.'},
+{letter:'D',text:'The mother\'s epidural affected the baby',correct:false,rationale:'This birth used general anesthesia, not an epidural; the general agents crossing the placenta explain the depression.'}
+],vocabTip:'<strong>General anesthesia then agents cross the placenta then neonatal depression (drowsy, slow respirations), worse with long induction-to-delivery time.</strong> Support the newborn\'s ABCs; naloxone is not for general agents.'},
+
+{id:18,block:'D',chapter:8,type:'Vocab',
+stem:'A nurse describes a local infiltration used at the perineum. What is its purpose?',
+options:[
+{letter:'A',text:'To numb the perineal tissue for episiotomy or laceration repair',correct:true,rationale:'Local perineal infiltration injects an anesthetic directly into the perineal tissue to numb the area for an episiotomy or for repairing a laceration after birth. It provides local anesthesia only and does not relieve labor contraction pain.'},
+{letter:'B',text:'To relieve the pain of contractions',correct:false,rationale:'Local infiltration numbs a small area of tissue; it does not relieve contraction pain.'},
+{letter:'C',text:'To anesthetize the whole lower body',correct:false,rationale:'That would be a spinal or epidural; local infiltration affects only the injected perineal tissue.'},
+{letter:'D',text:'To stop bleeding after birth',correct:false,rationale:'Local anesthetic numbs tissue for repair; it is not a hemostatic agent.'}
+],vocabTip:'<strong>Local perineal infiltration: numbs tissue for episiotomy/laceration repair only. Pudendal block: perineum/lower vagina for birth. Neither relieves contraction pain.</strong>'},
+
+{id:19,block:'E',chapter:8,type:'Priority',
+stem:'A woman with an epidural has not voided in several hours and reports lower abdominal fullness. What should the nurse assess and address?',
+options:[
+{letter:'A',text:'Bladder distension, since epidurals reduce the urge to void',correct:true,rationale:'Epidural anesthesia decreases the sensation to void, so the bladder can become distended. A full bladder can impede fetal descent and increase bleeding risk. The nurse assesses for bladder distension and catheterizes if the woman cannot void, keeping the bladder empty.'},
+{letter:'B',text:'Nothing, because bladder fullness does not matter in labor',correct:false,rationale:'A distended bladder can slow labor progress and increase postpartum bleeding, so it must be addressed.'},
+{letter:'C',text:'Encourage her to push despite the fullness',correct:false,rationale:'A full bladder can obstruct descent; it should be emptied, not ignored while pushing.'},
+{letter:'D',text:'Restrict all fluids to reduce urine',correct:false,rationale:'Fluid restriction is not the solution; assessing and emptying the bladder (catheterizing if needed) is.'}
+],vocabTip:'<strong>Epidural reduces the urge to void then monitor for bladder distension; catheterize if unable to void.</strong> A full bladder can impede descent and increase bleeding.'},
+
+{id:20,block:'E',chapter:8,type:'SATA',sata:true,
+stem:'A nurse cares for a woman immediately after epidural placement. Which nursing assessments and actions are appropriate? Select all that apply.',
+options:[
+{letter:'A',text:'Monitor blood pressure frequently for hypotension',correct:true,rationale:'Frequent blood pressure checks detect epidural-induced hypotension early.'},
+{letter:'B',text:'Continue fetal heart rate monitoring',correct:true,rationale:'The fetus is monitored for decelerations that can follow maternal hypotension.'},
+{letter:'C',text:'Assess for bladder distension and catheterize if needed',correct:true,rationale:'Reduced voiding sensation can cause bladder distension that impedes labor and increases bleeding.'},
+{letter:'D',text:'Keep the woman in a lateral tilt rather than flat supine',correct:true,rationale:'A lateral tilt prevents vena cava compression and helps maintain blood pressure and perfusion.'},
+{letter:'E',text:'Ambulate the woman independently right away',correct:false,rationale:'Motor block and hypotension make independent ambulation unsafe immediately after an epidural; assistance and assessment are required first.'}
+],vocabTip:'<strong>Post-epidural care: monitor BP (hypotension), continue FHR, assess bladder, keep a lateral tilt, ensure fall safety.</strong> Do not ambulate independently until motor/sensory function and BP are safe.'},
+
+{id:21,block:'E',chapter:8,type:'Teaching',
+stem:'A patient is deciding between an epidural and IV opioids. Which teaching accurately compares them?',
+options:[
+{letter:'A',text:'An epidural gives stronger, more localized pain relief; IV opioids offer milder relief but can sedate the newborn',correct:true,rationale:'An epidural provides more complete pain relief to the lower body with less sedation, but risks maternal hypotension and reduced mobility. IV opioids are easier to give but provide only partial relief and can cross the placenta to sedate the newborn. This helps the woman make an informed choice.'},
+{letter:'B',text:'IV opioids completely eliminate all labor pain',correct:false,rationale:'IV opioids only take the edge off pain; they do not eliminate it, unlike more complete epidural relief.'},
+{letter:'C',text:'Epidurals never cause any side effects',correct:false,rationale:'Epidurals can cause hypotension, reduced mobility, and urinary retention; they are not side-effect free.'},
+{letter:'D',text:'Opioids have no effect on the newborn',correct:false,rationale:'Opioids cross the placenta and can depress the newborn, so timing matters.'}
+],vocabTip:'<strong>Epidural: strong localized relief, risk of hypotension/urinary retention/reduced mobility. IV opioids: milder relief, can sedate mother and newborn.</strong> Support informed choice.'},
+
+{id:22,block:'E',chapter:8,type:'Priority',
+stem:'Which finding after an epidural should the nurse report to the provider immediately?',
+options:[
+{letter:'A',text:'A sudden drop in blood pressure with fetal heart rate decelerations',correct:true,rationale:'Sudden maternal hypotension with fetal decelerations indicates reduced placental perfusion and requires immediate intervention (positioning, fluids, oxygen, vasopressor) and provider notification. It is the most urgent finding after an epidural.'},
+{letter:'B',text:'Mild itching of the skin',correct:false,rationale:'Itching (pruritus) is a common, usually benign side effect of epidural opioids; it is not the most urgent finding.'},
+{letter:'C',text:'Numbness of the lower legs',correct:false,rationale:'Some lower-body numbness is expected with an epidural; it is not an emergency by itself.'},
+{letter:'D',text:'Feeling less pressure with contractions',correct:false,rationale:'Reduced contraction pain is the intended effect of the epidural, not a complication.'}
+],vocabTip:'<strong>Report immediately: epidural hypotension + fetal decels (placental perfusion at risk). Itching and lower-body numbness are expected side effects.</strong> Act: position, fluids, O2, vasopressor.'},
+
+{id:23,block:'E',chapter:8,type:'Assessment',
+stem:'A woman using patterned breathing begins to feel lightheaded, with tingling fingers and around the mouth. What does the nurse recognize and do?',
+options:[
+{letter:'A',text:'Hyperventilation; coach slower breathing or breathe into cupped hands',correct:true,rationale:'Rapid, deep breathing can cause hyperventilation and respiratory alkalosis, producing lightheadedness and tingling of the fingers and around the mouth. The nurse coaches slower, paced breathing or has the woman breathe into cupped hands or a paper bag to rebreathe carbon dioxide.'},
+{letter:'B',text:'A stroke; prepare for emergency imaging',correct:false,rationale:'These symptoms reflect hyperventilation during breathing techniques, not a stroke; slowing the breathing resolves them.'},
+{letter:'C',text:'Normal, requiring no response',correct:false,rationale:'While benign, hyperventilation symptoms should be addressed by coaching slower breathing to relieve them.'},
+{letter:'D',text:'Allergic reaction; give epinephrine',correct:false,rationale:'Tingling and lightheadedness from fast breathing indicate hyperventilation, not anaphylaxis.'}
+],vocabTip:'<strong>Hyperventilation (fast breathing): respiratory alkalosis then lightheaded, tingling fingers/lips. Fix: slow paced breathing or rebreathe into cupped hands.</strong> A risk of unpaced breathing techniques.'},
+
+{id:24,block:'E',chapter:8,type:'Teaching',
+stem:'A woman asks whether she can still change positions and use comfort measures after an epidural. What is the nurse\'s best response?',
+options:[
+{letter:'A',text:'Yes, with assistance she can be repositioned regularly to promote comfort and labor progress',correct:true,rationale:'Even with an epidural, the woman can and should be repositioned regularly (with assistance because of reduced mobility and sensation) to promote comfort, aid labor progress, and prevent pressure injuries. A lateral tilt also helps prevent hypotension.'},
+{letter:'B',text:'No, she must lie completely still and flat until birth',correct:false,rationale:'Lying flat and still is not required and risks hypotension and pressure injury; assisted repositioning is encouraged.'},
+{letter:'C',text:'She should get up and walk alone to speed labor',correct:false,rationale:'Reduced motor function after an epidural makes independent walking unsafe; assistance is required.'},
+{letter:'D',text:'Comfort measures are no longer allowed with an epidural',correct:false,rationale:'Nonpharmacologic comfort and repositioning remain valuable and can be combined with the epidural.'}
+],vocabTip:'<strong>With an epidural: reposition regularly WITH assistance (reduced sensation/mobility) then comfort, progress, fewer pressure injuries. Keep a lateral tilt.</strong> Combine with nonpharmacologic measures.'},
+
+{id:25,block:'E',chapter:8,type:'Priority',
+stem:'A laboring woman states she wants no medication and prefers natural coping. What is the nurse\'s best response?',
+options:[
+{letter:'A',text:'Support her choice and offer nonpharmacologic comfort measures',correct:true,rationale:'Respecting the woman\'s informed preferences is central to patient-centered care. The nurse supports her decision, provides nonpharmacologic measures (breathing, position changes, hydrotherapy, counterpressure, support), and keeps her informed that medication remains available if she changes her mind.'},
+{letter:'B',text:'Insist she accept an epidural for her own good',correct:false,rationale:'Pressuring the woman violates her autonomy; the nurse supports her informed choice.'},
+{letter:'C',text:'Tell her natural methods never work',correct:false,rationale:'Nonpharmacologic methods can be effective; dismissing them is inaccurate and unsupportive.'},
+{letter:'D',text:'Withhold all comfort measures until she agrees to medication',correct:false,rationale:'Withholding comfort care is unethical; the nurse should actively provide nonpharmacologic support.'}
+],vocabTip:'<strong>Respect informed preferences: support natural coping, provide nonpharmacologic comfort, and keep medication options open.</strong> Patient-centered, autonomy-honoring care.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>

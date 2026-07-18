@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 63 &mdash; Gynecologic Conditions Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 63 &mdash; Gynecologic Conditions</h1>
+<p class="subtitle">MS2 Exam 1 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, calculation, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Gynecologic Conditions Must-Knows</h3>
+<svg viewBox="0 0 820 320" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="320" fill="#0c0f14"/>
+<rect x="20" y="20" width="380" height="130" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="210" y="45" fill="#f87171" font-size="15" font-weight="700" text-anchor="middle">Cancer Red Flags</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Postmenopausal bleeding = endometrial CA</text>
+<text x="35" y="95" fill="#e2e8f0" font-size="13">Bloating, early satiety, urinary frequency</text>
+<text x="35" y="115" fill="#94a3b8" font-size="12">= vague ovarian CA (caught late)</text>
+<text x="35" y="138" fill="#e2e8f0" font-size="13">HPV drives cervical cancer (Pap + vaccine)</text>
+<rect x="415" y="20" width="385" height="130" rx="8" fill="#13181f" stroke="#7c3aed"/>
+<text x="607" y="45" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Brachytherapy Safety</text>
+<text x="430" y="72" fill="#e2e8f0" font-size="13">Private room, strict bed rest</text>
+<text x="430" y="95" fill="#e2e8f0" font-size="13">Time, distance, shielding</text>
+<text x="430" y="118" fill="#e2e8f0" font-size="13">No pregnant staff or children under 18</text>
+<text x="430" y="140" fill="#94a3b8" font-size="12">Keep forceps + lead container ready</text>
+<rect x="20" y="170" width="380" height="130" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="210" y="195" fill="#fbbf24" font-size="15" font-weight="700" text-anchor="middle">Priority Actions</text>
+<text x="35" y="222" fill="#e2e8f0" font-size="13">TSS: remove the tampon FIRST</text>
+<text x="35" y="245" fill="#e2e8f0" font-size="13">Hysteroscopy: watch for fluid overload</text>
+<text x="35" y="265" fill="#94a3b8" font-size="12">(crackles, dyspnea, low sodium)</text>
+<text x="35" y="288" fill="#e2e8f0" font-size="13">Post-hyst: no lifting &gt;10 lb, no sex 6 wk</text>
+<rect x="415" y="170" width="385" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="607" y="195" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Benign Conditions</text>
+<text x="430" y="222" fill="#e2e8f0" font-size="13">Endometriosis: tissue outside uterus, pain</text>
+<text x="430" y="245" fill="#e2e8f0" font-size="13">Fibroids (leiomyoma): heavy bleeding</text>
+<text x="430" y="268" fill="#e2e8f0" font-size="13">PCOS: irregular menses, androgen excess</text>
+<text x="430" y="291" fill="#e2e8f0" font-size="13">Cystocele/rectocele: pelvic bulge, pressure</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch63-primer';
+const EXAM_LABEL='MS2 Ch 63 — Gynecologic Conditions (25Q)';
+const BLOCKS={A:'Menstrual & Benign Disorders',B:'Gynecologic Cancers',C:'Radiation & Brachytherapy',D:'Surgical Care',E:'Prolapse & Structural'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:63,type:'Priority',
+stem:'A woman using tampons presents with sudden high fever, rash, hypotension, and is diagnosed with toxic shock syndrome. What is the nurse\'s first action?',
+options:[
+{letter:'A',text:'Remove the tampon',correct:true,rationale:'Toxic shock syndrome is driven by staphylococcal toxins, often from a retained high-absorbency tampon. Removing the source (the tampon) is the immediate first action, followed by fluids, antibiotics, and hemodynamic support.'},
+{letter:'B',text:'Insert a new tampon to control bleeding',correct:false,rationale:'Adding a tampon reintroduces the toxin source and worsens TSS. The tampon must be removed, not replaced.'},
+{letter:'C',text:'Delay treatment until culture results return',correct:false,rationale:'TSS is life-threatening; you cannot wait for cultures. Remove the source and begin supportive care and antibiotics immediately.'},
+{letter:'D',text:'Restrict the patient\'s fluid intake',correct:false,rationale:'TSS causes hypotension and shock, so patients need aggressive fluids, not restriction. First remove the tampon.'}
+],vocabTip:'<strong>Toxic shock syndrome: remove the tampon FIRST, then fluids, antibiotics, pressors.</strong> Caused by Staph aureus toxins, often from high-absorbency tampons left in too long. Teach: change tampons q4 to 8h, lowest absorbency, alternate with pads.'},
+
+{id:2,block:'A',chapter:63,type:'Assessment',
+stem:'A 30-year-old woman reports severe pelvic pain that peaks with her periods, painful intercourse, and difficulty conceiving. The nurse recognizes findings consistent with which condition?',
+options:[
+{letter:'A',text:'Endometriosis',correct:true,rationale:'Endometriosis is endometrial-like tissue growing outside the uterus. It responds to cyclic hormones, causing cyclic pelvic pain that worsens with menses (dysmenorrhea), dyspareunia, and infertility from adhesions and scarring.'},
+{letter:'B',text:'Uterine fibroids',correct:false,rationale:'Fibroids more often cause heavy menstrual bleeding and pelvic pressure than the cyclic dysmenorrhea, dyspareunia, and infertility triad of endometriosis.'},
+{letter:'C',text:'A normal menstrual cycle',correct:false,rationale:'Severe pain, painful intercourse, and infertility are not normal and warrant evaluation.'},
+{letter:'D',text:'Toxic shock syndrome',correct:false,rationale:'TSS is an acute febrile illness with rash and hypotension, not chronic cyclic pelvic pain and infertility.'}
+],vocabTip:'<strong>Endometriosis: endometrial tissue OUTSIDE the uterus. Classic triad: cyclic dysmenorrhea, dyspareunia, infertility.</strong> Managed with NSAIDs, hormonal suppression (OCPs, GnRH agonists), or surgery. Definitive diagnosis is by laparoscopy.'},
+
+{id:3,block:'A',chapter:63,type:'Assessment',
+stem:'A woman with heavy prolonged menstrual bleeding and pelvic pressure is found to have several uterine leiomyomas. What does the nurse understand about this diagnosis?',
+options:[
+{letter:'A',text:'These are benign smooth-muscle tumors of the uterus',correct:true,rationale:'Leiomyomas (fibroids) are benign tumors of uterine smooth muscle. They commonly cause menorrhagia, pelvic pressure or fullness, and can affect fertility. They are estrogen-dependent and often shrink after menopause.'},
+{letter:'B',text:'These are a form of uterine cancer',correct:false,rationale:'Leiomyomas are benign, not malignant. Their cancerous counterpart (leiomyosarcoma) is rare and separate.'},
+{letter:'C',text:'These are infections of the fallopian tubes',correct:false,rationale:'Fibroids are muscle tumors of the uterus, not tubal infections.'},
+{letter:'D',text:'These always require immediate hysterectomy',correct:false,rationale:'Many fibroids are managed conservatively with monitoring, medications, or uterine-sparing procedures. Hysterectomy is one option, not a requirement.'}
+],vocabTip:'<strong>Leiomyoma (fibroid): benign uterine smooth-muscle tumor, estrogen-dependent.</strong> Causes heavy bleeding and pelvic pressure; often shrinks after menopause. Options: watchful waiting, meds, uterine artery embolization, myomectomy, or hysterectomy.'},
+
+{id:4,block:'A',chapter:63,type:'SATA',sata:true,
+stem:'A patient is being evaluated for polycystic ovary syndrome (PCOS). Which findings does the nurse expect? Select all that apply.',
+options:[
+{letter:'A',text:'Irregular or absent menstrual periods',correct:true,rationale:'PCOS disrupts ovulation, causing oligomenorrhea or amenorrhea and infertility.'},
+{letter:'B',text:'Hirsutism and acne',correct:true,rationale:'Excess androgens in PCOS cause hirsutism (male-pattern hair growth), acne, and sometimes scalp hair thinning.'},
+{letter:'C',text:'Insulin resistance and weight gain',correct:true,rationale:'PCOS is strongly linked to insulin resistance, obesity, and increased risk of type 2 diabetes.'},
+{letter:'D',text:'Multiple small ovarian cysts on ultrasound',correct:true,rationale:'Numerous small follicular cysts around the ovary edges are a hallmark ultrasound finding in PCOS.'},
+{letter:'E',text:'Consistently low testosterone levels',correct:false,rationale:'PCOS involves androgen EXCESS, not deficiency. Testosterone and other androgens are typically elevated.'}
+],vocabTip:'<strong>PCOS: irregular/absent menses, androgen excess (hirsutism, acne), insulin resistance/obesity, polycystic ovaries.</strong> Raises risk of type 2 diabetes and endometrial cancer. Managed with lifestyle change, metformin, and OCPs.'},
+
+{id:5,block:'A',chapter:63,type:'Teaching',
+stem:'A nurse teaches a patient prevention of toxic shock syndrome related to tampon use. Which instruction is correct?',
+options:[
+{letter:'A',text:'Change tampons every 4 to 8 hours and use the lowest absorbency needed',correct:true,rationale:'Leaving high-absorbency tampons in too long lets Staph aureus multiply and produce toxin. Changing tampons every 4 to 8 hours, using the lowest effective absorbency, and alternating with pads reduces TSS risk.'},
+{letter:'B',text:'Leave a super-absorbent tampon in overnight for convenience',correct:false,rationale:'Prolonged use of high-absorbency tampons is exactly what raises TSS risk. Pads are safer overnight.'},
+{letter:'C',text:'Always use the highest absorbency available',correct:false,rationale:'Higher absorbency increases TSS risk. The lowest absorbency that manages the flow is recommended.'},
+{letter:'D',text:'Reinsert the same tampon if it slips',correct:false,rationale:'A tampon is never reinserted because of contamination. A fresh tampon is used.'}
+],vocabTip:'<strong>TSS prevention: change tampons q4 to 8h, lowest absorbency, alternate with pads, wash hands before insertion.</strong> Report sudden fever, rash (sunburn-like), vomiting, and dizziness. History of TSS is a reason to avoid tampons entirely.'},
+
+{id:6,block:'B',chapter:63,type:'Assessment',
+stem:'A 62-year-old postmenopausal woman reports new vaginal bleeding. What does the nurse recognize about this symptom?',
+options:[
+{letter:'A',text:'It is a classic warning sign of endometrial cancer',correct:true,rationale:'Any vaginal bleeding after menopause is abnormal and is the hallmark presenting sign of endometrial (uterine) cancer until proven otherwise. It requires prompt evaluation with endometrial biopsy or ultrasound.'},
+{letter:'B',text:'It is a normal return of the menstrual cycle',correct:false,rationale:'Menstruation does not resume after menopause. Postmenopausal bleeding is never considered normal.'},
+{letter:'C',text:'It indicates the patient is ovulating again',correct:false,rationale:'Ovulation ends at menopause. New bleeding needs a cancer workup, not a sign of restored fertility.'},
+{letter:'D',text:'It is an expected effect of aging that needs no follow-up',correct:false,rationale:'Postmenopausal bleeding always warrants evaluation. Dismissing it could miss a treatable cancer.'}
+],vocabTip:'<strong>Postmenopausal bleeding = endometrial cancer until proven otherwise.</strong> Risk factors: unopposed estrogen, obesity, nulliparity, late menopause, tamoxifen. Diagnosed by endometrial biopsy. Prompt evaluation is essential.'},
+
+{id:7,block:'B',chapter:63,type:'Assessment',trap:true,
+stem:'A 58-year-old woman reports several months of bloating, early fullness when eating, and increased urinary frequency. She has no vaginal bleeding. What should concern the nurse?',
+options:[
+{letter:'A',text:'These vague symptoms can be early ovarian cancer',correct:true,rationale:'Ovarian cancer is often silent, producing only vague symptoms such as bloating, early satiety, abdominal or pelvic discomfort, and urinary frequency. Because these are easy to dismiss, ovarian cancer is frequently found late. Persistent vague abdominal symptoms in an older woman warrant evaluation.'},
+{letter:'B',text:'These are certain signs of a simple bladder infection only',correct:false,rationale:'While a UTI can cause urinary frequency, the combination of persistent bloating, early satiety, and urinary symptoms over months should raise concern for ovarian cancer, not be dismissed as only a UTI.'},
+{letter:'C',text:'These findings rule out any gynecologic cancer',correct:false,rationale:'These vague findings do not rule out cancer; they are the typical subtle presentation of ovarian cancer.'},
+{letter:'D',text:'These are normal expected changes of aging',correct:false,rationale:'Persistent bloating, early satiety, and urinary frequency are not simply normal aging and deserve workup.'}
+],vocabTip:'<strong>Ovarian cancer is the "silent killer": vague bloating, early satiety, pelvic/abdominal pressure, urinary frequency, often caught late.</strong> Contrast endometrial cancer, which announces itself with postmenopausal bleeding. CA-125 may be elevated.'},
+
+{id:8,block:'B',chapter:63,type:'Teaching',
+stem:'A nurse teaches an adolescent and her parent about the HPV vaccine and cervical cancer prevention. Which statement is correct?',
+options:[
+{letter:'A',text:'The HPV vaccine and regular Pap screening both help prevent cervical cancer',correct:true,rationale:'Persistent high-risk HPV infection causes most cervical cancers. The HPV vaccine prevents infection with the major cancer-causing strains, and regular Pap and HPV screening detect precancerous changes early, so both are key prevention strategies.'},
+{letter:'B',text:'The vaccine replaces the need for any future Pap tests',correct:false,rationale:'The vaccine does not cover every high-risk strain, so screening is still needed even after vaccination.'},
+{letter:'C',text:'Cervical cancer is unrelated to any infection',correct:false,rationale:'Cervical cancer is strongly linked to persistent high-risk HPV infection. That is why the vaccine exists.'},
+{letter:'D',text:'The vaccine is only useful after cervical cancer develops',correct:false,rationale:'The vaccine is preventive and works best given before exposure to HPV, not as a treatment after cancer develops.'}
+],vocabTip:'<strong>HPV causes most cervical cancer. Prevention: HPV vaccine (ideally ages 9 to 12, before exposure) PLUS ongoing Pap/HPV screening.</strong> Vaccine does not cover all strains, so screening continues. Smoking also raises cervical cancer risk.'},
+
+{id:9,block:'B',chapter:63,type:'Vocab',
+stem:'A patient asks the nurse what CA-125 is used for in her care. What is the nurse\'s best explanation?',
+options:[
+{letter:'A',text:'It is a tumor marker used to monitor ovarian cancer',correct:true,rationale:'CA-125 is a blood tumor marker that is often elevated in ovarian cancer and is used mainly to monitor treatment response and detect recurrence. It is not specific enough to be a general screening test because other conditions can also raise it.'},
+{letter:'B',text:'It measures how much estrogen the ovaries make',correct:false,rationale:'CA-125 is a tumor marker, not a measure of estrogen production.'},
+{letter:'C',text:'It is a screening test that rules out all gynecologic cancers',correct:false,rationale:'CA-125 is not specific enough for general screening; endometriosis, fibroids, and menstruation can also raise it. It is used mostly for monitoring.'},
+{letter:'D',text:'It detects human papillomavirus infection',correct:false,rationale:'HPV testing detects the virus. CA-125 is a marker associated with ovarian cancer.'}
+],vocabTip:'<strong>CA-125: tumor marker mainly for monitoring ovarian cancer treatment and recurrence.</strong> Not a reliable screening test because benign conditions (endometriosis, fibroids, menses) can also elevate it. Trends matter more than a single value.'},
+
+{id:10,block:'B',chapter:63,type:'Teaching',
+stem:'A patient had a cervical cone biopsy (conization) for cervical dysplasia. Which discharge instruction is correct?',
+options:[
+{letter:'A',text:'Avoid tampons, douching, and intercourse for the time the provider specifies',correct:true,rationale:'After conization the cervix needs time to heal, so the patient avoids anything in the vagina (tampons, douching, intercourse) for the ordered period and reports heavy bleeding, fever, or foul discharge. Some spotting and watery discharge are expected.'},
+{letter:'B',text:'Resume intercourse and tampon use the next day',correct:false,rationale:'The cervix is healing after tissue removal, so vaginal rest for the ordered period prevents bleeding and infection.'},
+{letter:'C',text:'Expect heavy bleeding soaking a pad every hour as normal',correct:false,rationale:'Heavy bleeding that soaks a pad hourly is abnormal and must be reported. Only light spotting is expected.'},
+{letter:'D',text:'Douche daily to prevent infection',correct:false,rationale:'Douching is avoided because it disrupts healing and normal flora and can introduce infection.'}
+],vocabTip:'<strong>After conization/LEEP: pelvic rest (no tampons, douching, intercourse) as directed; expect spotting and watery discharge.</strong> Report heavy bleeding, fever, or foul odor. Conization can affect future cervical competence in pregnancy.'},
+
+{id:11,block:'C',chapter:63,type:'SATA',sata:true,
+stem:'A patient has a sealed internal radiation implant (brachytherapy) for cervical cancer. Which safety measures does the nurse implement? Select all that apply.',
+options:[
+{letter:'A',text:'Place the patient in a private room',correct:true,rationale:'A patient with an internal radiation source is a radiation hazard to others, so a private room limits exposure to other patients and staff.'},
+{letter:'B',text:'Maintain strict bed rest to keep the implant in place',correct:true,rationale:'The implant must stay positioned. Bed rest with limited movement prevents dislodgement of the sealed source.'},
+{letter:'C',text:'Limit each visitor to a short time and keep them at a distance',correct:true,rationale:'Time, distance, and shielding are the principles of radiation safety. Visitors are limited in number, kept at a distance, and time is minimized.'},
+{letter:'D',text:'Encourage the patient to walk in the hallway frequently',correct:false,rationale:'Ambulating in the hallway would dislodge the implant and expose others to radiation. Strict bed rest is required.'},
+{letter:'E',text:'Allow pregnant staff and young children to visit freely',correct:false,rationale:'Pregnant staff and children under 18 must not enter, because they are especially vulnerable to radiation exposure.'}
+],vocabTip:'<strong>Sealed brachytherapy: private room, bed rest, limit time/distance/visitors; no pregnant staff or children under 18; keep long forceps + lead container ready if the source dislodges.</strong> Time, distance, shielding = the three protections.'},
+
+{id:12,block:'C',chapter:63,type:'Priority',trap:true,
+stem:'A nurse finds a dislodged sealed radiation implant lying on the bed of a patient receiving brachytherapy. What is the nurse\'s priority action?',
+options:[
+{letter:'A',text:'Pick it up with long-handled forceps and place it in the lead container',correct:true,rationale:'A dislodged sealed source must never be touched with bare hands. The nurse uses long-handled forceps to place it into the shielded lead container kept in the room, then notifies the radiation safety officer. Distance and shielding minimize exposure.'},
+{letter:'B',text:'Pick it up quickly with a gloved hand',correct:false,rationale:'Gloves do not shield against radiation. Direct handling greatly increases exposure. Long forceps and the lead container are used.'},
+{letter:'C',text:'Flush the implant down the toilet',correct:false,rationale:'The source must be secured in the lead container and returned to radiation safety, never disposed of. Flushing it is unsafe and prohibited.'},
+{letter:'D',text:'Leave it and continue routine care',correct:false,rationale:'A dislodged source is a radiation hazard and must be secured immediately with forceps and shielding, then reported.'}
+],vocabTip:'<strong>Dislodged sealed source: NEVER touch with hands; use long-handled forceps, place in the lead-lined container in the room, notify radiation safety.</strong> Keep the forceps and container at the bedside for the entire implant period.'},
+
+{id:13,block:'C',chapter:63,type:'Teaching',
+stem:'A patient is starting external beam radiation to the pelvis for gynecologic cancer. Which skin-care teaching is correct?',
+options:[
+{letter:'A',text:'Keep the treated skin clean and dry and avoid lotions, powders, or heat unless approved',correct:true,rationale:'Radiated skin is fragile. The patient gently cleanses with mild soap, keeps the area dry, avoids applying lotions, powders, deodorants, or heat/cold to the treatment field unless the provider approves, does not remove skin markings, and wears loose cotton clothing to reduce irritation.'},
+{letter:'B',text:'Scrub the treated area vigorously and apply heating pads',correct:false,rationale:'Scrubbing and heat further damage fragile radiated skin. Gentle care without heat is required.'},
+{letter:'C',text:'Remove the radiation ink markings after each session',correct:false,rationale:'The markings guide precise targeting and must not be washed off during the treatment course.'},
+{letter:'D',text:'Expose the treated skin to direct sunlight to promote healing',correct:false,rationale:'Sun exposure worsens radiation skin reactions. The area should be protected from the sun.'}
+],vocabTip:'<strong>Radiation skin care: gentle cleansing, keep dry, no lotions/powders/deodorant/heat/cold to the field, keep markings, loose cotton clothing, protect from sun.</strong> With brachytherapy (internal), time/distance/shielding protect staff and visitors.'},
+
+{id:14,block:'D',chapter:63,type:'Assessment',trap:true,
+stem:'A patient is undergoing operative hysteroscopy with fluid distension of the uterus. Which assessment finding is most concerning?',
+options:[
+{letter:'A',text:'New crackles in the lungs and shortness of breath',correct:true,rationale:'Hysteroscopy uses fluid to distend the uterus, which can be absorbed into the circulation and cause fluid overload. Crackles, dyspnea, and signs of pulmonary edema signal excess intravascular volume and possible hyponatremia. This is the priority finding to report.'},
+{letter:'B',text:'Mild cramping during the procedure',correct:false,rationale:'Some cramping is expected with uterine distension and is not dangerous. Fluid overload is the serious concern.'},
+{letter:'C',text:'A small amount of pink spotting afterward',correct:false,rationale:'Light spotting after hysteroscopy is normal. Heavy bleeding or fluid overload would be the concerns.'},
+{letter:'D',text:'Feeling slightly anxious before the procedure',correct:false,rationale:'Preprocedure anxiety is common and not a physiologic complication. Watch for fluid overload instead.'}
+],vocabTip:'<strong>Hysteroscopy risk: distension fluid absorption then fluid overload (crackles, dyspnea, pulmonary edema, hyponatremia).</strong> Monitor lung sounds, respiratory status, and fluid balance. Similar dilutional hyponatremia concept as TURP syndrome.'},
+
+{id:15,block:'D',chapter:63,type:'Teaching',
+stem:'A nurse gives discharge teaching after an abdominal hysterectomy. Which instruction is correct?',
+options:[
+{letter:'A',text:'Avoid lifting over 10 pounds and no intercourse for about 6 weeks',correct:true,rationale:'After a hysterectomy the patient avoids heavy lifting (over 8 to 10 pounds), avoids intercourse and anything in the vagina for about 6 weeks to allow the vaginal cuff to heal, and avoids driving while on opioids or per surgeon guidance. These prevent bleeding and dehiscence.'},
+{letter:'B',text:'Resume heavy lifting and vigorous exercise in 3 days',correct:false,rationale:'Heavy activity too soon risks internal bleeding and wound separation. Restrictions last several weeks.'},
+{letter:'C',text:'Use tampons for any spotting that occurs',correct:false,rationale:'Nothing should be placed in the vagina, including tampons, until the cuff heals. Use pads for spotting.'},
+{letter:'D',text:'Expect menstrual periods to continue as before',correct:false,rationale:'With the uterus removed, menstruation stops permanently. The patient will no longer have periods.'}
+],vocabTip:'<strong>Post-hysterectomy: no lifting &gt;10 lb, no intercourse or anything in the vagina ~6 weeks, no driving on opioids; report heavy bleeding or fever.</strong> No more menses after the uterus is removed. The vaginal cuff needs time to heal.'},
+
+{id:16,block:'D',chapter:63,type:'Priority',
+stem:'A patient is 6 hours post-abdominal hysterectomy. Which assessment finding requires immediate nursing intervention?',
+options:[
+{letter:'A',text:'Saturating a perineal pad in less than an hour',correct:true,rationale:'Rapid pad saturation signals possible hemorrhage after hysterectomy and must be assessed and reported immediately, along with vital signs for signs of shock. Expected drainage is scant to moderate and lightens over time.'},
+{letter:'B',text:'Scant serosanguineous vaginal spotting',correct:false,rationale:'Light pink-tinged spotting is expected after hysterectomy and does not require urgent intervention.'},
+{letter:'C',text:'Reports of gas pains and abdominal bloating',correct:false,rationale:'Postoperative gas and bloating from slowed peristalsis are common and managed with ambulation, not an emergency.'},
+{letter:'D',text:'Absent menses since the surgery',correct:false,rationale:'Menstruation permanently stops after the uterus is removed. This is expected, not an emergency.'}
+],vocabTip:'<strong>Post-hysterectomy hemorrhage: pad saturated in under an hour, rising HR, falling BP, and abdominal distension.</strong> Also watch for bladder or bowel injury (urine output changes, no bowel sounds). Encourage early ambulation to prevent DVT.'},
+
+{id:17,block:'D',chapter:63,type:'Teaching',
+stem:'A premenopausal patient is scheduled for a total hysterectomy with bilateral salpingo-oophorectomy. What does the nurse teach her to expect afterward?',
+options:[
+{letter:'A',text:'She will enter surgical menopause because both ovaries are removed',correct:true,rationale:'Removing both ovaries eliminates the main source of estrogen, causing abrupt surgical menopause with hot flashes, night sweats, and vaginal dryness. This can be more sudden and intense than natural menopause, and hormone therapy may be discussed.'},
+{letter:'B',text:'Her menstrual periods will continue normally',correct:false,rationale:'With the uterus removed there are no more periods, and with the ovaries removed she enters menopause.'},
+{letter:'C',text:'Her estrogen levels will rise after surgery',correct:false,rationale:'Removing the ovaries sharply lowers estrogen, it does not raise it.'},
+{letter:'D',text:'She can still become pregnant naturally',correct:false,rationale:'Removing the uterus and ovaries ends the ability to conceive naturally.'}
+],vocabTip:'<strong>Bilateral salpingo-oophorectomy in a premenopausal woman = surgical menopause (abrupt hot flashes, night sweats, vaginal dryness).</strong> Sudden estrogen loss also accelerates bone loss. Hysterectomy alone (ovaries kept) does not cause menopause.'},
+
+{id:18,block:'D',chapter:63,type:'Assessment',
+stem:'After a vaginal hysterectomy, a patient reports a sensation of vaginal fullness and the nurse notes the patient has not voided in 8 hours. What does the nurse suspect first?',
+options:[
+{letter:'A',text:'Urinary retention related to the surgery',correct:true,rationale:'Pelvic surgery near the bladder commonly causes temporary urinary retention from swelling and anesthesia effects. Fullness and inability to void suggest a distended bladder, which the nurse assesses with a bladder scan and may need to catheterize.'},
+{letter:'B',text:'Normal postoperative recovery needing no action',correct:false,rationale:'Not voiding for 8 hours with fullness is abnormal and needs assessment, not observation alone.'},
+{letter:'C',text:'A sign that the surgery failed',correct:false,rationale:'Temporary retention is a common postoperative issue, not a sign of surgical failure.'},
+{letter:'D',text:'Expected permanent loss of bladder function',correct:false,rationale:'Post-op retention is usually temporary. Permanent bladder failure is not the expected outcome.'}
+],vocabTip:'<strong>After pelvic/vaginal surgery, watch for urinary retention (bladder near the surgical field).</strong> Assess with a bladder scan; catheterize if distended. Also monitor for injury to bladder or ureters (changes in urine output or hematuria).'},
+
+{id:19,block:'D',chapter:63,type:'SATA',sata:true,
+stem:'A nurse provides postoperative teaching after a hysterectomy. Which self-care instructions are appropriate? Select all that apply.',
+options:[
+{letter:'A',text:'Take short frequent walks to prevent blood clots',correct:true,rationale:'Early ambulation reduces the risk of DVT and pneumonia and promotes bowel function after abdominal surgery.'},
+{letter:'B',text:'Report a fever, foul-smelling discharge, or heavy bleeding',correct:true,rationale:'Fever, foul discharge, and heavy bleeding can indicate infection or hemorrhage and must be reported promptly.'},
+{letter:'C',text:'Avoid heavy lifting and strenuous activity for several weeks',correct:true,rationale:'Avoiding heavy lifting protects the healing incision and vaginal cuff from strain and dehiscence.'},
+{letter:'D',text:'Resume tampon use to manage any discharge',correct:false,rationale:'Nothing should be placed in the vagina until the cuff heals. Pads are used, not tampons.'},
+{letter:'E',text:'Expect to still need contraception to prevent pregnancy',correct:false,rationale:'After the uterus is removed pregnancy is no longer possible, so contraception is not needed for that purpose (though STI protection still matters).'}
+],vocabTip:'<strong>Post-hysterectomy self-care: early ambulation, no lifting/strenuous activity, pads not tampons, report fever/foul discharge/heavy bleeding.</strong> No menses and no pregnancy afterward. Vaginal rest ~6 weeks for cuff healing.'},
+
+{id:20,block:'D',chapter:63,type:'Vocab',
+stem:'The surgical record states the patient had a total hysterectomy. What does the nurse understand was removed?',
+options:[
+{letter:'A',text:'The uterus and the cervix',correct:true,rationale:'A total hysterectomy removes the entire uterus including the cervix. It does not by itself remove the ovaries or fallopian tubes. Removing those requires a salpingo-oophorectomy, which is documented separately.'},
+{letter:'B',text:'The uterus, both ovaries, and both tubes',correct:false,rationale:'That describes a total hysterectomy with bilateral salpingo-oophorectomy, a more extensive procedure. Total hysterectomy alone is uterus plus cervix.'},
+{letter:'C',text:'Only the top of the uterus, leaving the cervix',correct:false,rationale:'Leaving the cervix describes a subtotal (supracervical) hysterectomy, not a total hysterectomy.'},
+{letter:'D',text:'Only the ovaries',correct:false,rationale:'Removing only the ovaries is an oophorectomy, not a hysterectomy.'}
+],vocabTip:'<strong>Total hysterectomy = uterus + cervix. Subtotal (supracervical) = uterus, cervix left. + bilateral salpingo-oophorectomy = also both tubes and ovaries.</strong> Only removing the ovaries causes menopause; removing the uterus stops menses.'},
+
+{id:21,block:'E',chapter:63,type:'Assessment',
+stem:'A multiparous woman reports a bulging sensation in the vagina, urinary leakage with coughing, and pelvic pressure that worsens by evening. The nurse suspects which condition?',
+options:[
+{letter:'A',text:'Cystocele (bladder prolapse into the vaginal wall)',correct:true,rationale:'A cystocele is herniation of the bladder into the anterior vaginal wall, often after childbirth. It causes a vaginal bulge, pelvic pressure that worsens with standing through the day, and stress urinary incontinence (leaking with coughing, sneezing, or lifting).'},
+{letter:'B',text:'Toxic shock syndrome',correct:false,rationale:'TSS is an acute febrile illness with rash and hypotension, not a chronic bulge with urinary leakage.'},
+{letter:'C',text:'Endometrial cancer',correct:false,rationale:'Endometrial cancer presents with postmenopausal bleeding, not a vaginal bulge and stress incontinence.'},
+{letter:'D',text:'Ovarian cyst rupture',correct:false,rationale:'A ruptured ovarian cyst causes acute pelvic pain, not a gradually worsening vaginal bulge with urinary leakage.'}
+],vocabTip:'<strong>Cystocele: bladder bulges into the anterior vaginal wall then vaginal bulge, pelvic pressure worse by evening, stress incontinence.</strong> A rectocele bulges the posterior wall and causes constipation/incomplete emptying. Kegels, pessary, or surgery treat prolapse.'},
+
+{id:22,block:'E',chapter:63,type:'Assessment',
+stem:'A patient reports constipation, a feeling of incomplete bowel emptying, and sometimes must press on the vagina to have a bowel movement. Which condition does the nurse suspect?',
+options:[
+{letter:'A',text:'Rectocele (rectum bulging into the posterior vaginal wall)',correct:true,rationale:'A rectocele is herniation of the rectum into the posterior vaginal wall. It causes constipation, a sensation of incomplete evacuation, and sometimes the need to splint (press on the posterior vaginal wall) to complete a bowel movement.'},
+{letter:'B',text:'Cystocele',correct:false,rationale:'A cystocele involves the bladder and anterior wall, causing urinary symptoms, not the bowel symptoms described here.'},
+{letter:'C',text:'Cervical cancer',correct:false,rationale:'Cervical cancer causes abnormal bleeding and discharge, not bowel-splitting and constipation from a posterior wall bulge.'},
+{letter:'D',text:'Uterine fibroids',correct:false,rationale:'Fibroids cause heavy bleeding and pelvic pressure, not the classic need to splint the posterior vaginal wall to defecate.'}
+],vocabTip:'<strong>Rectocele: rectum bulges into the posterior vaginal wall then constipation, incomplete emptying, splinting to defecate.</strong> Cystocele = anterior/bladder (urinary symptoms). Both come from pelvic floor weakening after childbirth or aging.'},
+
+{id:23,block:'E',chapter:63,type:'Teaching',
+stem:'A woman with mild pelvic organ prolapse asks what she can do to strengthen her pelvic floor. Which teaching is correct?',
+options:[
+{letter:'A',text:'Perform Kegel exercises by tightening the pelvic floor muscles regularly',correct:true,rationale:'Kegel (pelvic floor) exercises strengthen the muscles that support the bladder, uterus, and rectum, helping mild prolapse and stress incontinence. The patient contracts the muscles used to stop urine flow, holds briefly, and repeats in sets throughout the day.'},
+{letter:'B',text:'Perform frequent heavy lifting to build core strength',correct:false,rationale:'Heavy lifting increases intra-abdominal pressure and worsens prolapse. It is specifically discouraged.'},
+{letter:'C',text:'Strain during bowel movements to strengthen the area',correct:false,rationale:'Straining increases pressure on the pelvic floor and worsens prolapse. Preventing constipation and straining is advised.'},
+{letter:'D',text:'Avoid all physical activity permanently',correct:false,rationale:'Complete inactivity is unnecessary; targeted pelvic floor exercises and avoiding heavy strain are the recommendations.'}
+],vocabTip:'<strong>Pelvic floor (Kegel) exercises strengthen support for mild prolapse and stress incontinence.</strong> Also: avoid heavy lifting and straining, treat constipation, maintain a healthy weight. A pessary or surgery treats more advanced prolapse.'},
+
+{id:24,block:'E',chapter:63,type:'Teaching',
+stem:'A patient is fitted with a vaginal pessary for uterine prolapse. Which self-care instruction is correct?',
+options:[
+{letter:'A',text:'Remove and clean the pessary periodically and report foul discharge or irritation',correct:true,rationale:'A pessary is a device inserted vaginally to support prolapsed organs. It must be removed and cleaned on a regular schedule to prevent infection, ulceration, and odor, and the patient reports foul-smelling discharge, bleeding, or pain, which can indicate irritation or infection.'},
+{letter:'B',text:'Leave the pessary in place indefinitely without cleaning',correct:false,rationale:'A pessary left in without periodic cleaning can cause vaginal ulceration, infection, and erosion. Regular removal and cleaning are essential.'},
+{letter:'C',text:'Expect heavy vaginal bleeding as normal with a pessary',correct:false,rationale:'Bleeding is not a normal effect and should be reported, as it may indicate erosion or ulceration.'},
+{letter:'D',text:'Use the pessary only during sleep',correct:false,rationale:'A pessary provides support during upright daily activity. Wearing schedules are individualized, but it is not simply a nighttime-only device.'}
+],vocabTip:'<strong>Pessary: vaginal support device for prolapse. Remove and clean on schedule; report foul discharge, bleeding, or irritation (signs of erosion/infection).</strong> It is a nonsurgical option, useful when surgery is not desired or safe.'},
+
+{id:25,block:'E',chapter:63,type:'Vocab',
+stem:'The provider documents that the uterus has descended into the vaginal canal. Which term describes this finding?',
+options:[
+{letter:'A',text:'Uterine prolapse',correct:true,rationale:'Uterine prolapse is the descent of the uterus into or through the vaginal canal because of weakened pelvic floor support. Symptoms include pelvic pressure, a bulge or sensation of something falling out, and low backache, often worse with standing.'},
+{letter:'B',text:'Cystocele',correct:false,rationale:'A cystocele is prolapse of the bladder into the anterior vaginal wall, not descent of the uterus itself.'},
+{letter:'C',text:'Endometriosis',correct:false,rationale:'Endometriosis is endometrial tissue outside the uterus, unrelated to uterine descent.'},
+{letter:'D',text:'Leiomyoma',correct:false,rationale:'A leiomyoma is a benign fibroid tumor of the uterus, not descent of the uterus into the vaginal canal.'}
+],vocabTip:'<strong>Uterine prolapse: uterus descends into/through the vaginal canal from pelvic floor weakness.</strong> Feels like pelvic pressure or "something falling out," worse with standing. Cystocele = bladder, rectocele = rectum. Treated with Kegels, pessary, or surgery.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>
