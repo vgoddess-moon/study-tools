@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 36 &mdash; CNS: The Brain Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>Ch 36 &mdash; CNS Conditions: The Brain</h1>
+<p class="subtitle">MS2 Exam 2 &middot; 25 Questions &middot; before-lecture primer</p>
+</div>
+<div class="exam-info">One chapter, 25 questions, mixed types (priority, SATA, teaching, assessment, vocab). Answers reveal on submit with a rationale for every option. Not timed. Take it, miss some, read the rationales, come back after lecture.</div>
+<div class="svg-card">
+<h3>Brain Conditions Must-Knows</h3>
+<svg viewBox="0 0 820 340" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="340" fill="#0c0f14"/>
+<rect x="20" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="145" y="45" fill="#fca5a5" font-size="15" font-weight="700" text-anchor="middle">Alzheimer Disease</text>
+<text x="35" y="72" fill="#e2e8f0" font-size="13">Early: REORIENT frequently</text>
+<text x="35" y="95" fill="#e2e8f0" font-size="13">Late: VALIDATION therapy</text>
+<text x="35" y="118" fill="#e2e8f0" font-size="13">Wandering &rarr; door locks/alarms</text>
+<text x="35" y="141" fill="#e2e8f0" font-size="13">Structured, low-stimulus env</text>
+<text x="35" y="160" fill="#94a3b8" font-size="12">Donepezil &rarr; watch bradycardia</text>
+<rect x="285" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="410" y="45" fill="#fbbf24" font-size="15" font-weight="700" text-anchor="middle">Parkinson Disease</text>
+<text x="300" y="72" fill="#e2e8f0" font-size="13">Tremor, rigidity, bradykinesia</text>
+<text x="300" y="95" fill="#e2e8f0" font-size="13">Masklike face, drooling, flexed</text>
+<text x="300" y="118" fill="#f87171" font-size="13">#1 risk: ASPIRATION</text>
+<text x="300" y="141" fill="#e2e8f0" font-size="13">HOB &uarr;, small bites, be independent</text>
+<text x="300" y="162" fill="#94a3b8" font-size="12">Don't rush; allow extra time</text>
+<rect x="550" y="20" width="250" height="150" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="675" y="45" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Seizures</text>
+<text x="565" y="72" fill="#f87171" font-size="13">FIRST: turn head to side</text>
+<text x="565" y="95" fill="#e2e8f0" font-size="13">Protect, O2, suction, IV, don't</text>
+<text x="565" y="114" fill="#e2e8f0" font-size="13">restrain / no tongue blade</text>
+<text x="565" y="137" fill="#e2e8f0" font-size="13">Status: IV lorazepam</text>
+<text x="565" y="160" fill="#94a3b8" font-size="12">Never stop antiepileptics abruptly</text>
+<rect x="20" y="190" width="380" height="130" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="210" y="215" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">Migraine</text>
+<text x="35" y="242" fill="#e2e8f0" font-size="13">Aura = visual changes/flashing</text>
+<text x="35" y="265" fill="#e2e8f0" font-size="13">Propranolol = PREVENT (daily)</text>
+<text x="35" y="288" fill="#e2e8f0" font-size="13">Sumatriptan = abort; vasoconstrict</text>
+<text x="35" y="310" fill="#f87171" font-size="13">Triptan + heart disease = hold</text>
+<rect x="415" y="190" width="385" height="130" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="607" y="215" fill="#c084fc" font-size="15" font-weight="700" text-anchor="middle">Meningitis</text>
+<text x="430" y="242" fill="#e2e8f0" font-size="13">Photophobia, severe HA, fever, &darr;LOC</text>
+<text x="430" y="265" fill="#e2e8f0" font-size="13">Nuchal rigidity; crowded living risk</text>
+<text x="430" y="288" fill="#f87171" font-size="13">DROPLET precautions (mask + gloves)</text>
+<text x="430" y="310" fill="#94a3b8" font-size="12">Prevent with vaccination</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch36-primer';
+const EXAM_LABEL='MS2 Ch 36 — CNS Conditions: The Brain (25Q)';
+const BLOCKS={A:'Alzheimer Disease & Dementia',B:'Parkinson Disease',C:'Seizures & Epilepsy',D:'Headache & Migraine',E:'Meningitis & Infection Control'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:36,type:'Teaching',
+stem:'The daughter of a client with middle-stage Alzheimer disease asks, "Will the sertraline my mother is taking improve her dementia?" How would the nurse respond about the purpose of the drug?',
+options:[
+{letter:'A',text:'"It will allow your mother to live independently for several more years."',correct:false,rationale:'Drug therapy will not enable a client with middle-stage dementia to safely live independently.'},
+{letter:'B',text:'"It is used to halt the advancement of Alzheimer disease but will not cure it."',correct:false,rationale:'No drug halts the advancement of Alzheimer disease.'},
+{letter:'C',text:'"It will not improve her dementia but can help control emotional responses."',correct:true,rationale:'Sertraline is an antidepressant. It does not treat dementia, but psychoactive drugs can help manage depression, anxiety, psychosis, and emotional disturbances associated with the disease.'},
+{letter:'D',text:'"It is used to improve short-term memory but will not improve problem solving."',correct:false,rationale:'Sertraline does not improve memory; it targets mood and emotional symptoms.'}
+],vocabTip:'<strong>No drug cures or halts Alzheimer disease.</strong> Cholinesterase inhibitors (donepezil) may slow decline temporarily; antidepressants/antipsychotics manage mood and behavioral symptoms only.'},
+
+{id:2,block:'A',chapter:36,type:'Assessment',
+stem:'A client with early-stage Alzheimer disease is admitted with chest pain. Which nursing action is most appropriate to manage this client’s dementia?',
+options:[
+{letter:'A',text:'Provide animal-assisted therapy as needed',correct:false,rationale:'While sometimes helpful, many facilities do not allow this, and it is not the most appropriate management strategy.'},
+{letter:'B',text:'Ensure a structured and consistent environment',correct:true,rationale:'A structured, consistent environment prevents worsening confusion in a hospitalized client with early Alzheimer disease.'},
+{letter:'C',text:'Assist the client with all activities of daily living',correct:false,rationale:'A client with EARLY Alzheimer disease can still perform most ADLs; doing them for the client promotes dependence.'},
+{letter:'D',text:'Use validation therapy when communicating',correct:false,rationale:'Validation therapy is for LATE-stage disease. Early-stage clients are reoriented, not validated.'}
+],vocabTip:'<strong>Early Alzheimer = reorient + structured environment + encourage independence.</strong> A predictable routine and low-stimulus setting reduce confusion and agitation.'},
+
+{id:3,block:'A',chapter:36,type:'Teaching',trap:true,
+stem:'The nurse observes a client with late-stage Alzheimer disease finish breakfast, then the client says, "I am hungry and want breakfast." What is the nurse’s best response?',
+options:[
+{letter:'A',text:'"I see you are still hungry. I will get you some toast."',correct:true,rationale:'Validation therapy acknowledges the client’s feelings rather than correcting them. In late-stage disease, reality orientation only increases agitation, so meeting the expressed need is best.'},
+{letter:'B',text:'"You ate your breakfast 30 minutes ago."',correct:false,rationale:'Correcting a late-stage client (reality orientation) increases agitation and is not therapeutic.'},
+{letter:'C',text:'"It appears you are confused this morning."',correct:false,rationale:'Labeling the client as confused is dismissive and does not validate feelings.'},
+{letter:'D',text:'"Your family will be here soon. Let’s get you dressed."',correct:false,rationale:'Redirecting without acknowledging the need ignores the client’s expressed concern.'}
+],vocabTip:'<strong>Late-stage Alzheimer → VALIDATION therapy (acknowledge feelings). Early stage → REORIENTATION.</strong> Reality-orienting a late-stage client increases agitation.'},
+
+{id:4,block:'A',chapter:36,type:'Teaching',
+stem:'The caregiver of a client with moderate Alzheimer disease says, "She is always wandering off. What can I do to manage this?" What is the nurse’s best response?',
+options:[
+{letter:'A',text:'"This is a sign of fatigue. She would benefit from a daily nap."',correct:false,rationale:'A nap does not effectively address wandering behavior.'},
+{letter:'B',text:'"Engage her in scheduled activities throughout the day."',correct:true,rationale:'Structured activities and frequent walks are effective strategies to manage restlessness and wandering.'},
+{letter:'C',text:'"It sounds difficult. I will consult the social worker."',correct:false,rationale:'Referring to social work does not answer the caregiver’s direct question about managing the behavior.'},
+{letter:'D',text:'"The provider can prescribe a mild sedative."',correct:false,rationale:'Sedatives increase fall risk and confusion and are not the first-line approach to wandering.'}
+],vocabTip:'<strong>Wandering → structured activities, frequent walks, and door alarms/locks for safety.</strong> Avoid restraints and sedatives, which worsen confusion and increase falls.'},
+
+{id:5,block:'A',chapter:36,type:'Teaching',
+stem:'The primary provider prescribes donepezil for a client with early-stage Alzheimer disease. What teaching will the nurse give the family caregiver?',
+options:[
+{letter:'A',text:'"Monitor for a low-grade fever the drug can cause."',correct:false,rationale:'Donepezil does not typically cause fever.'},
+{letter:'B',text:'"Observe for nausea and vomiting to gauge drug tolerance."',correct:false,rationale:'N/V is not the key monitoring parameter for donepezil.'},
+{letter:'C',text:'"This drug will prevent the dementia from progressing."',correct:false,rationale:'Donepezil may temporarily slow decline but does not stop disease progression.'},
+{letter:'D',text:'"Report dizziness or falls because the drug can cause bradycardia."',correct:true,rationale:'Donepezil, a cholinesterase inhibitor, can cause bradycardia. Report dizziness or falls; monitor heart rate.'}
+],vocabTip:'<strong>Donepezil (cholinesterase inhibitor): watch for bradycardia, dizziness, and falls.</strong> It slows cognitive decline for some clients but does not alter the disease course.'},
+
+{id:6,block:'B',chapter:36,type:'Teaching',
+stem:'After teaching the wife of a client with Parkinson disease, which statement indicates she correctly understands the disease?',
+options:[
+{letter:'A',text:'"His masklike face makes it hard to communicate, so I will use a white board."',correct:false,rationale:'A masklike face is common but does not impair the ability to understand or write; extra time to communicate is what is needed.'},
+{letter:'B',text:'"He should not socialize due to uncontrollable drooling."',correct:false,rationale:'Clients should be encouraged to continue socializing and communicating as normally as possible.'},
+{letter:'C',text:'"This disease is associated with anxiety causing increased perspiration."',correct:false,rationale:'Excessive perspiration is an autonomic feature of the disease, not simply anxiety.'},
+{letter:'D',text:'"He may have trouble chewing, so I will offer bite-sized portions."',correct:true,rationale:'Chewing and swallowing are impaired; small, frequent, bite-sized meals with supplements meet nutritional needs and reduce aspiration risk.'}
+],vocabTip:'<strong>Parkinson hallmarks: tremor, rigidity, bradykinesia, masklike face, drooling, shuffling gait.</strong> Impaired swallowing → aspiration risk; give small bites, thicken as needed, elevate HOB.'},
+
+{id:7,block:'B',chapter:36,type:'Priority',
+stem:'The nurse plans care for a client with Parkinson disease. Which intervention would the nurse include?',
+options:[
+{letter:'A',text:'Restrain the client to prevent falling',correct:false,rationale:'Restraints are avoided; less restrictive fall-prevention measures are used.'},
+{letter:'B',text:'Ensure the client uses incentive spirometry',correct:false,rationale:'Incentive spirometry expands the lungs but does not address the top complication, aspiration.'},
+{letter:'C',text:'Teach pursed-lip breathing techniques',correct:false,rationale:'Pursed-lip breathing aids CO2 exhalation but does not prevent aspiration.'},
+{letter:'D',text:'Keep the head of the bed at 30 degrees or greater',correct:true,rationale:'Elevating the head of the bed helps prevent aspiration, the greatest respiratory complication of Parkinson disease.'}
+],vocabTip:'<strong>Aspiration is the #1 respiratory complication of Parkinson disease.</strong> Elevate the HOB, provide small bites, allow time to chew, and monitor swallowing.'},
+
+{id:8,block:'B',chapter:36,type:'SATA',sata:true,
+stem:'The nurse assesses a client with Parkinson disease. Which findings are key features of this disease? (Select all that apply.)',
+options:[
+{letter:'A',text:'Flexed trunk',correct:true,rationale:'A stooped, flexed posture is characteristic of Parkinson disease.'},
+{letter:'B',text:'Long, extended steps',correct:false,rationale:'Parkinson gait is short, shuffling, and hesitant, not long strides.'},
+{letter:'C',text:'Slow movements (bradykinesia)',correct:true,rationale:'Bradykinesia (slowed movement) is a cardinal feature.'},
+{letter:'D',text:'Uncontrolled drooling',correct:true,rationale:'Drooling from impaired swallowing is common.'},
+{letter:'E',text:'Tachycardia',correct:false,rationale:'Tachycardia is not a key feature of Parkinson disease.'}
+],vocabTip:'<strong>Parkinson cardinal signs (TRAP): Tremor, Rigidity, Akinesia/bradykinesia, Postural instability.</strong> Also masklike face, shuffling gait, flexed trunk, and drooling.'},
+
+{id:9,block:'B',chapter:36,type:'Teaching',trap:true,
+stem:'A client with Parkinson disease is starting ropinirole. Which statement indicates a need for further teaching?',
+options:[
+{letter:'A',text:'"This drug should help decrease my tremors and help me move better."',correct:false,rationale:'Correct understanding: ropinirole is a dopamine agonist that improves movement and tremor.'},
+{letter:'B',text:'"I need to change positions slowly to prevent dizziness or falls."',correct:false,rationale:'Correct: the drug can cause orthostatic hypotension, so slow position changes are appropriate.'},
+{letter:'C',text:'"I should take the drug at the same time each day for the best effect."',correct:false,rationale:'Correct: consistent timing maintains steady drug levels.'},
+{letter:'D',text:'"I know the drug will help prevent constipation."',correct:true,rationale:'This is INCORRECT and needs teaching. Ropinirole does not prevent constipation; constipation is actually common in Parkinson disease and its treatment.'}
+],vocabTip:'<strong>Ropinirole/dopamine agonists: improve movement; cause orthostatic hypotension and drowsiness.</strong> Change positions slowly; they do NOT relieve constipation, which needs fiber and fluids.'},
+
+{id:10,block:'C',chapter:36,type:'Priority',
+stem:'The nurse witnesses a client begin a tonic-clonic seizure with loss of consciousness. What action would the nurse take first?',
+options:[
+{letter:'A',text:'Start fluids via a large-bore catheter',correct:false,rationale:'IV access is important but not the immediate first action during the active seizure.'},
+{letter:'B',text:'Administer IV push diazepam',correct:false,rationale:'Anticonvulsants are given for sustained seizures (status epilepticus), not as the first bedside action for every seizure.'},
+{letter:'C',text:'Turn the client’s head to the side',correct:true,rationale:'Turning the head to the side prevents aspiration and allows secretions to drain, the immediate priority for airway protection.'},
+{letter:'D',text:'Prepare to intubate the client',correct:false,rationale:'Intubation is reserved for status epilepticus, not the first action of a witnessed seizure.'}
+],vocabTip:'<strong>Seizure first action: protect the airway — turn the head/body to the side.</strong> Do not restrain or put anything in the mouth. Protect from injury, time the seizure, and have O2/suction ready.'},
+
+{id:11,block:'C',chapter:36,type:'Assessment',
+stem:'A client with epilepsy experiences stiffening of the arms and legs, then loss of consciousness with jerking of all extremities. How would the nurse document this seizure?',
+options:[
+{letter:'A',text:'Atonic',correct:false,rationale:'An atonic seizure is a sudden loss of muscle tone (drop attack), not stiffening and jerking.'},
+{letter:'B',text:'Myoclonic',correct:false,rationale:'Myoclonic seizures are brief jerks or stiffening, single or in groups, without the full tonic-then-clonic sequence.'},
+{letter:'C',text:'Absence',correct:false,rationale:'Absence seizures involve brief staring/automatisms with unawareness, not motor stiffening and jerking.'},
+{letter:'D',text:'Tonic-clonic',correct:true,rationale:'Stiffening (tonic) followed by loss of consciousness and jerking of all extremities (clonic) defines a tonic-clonic seizure.'}
+],vocabTip:'<strong>Tonic-clonic = stiffen (tonic) then jerk (clonic) + LOC, followed by a postictal period.</strong> Absence = brief staring; atonic = sudden loss of tone; myoclonic = brief jerks.'},
+
+{id:12,block:'C',chapter:36,type:'Priority',
+stem:'A nurse cares for a client experiencing status epilepticus. Which prescribed medication would the nurse anticipate administering first?',
+options:[
+{letter:'A',text:'Atenolol',correct:false,rationale:'Atenolol is a beta blocker for hypertension, not for seizures.'},
+{letter:'B',text:'Lorazepam',correct:true,rationale:'IV lorazepam (or diazepam) is given first to stop the motor activity of status epilepticus, followed by phenytoin for longer-term control.'},
+{letter:'C',text:'Phenytoin',correct:false,rationale:'Phenytoin follows the benzodiazepine to maintain seizure control; it is not the initial fast-acting agent.'},
+{letter:'D',text:'Lisinopril',correct:false,rationale:'Lisinopril is an ACE inhibitor for hypertension/heart failure, not for seizures.'}
+],vocabTip:'<strong>Status epilepticus = prolonged/repeated seizures = emergency.</strong> First: IV lorazepam/diazepam to stop motor activity; then phenytoin (or fosphenytoin) for maintenance. Protect airway, give O2.'},
+
+{id:13,block:'C',chapter:36,type:'Teaching',trap:true,
+stem:'After teaching a client newly prescribed phenytoin for epilepsy, which statement indicates correct understanding?',
+options:[
+{letter:'A',text:'"To prevent complications, I will drink at least 2 L of water daily."',correct:false,rationale:'Extra water intake is not a specific requirement of phenytoin therapy.'},
+{letter:'B',text:'"This medication will stop me from getting an aura before a seizure."',correct:false,rationale:'The drug does not prevent auras.'},
+{letter:'C',text:'"I will not drive a motor vehicle while taking this medication."',correct:false,rationale:'Clients with controlled seizures can drive per state law; the drug alone does not prohibit driving.'},
+{letter:'D',text:'"Even when my seizures stop, I will continue to take this drug."',correct:true,rationale:'Antiepileptic drugs must not be stopped abruptly even when seizures stop; discontinuing can trigger recurrence or status epilepticus.'}
+],vocabTip:'<strong>Never stop antiepileptic drugs abruptly — even if seizure-free.</strong> Abrupt withdrawal can precipitate status epilepticus. Take daily even when nauseated; wear medical alert ID; avoid alcohol. Phenytoin also causes gingival hyperplasia (good oral care).'},
+
+{id:14,block:'C',chapter:36,type:'SATA',sata:true,
+stem:'The nurse plans care for a hospitalized client with epilepsy. Which interventions would the nurse include for seizure precautions? (Select all that apply.)',
+options:[
+{letter:'A',text:'Have suction equipment with an airway at the bedside',correct:true,rationale:'Suction and an oral airway must be readily available to protect the airway during a seizure.'},
+{letter:'B',text:'Place a padded tongue blade at the bedside',correct:false,rationale:'Tongue blades/objects in the mouth are dangerous and are NOT used.'},
+{letter:'C',text:'Permit only clear oral fluids',correct:false,rationale:'Dietary restriction is not part of seizure precautions.'},
+{letter:'D',text:'Have oxygen administration set up at the bedside',correct:true,rationale:'Oxygen should be readily available for use during and after a seizure.'},
+{letter:'E',text:'Maintain the client on strict bedrest',correct:false,rationale:'Strict bedrest is not a standard seizure precaution.'},
+{letter:'F',text:'Ensure the client has IV access',correct:true,rationale:'A saline lock provides ready IV access to administer drugs if a seizure must be stopped.'}
+],vocabTip:'<strong>Seizure precautions: suction + airway, oxygen, IV/saline lock, padded rails, bed low.</strong> Never place anything in the mouth or restrain the client.'},
+
+{id:15,block:'C',chapter:36,type:'SATA',sata:true,
+stem:'The nurse assesses clients on a med-surg unit. Which clients are at risk for secondary seizures? (Select all that apply.)',
+options:[
+{letter:'A',text:'A 26-year-old with a left temporal brain tumor',correct:true,rationale:'A brain lesion from a tumor is a common cause of secondary seizures.'},
+{letter:'B',text:'A 38-year-old in an alcohol withdrawal program',correct:true,rationale:'Acute alcohol withdrawal can trigger secondary seizures.'},
+{letter:'C',text:'A 42-year-old with a traumatic brain injury',correct:true,rationale:'A brain lesion from trauma is a risk for secondary seizures.'},
+{letter:'D',text:'A 66-year-old with multiple sclerosis',correct:false,rationale:'Multiple sclerosis is not a typical cause of secondary seizures.'},
+{letter:'E',text:'A 72-year-old with COPD',correct:false,rationale:'COPD is not a typical cause of secondary seizures.'}
+],vocabTip:'<strong>Secondary seizure risks: brain tumor/trauma, alcohol withdrawal, metabolic/electrolyte disturbances, high fever, stroke.</strong> These are provoked seizures from an identifiable cause.'},
+
+{id:16,block:'D',chapter:36,type:'Assessment',
+stem:'The nurse assesses a client with a history of migraines. Which symptom would the nurse identify as an early sign of a migraine WITH aura?',
+options:[
+{letter:'A',text:'Vertigo',correct:false,rationale:'Vertigo is not the classic aura symptom.'},
+{letter:'B',text:'Lethargy',correct:false,rationale:'Lethargy is not the hallmark aura.'},
+{letter:'C',text:'Visual disturbances',correct:true,rationale:'An aura typically consists of visual changes such as flashing lights, spots, or diplopia that precede the headache.'},
+{letter:'D',text:'Numbness of the tongue',correct:false,rationale:'Tongue numbness is not the characteristic aura symptom.'}
+],vocabTip:'<strong>Migraine aura = visual changes (flashing lights, blind spots, zigzags) before the headache.</strong> Auras are a warning phase; treatment is most effective when started early.'},
+
+{id:17,block:'D',chapter:36,type:'Teaching',
+stem:'The nurse teaches a client who experiences migraines and is prescribed propranolol. Which statement would the nurse include?',
+options:[
+{letter:'A',text:'"Take this drug only when a migraine begins."',correct:false,rationale:'Propranolol is preventive, not an as-needed abortive drug.'},
+{letter:'B',text:'"Take this drug as prescribed, even when feeling well, to prevent the vascular changes of migraines."',correct:true,rationale:'Propranolol is a beta blocker used for migraine prophylaxis. It is taken daily to prevent the vascular changes that trigger migraines.'},
+{letter:'C',text:'"This drug relieves pain during the aura after a headache starts."',correct:false,rationale:'Propranolol is preventive; it does not abort a headache in progress.'},
+{letter:'D',text:'"This drug will not affect your heart rate or blood pressure."',correct:false,rationale:'As a beta blocker, propranolol does lower heart rate and blood pressure; monitor for these effects.'}
+],vocabTip:'<strong>Propranolol (beta blocker) = migraine PREVENTION, taken daily.</strong> Monitor HR and BP. Abortive drugs (triptans) treat an acute attack; preventive drugs reduce frequency.'},
+
+{id:18,block:'D',chapter:36,type:'Priority',trap:true,
+stem:'Before administering sumatriptan for migraine, which condition in the client’s history would alert the nurse to withhold the drug and contact the provider?',
+options:[
+{letter:'A',text:'Bronchial asthma',correct:false,rationale:'Asthma is a caution for beta blockers, not the key contraindication for triptans.'},
+{letter:'B',text:'Heart disease',correct:true,rationale:'Sumatriptan causes vasoconstriction that is not limited to the cranium and can cause coronary vasospasm in clients with heart disease, hypertension, or Prinzmetal angina. Hold the drug and notify the provider.'},
+{letter:'C',text:'Diabetes mellitus',correct:false,rationale:'Diabetes does not contraindicate sumatriptan.'},
+{letter:'D',text:'Rheumatoid arthritis',correct:false,rationale:'Rheumatoid arthritis does not affect sumatriptan use.'}
+],vocabTip:'<strong>Triptans (sumatriptan) cause vasoconstriction → contraindicated in coronary artery/heart disease, uncontrolled HTN, and Prinzmetal angina.</strong> Risk of coronary vasospasm/MI.'},
+
+{id:19,block:'D',chapter:36,type:'SATA',sata:true,
+stem:'The nurse assesses a client with a common migraine WITHOUT aura. Which findings would the nurse expect? (Select all that apply.)',
+options:[
+{letter:'A',text:'Headache lasting up to 72 hours',correct:true,rationale:'Migraines typically last 4 to 72 hours.'},
+{letter:'B',text:'Unilateral and pulsating headache',correct:true,rationale:'One-sided, throbbing/pulsating pain is characteristic.'},
+{letter:'C',text:'Abrupt loss of consciousness',correct:false,rationale:'Loss of consciousness is not associated with migraine.'},
+{letter:'D',text:'Acute confusion',correct:false,rationale:'Acute confusion is not a migraine feature.'},
+{letter:'E',text:'Pain that worsens with physical activity',correct:true,rationale:'Migraine pain is aggravated by physical activity.'},
+{letter:'F',text:'Photophobia',correct:true,rationale:'Sensitivity to light (photophobia) and sound (phonophobia) are classic.'}
+],vocabTip:'<strong>Migraine: unilateral, pulsating, 4–72 hrs, worsens with activity, + photophobia/phonophobia and N/V.</strong> Rest in a quiet, dark room. No LOC change or confusion.'},
+
+{id:20,block:'E',chapter:36,type:'Teaching',
+stem:'The nurse teaches college students about preventing meningitis. Which health promotion activity is most appropriate for preventing this disease?',
+options:[
+{letter:'A',text:'Eating a high-protein, well-balanced diet',correct:false,rationale:'General nutrition supports health but does not specifically prevent meningitis.'},
+{letter:'B',text:'Having an annual physical examination',correct:false,rationale:'Annual exams are good practice but not specific meningitis prevention.'},
+{letter:'C',text:'Obtaining the recommended meningitis vaccination and boosters',correct:true,rationale:'Meningococcal vaccination and boosters are the specific, effective prevention, especially important for those in close-quarters living like dorms.'},
+{letter:'D',text:'Identifying signs and symptoms for early treatment',correct:false,rationale:'Early recognition aids treatment but does not prevent the disease.'}
+],vocabTip:'<strong>Meningococcal vaccination prevents bacterial meningitis — key for dorm/close-quarters populations.</strong> Bacterial meningitis clusters in crowded settings (dorms, barracks, prisons).'},
+
+{id:21,block:'E',chapter:36,type:'SATA',sata:true,
+stem:'The nurse assesses a client with meningitis. Which signs and symptoms would the nurse anticipate? (Select all that apply.)',
+options:[
+{letter:'A',text:'Photophobia',correct:true,rationale:'Photophobia (light sensitivity) is a key feature of meningitis.'},
+{letter:'B',text:'Decreased level of consciousness',correct:true,rationale:'Altered/decreased LOC occurs from meningeal irritation and rising ICP.'},
+{letter:'C',text:'Severe headache',correct:true,rationale:'Severe headache is a hallmark of meningeal inflammation.'},
+{letter:'D',text:'Fever and chills',correct:true,rationale:'Fever and chills reflect the infectious process.'},
+{letter:'E',text:'Bradycardia',correct:false,rationale:'Tachycardia (not bradycardia) is expected due to fever and infection.'}
+],vocabTip:'<strong>Meningitis: severe headache, fever, photophobia, nuchal rigidity, decreased LOC, positive Kernig/Brudzinski.</strong> Tachycardia (not bradycardia) accompanies fever/infection.'},
+
+{id:22,block:'E',chapter:36,type:'SATA',sata:true,
+stem:'A nurse prepares to provide perineal care to a client with meningococcal meningitis. Which personal protective equipment would the nurse wear? (Select all that apply.)',
+options:[
+{letter:'A',text:'Particulate (N95) respirator',correct:false,rationale:'An N95 is for airborne precautions; meningococcal meningitis is spread by droplets, not airborne.'},
+{letter:'B',text:'Isolation gown',correct:false,rationale:'A gown is not required for routine droplet precautions unless soiling is expected.'},
+{letter:'C',text:'Shoe covers',correct:false,rationale:'Shoe covers are not part of droplet precautions.'},
+{letter:'D',text:'Surgical mask',correct:true,rationale:'A surgical mask is worn within 6 feet of the client because the organism spreads via droplets.'},
+{letter:'E',text:'Gloves',correct:true,rationale:'Gloves are standard precautions and needed for perineal care.'}
+],vocabTip:'<strong>Meningococcal meningitis = DROPLET precautions: surgical mask within 6 ft + standard precautions (gloves).</strong> Not airborne, so no N95 required.'},
+
+{id:23,block:'A',chapter:36,type:'Teaching',trap:true,
+stem:'The nurse teaches assistive personnel (AP) about caring for a client with EARLY-stage Alzheimer disease. Which statement would the nurse include?',
+options:[
+{letter:'A',text:'"If she is confused, play along and pretend everything is okay."',correct:false,rationale:'Playing along/encouraging delusions is validation therapy, used in LATE stage, not early.'},
+{letter:'B',text:'"Remove the clock from her room so she does not get confused."',correct:false,rationale:'A clock and dated whiteboard aid orientation and should stay in the room.'},
+{letter:'C',text:'"Reorient the client to the day, time, and environment with each contact."',correct:true,rationale:'Early-stage Alzheimer clients benefit from frequent reorientation to person, place, and time.'},
+{letter:'D',text:'"Use validation therapy to acknowledge her concerns."',correct:false,rationale:'Validation therapy is reserved for LATE-stage disease.'}
+],vocabTip:'<strong>Early stage → reorient frequently (clock, calendar, whiteboard). Late stage → validate feelings.</strong> Matching the technique to the stage prevents unnecessary agitation.'},
+
+{id:24,block:'A',chapter:36,type:'SATA',sata:true,
+stem:'The nurse teaches the spouse of a client with Alzheimer disease about reducing caregiver stress. Which statements should the nurse include? (Select all that apply.)',
+options:[
+{letter:'A',text:'"Establish advance directives early."',correct:true,rationale:'Establishing advance directives early, while the client can participate, reduces later burden and stress.'},
+{letter:'B',text:'"Trust that family and friends will help."',correct:false,rationale:'Caregivers cannot assume help will materialize; planning for support is more realistic.'},
+{letter:'C',text:'"Set aside time each day to be away from the client."',correct:true,rationale:'Daily time for rest/recreation away from caregiving reduces burnout.'},
+{letter:'D',text:'"Use discipline to correct inappropriate behaviors."',correct:false,rationale:'Discipline does not correct dementia-related behaviors and increases stress.'},
+{letter:'E',text:'"Seek respite care periodically for longer periods."',correct:true,rationale:'Periodic respite care gives the caregiver longer breaks and reduces stress.'}
+],vocabTip:'<strong>Caregiver stress reduction: advance directives early, daily time away, respite care, humor, and community resources.</strong> Unaddressed caregiver stress is a risk factor for elder abuse.'},
+
+{id:25,block:'C',chapter:36,type:'SATA',sata:true,
+stem:'A nurse assesses a client recovering from implantation of a vagal nerve-stimulation device for seizure control. For which common complications would the nurse assess? (Select all that apply.)',
+options:[
+{letter:'A',text:'Bleeding',correct:false,rationale:'Bleeding is not a common complication of this procedure.'},
+{letter:'B',text:'Infection',correct:false,rationale:'Infection would not typically occur during the immediate recovery period.'},
+{letter:'C',text:'Hoarseness',correct:true,rationale:'Hoarseness is the most common complication because the electrode connects to the vagus nerve.'},
+{letter:'D',text:'Dysphagia',correct:true,rationale:'Dysphagia can occur due to the vagus nerve’s role in swallowing.'},
+{letter:'E',text:'Seizures',correct:false,rationale:'The device is placed to reduce seizures; new seizures are not a procedure complication.'}
+],vocabTip:'<strong>Vagal nerve stimulator complications: hoarseness (most common), dyspnea, neck pain, and dysphagia.</strong> It controls partial seizures via an electrode on the vagus nerve.'}
+
+];
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+</body>
+</html>
