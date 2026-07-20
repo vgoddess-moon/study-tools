@@ -80,4 +80,30 @@ updateProgress();if(Object.keys(answered).length===ALL_Q.length)showScore(false)
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
 }
+
+function _buildMustKnows(){
+const src=document.querySelector('.svg-card');
+if(!src||document.querySelector('.mk-fab'))return;
+const titleEl=src.querySelector('h3');
+const title=titleEl?titleEl.textContent:'Labs & Must-Knows';
+const fab=document.createElement('button');
+fab.className='mk-fab';fab.type='button';
+fab.setAttribute('aria-label','Show labs and must-knows');
+fab.innerHTML='<span class="mk-ico">&#128204;</span>Must-Knows';
+const overlay=document.createElement('div');
+overlay.className='mk-overlay';
+const panel=document.createElement('div');
+panel.className='mk-panel';
+panel.innerHTML='<div class="mk-panel-head"><h3>'+title+'</h3><button class="mk-close" type="button" aria-label="Close">&times;</button></div>'+src.outerHTML;
+overlay.appendChild(panel);
+document.body.appendChild(fab);document.body.appendChild(overlay);
+function open(){overlay.classList.add('open');}
+function close(){overlay.classList.remove('open');}
+fab.addEventListener('click',open);
+panel.querySelector('.mk-close').addEventListener('click',close);
+overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+}
+
 buildQuiz();
+_buildMustKnows();
