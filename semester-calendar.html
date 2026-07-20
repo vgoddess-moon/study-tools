@@ -64,6 +64,30 @@ a.t-exam,a.t-final{text-decoration:none;transition:.2s}
 a.t-exam:hover,a.t-final:hover{filter:brightness(1.25);text-decoration:underline}
 .link-note{font-family:'IBM Plex Mono',monospace;font-size:.54rem;color:#475569;margin-left:2px}
 .foot{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:#475569;text-align:center;margin-top:24px;letter-spacing:.05em;line-height:1.6}
+
+/* Pre-semester checklist */
+.ramp{background:#12100f;border:1px solid #3f2a12;border-left:3px solid #e09a3a;border-radius:14px;padding:16px 16px 14px;margin-bottom:22px}
+.ramp-h{font-family:'DM Serif Display',serif;font-size:1.15rem;color:#f8e3c0;margin-bottom:2px}
+.ramp-sub{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:#a17a45;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.ramp-wk{font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;color:#e09a3a;letter-spacing:.06em;text-transform:uppercase;margin:12px 0 8px;padding-bottom:5px;border-bottom:1px dashed #3f2a12}
+.ramp-wk:first-of-type{margin-top:4px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:6px 4px;border-radius:8px;cursor:pointer;transition:.15s;user-select:none}
+.chk:hover{background:#1a140d}
+.chk input{appearance:none;-webkit-appearance:none;width:17px;height:17px;flex-shrink:0;margin-top:1px;border:1.5px solid #6b5738;border-radius:5px;background:#0c0f14;cursor:pointer;position:relative;transition:.15s}
+.chk input:checked{background:#e09a3a;border-color:#e09a3a}
+.chk input:checked::after{content:"✓";position:absolute;top:-2px;left:2px;color:#12100f;font-size:.8rem;font-weight:700}
+.chk .txt{font-size:.82rem;line-height:1.4;color:#e7d3b3}
+.chk input:checked ~ .txt{color:#6b5738;text-decoration:line-through}
+.chk .txt b{color:#f8e3c0;font-weight:600}
+.chk input:checked ~ .txt b{color:#6b5738}
+.chk .pill{font-family:'IBM Plex Mono',monospace;font-size:.52rem;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:7px;margin-right:5px;white-space:nowrap;vertical-align:middle}
+.pill-cold{background:#3b0764;color:#e9d5ff}
+.pill-video{background:#0f2a2a;color:#5eead4}
+.pill-nblm{background:#1e1433;color:#c4b5fd}
+.pill-pack{background:#450a0a;color:#fca5a5}
+.pill-syl{background:#831843;color:#f9a8d4}
+.ramp-prog{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:#a17a45;letter-spacing:.06em;margin-top:12px;padding-top:10px;border-top:1px dashed #3f2a12}
+.ramp-prog b{color:#f8e3c0}
 </style>
 </head>
 <body>
@@ -88,6 +112,8 @@ a.t-exam:hover,a.t-final:hover{filter:brightness(1.25);text-decoration:underline
     <span><i class="dot exam"></i>Exam</span>
     <span><i class="dot quiz"></i>Quiz</span>
   </div>
+
+  <div class="ramp" id="ramp"></div>
 
   <div id="weeks"></div>
 
@@ -171,6 +197,58 @@ document.getElementById('weeks').innerHTML=html;
 document.getElementById('statDbl').textContent=nDbl;
 document.getElementById('statCrunch').textContent=nCrunch;
 document.getElementById('statExam').textContent=nExam;
+
+// ---- Pre-semester two-week ramp checklist ----
+// The overlap play: Maternity Ch 2-8 teaches the NORMAL reproductive system;
+// MS2 Ch 61-65 teaches what goes WRONG with it. Learn the shared core once, bank points in both.
+var RAMP = [
+  {wk:"Week 1 · now → Jul 26 — the shared anatomy core", items:[
+    {id:"w1a", pill:"cold", cls:"pill-cold", h:"Take <b>Mat Ch 3 primer</b> COLD", t:"reproductive anatomy + menstrual cycle — before you study anything"},
+    {id:"w1b", pill:"cold", cls:"pill-cold", h:"Take <b>MS2 Ch 61 primer</b> COLD", t:"reproductive assessment — same anatomy, clinical angle"},
+    {id:"w1c", pill:"video", cls:"pill-video", h:"Watch: female repro hormones", t:"Level Up RN — FSH / LH / estrogen / progesterone cycle"},
+    {id:"w1d", pill:"nblm", cls:"pill-nblm", h:"NotebookLM 1·2·3 on <b>Mat Ch 2 & 3</b>", t:"step 3 spits out a 30Q practice exam — take it"},
+    {id:"w1e", pill:"pack", cls:"pill-pack", h:"Down-pack the hormone sequence", t:"FSH → ovulation → LH surge → estrogen/progesterone. Know the order cold."},
+    {id:"w1f", pill:"cold", cls:"pill-cold", h:"Take <b>Mat Ch 2 primer</b>", t:"women's health & self-care — closes the Exam 1 women's-health loop"}
+  ]},
+  {wk:"Week 2 · Jul 27 → Aug 2 — build out + syllabus", items:[
+    {id:"w2a", pill:"syllabus", cls:"pill-syl", h:"<b>Jul 27: pick up the syllabus</b>", t:"confirm exact chapter→exam list; tell me so I can lock the Exam 2 maternity remap"},
+    {id:"w2b", pill:"cold", cls:"pill-cold", h:"Take <b>MS2 Ch 62 & 63</b> primers cold", t:"breast + gynecologic conditions"},
+    {id:"w2c", pill:"cold", cls:"pill-cold", h:"Take <b>Mat Ch 4 & 5</b> primers cold", t:"fetal development + prenatal care"},
+    {id:"w2d", pill:"nblm", cls:"pill-nblm", h:"NotebookLM 1·2·3 on <b>MS2 Ch 61 & 63</b>", t:"generate + take both 30Q exams"},
+    {id:"w2e", pill:"pack", cls:"pill-pack", h:"Down-pack the STI chart", t:"chlamydia / gonorrhea / syphilis / HPV / HSV — shows up in BOTH classes"},
+    {id:"w2f", pill:"cold", cls:"pill-cold", h:"Re-take anything you scored <80%", t:"retrieval, not re-reading — the miss is the lesson"}
+  ]}
+];
+
+var LS_KEY = "ramp-checklist-v1";
+var saved = {};
+try { saved = JSON.parse(localStorage.getItem(LS_KEY)||"{}"); } catch(e){ saved={}; }
+
+var rHtml='<div class="ramp-h">Two-Week Ramp</div><div class="ramp-sub">Get ahead before Aug 3 · check items as you go</div>';
+RAMP.forEach(function(g){
+  rHtml+='<div class="ramp-wk">'+g.wk+'</div>';
+  g.items.forEach(function(it){
+    var ck = saved[it.id] ? ' checked' : '';
+    rHtml+='<label class="chk"><input type="checkbox" data-id="'+it.id+'"'+ck+'>'+
+      '<span class="txt"><span class="pill '+it.cls+'">'+it.pill+'</span>'+it.h+' — '+it.t+'</span></label>';
+  });
+});
+rHtml+='<div class="ramp-prog" id="rampProg"></div>';
+document.getElementById('ramp').innerHTML=rHtml;
+
+function rampCount(){
+  var boxes=document.querySelectorAll('#ramp input[type=checkbox]');
+  var done=0; boxes.forEach(function(b){ if(b.checked) done++; });
+  document.getElementById('rampProg').innerHTML='<b>'+done+'</b> / '+boxes.length+' done'+(done===boxes.length?' — you’re ready. 🌙':'');
+}
+document.querySelectorAll('#ramp input[type=checkbox]').forEach(function(b){
+  b.addEventListener('change',function(){
+    saved[b.dataset.id]=b.checked;
+    try { localStorage.setItem(LS_KEY, JSON.stringify(saved)); } catch(e){}
+    rampCount();
+  });
+});
+rampCount();
 </script>
 </body>
 </html>
