@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGN Format Practice &mdash; Reproductive / Maternity Exam 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+<style>
+.ngn-intro{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;color:#cbd5e1}
+.ngn-intro b{color:#c084fc}
+.ngn-item{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.75rem}
+.ngn-kind{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#0c0f14;background:#c084fc;border-radius:99px;padding:.25rem .7rem;margin-bottom:.75rem}
+.ngn-scenario{background:#0c0f14;border-left:3px solid #7c3aed;border-radius:0 8px 8px 0;padding:.85rem 1rem;font-size:.9rem;color:#e2e8f0;margin-bottom:1.1rem;line-height:1.55}
+.ngn-instr{font-size:.82rem;color:#94a3b8;font-style:italic;margin-bottom:.9rem}
+.ngn-btn{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s;margin-right:.5rem;margin-top:.4rem}
+.ngn-btn:hover{background:#6d28d9}
+.ngn-btn.ghost{background:#1e293b;border:1px solid #334155}
+.ngn-btn.ghost:hover{background:#334155}
+.ngn-btn:disabled{opacity:.4;cursor:not-allowed}
+.ngn-feedback{display:none;margin-top:1rem;border-radius:8px;padding:.85rem 1rem;font-size:.85rem;line-height:1.5}
+.ngn-feedback.good{background:#052e16;border:1px solid #22c55e;color:#bbf7d0}
+.ngn-feedback.bad{background:#2a0a0a;border:1px solid #ef4444;color:#fecaca}
+.ngn-rats{margin-top:.8rem;display:none}
+.ngn-rat{font-size:.8rem;color:#cbd5e1;padding:.5rem .7rem;border-radius:7px;background:#0c0f14;border:1px solid #1e293b;margin-bottom:.4rem;line-height:1.5}
+.ngn-rat b{color:#c084fc}
+.ngn-rat.ok{border-left:3px solid #22c55e}
+.ngn-rat.no{border-left:3px solid #64748b}
+
+/* Bow-tie */
+.bt-wrap{display:grid;grid-template-columns:1fr;gap:1rem;margin-bottom:.5rem}
+@media(min-width:720px){.bt-wrap{grid-template-columns:1fr 1fr 1fr;align-items:start}}
+.bt-col h4{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin-bottom:.6rem;padding-bottom:.35rem;border-bottom:1px dashed #334155}
+.bt-col.actions h4{color:#7dd3fc}
+.bt-col.cond h4{color:#fbbf24}
+.bt-col.monitor h4{color:#6ee7b7}
+.bt-opt{display:block;width:100%;text-align:left;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .75rem;font-size:.82rem;color:#e2e8f0;cursor:pointer;transition:all .15s;margin-bottom:.45rem;line-height:1.4}
+.bt-opt:hover{border-color:#334155;background:#161b24}
+.bt-opt.sel{border-color:#c084fc;background:#1a0a2a}
+.bt-opt.correct-show{border-color:#22c55e;background:#052e16}
+.bt-opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.bt-pick{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:#64748b;text-align:center;margin-bottom:.5rem}
+
+/* Ordering */
+.ord-list{list-style:none;padding:0;margin:0 0 .5rem}
+.ord-item{display:flex;align-items:center;gap:.7rem;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.7rem .85rem;margin-bottom:.5rem;cursor:pointer;transition:all .15s}
+.ord-item:hover{border-color:#334155;background:#161b24}
+.ord-item.picked{border-color:#c084fc;background:#1a0a2a}
+.ord-item.correct-show{border-color:#22c55e;background:#052e16}
+.ord-item.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.ord-badge{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.8rem;width:1.6rem;height:1.6rem;flex-shrink:0;border-radius:99px;display:flex;align-items:center;justify-content:center;background:#1e293b;color:#64748b}
+.ord-item.picked .ord-badge{background:#7c3aed;color:#fff}
+.ord-item.correct-show .ord-badge{background:#22c55e;color:#04120a}
+.ord-item.wrong-show .ord-badge{background:#ef4444;color:#fff}
+.ord-txt{font-size:.85rem;flex:1}
+.ord-ans{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:#6ee7b7;margin-left:auto}
+
+/* Matrix */
+.mx-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.mx-table th{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;color:#94a3b8;padding:.5rem;text-align:center;border-bottom:1px solid #334155}
+.mx-table th.finding{text-align:left}
+.mx-table td{padding:.45rem .4rem;border-bottom:1px solid #1a2230;vertical-align:middle}
+.mx-table td.finding{color:#e2e8f0;line-height:1.4}
+.mx-cell{width:100%;background:#0c0f14;border:1px solid #1e293b;border-radius:7px;padding:.5rem;cursor:pointer;transition:all .15s;color:#64748b;font-size:1.05rem;line-height:1;text-align:center;min-width:2.6rem}
+.mx-cell:hover{border-color:#334155}
+.mx-cell.sel{border-color:#c084fc;background:#1a0a2a;color:#f0abfc}
+.mx-cell.correct-show{border-color:#22c55e;background:#052e16;color:#6ee7b7}
+.mx-cell.wrong-show{border-color:#ef4444;background:#2a0a0a;color:#fca5a5}
+.mx-cell.miss-show{border-color:#22c55e;background:#04120a;color:#6ee7b7;border-style:dashed}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+<div class="exam-header">
+<h1>NGN Format Practice</h1>
+<p class="subtitle">Reproductive / Maternity Exam 1 &middot; Bow-tie &middot; Put-in-Order &middot; Matrix</p>
+</div>
+
+<div class="ngn-intro">
+This is <b>format practice</b>, not a content quiz. HESI and Next Gen NCLEX ask the same nursing facts you already study, but through clinical-judgment shapes: <b>recognize cues &rarr; analyze &rarr; prioritize &rarr; act &rarr; monitor</b>. Three items below, all high-yield Exam 1 content. Tap to build your answer, then Check. (On a real exam these are drag-and-drop; tap-to-place trains the exact same thinking.)
+</div>
+
+<!-- ============ BOW-TIE ============ -->
+<div class="ngn-item" id="bt">
+<span class="ngn-kind">Bow-Tie</span>
+<div class="ngn-scenario">A client at 34 weeks&rsquo; gestation arrives with BP 168/112, +3 proteinuria, a pounding headache, epigastric pain, and blurred vision. Deep tendon reflexes are +4 with clonus.</div>
+<div class="ngn-instr">Pick <b>2 Actions to Take</b>, the <b>1 Condition</b> the client is most likely experiencing, and <b>2 Parameters to Monitor</b>. Then Check.</div>
+<div class="bt-wrap">
+  <div class="bt-col actions">
+    <h4>Actions to Take</h4>
+    <div class="bt-pick" data-col="actions">choose 2</div>
+    <div id="bt-actions"></div>
+  </div>
+  <div class="bt-col cond">
+    <h4>Condition Most Likely</h4>
+    <div class="bt-pick" data-col="cond">choose 1</div>
+    <div id="bt-cond"></div>
+  </div>
+  <div class="bt-col monitor">
+    <h4>Parameters to Monitor</h4>
+    <div class="bt-pick" data-col="monitor">choose 2</div>
+    <div id="bt-monitor"></div>
+  </div>
+</div>
+<button class="ngn-btn" id="bt-check">Check</button>
+<button class="ngn-btn ghost" id="bt-reset">Reset</button>
+<div class="ngn-feedback" id="bt-fb"></div>
+<div class="ngn-rats" id="bt-rats"></div>
+</div>
+
+<!-- ============ ORDERING ============ -->
+<div class="ngn-item" id="ord">
+<span class="ngn-kind">Put in Order</span>
+<div class="ngn-scenario">A nursing student is reviewing the phases of the menstrual (ovarian/uterine) cycle for a 28-day cycle, beginning on the first day of bleeding.</div>
+<div class="ngn-instr">Tap the phases in the order they occur, starting with day 1. Tap again to un-number. Then Check.</div>
+<ul class="ord-list" id="ord-list"></ul>
+<button class="ngn-btn" id="ord-check">Check</button>
+<button class="ngn-btn ghost" id="ord-reset">Reset</button>
+<div class="ngn-feedback" id="ord-fb"></div>
+<div class="ngn-rats" id="ord-rats"></div>
+</div>
+
+<!-- ============ MATRIX ============ -->
+<div class="ngn-item" id="mx">
+<span class="ngn-kind">Matrix / Grid</span>
+<div class="ngn-scenario">The nurse reviews assessment findings for several clients in the prenatal clinic.</div>
+<div class="ngn-instr">For each finding, tap one box: is it an <b>Expected</b> finding, or does it <b>Require Follow-Up</b>? Then Check.</div>
+<table class="mx-table">
+<thead><tr><th class="finding">Finding</th><th>Expected</th><th>Requires<br>Follow-Up</th></tr></thead>
+<tbody id="mx-body"></tbody>
+</table>
+<button class="ngn-btn" id="mx-check">Check</button>
+<button class="ngn-btn ghost" id="mx-reset">Reset</button>
+<div class="ngn-feedback" id="mx-fb"></div>
+<div class="ngn-rats" id="mx-rats"></div>
+</div>
+
+<div class="ngn-intro" style="text-align:center">
+<b>Why these three?</b> Bow-tie = &ldquo;what&rsquo;s wrong / what do I do / what do I watch&rdquo; in one shape. Put-in-order = sequencing under pressure. Matrix = sorting normal from &ldquo;act now.&rdquo; Master the shape here, then the content on any chapter drops right in.
+</div>
+</div>
+
+<script>
+/* ---------- BOW-TIE ---------- */
+var BT={
+ actions:{pick:2,opts:[
+  {t:'Administer magnesium sulfate as prescribed',c:true,r:'Mag sulfate is the priority to prevent eclamptic seizures in severe preeclampsia.'},
+  {t:'Institute seizure precautions and reduce environmental stimuli (dim lights, quiet room)',c:true,r:'A calm, low-stimulation environment lowers seizure risk while mag takes effect.'},
+  {t:'Encourage ambulation in the hallway',c:false,r:'Activity is not indicated; the client needs rest and close monitoring, not ambulation.'},
+  {t:'Give a rapid 2-liter IV fluid bolus',c:false,r:'Aggressive fluids risk pulmonary edema in preeclampsia. Fluids are given cautiously.'}
+ ]},
+ cond:{pick:1,opts:[
+  {t:'Severe preeclampsia',c:true,r:'BP >160/110, +3 protein, headache, epigastric pain, visual changes, and hyperreflexia with clonus are hallmark severe features.'},
+  {t:'Gestational diabetes',c:false,r:'GDM is a glucose disorder; it does not cause this hypertensive, hyperreflexic picture.'},
+  {t:'Placenta previa',c:false,r:'Previa presents with painless bright-red bleeding, not hypertension and clonus.'},
+  {t:'Preterm labor',c:false,r:'Preterm labor is regular contractions with cervical change, not this hypertensive crisis.'}
+ ]},
+ monitor:{pick:2,opts:[
+  {t:'Deep tendon reflexes and clonus',c:true,r:'Loss of DTRs is an early sign of magnesium toxicity, so reflexes are checked frequently.'},
+  {t:'Urine output (hourly)',c:true,r:'Magnesium is renally cleared; output <30 mL/hr signals accumulation and toxicity risk.'},
+  {t:'Blood glucose every 4 hours',c:false,r:'Glucose monitoring fits diabetes, not the priority in preeclampsia/mag therapy.'},
+  {t:'Bowel sounds every shift',c:false,r:'Not a priority parameter for preeclampsia or magnesium safety.'}
+ ]}
+};
+var btSel={actions:[],cond:[],monitor:[]};
+function btRender(){
+ ['actions','cond','monitor'].forEach(function(col){
+  var box=document.getElementById('bt-'+col);box.innerHTML='';
+  BT[col].opts.forEach(function(o,i){
+   var b=document.createElement('button');b.className='bt-opt';b.type='button';b.textContent=o.t;
+   b.onclick=function(){btPick(col,i,b);};
+   box.appendChild(b);
+  });
+ });
+}
+function btPick(col,i,el){
+ if(document.getElementById('bt-rats').style.display==='block')return;
+ var arr=btSel[col];var pos=arr.indexOf(i);
+ if(pos>-1){arr.splice(pos,1);el.classList.remove('sel');}
+ else{if(arr.length>=BT[col].pick){return;}arr.push(i);el.classList.add('sel');}
+}
+document.getElementById('bt-check').onclick=function(){
+ var allCorrect=true,rats='';
+ ['actions','cond','monitor'].forEach(function(col){
+  var box=document.getElementById('bt-'+col);var btns=box.querySelectorAll('.bt-opt');
+  BT[col].opts.forEach(function(o,i){
+   var el=btns[i];var chosen=btSel[col].indexOf(i)>-1;
+   if(o.c){el.classList.add('correct-show');if(!chosen)allCorrect=false;}
+   else if(chosen){el.classList.add('wrong-show');allCorrect=false;}
+   if(o.c||chosen){rats+='<div class="ngn-rat '+(o.c?'ok':'no')+'"><b>'+(o.c?'Correct &middot; ':'Not this &middot; ')+'</b>'+o.t+' &mdash; '+o.r+'</div>';}
+  });
+ });
+ var fb=document.getElementById('bt-fb');fb.style.display='block';
+ fb.className='ngn-feedback '+(allCorrect?'good':'bad');
+ fb.innerHTML=allCorrect?'&#10003; Full bow-tie correct &mdash; you recognized severe preeclampsia and paired the right actions with the right monitoring.':'Close &mdash; compare your picks to the highlighted answers below. The condition drives everything: name it first, then actions and monitoring follow.';
+ var r=document.getElementById('bt-rats');r.style.display='block';r.innerHTML=rats;
+};
+document.getElementById('bt-reset').onclick=function(){btSel={actions:[],cond:[],monitor:[]};document.getElementById('bt-fb').style.display='none';document.getElementById('bt-rats').style.display='none';btRender();};
+
+/* ---------- ORDERING ---------- */
+var ORD=[ /* correct chronological order */
+ {t:'Menstrual phase &mdash; the endometrium sheds (days 1&ndash;5)',r:'Day 1 of bleeding starts the cycle as estrogen and progesterone are low.'},
+ {t:'Follicular / proliferative phase &mdash; FSH matures a follicle, estrogen rebuilds the lining',r:'Rising estrogen thickens the endometrium and triggers the LH surge.'},
+ {t:'Ovulation &mdash; the LH surge releases the egg (~day 14)',r:'The mid-cycle LH surge ruptures the mature follicle.'},
+ {t:'Luteal / secretory phase &mdash; the corpus luteum makes progesterone',r:'Progesterone readies the lining for implantation; if no pregnancy, it falls and menses begins again.'}
+];
+var ordPick=[]; /* stores original indices in tapped order */
+function ordRender(){
+ var ul=document.getElementById('ord-list');ul.innerHTML='';
+ ORD.forEach(function(s,i){
+  var li=document.createElement('li');li.className='ord-item';li.dataset.idx=i;
+  li.innerHTML='<span class="ord-badge">&middot;</span><span class="ord-txt">'+s.t+'</span>';
+  li.onclick=function(){ordTap(i,li);};
+  ul.appendChild(li);
+ });
+}
+function ordTap(i,li){
+ if(document.getElementById('ord-rats').style.display==='block')return;
+ var pos=ordPick.indexOf(i);
+ if(pos>-1){ordPick.splice(pos,1);li.classList.remove('picked');}
+ else{ordPick.push(i);li.classList.add('picked');}
+ document.querySelectorAll('#ord-list .ord-item').forEach(function(el){
+  var idx=parseInt(el.dataset.idx);var p=ordPick.indexOf(idx);
+  el.querySelector('.ord-badge').textContent=p>-1?(p+1):'·';
+ });
+}
+document.getElementById('ord-check').onclick=function(){
+ if(ordPick.length<ORD.length){var fb=document.getElementById('ord-fb');fb.style.display='block';fb.className='ngn-feedback bad';fb.innerHTML='Number all '+ORD.length+' phases first.';return;}
+ var ok=true,rats='';
+ document.querySelectorAll('#ord-list .ord-item').forEach(function(el){
+  var idx=parseInt(el.dataset.idx);var chosenPos=ordPick.indexOf(idx);
+  el.classList.remove('picked');
+  if(chosenPos===idx){el.classList.add('correct-show');}else{el.classList.add('wrong-show');ok=false;}
+  el.querySelector('.ord-badge').textContent=idx+1;
+  var ans=document.createElement('span');ans.className='ord-ans';ans.textContent='#'+(idx+1);el.appendChild(ans);
+ });
+ ORD.forEach(function(s,i){rats+='<div class="ngn-rat ok"><b>#'+(i+1)+' &middot; </b>'+s.t+' &mdash; '+s.r+'</div>';});
+ var fb=document.getElementById('ord-fb');fb.style.display='block';fb.className='ngn-feedback '+(ok?'good':'bad');
+ fb.innerHTML=ok?'&#10003; Perfect sequence &mdash; menstrual &rarr; follicular &rarr; ovulation &rarr; luteal.':'Not quite &mdash; the list is now shown in the correct order with your numbering. Remember: shed, rebuild, release, secrete.';
+ document.getElementById('ord-rats').style.display='block';document.getElementById('ord-rats').innerHTML=rats;
+};
+document.getElementById('ord-reset').onclick=function(){ordPick=[];document.getElementById('ord-fb').style.display='none';document.getElementById('ord-rats').style.display='none';ordRender();};
+
+/* ---------- MATRIX ---------- */
+var MX=[
+ {f:'Mild ankle and foot edema at the end of the day (36 weeks)',exp:true,r:'Dependent lower-leg edema late in pregnancy is common and benign.'},
+ {f:'Severe headache with blurred vision and facial swelling',exp:false,r:'Classic preeclampsia danger signs &mdash; report immediately.'},
+ {f:'Fetal movement felt several times daily in the third trimester',exp:true,r:'Regular fetal movement is a reassuring, expected finding.'},
+ {f:'Any amount of vaginal bleeding',exp:false,r:'Bleeding can signal previa or abruption and always requires evaluation.'},
+ {f:'Urinary frequency in the first trimester',exp:true,r:'Expected from the enlarging uterus pressing on the bladder and increased blood flow.'},
+ {f:'Fever of 101&deg;F with painful urination',exp:false,r:'Suggests a UTI, which in pregnancy can progress to pyelonephritis/preterm labor &mdash; follow up.'}
+];
+var mxSel={}; /* idx -> 'exp' | 'flw' */
+function mxRender(){
+ var tb=document.getElementById('mx-body');tb.innerHTML='';
+ MX.forEach(function(m,i){
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td class="finding">'+m.f+'</td>'+
+   '<td><div class="mx-cell" data-i="'+i+'" data-v="exp">&#9711;</div></td>'+
+   '<td><div class="mx-cell" data-i="'+i+'" data-v="flw">&#9711;</div></td>';
+  tb.appendChild(tr);
+ });
+ tb.querySelectorAll('.mx-cell').forEach(function(c){
+  c.onclick=function(){mxTap(c);};
+ });
+}
+function mxTap(c){
+ if(document.getElementById('mx-rats').style.display==='block')return;
+ var i=c.dataset.i,v=c.dataset.v;
+ document.querySelectorAll('.mx-cell[data-i="'+i+'"]').forEach(function(o){o.classList.remove('sel');o.innerHTML='&#9711;';});
+ mxSel[i]=v;c.classList.add('sel');c.innerHTML='&#9679;';
+}
+document.getElementById('mx-check').onclick=function(){
+ if(Object.keys(mxSel).length<MX.length){var fb=document.getElementById('mx-fb');fb.style.display='block';fb.className='ngn-feedback bad';fb.innerHTML='Mark every row first.';return;}
+ var ok=true,rats='';
+ MX.forEach(function(m,i){
+  var want=m.exp?'exp':'flw';var got=mxSel[i];
+  document.querySelectorAll('.mx-cell[data-i="'+i+'"]').forEach(function(c){
+   var v=c.dataset.v;
+   if(v===want&&got===want){c.classList.add('correct-show');}
+   else if(v===got&&got!==want){c.classList.add('wrong-show');ok=false;}
+   else if(v===want&&got!==want){c.classList.add('miss-show');ok=false;}
+  });
+  rats+='<div class="ngn-rat '+(got===want?'ok':'no')+'"><b>'+(m.exp?'Expected &middot; ':'Requires follow-up &middot; ')+'</b>'+m.f+' &mdash; '+m.r+'</div>';
+ });
+ var fb=document.getElementById('mx-fb');fb.style.display='block';fb.className='ngn-feedback '+(ok?'good':'bad');
+ fb.innerHTML=ok?'&#10003; Every row correct &mdash; you sorted normal pregnancy changes from the &ldquo;act now&rdquo; danger signs.':'Some rows are off &mdash; solid green = the correct box, dashed green = the one you missed, red = your incorrect pick.';
+ document.getElementById('mx-rats').style.display='block';document.getElementById('mx-rats').innerHTML=rats;
+};
+document.getElementById('mx-reset').onclick=function(){mxSel={};document.getElementById('mx-fb').style.display='none';document.getElementById('mx-rats').style.display='none';mxRender();};
+
+/* init */
+btRender();ordRender();mxRender();
+</script>
+</body>
+</html>
