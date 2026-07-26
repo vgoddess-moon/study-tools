@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Bank Map — where to look per exam</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+<style>
+.tb-note{background:#150a1f;border-left:3px solid #c084fc;border-radius:0 8px 8px 0;padding:.9rem 1.1rem;margin-bottom:1.25rem;font-size:.86rem;color:#e9d5ff;line-height:1.55}
+.tb-note strong{color:#c084fc}
+.tb-warn{background:#1f1206;border-left:3px solid #e09a3a;border-radius:0 8px 8px 0;padding:.9rem 1.1rem;margin-bottom:1.25rem;font-size:.86rem;color:#f5d9ac;line-height:1.55}
+.tb-warn strong{color:#e09a3a}
+.tabs{display:flex;gap:.5rem;margin-bottom:1.25rem}
+.tab{flex:1;background:#13181f;border:1px solid #1e293b;color:#94a3b8;border-radius:10px;padding:.7rem;font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s}
+.tab.active{background:#1a0a2a;border-color:#c084fc;color:#e9d5ff}
+.pane{display:none}
+.pane.active{display:block}
+.ex{background:#13181f;border:1px solid #1e293b;border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.ex-head{background:#171d27;padding:.85rem 1.1rem;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.ex-head h3{font-size:.98rem;color:#f1f5f9;margin:0}
+.ex-head .ex-sub{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#64748b}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;padding:.85rem 1.1rem;border-bottom:1px solid #151b24}
+.row:last-child{border-bottom:none}
+.mine{font-size:.87rem;color:#f1f5f9}
+.mine .ch{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#c084fc;display:block;margin-bottom:.15rem}
+.theirs{font-size:.84rem;color:#cbd5e1}
+.pgs{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.75rem;background:#0a1f2a;color:#7dd3fc;border-radius:6px;padding:.12rem .45rem;margin:.15rem .3rem .15rem 0;white-space:nowrap}
+.pgs.weak{background:#2a1a0a;color:#f0b46a}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#64748b;display:block;margin-top:.25rem}
+.gap{color:#f87171;font-size:.8rem;font-style:italic}
+@media(max-width:640px){.row{grid-template-columns:1fr;gap:.35rem}.mine{font-weight:600}.theirs{padding-left:.5rem;border-left:2px solid #1e293b}}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back-link" href="index.html">&larr; back to the system</a>
+
+<div class="exam-header">
+  <h1>Test Bank Map</h1>
+  <div class="subtitle">Your chapters &rarr; where those questions live in the two banks your classmate sent</div>
+</div>
+
+<div class="tb-note">
+<strong>What these two files are.</strong> The med-surg bank is a <b>Brunner &amp; Suddarth</b> test bank (1,385 pages, 73 chapters) &mdash; a totally different textbook from your Ignatavicius. Its chapter numbers do <b>not</b> line up with yours, which is why "Ch 61" in that file is dermatology, not reproductive. The maternity bank is <b>Leifer 9th edition</b> (318 pages, 34 chapters) &mdash; same book as yours, one edition back, and the early chapters got renumbered in the 10th.
+</div>
+
+<div class="tb-warn">
+<strong>Use these as a question-shape drill, not as truth.</strong> Rationales in an older/different edition can be out of date. If a question here contradicts your cookbook or the professor's slides, <b>your cookbook wins.</b> Page numbers below are <b>PDF page numbers</b> &mdash; type them into your reader's "go to page" box.
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-p="ms">Med Surg 2</button>
+  <button class="tab" data-p="mat">Maternity</button>
+</div>
+
+<!-- ============ MED SURG ============ -->
+<div class="pane active" id="p-ms">
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 1 &mdash; Reproductive</h3><span class="ex-sub">your Ch 61&ndash;65</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 61</span>Reproductive Assessment</div><div class="theirs">Brunner Ch 56 &amp; 59 &mdash; female physiologic processes + male repro assessment<span class="pgs">pg 1055&ndash;1073</span><span class="pgs">pg 1112&ndash;1130</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 62</span>Breast Conditions</div><div class="theirs">Brunner Ch 58 &mdash; Breast Disorders<span class="pgs">pg 1093&ndash;1111</span><span class="tag">tightest 1:1 match in the whole file</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 63</span>Gynecologic Conditions</div><div class="theirs">Brunner Ch 57 &mdash; Female Reproductive Disorders<span class="pgs">pg 1074&ndash;1092</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 64</span>Male Reproductive Conditions</div><div class="theirs">Brunner Ch 59 &mdash; Male Reproductive Disorders<span class="pgs">pg 1112&ndash;1130</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 65</span>Sexually Transmitted Infections</div><div class="theirs">Brunner Ch 71 &mdash; Infectious Diseases (this is where the STI questions actually are)<span class="pgs">pg 1332&ndash;1349</span><br>HIV/AIDS lives separately in Ch 36<span class="pgs">pg 693&ndash;710</span><span class="tag">STIs are scattered here, not their own chapter &mdash; also check pg 1074&ndash;1092</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 2 &mdash; Hematologic + Neuro</h3><span class="ex-sub">your Ch 33&ndash;38</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 33</span>Hematologic Assessment</div><div class="theirs">Brunner Ch 32 &mdash; Assessment of Hematologic Function<span class="pgs">pg 621&ndash;638</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 34</span>Hematologic Conditions</div><div class="theirs">Brunner Ch 33 (anemias, sickle cell, clotting) <span class="pgs">pg 639&ndash;656</span><br>Brunner Ch 34 (leukemia, lymphoma, myeloma)<span class="pgs">pg 657&ndash;674</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 35</span>Assessment of the Nervous System</div><div class="theirs">Brunner Ch 65 &mdash; Assessment of Neurologic Function<span class="pgs">pg 1223&ndash;1240</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 36</span>CNS Conditions: The Brain</div><div class="theirs">Brunner Ch 66 (neuro dysfunction, ICP)<span class="pgs">pg 1241&ndash;1258</span><br>Ch 70 (MS, Parkinson's, Alzheimer's, brain tumors)<span class="pgs">pg 1314&ndash;1331</span><br>Ch 69 (meningitis, GBS, myasthenia gravis)<span class="pgs">pg 1296&ndash;1313</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 37</span>CNS Conditions: The Spinal Cord</div><div class="theirs">Brunner Ch 68 &mdash; Neurologic Trauma<span class="pgs weak">pg 1278&ndash;1295</span><br>plus Ch 10 Rehabilitation<span class="pgs weak">pg 183&ndash;219</span><span class="tag gap">weak coverage &mdash; this bank has very little SCI / autonomic dysreflexia. Don't rely on it here.</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 38</span>Neurologic Emergencies</div><div class="theirs">Brunner Ch 67 &mdash; Cerebrovascular Disorders (stroke, tPA)<span class="pgs">pg 1259&ndash;1277</span><br>Ch 68 &mdash; head trauma<span class="pgs">pg 1278&ndash;1295</span><br>Ch 66 &mdash; increased ICP<span class="pgs">pg 1241&ndash;1258</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 3 &mdash; Sensory + Musculoskeletal</h3><span class="ex-sub">your Ch 39&ndash;44</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 39</span>Eye &amp; Vision Conditions</div><div class="theirs">Brunner Ch 63 &mdash; Eye and Vision Disorders<span class="pgs">pg 1186&ndash;1204</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 40</span>Ear &amp; Hearing Conditions</div><div class="theirs">Brunner Ch 64 &mdash; Hearing and Balance Disorders<span class="pgs">pg 1205&ndash;1222</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 41</span>Musculoskeletal System (assessment)</div><div class="theirs">Brunner Ch 39 &mdash; Assessment of Musculoskeletal Function<span class="pgs">pg 747&ndash;764</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 42</span>Care for Patients with MSK Conditions</div><div class="theirs">Brunner Ch 41 &mdash; Musculoskeletal Disorders<span class="pgs">pg 783&ndash;800</span><br>Ch 40 &mdash; MSK Care Modalities (casts, traction)<span class="pgs">pg 765&ndash;782</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 43</span>Arthritis &amp; Joint Arthroplasty</div><div class="theirs">Brunner Ch 38 &mdash; Rheumatic Disorders (RA, OA, gout, lupus)<span class="pgs">pg 729&ndash;746</span><br>arthroplasty care<span class="pgs weak">pg 765&ndash;782</span><span class="tag">arthritis coverage is strong; joint-replacement care is thin</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 44</span>Musculoskeletal Trauma</div><div class="theirs">Brunner Ch 42 &mdash; Musculoskeletal Trauma<span class="pgs">pg 801&ndash;819</span><span class="tag">clean 1:1 &mdash; fractures, compartment syndrome, fat embolism, amputation</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 4 &mdash; Gastrointestinal</h3><span class="ex-sub">your Ch 45&ndash;52</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 45</span>Gastrointestinal System (assessment)</div><div class="theirs">Brunner Ch 43 &mdash; Assessment of Digestive/GI Function<span class="pgs">pg 820&ndash;837</span><br>Ch 44 &mdash; GI Treatment Modalities (NG tubes, TPN)<span class="pgs">pg 838&ndash;855</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 46</span>Oral Cavity &amp; Esophageal Conditions</div><div class="theirs">Brunner Ch 45 &mdash; Oral and Esophageal Disorders<span class="pgs">pg 856&ndash;874</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 47</span>Stomach Conditions</div><div class="theirs">Brunner Ch 46 &mdash; Gastric and Duodenal Disorders (PUD, gastritis)<span class="pgs">pg 875&ndash;893</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 48</span>Noninflammatory Intestinal Conditions</div><div class="theirs">Brunner Ch 47 &mdash; Intestinal and Rectal Disorders<span class="pgs">pg 894&ndash;911</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 49</span>Inflammatory Intestinal Conditions</div><div class="theirs">Brunner Ch 47 &mdash; same chapter (Crohn's, UC, diverticulitis, appendicitis all live here)<span class="pgs">pg 894&ndash;911</span><span class="tag">your Ch 48 and 49 both map to this one Brunner chapter</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 50</span>Liver Conditions</div><div class="theirs">Brunner Ch 49 &mdash; Hepatic Disorders (cirrhosis, hepatitis, ascites)<span class="pgs">pg 922&ndash;940</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 51</span>Biliary System &amp; Pancreas</div><div class="theirs">Brunner Ch 50 &mdash; Biliary Disorders (cholecystitis, pancreatitis)<span class="pgs">pg 941&ndash;959</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 52</span>Malnutrition &amp; Obesity</div><div class="theirs">Brunner Ch 48 &mdash; Obesity (bariatric surgery)<span class="pgs">pg 912&ndash;921</span><br>Ch 5 &mdash; Nutritional Assessment<span class="pgs">pg 83&ndash;103</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 5 &mdash; Endocrine + Renal</h3><span class="ex-sub">your Ch 53&ndash;60</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 53</span>Assessment of Endocrine System</div><div class="theirs">Brunner Ch 52 &mdash; Endocrine Disorders (assessment content is folded in)<span class="pgs">pg 979&ndash;996</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 54</span>Pituitary &amp; Adrenal Gland Conditions</div><div class="theirs">Brunner Ch 52 (SIADH, DI, Addison's, Cushing's)<span class="pgs">pg 979&ndash;996</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 55</span>Thyroid &amp; Parathyroid Conditions</div><div class="theirs">Brunner Ch 52 (hypo/hyperthyroid, myxedema, Graves', parathyroid)<span class="pgs">pg 979&ndash;996</span><span class="tag">your Ch 53, 54 and 55 all collapse into this one chapter</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 56</span>Diabetes Mellitus</div><div class="theirs">Brunner Ch 51 &mdash; Diabetes<span class="pgs">pg 960&ndash;978</span><span class="tag">clean 1:1 &mdash; DKA, HHS, insulin, hypoglycemia</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 57</span>Renal &amp; Urinary System (assessment)</div><div class="theirs">Brunner Ch 53 &mdash; Assessment of Kidney and Urinary Function<span class="pgs">pg 997&ndash;1015</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 58</span>Urinary Conditions</div><div class="theirs">Brunner Ch 55 &mdash; Urinary Disorders (UTI, incontinence, stones)<span class="pgs">pg 1035&ndash;1054</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 59</span>Kidney Conditions</div><div class="theirs">Brunner Ch 54 &mdash; Kidney Disorders<span class="pgs">pg 1016&ndash;1034</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 60</span>AKI &amp; CKD</div><div class="theirs">Brunner Ch 54 &mdash; same chapter (dialysis, AKI phases, CKD)<span class="pgs">pg 1016&ndash;1034</span><br>bonus: Ch 13 Fluid &amp; Electrolytes is heavily tested alongside this<span class="pgs">pg 260&ndash;279</span></div></div>
+</div>
+
+</div>
+
+<!-- ============ MATERNITY ============ -->
+<div class="pane" id="p-mat">
+
+<div class="tb-note">
+<strong>The 9th &rarr; 10th shift.</strong> The 9th edition had no separate "Women's Health Care" chapter up front &mdash; it sat at Ch 11, after the newborn chapters. The 10th moved it to Ch 2 and pushed everything down by one through Ch 11. From Ch 12 on, the numbering matches again until the peds block, where the 10th inserted a chapter and shifted peds down by one.
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 1</h3><span class="ex-sub">your Ch 2&ndash;8 &middot; 9th-ed pg 10&ndash;79 + 99&ndash;105</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 2</span>Women's Health Care</div><div class="theirs">9th ed <b>Ch 11</b> &mdash; The Nurse's Role in Women's Health Care<span class="pgs">pg 99&ndash;105</span><span class="tag">jumped &mdash; this one is way out of order in the old book</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 3</span>Human Reproductive Anatomy &amp; Physiology</div><div class="theirs">9th ed <b>Ch 2</b> &mdash; same title<span class="pgs">pg 10&ndash;19</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 4</span>Fetal Development</div><div class="theirs">9th ed <b>Ch 3</b><span class="pgs">pg 20&ndash;28</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 5</span>Prenatal Care &amp; Adaptations to Pregnancy</div><div class="theirs">9th ed <b>Ch 4</b><span class="pgs">pg 29&ndash;37</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 6</span>Complications During Pregnancy</div><div class="theirs">9th ed <b>Ch 5</b><span class="pgs">pg 38&ndash;48</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 7</span>Mother &amp; Infant During Labor and Birth</div><div class="theirs">9th ed <b>Ch 6</b><span class="pgs">pg 49&ndash;59</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 8</span>Pain Management During Labor</div><div class="theirs">9th ed <b>Ch 7</b><span class="pgs">pg 60&ndash;69</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 2</h3><span class="ex-sub">your Ch 9&ndash;14 &middot; 9th-ed pg 70&ndash;98 + 106&ndash;134</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 9</span>Complications During Labor &amp; Birth</div><div class="theirs">9th ed <b>Ch 8</b><span class="pgs">pg 70&ndash;79</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 10</span>The Family After Birth</div><div class="theirs">9th ed <b>Ch 9</b><span class="pgs">pg 80&ndash;88</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 11</span>Complications After Birth</div><div class="theirs">9th ed <b>Ch 10</b><span class="pgs">pg 89&ndash;98</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 12</span>The Term Newborn</div><div class="theirs">9th ed <b>Ch 12</b> &mdash; numbering realigns here<span class="pgs">pg 106&ndash;115</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 13</span>Preterm &amp; Postterm Newborns</div><div class="theirs">9th ed <b>Ch 13</b><span class="pgs">pg 116&ndash;123</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 14</span>Perinatal Injury / Congenital Malformation</div><div class="theirs">9th ed <b>Ch 14</b><span class="pgs">pg 124&ndash;134</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Exam 3 &mdash; Peds block</h3><span class="ex-sub">your Ch 15, 21, 22, 24, 25, 26, 34</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 15</span>Overview of Growth, Development &amp; Nutrition</div><div class="theirs">9th ed <b>Ch 15</b> &mdash; same number<span class="pgs">pg 135&ndash;144</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 21</span>The Child's Experience of Hospitalization</div><div class="theirs">9th ed <b>Ch 21</b><span class="pgs">pg 188&ndash;196</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 22</span>Health Care Adaptations for Child &amp; Family</div><div class="theirs">9th ed <b>Ch 22</b><span class="pgs">pg 197&ndash;206</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 24</span>Sensory or Neurological Condition</div><div class="theirs">9th ed <b>Ch 23</b> &mdash; shifts by one from here<span class="pgs">pg 207&ndash;215</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 25</span>Musculoskeletal Condition</div><div class="theirs">9th ed <b>Ch 24</b><span class="pgs">pg 216&ndash;225</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 26</span>Respiratory Disorder</div><div class="theirs">9th ed <b>Ch 25</b><span class="pgs">pg 226&ndash;234</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 34</span>Emotional / Behavioral Condition</div><div class="theirs">9th ed <b>Ch 33</b><span class="pgs">pg 302&ndash;310</span></div></div>
+</div>
+
+<div class="ex">
+<div class="ex-head"><h3>Final &mdash; comprehensive</h3><span class="ex-sub">your Ch 27, 28, 29, 30, 31, 32, 33</span></div>
+<div class="row"><div class="mine"><span class="ch">CH 27</span>Cardiovascular Disorder</div><div class="theirs">9th ed <b>Ch 26</b><span class="pgs">pg 235&ndash;241</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 28</span>Blood / Blood-Forming Organs</div><div class="theirs">9th ed <b>Ch 27</b><span class="pgs">pg 242&ndash;252</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 29</span>Gastrointestinal Condition</div><div class="theirs">9th ed <b>Ch 28</b><span class="pgs">pg 253&ndash;263</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 30</span>Genitourinary Condition</div><div class="theirs">9th ed <b>Ch 29</b><span class="pgs">pg 264&ndash;272</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 31</span>Skin Condition</div><div class="theirs">9th ed <b>Ch 30</b><span class="pgs">pg 273&ndash;282</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 32</span>Metabolic / Endocrine Condition</div><div class="theirs">9th ed <b>Ch 31</b><span class="pgs">pg 283&ndash;293</span></div></div>
+<div class="row"><div class="mine"><span class="ch">CH 33</span>Communicable Diseases / Bioterrorism</div><div class="theirs">9th ed <b>Ch 32</b><span class="pgs">pg 294&ndash;301</span></div></div>
+</div>
+
+<div class="tb-note">
+<strong>Not on any of your exams</strong> (per the professor's alignment doc), so skip them in the 9th-ed bank: Ch 1 The Past/Present/Future <span class="pgs">pg 1&ndash;9</span>, Ch 16&ndash;20 the age-stage chapters (Infant, Toddler, Preschool, School-Age, Adolescent) <span class="pgs">pg 145&ndash;187</span>, and Ch 34 Complementary &amp; Alternative Therapies <span class="pgs">pg 311&ndash;318</span>.
+</div>
+
+</div>
+
+</div>
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('.pane').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    document.getElementById('p-'+t.dataset.p).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
