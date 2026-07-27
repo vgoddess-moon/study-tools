@@ -2351,6 +2351,20 @@ function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizL
       { topic: 'EKG / hemodynamics deep dive', ch: 'ICU Advantage', q: 'ICU Advantage EKG dysrhythmia', deep: true },
       { topic: 'Cardiac pathophysiology', ch: 'Ninja Nerd', q: 'ninja nerd cardiac physiology', deep: true },
     ]},
+    { exam: 'The Four Loops · Endocrine backbone', color: 'violet', items: [
+      { topic: 'Loop 1 · Endocrine system overview & feedback', ch: 'Level Up RN', q: 'level up rn endocrine system overview' },
+      { topic: 'Loop 1 · Pituitary hormones (anterior vs posterior)', ch: 'RegisteredNurseRN', q: 'registered nurse rn pituitary gland hormones' },
+      { topic: 'Loop 2 · Cushing vs Addison', ch: 'Level Up RN', q: 'level up rn cushing addison adrenal' },
+      { topic: 'Loop 2 · Cushing / Addison mnemonic', ch: 'Simple Nursing', q: 'simple nursing cushing addison mnemonic' },
+      { topic: 'Loop 2 · Hyper vs hypothyroidism', ch: 'Level Up RN', q: 'level up rn hyperthyroidism hypothyroidism' },
+      { topic: 'Loop 2 · SIADH vs Diabetes Insipidus', ch: 'RegisteredNurseRN', q: 'registered nurse rn SIADH diabetes insipidus' },
+      { topic: 'Loop 2 · Hyper vs hypoparathyroid (calcium)', ch: 'Level Up RN', q: 'level up rn parathyroid hyperparathyroidism' },
+      { topic: 'Loop 3 · RAAS (renin-angiotensin-aldosterone)', ch: 'RegisteredNurseRN', q: 'registered nurse rn renin angiotensin aldosterone system' },
+      { topic: 'Loop 3 · ADH & fluid balance', ch: 'Level Up RN', q: 'level up rn antidiuretic hormone fluid balance' },
+      { topic: 'Loop 4 · Corticosteroids (side effects & teaching)', ch: 'Level Up RN', q: 'level up rn corticosteroids pharmacology' },
+      { topic: 'Loop 4 · Steroid side effects mnemonic', ch: 'Simple Nursing', q: 'simple nursing corticosteroids side effects' },
+      { topic: 'Endocrine pathophysiology deep dive', ch: 'Ninja Nerd', q: 'ninja nerd endocrine physiology', deep: true },
+    ]},
   ];
   const VIDEO_CHANNELS = [
     { name: 'Level Up RN', url: 'https://www.youtube.com/@LevelUpRN' },
@@ -2517,12 +2531,12 @@ function StudyView({ checkin, nextExam, examMode, studyLogs, allStudyLogs, quizL
             </div>
             {VIDEO_GROUPS.map((g, gi) => (
               <div key={gi} className="bg-white rounded-2xl p-3.5 border border-stone-200">
-                <p className={`mono text-[9px] uppercase tracking-wider mb-2 ${g.color === 'sky' ? 'text-sky-700' : 'text-rose-700'}`}>{g.exam}</p>
+                <p className={`mono text-[9px] uppercase tracking-wider mb-2 ${g.color === 'sky' ? 'text-sky-700' : g.color === 'violet' ? 'text-violet-700' : 'text-rose-700'}`}>{g.exam}</p>
                 <div className="space-y-1">
                   {g.items.map((it, ii) => (
                     <a key={ii} href={ytSearch(it.q)} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-2 py-1.5 active:scale-[0.98] transition-transform">
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${g.color === 'sky' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${g.color === 'sky' ? 'bg-sky-500' : g.color === 'violet' ? 'bg-violet-500' : 'bg-rose-500'}`}></span>
                       <span className="text-xs text-stone-800 flex-1 leading-snug">{it.topic}</span>
                       {it.deep && <span className="mono text-[8px] uppercase tracking-wider text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full flex-shrink-0">deep</span>}
                       <span className="mono text-[9px] text-stone-400 flex-shrink-0">{it.ch} ↗</span>
