@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Four Loops &mdash; Endocrine Backbone</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="primer.css">
+<style>
+.loop-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;overflow-x:auto}
+.loop-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;flex-wrap:wrap}
+.loop-n{font-family:'IBM Plex Mono',monospace;font-size:.7rem;background:#1a1425;color:#c4b5fd;border-radius:99px;padding:.2rem .6rem;font-weight:600}
+.loop-head h3{font-size:1.05rem;color:#f1f5f9;margin:0}
+.loop-why{font-size:.84rem;color:#94a3b8;margin-bottom:.9rem;line-height:1.55}
+.loop-why b{color:#cbd5e1}
+.feeds{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.9rem}
+.feeds span{font-family:'IBM Plex Mono',monospace;font-size:.66rem;background:#0a1f2a;color:#7dd3fc;border-radius:6px;padding:.18rem .45rem}
+.rev{background:#0c0f14;border:1px solid #1e293b;border-left:3px solid #7c3aed;border-radius:0 8px 8px 0;padding:.7rem .9rem;margin-top:.6rem;cursor:pointer;transition:border-color .15s}
+.rev:hover{border-left-color:#c084fc}
+.rev-q{font-size:.87rem;color:#f1f5f9;display:flex;gap:.5rem;align-items:flex-start}
+.rev-q::before{content:'?';font-family:'IBM Plex Mono',monospace;color:#c084fc;font-weight:600;flex-shrink:0}
+.rev-a{display:none;font-size:.83rem;color:#cbd5e1;margin-top:.5rem;padding-top:.5rem;border-top:1px solid #1e293b;line-height:1.55}
+.rev.open .rev-a{display:block}
+.rev-hint{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#475569;margin-top:.35rem}
+.rev.open .rev-hint{display:none}
+.pairs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem;margin-top:.5rem}
+.pair{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.7rem .85rem;cursor:pointer}
+.pair-t{font-size:.85rem;color:#f1f5f9;font-weight:600;margin-bottom:.3rem}
+.pair-g{font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#64748b;margin-bottom:.35rem}
+.pair-b{display:none;font-size:.8rem;line-height:1.5}
+.pair.open .pair-b{display:block}
+.pair-hi{color:#f87171}.pair-lo{color:#7dd3fc}
+.pair-b .lbl{font-family:'IBM Plex Mono',monospace;font-size:.65rem;display:block;margin-top:.4rem}
+.badge-blk{display:none}
+.sec-title{font-family:'DM Serif Display',serif;font-size:1.35rem;color:#f8fafc;margin:2rem 0 .5rem}
+.sec-sub{font-size:.85rem;color:#94a3b8;margin-bottom:1.1rem;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-link">&larr; Back to Study Tools</a>
+
+<div class="exam-header">
+<h1>The Four Loops</h1>
+<p class="subtitle">The endocrine backbone that runs under every MS2 exam &amp; all of maternity</p>
+</div>
+
+<div class="exam-info">Classmates who finished the semester all said the same thing: learn the endocrine pathway and a lot of other chapters get easier. They are right. Learn these four diagrams and you are collecting points on five med-surg exams plus maternity, not one. Read the loops, tap the recall prompts, then run the 18-question check at the bottom.</div>
+
+<div class="svg-card">
+<h3>The Four Loops &mdash; Quick Reference</h3>
+<svg viewBox="0 0 820 300" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="300" fill="#0c0f14"/>
+<rect x="15" y="15" width="190" height="270" rx="8" fill="#13181f" stroke="#7c3aed"/>
+<text x="110" y="40" fill="#c084fc" font-size="14" font-weight="700" text-anchor="middle">1 &middot; MASTER LOOP</text>
+<text x="30" y="68" fill="#e2e8f0" font-size="12">Hypothalamus</text>
+<text x="30" y="90" fill="#94a3b8" font-size="12">&#8595; releasing hormone</text>
+<text x="30" y="112" fill="#e2e8f0" font-size="12">Ant. pituitary</text>
+<text x="30" y="134" fill="#94a3b8" font-size="12">&#8595; stimulating hormone</text>
+<text x="30" y="156" fill="#e2e8f0" font-size="12">Target gland</text>
+<text x="30" y="178" fill="#94a3b8" font-size="12">&#8595; final hormone</text>
+<text x="30" y="200" fill="#e2e8f0" font-size="12">Body effect</text>
+<text x="30" y="228" fill="#fbbf24" font-size="11">Feedback shuts the top off</text>
+<text x="30" y="252" fill="#6ee7b7" font-size="11">PRIMARY = gland failed</text>
+<text x="30" y="270" fill="#6ee7b7" font-size="11">SECONDARY = pituitary failed</text>
+
+<rect x="215" y="15" width="190" height="270" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="310" y="40" fill="#7dd3fc" font-size="14" font-weight="700" text-anchor="middle">2 &middot; THE PAIRS</text>
+<text x="230" y="70" fill="#e2e8f0" font-size="12">Cushing / Addison</text>
+<text x="230" y="94" fill="#e2e8f0" font-size="12">Graves / Myxedema</text>
+<text x="230" y="118" fill="#e2e8f0" font-size="12">SIADH / Diabetes insip.</text>
+<text x="230" y="142" fill="#e2e8f0" font-size="12">Hyper / Hypo PTH</text>
+<text x="230" y="166" fill="#e2e8f0" font-size="12">Acromegaly / Dwarfism</text>
+<text x="230" y="200" fill="#fbbf24" font-size="11">Learn each as a MIRROR.</text>
+<text x="230" y="220" fill="#fbbf24" font-size="11">Know one side cold and</text>
+<text x="230" y="240" fill="#fbbf24" font-size="11">the other is just flipped.</text>
+
+<rect x="415" y="15" width="190" height="270" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="510" y="40" fill="#6ee7b7" font-size="14" font-weight="700" text-anchor="middle">3 &middot; RAAS + ADH</text>
+<text x="430" y="68" fill="#e2e8f0" font-size="12">&#8595; BP or &#8595; blood flow</text>
+<text x="430" y="90" fill="#94a3b8" font-size="12">&#8595; kidney makes RENIN</text>
+<text x="430" y="112" fill="#e2e8f0" font-size="12">Angiotensin I</text>
+<text x="430" y="134" fill="#94a3b8" font-size="12">&#8595; ACE (in the lungs)</text>
+<text x="430" y="156" fill="#e2e8f0" font-size="12">Angiotensin II</text>
+<text x="430" y="178" fill="#94a3b8" font-size="12">squeeze + ALDOSTERONE</text>
+<text x="430" y="200" fill="#e2e8f0" font-size="12">Hold Na&#8314; and water</text>
+<text x="430" y="222" fill="#fbbf24" font-size="12">&#8593; BP</text>
+<text x="430" y="252" fill="#7dd3fc" font-size="11">ADH runs alongside,</text>
+<text x="430" y="270" fill="#7dd3fc" font-size="11">holding water only.</text>
+
+<rect x="615" y="15" width="190" height="270" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="710" y="40" fill="#f87171" font-size="14" font-weight="700" text-anchor="middle">4 &middot; STEROIDS</text>
+<text x="630" y="68" fill="#e2e8f0" font-size="12">&#8593; Glucose</text>
+<text x="630" y="90" fill="#e2e8f0" font-size="12">Moon face, weight gain</text>
+<text x="630" y="112" fill="#e2e8f0" font-size="12">Thin skin, poor healing</text>
+<text x="630" y="134" fill="#e2e8f0" font-size="12">Infection risk (masked!)</text>
+<text x="630" y="156" fill="#e2e8f0" font-size="12">Bone loss</text>
+<text x="630" y="178" fill="#e2e8f0" font-size="12">Mood swings, insomnia</text>
+<text x="630" y="200" fill="#e2e8f0" font-size="12">&#8595; K&#8314;, &#8593; Na&#8314;, fluid</text>
+<text x="630" y="230" fill="#fbbf24" font-size="11">NEVER stop abruptly &mdash;</text>
+<text x="630" y="250" fill="#fbbf24" font-size="11">the adrenals are asleep.</text>
+<text x="630" y="272" fill="#fbbf24" font-size="11">Taper. Always.</text>
+</svg>
+</div>
+
+<div class="sec-title">Loop 1 &mdash; The Master Loop</div>
+<div class="sec-sub">Learn this one first. It is the grammar of the whole system. Once you can draw it, every &ldquo;is this primary or secondary?&rdquo; question answers itself.</div>
+
+<div class="loop-card">
+<div class="loop-head"><span class="loop-n">LOOP 1</span><h3>Hypothalamus &rarr; Pituitary &rarr; Gland &rarr; Feedback</h3></div>
+<div class="feeds"><span>MS2 Exam 1</span><span>MS2 Exam 2</span><span>MS2 Exam 5</span><span>Maternity</span></div>
+<svg viewBox="0 0 820 330" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="330" fill="#0c0f14"/>
+<rect x="250" y="20" width="200" height="52" rx="8" fill="#1a0a2a" stroke="#c084fc"/>
+<text x="350" y="42" fill="#e9d5ff" font-size="15" font-weight="700" text-anchor="middle">HYPOTHALAMUS</text>
+<text x="350" y="61" fill="#94a3b8" font-size="11" text-anchor="middle">the thermostat</text>
+<line x1="350" y1="72" x2="350" y2="100" stroke="#7c3aed" stroke-width="2" marker-end="url(#ah)"/>
+<text x="362" y="92" fill="#c084fc" font-size="11">releasing hormone (e.g. TRH, CRH, GnRH)</text>
+
+<rect x="250" y="102" width="200" height="52" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="350" y="124" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">ANT. PITUITARY</text>
+<text x="350" y="143" fill="#94a3b8" font-size="11" text-anchor="middle">the middle manager</text>
+<line x1="350" y1="154" x2="350" y2="182" stroke="#7c3aed" stroke-width="2" marker-end="url(#ah)"/>
+<text x="362" y="174" fill="#7dd3fc" font-size="11">stimulating hormone (TSH, ACTH, FSH/LH)</text>
+
+<rect x="250" y="184" width="200" height="52" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="350" y="206" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">TARGET GLAND</text>
+<text x="350" y="225" fill="#94a3b8" font-size="11" text-anchor="middle">thyroid, adrenal, ovary, testis</text>
+<line x1="350" y1="236" x2="350" y2="264" stroke="#7c3aed" stroke-width="2" marker-end="url(#ah)"/>
+<text x="362" y="256" fill="#6ee7b7" font-size="11">final hormone (T3/T4, cortisol, estrogen)</text>
+
+<rect x="250" y="266" width="200" height="46" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="350" y="294" fill="#fbbf24" font-size="15" font-weight="700" text-anchor="middle">BODY EFFECT</text>
+
+<path d="M 250 289 L 150 289 L 150 46 L 250 46" fill="none" stroke="#f87171" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#ar)"/>
+<text x="60" y="160" fill="#f87171" font-size="12" font-weight="700">NEGATIVE</text>
+<text x="60" y="178" fill="#f87171" font-size="12" font-weight="700">FEEDBACK</text>
+<text x="35" y="200" fill="#94a3b8" font-size="11">enough hormone =</text>
+<text x="35" y="217" fill="#94a3b8" font-size="11">turn the top off</text>
+
+<rect x="500" y="102" width="290" height="134" rx="8" fill="#13181f" stroke="#334155"/>
+<text x="645" y="126" fill="#e2e8f0" font-size="13" font-weight="700" text-anchor="middle">Reading the labs</text>
+<text x="515" y="152" fill="#6ee7b7" font-size="12" font-weight="700">PRIMARY = the gland failed</text>
+<text x="515" y="172" fill="#94a3b8" font-size="11">gland hormone LOW, pituitary hormone HIGH</text>
+<text x="515" y="188" fill="#94a3b8" font-size="11">(the boss is yelling, nobody answers)</text>
+<text x="515" y="212" fill="#7dd3fc" font-size="12" font-weight="700">SECONDARY = the pituitary failed</text>
+<text x="515" y="230" fill="#94a3b8" font-size="11">BOTH low (the boss went quiet)</text>
+<defs>
+<marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+<marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f87171"/></marker>
+</defs>
+</svg>
+<div class="loop-why">Why it earns its keep: <b>every gland in the body runs on this exact shape.</b> Thyroid, adrenal, ovary, testis. So you are not learning five systems, you are learning one pattern five times. The lab logic is the payoff &mdash; you can tell primary from secondary without memorizing a single disease.</div>
+<div class="rev"><div class="rev-q">A patient has a low T4 and a high TSH. Where is the problem, and what is the disease?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a">The <b>thyroid gland itself</b> &mdash; this is primary hypothyroidism. The pituitary is working fine and is screaming for more thyroid hormone (high TSH), but the gland cannot answer, so T4 stays low. If the pituitary were the problem, <i>both</i> would be low.</div></div>
+<div class="rev"><div class="rev-q">Why does giving a patient prednisone for months shut down their own adrenal glands?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a">Negative feedback. The body senses plenty of steroid on board, so the hypothalamus and pituitary stop sending CRH and ACTH. With no signal arriving, the adrenal cortex goes dormant and shrinks. Stop the drug suddenly and there is no cortisol from either source &mdash; that is an <b>adrenal crisis</b>. This is why steroids are always tapered.</div></div>
+</div>
+
+<div class="sec-title">Loop 2 &mdash; The Mirror Pairs</div>
+<div class="sec-sub">Never study these one at a time. Study them as opposites and you cut the memorizing in half &mdash; if you know one side cold, the other is just the flip. Tap each to open.</div>
+
+<div class="loop-card">
+<div class="loop-head"><span class="loop-n">LOOP 2</span><h3>Too much / too little</h3></div>
+<div class="feeds"><span>MS2 Exam 2</span><span>MS2 Exam 5</span><span>Maternity</span></div>
+<div class="pairs">
+<div class="pair"><div class="pair-t">Cushing&rsquo;s vs Addison&rsquo;s</div><div class="pair-g">CORTISOL &middot; adrenal cortex</div><div class="pair-b"><span class="lbl pair-hi">TOO MUCH &mdash; Cushing&rsquo;s</span>Moon face, buffalo hump, truncal obesity with thin limbs, purple striae, high glucose, high sodium, <b>low potassium</b>, hypertension, thin skin, bruising, infection risk.<span class="lbl pair-lo">TOO LITTLE &mdash; Addison&rsquo;s</span>Weight loss, fatigue, bronze skin, low glucose, <b>low sodium, high potassium</b>, hypotension, salt craving. Crisis = shock. Treat with fluids, steroids, glucose.</div></div>
+<div class="pair"><div class="pair-t">Graves&rsquo; vs Myxedema</div><div class="pair-g">T3 / T4 &middot; thyroid</div><div class="pair-b"><span class="lbl pair-hi">TOO MUCH &mdash; hyperthyroid</span>Everything speeds up: weight loss despite eating, heat intolerance, diarrhea, tachycardia, tremor, insomnia, exophthalmos. Crisis = <b>thyroid storm</b> (fever, tachycardia, delirium).<span class="lbl pair-lo">TOO LITTLE &mdash; hypothyroid</span>Everything slows down: weight gain, cold intolerance, constipation, bradycardia, dry skin, hair loss, fatigue, depression. Crisis = <b>myxedema coma</b> (hypothermia, hypoventilation).</div></div>
+<div class="pair"><div class="pair-t">SIADH vs Diabetes Insipidus</div><div class="pair-g">ADH &middot; posterior pituitary</div><div class="pair-b"><span class="lbl pair-hi">TOO MUCH ADH &mdash; SIADH</span>Water is held in. Urine is scant and concentrated, blood is diluted: <b>low sodium</b>, weight gain, no edema, confusion, seizures. Treat with <b>fluid restriction</b>.<span class="lbl pair-lo">TOO LITTLE ADH &mdash; DI</span>Water pours out. Huge volumes of dilute urine, raging thirst, <b>high sodium</b>, dehydration, weight loss. Treat with fluids and desmopressin.</div></div>
+<div class="pair"><div class="pair-t">Hyper vs Hypo Parathyroid</div><div class="pair-g">PTH &middot; calcium</div><div class="pair-b"><span class="lbl pair-hi">TOO MUCH PTH</span><b>High calcium.</b> Bones ache and fracture, kidney stones, constipation, lethargy and confusion. &ldquo;Stones, bones, groans, moans.&rdquo; Muscles go slack.<span class="lbl pair-lo">TOO LITTLE PTH</span><b>Low calcium.</b> Muscles get twitchy and irritable: tingling around the mouth and fingers, cramps, positive Chvostek and Trousseau signs, tetany, laryngospasm. Often follows thyroid surgery.</div></div>
+<div class="pair"><div class="pair-t">Acromegaly vs Dwarfism</div><div class="pair-g">GROWTH HORMONE &middot; ant. pituitary</div><div class="pair-b"><span class="lbl pair-hi">TOO MUCH GH</span>Before the growth plates close = gigantism. After they close = <b>acromegaly</b>: enlarging hands, feet, jaw and facial features, deepening voice, rings and shoes stop fitting.<span class="lbl pair-lo">TOO LITTLE GH</span>Short stature with normal body proportions in a child. Caught on growth charts &mdash; which is exactly why the peds chapters drill percentile tracking.</div></div>
+<div class="pair"><div class="pair-t">The one-line rule</div><div class="pair-g">HOW TO STUDY THESE</div><div class="pair-b"><span class="lbl pair-hi">Do this</span>Pick one side. Learn it until you can recite it. Then get the other side <b>free</b> by flipping every sign. Fast becomes slow, high sodium becomes low, gain becomes loss.<span class="lbl pair-lo">Watch out</span>Potassium and sodium often flip <b>opposite</b> to each other, not with each other. Cushing&rsquo;s = high Na, low K. Addison&rsquo;s = low Na, high K. That trap is worth points.</div></div>
+</div>
+</div>
+
+<div class="sec-title">Loop 3 &mdash; The Fluid &amp; Pressure Axis</div>
+<div class="sec-sub">If you only have time for two loops, make it this one and Loop 1. This single chain explains hypertension drugs, heart failure, shock, cirrhosis ascites, AKI, CKD, SIADH and DI.</div>
+
+<div class="loop-card">
+<div class="loop-head"><span class="loop-n">LOOP 3</span><h3>RAAS &plus; ADH</h3></div>
+<div class="feeds"><span>MS2 Exam 2</span><span>MS2 Exam 4</span><span>MS2 Exam 5</span><span>Maternity</span><span>every exam, honestly</span></div>
+<svg viewBox="0 0 820 340" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="340" fill="#0c0f14"/>
+<rect x="20" y="30" width="150" height="54" rx="8" fill="#2a0a0a" stroke="#f87171"/>
+<text x="95" y="53" fill="#f87171" font-size="14" font-weight="700" text-anchor="middle">&#8595; BP</text>
+<text x="95" y="72" fill="#94a3b8" font-size="11" text-anchor="middle">or &#8595; kidney blood flow</text>
+<line x1="170" y1="57" x2="205" y2="57" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+
+<rect x="210" y="30" width="160" height="54" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="290" y="53" fill="#6ee7b7" font-size="14" font-weight="700" text-anchor="middle">KIDNEY</text>
+<text x="290" y="72" fill="#94a3b8" font-size="11" text-anchor="middle">releases RENIN</text>
+<line x1="370" y1="57" x2="405" y2="57" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+
+<rect x="410" y="30" width="160" height="54" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="490" y="53" fill="#7dd3fc" font-size="14" font-weight="700" text-anchor="middle">ANGIOTENSIN I</text>
+<text x="490" y="72" fill="#94a3b8" font-size="11" text-anchor="middle">inactive</text>
+<line x1="570" y1="57" x2="605" y2="57" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+<text x="588" y="46" fill="#fbbf24" font-size="10" text-anchor="middle">ACE</text>
+<text x="588" y="100" fill="#fbbf24" font-size="10" text-anchor="middle">in the lungs</text>
+
+<rect x="610" y="30" width="180" height="54" rx="8" fill="#1a0a2a" stroke="#c084fc"/>
+<text x="700" y="53" fill="#e9d5ff" font-size="14" font-weight="700" text-anchor="middle">ANGIOTENSIN II</text>
+<text x="700" y="72" fill="#94a3b8" font-size="11" text-anchor="middle">the active one</text>
+
+<line x1="660" y1="84" x2="560" y2="130" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+<line x1="740" y1="84" x2="740" y2="130" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+
+<rect x="410" y="134" width="180" height="54" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="500" y="157" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle">VASOCONSTRICTION</text>
+<text x="500" y="176" fill="#94a3b8" font-size="11" text-anchor="middle">squeeze the pipes</text>
+
+<rect x="640" y="134" width="170" height="54" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="725" y="157" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle">ALDOSTERONE</text>
+<text x="725" y="176" fill="#94a3b8" font-size="11" text-anchor="middle">from adrenal cortex</text>
+
+<line x1="725" y1="188" x2="725" y2="222" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+<rect x="580" y="226" width="230" height="54" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="695" y="249" fill="#6ee7b7" font-size="13" font-weight="700" text-anchor="middle">HOLD Na&#8314; AND WATER</text>
+<text x="695" y="268" fill="#94a3b8" font-size="11" text-anchor="middle">and dump K&#8314;</text>
+
+<line x1="580" y1="253" x2="470" y2="253" stroke="#7c3aed" stroke-width="2" marker-end="url(#b1)"/>
+<rect x="300" y="226" width="165" height="54" rx="8" fill="#052e16" stroke="#22c55e"/>
+<text x="382" y="257" fill="#6ee7b7" font-size="15" font-weight="700" text-anchor="middle">&#8593; BLOOD PRESSURE</text>
+
+<path d="M 300 253 L 95 253 L 95 90" fill="none" stroke="#f87171" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#b2)"/>
+<text x="110" y="200" fill="#f87171" font-size="11">pressure restored =</text>
+<text x="110" y="217" fill="#f87171" font-size="11">renin shuts off</text>
+
+<rect x="20" y="290" width="770" height="38" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="35" y="314" fill="#7dd3fc" font-size="12" font-weight="700">ADH (posterior pituitary):</text>
+<text x="200" y="314" fill="#e2e8f0" font-size="12">holds WATER ONLY, no sodium. Too much = SIADH (dilute blood, low Na). Too little = DI (flood of dilute urine).</text>
+<defs>
+<marker id="b1" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+<marker id="b2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f87171"/></marker>
+</defs>
+</svg>
+<div class="loop-why">Why it earns its keep: <b>the drugs are named after this diagram.</b> ACE inhibitors block the lung step. ARBs block angiotensin II at the receptor. Spironolactone blocks aldosterone, which is why it is potassium-sparing. Once you see the chain, the pharmacology stops being a list and becomes a map.</div>
+<div class="rev"><div class="rev-q">Why does a patient in heart failure retain fluid, even though they are already overloaded?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a">Because the kidney does not measure total fluid, it measures <b>flow past itself</b>. A failing heart pumps weakly, so kidney perfusion drops and the kidney concludes the body is dry. It fires renin, aldosterone holds sodium and water, and the overload gets worse. The system is doing its job with bad information &mdash; and that is exactly why we block it with ACE inhibitors.</div></div>
+<div class="rev"><div class="rev-q">Your patient is on spironolactone. Which lab do you watch, and which direction?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a"><b>Potassium, watching for it to go high.</b> Aldosterone normally dumps potassium in the urine. Block aldosterone and that dumping stops, so potassium climbs. Teach the patient to avoid salt substitutes, which are usually potassium chloride.</div></div>
+<div class="rev"><div class="rev-q">A head-injured patient suddenly puts out 6 liters of very dilute urine. What is happening?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a"><b>Diabetes insipidus</b> from injury to the posterior pituitary or hypothalamus. Without ADH the kidney cannot hold water. Expect dilute urine with low specific gravity, rising serum sodium, and dehydration. Replace fluids and give desmopressin. The mirror of this &mdash; SIADH &mdash; is just as common after head injury, so read the sodium before you decide which one it is.</div></div>
+</div>
+
+<div class="sec-title">Loop 4 &mdash; The Steroid Profile</div>
+<div class="sec-sub">Not a gland, a drug side-effect pattern &mdash; but it behaves like a loop and it is worth points on four different exams, because half the patients in this curriculum are on steroids for something.</div>
+
+<div class="loop-card">
+<div class="loop-head"><span class="loop-n">LOOP 4</span><h3>Long-term corticosteroids</h3></div>
+<div class="feeds"><span>MS2 Exam 2</span><span>MS2 Exam 3</span><span>MS2 Exam 4</span><span>MS2 Exam 5</span></div>
+<svg viewBox="0 0 820 300" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect x="0" y="0" width="820" height="300" fill="#0c0f14"/>
+<text x="410" y="30" fill="#f87171" font-size="14" font-weight="700" text-anchor="middle">Any patient, any reason: asthma &middot; lupus &middot; RA &middot; IBD &middot; transplant &middot; eczema</text>
+<text x="410" y="52" fill="#94a3b8" font-size="12" text-anchor="middle">&#8595; produces the same picture &#8595;</text>
+<rect x="20" y="68" width="185" height="66" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="112" y="92" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle">&#8593; GLUCOSE</text>
+<text x="112" y="112" fill="#94a3b8" font-size="11" text-anchor="middle">steroid-induced</text>
+<text x="112" y="128" fill="#94a3b8" font-size="11" text-anchor="middle">hyperglycemia</text>
+<rect x="215" y="68" width="185" height="66" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="307" y="92" fill="#f87171" font-size="13" font-weight="700" text-anchor="middle">INFECTION RISK</text>
+<text x="307" y="112" fill="#94a3b8" font-size="11" text-anchor="middle">and it MASKS fever</text>
+<text x="307" y="128" fill="#94a3b8" font-size="11" text-anchor="middle">&mdash; the sneaky one</text>
+<rect x="410" y="68" width="185" height="66" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="502" y="92" fill="#7dd3fc" font-size="13" font-weight="700" text-anchor="middle">MOON FACE</text>
+<text x="502" y="112" fill="#94a3b8" font-size="11" text-anchor="middle">weight gain, buffalo</text>
+<text x="502" y="128" fill="#94a3b8" font-size="11" text-anchor="middle">hump, truncal obesity</text>
+<rect x="605" y="68" width="185" height="66" rx="8" fill="#13181f" stroke="#c084fc"/>
+<text x="697" y="92" fill="#c084fc" font-size="13" font-weight="700" text-anchor="middle">THIN SKIN</text>
+<text x="697" y="112" fill="#94a3b8" font-size="11" text-anchor="middle">bruising, striae,</text>
+<text x="697" y="128" fill="#94a3b8" font-size="11" text-anchor="middle">poor wound healing</text>
+<rect x="20" y="146" width="185" height="66" rx="8" fill="#13181f" stroke="#22c55e"/>
+<text x="112" y="170" fill="#6ee7b7" font-size="13" font-weight="700" text-anchor="middle">BONE LOSS</text>
+<text x="112" y="190" fill="#94a3b8" font-size="11" text-anchor="middle">osteoporosis,</text>
+<text x="112" y="206" fill="#94a3b8" font-size="11" text-anchor="middle">fracture risk</text>
+<rect x="215" y="146" width="185" height="66" rx="8" fill="#13181f" stroke="#fbbf24"/>
+<text x="307" y="170" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle">&#8595; K&#8314;  &#8593; Na&#8314;</text>
+<text x="307" y="190" fill="#94a3b8" font-size="11" text-anchor="middle">fluid retention,</text>
+<text x="307" y="206" fill="#94a3b8" font-size="11" text-anchor="middle">edema, &#8593; BP</text>
+<rect x="410" y="146" width="185" height="66" rx="8" fill="#13181f" stroke="#7dd3fc"/>
+<text x="502" y="170" fill="#7dd3fc" font-size="13" font-weight="700" text-anchor="middle">MOOD / SLEEP</text>
+<text x="502" y="190" fill="#94a3b8" font-size="11" text-anchor="middle">agitation, euphoria,</text>
+<text x="502" y="206" fill="#94a3b8" font-size="11" text-anchor="middle">insomnia, psychosis</text>
+<rect x="605" y="146" width="185" height="66" rx="8" fill="#13181f" stroke="#f87171"/>
+<text x="697" y="170" fill="#f87171" font-size="13" font-weight="700" text-anchor="middle">GI ULCERS</text>
+<text x="697" y="190" fill="#94a3b8" font-size="11" text-anchor="middle">take WITH food,</text>
+<text x="697" y="206" fill="#94a3b8" font-size="11" text-anchor="middle">watch for bleeding</text>
+<rect x="20" y="226" width="770" height="58" rx="8" fill="#2a0a0a" stroke="#f87171"/>
+<text x="410" y="250" fill="#f87171" font-size="15" font-weight="700" text-anchor="middle">NEVER STOP ABRUPTLY</text>
+<text x="410" y="272" fill="#e2e8f0" font-size="12" text-anchor="middle">The adrenals have been asleep for months. No taper = no cortisol from anywhere = adrenal crisis and shock.</text>
+</svg>
+<div class="loop-why">Why it earns its keep: <b>this is Loop 1 in real life.</b> The drug is the &ldquo;final hormone,&rdquo; feedback silences the hypothalamus and pituitary, and the adrenal gland goes dormant from disuse. Every one of those side effects is just cortisol doing its normal job at an abnormal dose.</div>
+<div class="rev"><div class="rev-q">Why is masked fever the most dangerous item on that whole list?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a">Because steroids suppress the inflammatory response that <i>produces</i> the fever. So the patient can have a serious infection with a normal temperature and no redness or swelling. You have to watch for subtler cues &mdash; a change in mental status, low-grade tachycardia, a rising white count, malaise &mdash; instead of waiting for the classic signs. This is a very common priority question.</div></div>
+<div class="rev"><div class="rev-q">A patient on chronic prednisone is admitted for surgery. What does the body need that it cannot make?</div><div class="rev-hint">tap to check yourself</div><div class="rev-a"><b>Extra cortisol for the stress response.</b> Normally the adrenals would surge cortisol to handle surgery, but they are suppressed. Without supplemental &ldquo;stress-dose&rdquo; steroids the patient can drop into adrenal crisis: hypotension, weakness, hypoglycemia, shock. Same principle applies to trauma, serious infection, and childbirth.</div></div>
+</div>
+
+<div class="sec-title">Loop Check &mdash; 18 questions</div>
+<div class="sec-sub">Do not read the loops again first. Take it cold, miss some, then read the rationales. The miss is the lesson.</div>
+
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Loop Check Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">Whichever loop scored lowest is the one to redraw from memory tomorrow. Drawing beats rereading.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='endocrine-loops';
+const EXAM_LABEL='The Four Loops — Endocrine Backbone (18Q)';
+const BLOCKS={A:'Loop 1 · Master Loop & Feedback',B:'Loop 2 · Mirror Pairs',C:'Loop 3 · RAAS & ADH',D:'Loop 4 · Steroid Profile'};
+const ALL_Q=[
+
+{id:1,block:'A',chapter:0,type:'Lab Interpretation',
+stem:'A patient has a serum T4 that is low and a TSH that is markedly elevated. How does the nurse interpret this pattern?',
+options:[
+{letter:'A',text:'Primary hypothyroidism',correct:true,rationale:'A high TSH with a low T4 means the pituitary is signaling hard but the thyroid gland cannot respond. The failure is in the target gland itself, which defines a primary problem.'},
+{letter:'B',text:'Secondary hypothyroidism',correct:false,rationale:'In a secondary problem the pituitary is the failing organ, so it would not be producing a high TSH. Both TSH and T4 would be low.'},
+{letter:'C',text:'Primary hyperthyroidism',correct:false,rationale:'Hyperthyroidism involves an elevated T4. This patient has a low T4, so the thyroid is underactive, not overactive.'},
+{letter:'D',text:'Normal thyroid function under stress',correct:false,rationale:'A markedly elevated TSH paired with a low T4 is not a normal variant. It is the classic signature of gland failure.'}
+],vocabTip:'<strong>Primary = the gland failed, so the pituitary hormone is HIGH while the gland hormone is LOW.</strong> Secondary = the pituitary failed, so BOTH are low. Read the pituitary hormone first and the answer falls out.'},
+
+{id:2,block:'A',chapter:0,type:'Concept',
+stem:'A patient has both a low cortisol and a low ACTH. Where does the nurse recognize the problem to be?',
+options:[
+{letter:'A',text:'In the pituitary gland',correct:true,rationale:'When both the stimulating hormone and the final hormone are low, the signal itself was never sent. That places the failure upstream at the pituitary, which is a secondary disorder.'},
+{letter:'B',text:'In the adrenal cortex',correct:false,rationale:'If the adrenal cortex had failed, the pituitary would compensate by driving ACTH up. A low ACTH rules the adrenal out as the origin.'},
+{letter:'C',text:'In the kidney',correct:false,rationale:'The kidney does not produce cortisol or ACTH. It participates in the renin-angiotensin-aldosterone system, which is a separate pathway.'},
+{letter:'D',text:'In the thyroid gland',correct:false,rationale:'The thyroid produces T3 and T4 and responds to TSH. It has no role in cortisol or ACTH production.'}
+],vocabTip:'<strong>Both low = the boss went quiet (pituitary).</strong> One low and one high = the worker quit (target gland). This single rule covers thyroid, adrenal, and gonadal questions alike.'},
+
+{id:3,block:'A',chapter:0,type:'Concept',
+stem:'The nurse is explaining negative feedback. Which statement best describes what it accomplishes?',
+options:[
+{letter:'A',text:'Rising hormone levels suppress the glands that triggered the release',correct:true,rationale:'Negative feedback is a shut-off mechanism. As the final hormone accumulates, it inhibits the hypothalamus and pituitary so that production stops before levels climb too high.'},
+{letter:'B',text:'Rising hormone levels stimulate further release of the same hormone',correct:false,rationale:'That describes positive feedback, which is rare in the body. Oxytocin during labor is one of the few true examples.'},
+{letter:'C',text:'The kidney filters excess hormone to keep levels steady',correct:false,rationale:'Hormones are largely cleared by the liver, but clearance is not the regulating mechanism. Regulation happens through feedback signaling.'},
+{letter:'D',text:'The hypothalamus stores hormone until the body requests it',correct:false,rationale:'The hypothalamus releases signaling hormones rather than stockpiling final hormones for later distribution.'}
+],vocabTip:'<strong>Negative feedback = the thermostat.</strong> Enough hormone in the room, the furnace shuts off. It explains why exogenous steroids suppress the adrenal glands and why glands atrophy from disuse.'},
+
+{id:4,block:'A',chapter:0,type:'SATA',sata:true,
+stem:'Which glands does the nurse recognize as receiving their signal directly from the anterior pituitary? Select all that apply.',
+options:[
+{letter:'A',text:'Thyroid gland',correct:true,rationale:'The anterior pituitary releases TSH, which stimulates the thyroid to produce T3 and T4.'},
+{letter:'B',text:'Adrenal cortex',correct:true,rationale:'The anterior pituitary releases ACTH, which stimulates the adrenal cortex to produce cortisol.'},
+{letter:'C',text:'Ovaries and testes',correct:true,rationale:'The anterior pituitary releases FSH and LH, which drive the ovaries and testes to produce estrogen, progesterone, and testosterone.'},
+{letter:'D',text:'Parathyroid glands',correct:false,rationale:'The parathyroids respond directly to the serum calcium level rather than to a pituitary signal, which is why they sit outside this axis.'},
+{letter:'E',text:'Adrenal medulla',correct:false,rationale:'The adrenal medulla is controlled by the sympathetic nervous system and releases epinephrine on nerve signaling, not on pituitary command.'}
+],vocabTip:'<strong>The master loop covers thyroid, adrenal CORTEX, and the gonads.</strong> Two important outsiders: the parathyroids answer to calcium, and the adrenal MEDULLA answers to nerves. Exams love those two exceptions.'},
+
+{id:5,block:'B',chapter:0,type:'Trap',trap:true,
+stem:'A patient is admitted with Addison disease. Which set of electrolyte findings does the nurse anticipate?',
+options:[
+{letter:'A',text:'Sodium low, potassium high',correct:true,rationale:'Without aldosterone the kidney cannot hold sodium or excrete potassium, so sodium falls while potassium climbs. Hypotension and hypoglycemia accompany it.'},
+{letter:'B',text:'Sodium high, potassium low',correct:false,rationale:'That is the Cushing pattern, produced by excess cortisol and aldosterone activity. Addison is its mirror image.'},
+{letter:'C',text:'Sodium high, potassium high',correct:false,rationale:'These two move in opposite directions in adrenal disorders because aldosterone trades one for the other.'},
+{letter:'D',text:'Sodium low, potassium low',correct:false,rationale:'Losing both together suggests a diuretic effect or GI losses rather than the aldosterone deficiency seen in Addison disease.'}
+],vocabTip:'<strong>Aldosterone trades sodium for potassium.</strong> Too much (Cushing) = hold Na, dump K. Too little (Addison) = lose Na, retain K. The two electrolytes always move in OPPOSITE directions here, which is the trap.'},
+
+{id:6,block:'B',chapter:0,type:'Priority',
+stem:'A patient with hyperthyroidism develops a temperature of 103.2 F, a heart rate of 148, and acute agitation. What is the nurse\'s priority interpretation?',
+options:[
+{letter:'A',text:'Thyroid storm, a life-threatening emergency',correct:true,rationale:'Fever, extreme tachycardia, and altered mental status in a hyperthyroid patient signal thyroid storm. It carries a high mortality rate and requires immediate cooling, beta blockade, and antithyroid treatment.'},
+{letter:'B',text:'Expected symptoms of hyperthyroidism',correct:false,rationale:'Ordinary hyperthyroidism causes tachycardia and heat intolerance, but not fever above 103 with delirium. That escalation defines a crisis.'},
+{letter:'C',text:'Myxedema coma developing',correct:false,rationale:'Myxedema coma is the hypothyroid crisis and presents with hypothermia, bradycardia, and hypoventilation. These findings are the opposite.'},
+{letter:'D',text:'An expected response to antithyroid medication',correct:false,rationale:'Antithyroid drugs lower thyroid activity. They would not produce fever and severe tachycardia.'}
+],vocabTip:'<strong>Every mirror pair has a crisis at each end.</strong> Hyperthyroid crisis = thyroid storm (hot, fast, delirious). Hypothyroid crisis = myxedema coma (cold, slow, obtunded). Learn them as a set.'},
+
+{id:7,block:'B',chapter:0,type:'Assessment',
+stem:'A patient with SIADH is admitted. Which finding does the nurse expect?',
+options:[
+{letter:'A',text:'Serum sodium of 118 mEq/L with concentrated urine',correct:true,rationale:'Excess ADH causes the kidney to retain water without retaining sodium. The blood becomes diluted, producing hyponatremia, while the urine that is produced is scant and concentrated.'},
+{letter:'B',text:'Serum sodium of 158 mEq/L with dilute urine',correct:false,rationale:'That combination describes diabetes insipidus, in which too little ADH allows water to pour out and the remaining blood becomes concentrated.'},
+{letter:'C',text:'Urine output of 8 liters in 24 hours',correct:false,rationale:'Massive dilute output is the hallmark of diabetes insipidus. SIADH produces scant output because water is being held.'},
+{letter:'D',text:'Marked dependent edema in both lower legs',correct:false,rationale:'SIADH retains water inside the cells and the vascular space rather than shifting it into the interstitium, so obvious pitting edema is characteristically absent.'}
+],vocabTip:'<strong>SIADH = Soaked Inside, sodium Diluted, urine scant.</strong> DI = Dumping It, sodium concentrated, urine enormous. Read the serum sodium first and the diagnosis names itself.'},
+
+{id:8,block:'B',chapter:0,type:'Trap',trap:true,
+stem:'A patient returns from a total thyroidectomy. The nurse notes tingling around the mouth and in the fingertips. What does this most likely indicate?',
+options:[
+{letter:'A',text:'Hypocalcemia from parathyroid injury during surgery',correct:true,rationale:'The parathyroid glands sit on the back of the thyroid and are easily bruised or removed during thyroidectomy. Losing parathyroid hormone drops serum calcium, and perioral and fingertip tingling is the earliest sign before tetany develops.'},
+{letter:'B',text:'An expected effect of anesthesia wearing off',correct:false,rationale:'Anesthesia does not produce this specific perioral and distal tingling pattern. Dismissing it as expected would delay treatment of a dangerous electrolyte shift.'},
+{letter:'C',text:'Hypercalcemia from surgical manipulation',correct:false,rationale:'High calcium makes muscles and nerves sluggish, producing lethargy, constipation, and weakness rather than irritability and tingling.'},
+{letter:'D',text:'Early thyroid storm',correct:false,rationale:'Thyroid storm presents with fever, severe tachycardia, and delirium. It does not begin with isolated perioral tingling.'}
+],vocabTip:'<strong>Low calcium = twitchy and irritable</strong> (tingling, cramps, Chvostek, Trousseau, tetany, laryngospasm). <strong>High calcium = sluggish</strong> (stones, bones, groans, moans). Any thyroid surgery puts the parathyroids at risk.'},
+
+{id:9,block:'B',chapter:0,type:'SATA',sata:true,
+stem:'Which findings does the nurse associate with Cushing syndrome? Select all that apply.',
+options:[
+{letter:'A',text:'Truncal obesity with thin extremities',correct:true,rationale:'Excess cortisol redistributes fat centrally while breaking down peripheral muscle and fat, creating the classic central obesity with slender arms and legs.'},
+{letter:'B',text:'Elevated blood glucose',correct:true,rationale:'Cortisol raises blood glucose by promoting gluconeogenesis and opposing insulin, so hyperglycemia is expected.'},
+{letter:'C',text:'Thin fragile skin that bruises easily',correct:true,rationale:'Cortisol breaks down collagen, leaving skin thin and translucent with easy bruising and purple striae.'},
+{letter:'D',text:'Bronze pigmentation of the skin',correct:false,rationale:'Skin darkening occurs in Addison disease, where high ACTH stimulates melanin. It is a feature of cortisol deficiency, not excess.'},
+{letter:'E',text:'Craving for salty foods',correct:false,rationale:'Salt craving reflects sodium loss in Addison disease. Cushing syndrome retains sodium instead.'}
+],vocabTip:'<strong>Cushing = too much cortisol, so the body looks overfed and fragile.</strong> Addison = too little, so the body looks depleted and darkened. Bronze skin and salt craving belong to Addison every time.'},
+
+{id:10,block:'C',chapter:0,type:'Concept',
+stem:'The nurse is describing the renin-angiotensin-aldosterone system. What triggers the kidney to release renin?',
+options:[
+{letter:'A',text:'A drop in blood pressure or renal blood flow',correct:true,rationale:'The kidney monitors the perfusion arriving at it. When pressure or flow falls, specialized cells release renin to begin the cascade that restores pressure.'},
+{letter:'B',text:'A rise in serum potassium',correct:false,rationale:'High potassium stimulates aldosterone release directly from the adrenal cortex, but it is not the trigger for renin from the kidney.'},
+{letter:'C',text:'A rise in blood pressure',correct:false,rationale:'Rising pressure shuts renin release off. That is the negative feedback that closes this loop.'},
+{letter:'D',text:'A fall in blood glucose',correct:false,rationale:'Glucose regulation runs through insulin and glucagon. It does not initiate the renin cascade.'}
+],vocabTip:'<strong>The kidney measures FLOW PAST ITSELF, not total body fluid.</strong> That single fact explains why a fluid-overloaded heart failure patient keeps retaining more: poor pumping means poor renal flow, and the kidney concludes the body is dry.'},
+
+{id:11,block:'C',chapter:0,type:'Pharm',
+stem:'A patient is started on an ACE inhibitor. Which step of the pathway does the nurse understand this drug to block?',
+options:[
+{letter:'A',text:'Conversion of angiotensin I to angiotensin II',correct:true,rationale:'Angiotensin-converting enzyme performs that conversion, largely in the lungs. Blocking it prevents formation of the active vasoconstrictor and reduces aldosterone release downstream.'},
+{letter:'B',text:'Release of renin from the kidney',correct:false,rationale:'Renin release is the first step and is not blocked by an ACE inhibitor. A separate drug class, the direct renin inhibitors, acts there.'},
+{letter:'C',text:'Binding of aldosterone at the kidney tubule',correct:false,rationale:'That is where spironolactone works. ACE inhibitors act one step earlier in the chain.'},
+{letter:'D',text:'Release of ADH from the posterior pituitary',correct:false,rationale:'ADH runs as a parallel water-retaining pathway and is not part of the renin-angiotensin cascade.'}
+],vocabTip:'<strong>The drugs are named after the diagram.</strong> ACE inhibitors block the lung step. ARBs block the receptor. Spironolactone blocks aldosterone at the tubule, which is why it spares potassium.'},
+
+{id:12,block:'C',chapter:0,type:'Priority',
+stem:'A patient taking spironolactone reports using a salt substitute at home. What is the nurse\'s priority concern?',
+options:[
+{letter:'A',text:'Hyperkalemia, because salt substitutes contain potassium',correct:true,rationale:'Most salt substitutes are potassium chloride. Spironolactone already blocks aldosterone and therefore prevents potassium excretion, so adding a potassium load risks dangerous hyperkalemia and cardiac dysrhythmias.'},
+{letter:'B',text:'Hypernatremia, because substitutes still contain sodium',correct:false,rationale:'Salt substitutes are marketed specifically because they lack sodium. Sodium excess is not the risk here.'},
+{letter:'C',text:'Hypokalemia, because the drug wastes potassium',correct:false,rationale:'Spironolactone is potassium-sparing. It raises potassium rather than lowering it.'},
+{letter:'D',text:'Hypocalcemia from impaired calcium absorption',correct:false,rationale:'Spironolactone acts on the aldosterone receptor and does not meaningfully alter calcium handling.'}
+],vocabTip:'<strong>Aldosterone dumps potassium. Block aldosterone and potassium climbs.</strong> Any potassium-sparing diuretic plus a salt substitute, a potassium supplement, or an ACE inhibitor stacks that risk.'},
+
+{id:13,block:'C',chapter:0,type:'Assessment',
+stem:'A patient with a head injury begins producing large volumes of pale, dilute urine. Which additional finding supports the nurse\'s suspicion?',
+options:[
+{letter:'A',text:'Rising serum sodium and intense thirst',correct:true,rationale:'Loss of ADH lets free water escape in the urine, so the remaining blood concentrates. Sodium rises and the thirst mechanism activates strongly. This is diabetes insipidus from injury near the pituitary.'},
+{letter:'B',text:'Falling serum sodium and weight gain',correct:false,rationale:'That combination points to SIADH, in which water is retained rather than lost. Urine in SIADH is scant and concentrated.'},
+{letter:'C',text:'Urine specific gravity of 1.035',correct:false,rationale:'A high specific gravity indicates concentrated urine. In diabetes insipidus the urine is very dilute, so the specific gravity is low.'},
+{letter:'D',text:'Generalized pitting edema',correct:false,rationale:'This patient is losing volume rather than retaining it, so dehydration rather than edema is expected.'}
+],vocabTip:'<strong>Head injury threatens the pituitary, so BOTH SIADH and DI are on the table.</strong> The serum sodium decides which: high sodium with floods of dilute urine = DI; low sodium with scant urine = SIADH.'},
+
+{id:14,block:'C',chapter:0,type:'SATA',sata:true,
+stem:'Which conditions does the nurse recognize as being driven in part by the RAAS or ADH pathway? Select all that apply.',
+options:[
+{letter:'A',text:'Fluid retention in heart failure',correct:true,rationale:'A weak pump reduces renal perfusion, which activates renin and aldosterone and causes sodium and water retention despite existing overload.'},
+{letter:'B',text:'Ascites in liver cirrhosis',correct:true,rationale:'Portal hypertension and low albumin reduce effective circulating volume, triggering aldosterone and ADH and driving further sodium and water retention into the abdomen.'},
+{letter:'C',text:'Hypertension',correct:true,rationale:'Chronic activation of the pathway raises vascular resistance and volume, which is why so many antihypertensives target this cascade.'},
+{letter:'D',text:'Type 1 diabetes mellitus',correct:false,rationale:'Type 1 diabetes results from autoimmune destruction of pancreatic beta cells and loss of insulin. It is not a RAAS disorder.'},
+{letter:'E',text:'Osteoarthritis',correct:false,rationale:'Osteoarthritis is degenerative cartilage wear from mechanical stress and aging, unrelated to fluid and pressure regulation.'}
+],vocabTip:'<strong>This one chain explains heart failure, cirrhosis ascites, hypertension, shock, AKI and CKD.</strong> That breadth is exactly why it is the highest-yield diagram in the whole curriculum.'},
+
+{id:15,block:'D',chapter:0,type:'Priority',
+stem:'A patient has taken prednisone daily for eight months and tells the nurse she stopped it two days ago because she felt better. What is the nurse\'s priority concern?',
+options:[
+{letter:'A',text:'Adrenal crisis from abrupt withdrawal',correct:true,rationale:'Months of exogenous steroid suppress the hypothalamus and pituitary through negative feedback, leaving the adrenal glands dormant. Stopping abruptly leaves no cortisol from any source, producing hypotension, weakness, hypoglycemia, and shock.'},
+{letter:'B',text:'Rebound hyperglycemia',correct:false,rationale:'Glucose typically falls rather than rises when steroids are withdrawn, since it was the drug that was elevating it.'},
+{letter:'C',text:'Return of the original inflammation only',correct:false,rationale:'The underlying condition may flare, but the immediately life-threatening issue is the absent cortisol response, which can cause cardiovascular collapse.'},
+{letter:'D',text:'Fluid overload from sodium retention',correct:false,rationale:'Sodium retention is a side effect of taking steroids. Stopping them tends to cause sodium loss and volume depletion instead.'}
+],vocabTip:'<strong>Never stop long-term steroids abruptly. Always taper.</strong> The taper gives the suppressed hypothalamic-pituitary-adrenal axis time to wake back up. This is Loop 1 causing a real emergency.'},
+
+{id:16,block:'D',chapter:0,type:'Trap',trap:true,
+stem:'A patient on long-term corticosteroids for rheumatoid arthritis has a normal temperature but reports new fatigue and mild confusion. What should the nurse suspect?',
+options:[
+{letter:'A',text:'A developing infection with a blunted inflammatory response',correct:true,rationale:'Corticosteroids suppress the inflammatory cascade that produces fever, redness, and swelling. A serious infection can therefore present with a normal temperature, and subtle changes such as fatigue or confusion may be the only clues.'},
+{letter:'B',text:'Infection is unlikely because the temperature is normal',correct:false,rationale:'Relying on a normal temperature in a steroid-treated patient is precisely the reasoning error these questions test. The absent fever is caused by the drug, not by the absence of infection.'},
+{letter:'C',text:'Expected daytime drowsiness from the medication',correct:false,rationale:'Steroids more typically cause insomnia, agitation, and euphoria rather than sedation, so drowsiness with confusion should not be dismissed.'},
+{letter:'D',text:'Worsening rheumatoid arthritis',correct:false,rationale:'An arthritis flare produces joint pain, stiffness, and swelling. It does not typically cause confusion.'}
+],vocabTip:'<strong>Steroids MASK infection.</strong> Do not wait for fever. Watch for mental status changes, subtle tachycardia, a rising white count, or vague malaise. This is one of the most frequently tested steroid concepts.'},
+
+{id:17,block:'D',chapter:0,type:'Teaching',
+stem:'Which instruction is most important for the nurse to include when teaching a patient beginning long-term oral corticosteroid therapy?',
+options:[
+{letter:'A',text:'Take the medication with food and never stop it suddenly',correct:true,rationale:'Taking steroids with food reduces gastric irritation and ulcer risk, and abrupt discontinuation risks adrenal crisis. Together these address the two most dangerous aspects of therapy.'},
+{letter:'B',text:'Take the medication on an empty stomach for absorption',correct:false,rationale:'An empty stomach increases the risk of gastric irritation and ulceration, which steroids already promote.'},
+{letter:'C',text:'Stop the drug on any day symptoms are absent',correct:false,rationale:'Intermittent stopping prevents the adrenal axis from recovering safely and risks crisis. Dose changes must be prescribed.'},
+{letter:'D',text:'Increase dietary sodium to prevent depletion',correct:false,rationale:'Steroids already cause sodium and fluid retention. Added sodium would worsen edema and blood pressure.'}
+],vocabTip:'<strong>Two non-negotiables for steroid teaching: WITH FOOD, and NEVER STOP ABRUPTLY.</strong> Then add: report signs of infection, monitor glucose and weight, and expect mood and sleep changes.'},
+
+{id:18,block:'D',chapter:0,type:'Application',
+stem:'A patient on chronic prednisone is scheduled for emergency surgery. Why does the nurse anticipate an order for supplemental intravenous steroids?',
+options:[
+{letter:'A',text:'The suppressed adrenal glands cannot mount a stress response',correct:true,rationale:'Surgery normally triggers a surge of cortisol to support blood pressure and glucose. Because chronic therapy has suppressed the axis, that surge cannot occur, and without supplementation the patient can drop into adrenal crisis.'},
+{letter:'B',text:'Steroids reduce the risk of surgical site infection',correct:false,rationale:'Steroids increase infection risk and impair wound healing. That is a hazard of therapy, not a reason to give more.'},
+{letter:'C',text:'Steroids provide analgesia during the procedure',correct:false,rationale:'Corticosteroids reduce inflammation but are not used as surgical analgesia.'},
+{letter:'D',text:'Intravenous dosing prevents gastric ulceration',correct:false,rationale:'While the intravenous route bypasses the stomach, ulcer prevention is not why stress-dose steroids are ordered perioperatively.'}
+],vocabTip:'<strong>Stress dosing applies to surgery, trauma, serious infection, and childbirth.</strong> Any major physiologic stress demands cortisol the suppressed adrenal glands simply cannot produce.'}
+
+];
+window.ENCOURAGE_EXAM={key:'MS2 Exam 1',date:'2026-08-26'};
+</script>
+<script src="primer-harness.js"></script>
+<script src="encourage.js"></script>
+<script>
+document.querySelectorAll('.rev,.pair').forEach(function(el){
+  el.addEventListener('click',function(){el.classList.toggle('open');});
+});
+</script>
+</body>
+</html>
