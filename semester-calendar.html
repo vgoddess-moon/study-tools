@@ -96,19 +96,23 @@ a.t-exam:hover,a.t-final:hover{filter:brightness(1.25);text-decoration:underline
   <h1>Semester at a Glance</h1>
   <p class="sub">Med Surg 2 &amp; Maternal Child &middot; Fall 2026</p>
 
-  <div class="note">
-    <b>&#9888; Projected — confirm on Jul 27.</b> Dates mirror last semester's schedule mapped onto an <b>Aug 3 start with the holiday week (Aug 10&ndash;16) off</b>. Classes meet <b>Mon &amp; Tue evenings</b> this term (which subject falls on which day depends on the Fort St. Lucie clinical). The <b>exam &amp; quiz sequence is reliable</b> even if exact dates shift a few days.
+  <div class="note" style="border-color:#22c55e">
+    <b>&#10003; Confirmed from the official syllabus (received Jul 27, 2026).</b> Class Number ADN 50, Concepts 2A &amp; 2B. <b>Maternal Child = Tuesdays 5:00&ndash;9:30PM. Med Surg = Wednesdays 5:00&ndash;11:00PM.</b> Extra help Fridays on campus, plus 4:00&ndash;5:00PM before every class. Holiday week Aug 10&ndash;16 confirmed off. <b>Daily Quiz &amp; Assigned Lesson runs every class night</b> from Aug 18 on &mdash; there is no separate quiz calendar to track.
+  </div>
+
+  <div class="note" style="border-color:#f0b46a">
+    <b>&#9888; Read this before you plan.</b> The syllabus lists chapter numbers, not exam blueprints. On every exam night a <b>new chapter is also lectured</b> &mdash; that chapter is almost certainly <b>not</b> on the exam you take that same evening, based on how Exam #1 falls. The coverage below reflects that reading. <b>Confirm it out loud in the first class</b>, because it changes what MC Exam #2, MC Exam #3, and MS Exam #5 include.
   </div>
 
   <div class="summary">
     <div class="stat danger"><div class="n" id="statDbl">0</div><div class="l">Double-exam weeks</div></div>
-    <div class="stat danger"><div class="n" id="statCrunch">0</div><div class="l">Exam + quiz weeks</div></div>
+    <div class="stat danger"><div class="n" id="statCrunch">0</div><div class="l">Exam + retake weeks</div></div>
     <div class="stat"><div class="n" id="statExam">0</div><div class="l">Total exams</div></div>
   </div>
 
   <div class="legend">
     <span><i class="dot dbl"></i>Two exams (danger)</span>
-    <span><i class="dot crunch"></i>Exam + quiz</span>
+    <span><i class="dot crunch"></i>Exam + retake</span>
     <span><i class="dot exam"></i>Exam</span>
     <span><i class="dot quiz"></i>Quiz</span>
   </div>
@@ -117,37 +121,42 @@ a.t-exam:hover,a.t-final:hover{filter:brightness(1.25);text-decoration:underline
 
   <div id="weeks"></div>
 
-  <div class="foot">Data-driven &middot; edit the WEEKS array after the official syllabus drops<br>vgoddess-moon &middot; you're ahead of this, not behind it</div>
+  <div class="foot">Locked to the official syllabus &middot; ADN 50 Concepts 2A &amp; 2B &middot; Fall 2026<br>vgoddess-moon &middot; you're ahead of this, not behind it</div>
 </div>
 
 <script>
 // Exam labels link to their primer when built; href:null shows "(primer coming)"
 var WEEKS = [
-  {wk:"Wk 1", date:"Aug 3 – 7", mc:"Ch 2, 3, 4", ms:"Ch 61, 62"},
+  {wk:"Wk 1", date:"Aug 4 (Tue) · Aug 5 (Wed)", mc:"Ch 2, 3, 4", ms:"Ch 61, 62"},
   {wk:"—", date:"Aug 10 – 16", off:"Holiday break — no class"},
-  {wk:"Wk 2", date:"Aug 17 – 21", mc:"Ch 5, 6", ms:"Ch 63, 64, 65", quiz:"MS Quiz #1 assigned"},
-  {wk:"Wk 3", date:"Aug 24 – 28", mc:"Ch 7, 8", ms:"Ch 33, 34", quiz:"MC Quiz #1 due",
-    exams:[{label:"MS Exam #1 (Ch 61–65)", href:"ms2-ch61-primer.html", ready:true}], crunch:true},
-  {wk:"Wk 4", date:"Aug 31 – Sep 4", mc:"Ch 9", ms:"Ch 35–38", quiz:"MS Quiz #2",
-    exams:[{label:"MC Exam #1 (Ch 2–8)", href:"mat-ch2-primer.html", ready:true}], retake:"MS #1 retake", crunch:true},
-  {wk:"Wk 5", date:"Sep 7 – 11", mc:"Ch 10, 11", ms:"Ch 39, 40",
-    exams:[{label:"MS Exam #2 (Ch 33–38)", href:null}], retake:"MC #1 retake"},
-  {wk:"Wk 6", date:"Sep 14 – 18", mc:"Ch 12, 13", ms:"Ch 41, 42", retake:"MS #2 retake"},
-  {wk:"Wk 7", date:"Sep 21 – 25", mc:"Ch 14", ms:"Ch 43, 44", quiz:"MS Quiz #3"},
-  {wk:"Wk 8", date:"Sep 28 – Oct 2", mc:"Ch 15", ms:"Ch 45, 46",
-    exams:[{label:"MC Exam #2 (Ch 9–15)", href:null},{label:"MS Exam #3 (Ch 39–44)", href:null}], dbl:true},
-  {wk:"Wk 9", date:"Oct 5 – 9", mc:"Ch 21, 22", ms:"Ch 47, 48", quiz:"MC Quiz #2", retake:"MC #2 retake", crunch:true},
-  {wk:"Wk 10", date:"Oct 12 – 16", mc:"Ch 24, 34", ms:"Ch 49, 50", quiz:"MC Quiz #3", retake:"MS #3 retake", crunch:true},
-  {wk:"Wk 11", date:"Oct 19 – 23", mc:"Ch 25, 26", ms:"Ch 51, 52", quiz:"MS Quiz #4"},
-  {wk:"Wk 12", date:"Oct 26 – 30", mc:"Ch 29", ms:"Ch 53, 54",
-    exams:[{label:"MC Exam #3 (Ch 21–29, 34)", href:null},{label:"MS Exam #4 (Ch 45–52)", href:null}], dbl:true},
-  {wk:"Wk 13", date:"Nov 2 – 6", mc:"Ch 27, 28", ms:"Ch 55, 56", retake:"MC #3 + MS #4 retakes"},
-  {wk:"Wk 14", date:"Nov 9 – 13", mc:"Ch 31, 33", ms:"Ch 57–60",
-    exams:[{label:"MS Exam #5 (Ch 53–60)", href:null}]},
-  {wk:"Wk 15", date:"Nov 16 – 20", mc:"Ch 30, 32",
-    finals:[{label:"MC Final", href:null},{label:"MS Final", href:null}]},
-  {wk:"Wk 16", date:"Nov 23 – 27", retake:"MC Final + MS Final retakes · EOT"}
+  {wk:"Wk 2", date:"Aug 18 · Aug 19", mc:"Ch 5, 6", ms:"Ch 63, 64, 65", quiz:"Daily quiz starts"},
+  {wk:"Wk 3", date:"Aug 25 · Aug 26", mc:"Ch 7, 8", ms:"Ch 33, 34",
+    exams:[{label:"MS Exam #1 · Wed 8/26 (Ch 61–65)", href:"ms2-exam1-primer.html", ready:true}]},
+  {wk:"Wk 4", date:"Sep 1 · Sep 2", mc:"Ch 9", ms:"Ch 35, 36, 37, 38",
+    exams:[{label:"MC Exam #1 · Tue 9/1 (Ch 2–8)", href:"mat-exam1-primer.html", ready:true}], retake:"MS #1 retake Wed 9/2", crunch:true},
+  {wk:"Wk 5", date:"Sep 8 · Sep 9", mc:"Ch 10, 11", ms:"Ch 39, 40",
+    exams:[{label:"MS Exam #2 · Wed 9/9 (Ch 33–38)", href:"ms2-ch33-primer.html", ready:true}], retake:"MC #1 retake Tue 9/8", crunch:true},
+  {wk:"Wk 6", date:"Sep 15 · Sep 16", mc:"Ch 12, 13", ms:"Ch 41, 42", retake:"MS #2 retake Wed 9/16"},
+  {wk:"Wk 7", date:"Sep 22 · Sep 23", mc:"Ch 14", ms:"Ch 43, 44"},
+  {wk:"Wk 8", date:"Sep 29 · Sep 30", mc:"Ch 15", ms:"Ch 45, 46",
+    exams:[{label:"MC Exam #2 · Tue 9/29 (Ch 9–14)", href:"mat-ch9-primer.html", ready:true},{label:"MS Exam #3 · Wed 9/30 (Ch 39–44)", href:null}], dbl:true},
+  {wk:"Wk 9", date:"Oct 6 · Oct 7", mc:"Ch 21, 22", ms:"Ch 47, 48", retake:"MC #2 retake Tue 10/6 · MS #3 retake Wed 10/7", crunch:true},
+  {wk:"Wk 10", date:"Oct 13 · Oct 14", mc:"Ch 24, 34", ms:"Ch 49, 50"},
+  {wk:"Wk 11", date:"Oct 20 · Oct 21", mc:"Ch 25, 26", ms:"Ch 51, 52"},
+  {wk:"Wk 12", date:"Oct 27 · Oct 28", mc:"Ch 29", ms:"Ch 53, 54",
+    exams:[{label:"MC Exam #3 · Tue 10/27 (Ch 15, 21, 22, 24, 25, 26, 34)", href:"mat-ch15-primer.html", ready:true},{label:"MS Exam #4 · Wed 10/28 (Ch 45–52)", href:null}], dbl:true},
+  {wk:"Wk 13", date:"Nov 3 · Nov 4", mc:"Ch 27, 28", ms:"Ch 55, 56", retake:"MC #3 retake Tue 11/3 · MS #4 retake Wed 11/4", crunch:true},
+  {wk:"Wk 14", date:"Nov 10 · Nov 11", mc:"Ch 31, 33", ms:"Ch 57, 58, 59, 60",
+    exams:[{label:"MS Exam #5 · Wed 11/11 (Ch 53–56)", href:null}]},
+  {wk:"Wk 15", date:"Nov 16 – 19", mc:"Ch 30, 32 (Tue 11/17)", retake:"MS #5 retake Mon 11/16",
+    finals:[{label:"MC Final · Wed 11/18", href:null},{label:"MS Final · Thu 11/19", href:null}]},
+  {wk:"Wk 16", date:"Nov 23 · Nov 24", retake:"MC Final retake Mon 11/23 · MS Final retake Tue 11/24 (EOT)"},
+  {wk:"Wk 17", date:"Dec 1", quiz:"Academic Advisement 6:00PM"}
 ];
+var FINAL_ONLY = {
+  mc:"Ch 27, 28, 29, 30, 31, 32, 33",
+  ms:"Ch 57, 58, 59, 60"
+};
 
 function tag(cls, txt){ return '<span class="tag '+cls+'">'+txt+'</span>'; }
 function examTag(e, cls){
@@ -166,7 +175,7 @@ WEEKS.forEach(function(w){
   var cls='week', flag='';
   if(w.off){ cls+=' off'; flag='<span class="wk-flag flag-off">Off</span>'; }
   else if(w.dbl){ cls+=' dbl'; flag='<span class="wk-flag flag-dbl">&#9888; 2 Exams</span>'; }
-  else if(w.crunch){ cls+=' crunch'; flag='<span class="wk-flag flag-crunch">&#9888; Exam + Quiz</span>'; }
+  else if(w.crunch){ cls+=' crunch'; flag='<span class="wk-flag flag-crunch">&#9888; Exam + Retake</span>'; }
   else if(w.finals){ cls+=' dbl'; flag='<span class="wk-flag flag-final">Finals</span>'; }
 
   html+='<div class="'+cls+'"><div class="week-head">';
@@ -193,6 +202,15 @@ WEEKS.forEach(function(w){
   html+='</div></div>';
 });
 
+html+='<div class="week" style="border-color:#7c3aed;background:#150f22"><div class="week-head">'+
+  '<span class="wk-num">Final only</span><span class="wk-date">never tested before the final</span></div><div class="rows">'+
+  '<div class="row"><span class="k">Mat</span><span class="v">'+tag('t-mc','MC')+FINAL_ONLY.mc+'</span></div>'+
+  '<div class="row"><span class="k">MedS</span><span class="v">'+tag('t-ms','MS')+FINAL_ONLY.ms+'</span></div>'+
+  '<div class="row"><span class="v" style="color:#c4b5fd;font-size:.82rem;line-height:1.55">'+
+  'These chapters are lectured after their subject&rsquo;s last unit exam, so the <b>only</b> time they are tested is the final. '+
+  'Do not let them pile up unread in November &mdash; that is 11 chapters landing in one week.</span></div>'+
+  '</div></div>';
+
 document.getElementById('weeks').innerHTML=html;
 document.getElementById('statDbl').textContent=nDbl;
 document.getElementById('statCrunch').textContent=nCrunch;
@@ -211,7 +229,7 @@ var RAMP = [
     {id:"w1f", pill:"cold", cls:"pill-cold", h:"Take <b>Mat Ch 2 primer</b>", t:"women's health & self-care — closes the Exam 1 women's-health loop"}
   ]},
   {wk:"Week 2 · Jul 27 → Aug 2 — build out + syllabus", items:[
-    {id:"w2a", pill:"syllabus", cls:"pill-syl", h:"<b>Jul 27: pick up the syllabus</b>", t:"confirm exact chapter→exam list; tell me so I can lock the Exam 2 maternity remap"},
+    {id:"w2a", pill:"done", cls:"pill-syl", h:"<b>&#10003; Syllabus received Jul 27</b>", t:"calendar above is now locked to it. Still open: confirm at first class whether a chapter lectured on an exam night is on that exam."},
     {id:"w2b", pill:"cold", cls:"pill-cold", h:"Take <b>MS2 Ch 62 & 63</b> primers cold", t:"breast + gynecologic conditions"},
     {id:"w2c", pill:"cold", cls:"pill-cold", h:"Take <b>Mat Ch 4 & 5</b> primers cold", t:"fetal development + prenatal care"},
     {id:"w2d", pill:"nblm", cls:"pill-nblm", h:"NotebookLM 1·2·3 on <b>MS2 Ch 61 & 63</b>", t:"generate + take both 30Q exams"},
