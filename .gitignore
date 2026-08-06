@@ -3,6 +3,11 @@
 # stays on this computer and is deliberately never pushed.
 #
 # Ignore everything at the root, then re-allow only what is safe to publish.
+#
+# The v-* folder is the private build from publish.py. Every page inside it is
+# AES-encrypted at build time, so publishing it exposes ciphertext only. The
+# folder name is random and the passphrase lives outside the repo.
 /*
 !/.gitignore
 !/share/
+!/v-*/
