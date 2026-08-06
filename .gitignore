@@ -1,0 +1,8 @@
+# This repo is PUBLIC and its only job is hosting classmate-facing quiz links.
+# Everything else — the dashboard, The System, grades, rituals, working files —
+# stays on this computer and is deliberately never pushed.
+#
+# Ignore everything at the root, then re-allow only what is safe to publish.
+/*
+!/.gitignore
+!/share/
