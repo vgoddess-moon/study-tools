@@ -168,9 +168,9 @@ function showScore(doSave){
     var record={score:pct,correct:correct,total:questions.length,date:new Date().toLocaleDateString()};
     localStorage.setItem(EXAM_ID+'-last',JSON.stringify(record));
     localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
-    var hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
+    var hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
     hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:questions.length});
-    localStorage.setItem('examHistory',JSON.stringify(hist.slice(-100)));
+    localStorage.setItem('examHistory',JSON.stringify(hist.slice(-1000)));
   }
 }
 

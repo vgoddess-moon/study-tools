@@ -65,9 +65,9 @@ document.getElementById('scoreCard').style.display='block';document.getElementBy
 const rec={score:pct,correct:correct,total:ALL_Q.length,date:new Date().toLocaleDateString()};
 if(doSave===false)return;
 localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
-const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(function(e){return e.examId!==EXAM_ID;});
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
 hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL,date:new Date().toISOString(),score:pct,correct:correct,total:ALL_Q.length});
-localStorage.setItem('examHistory',JSON.stringify(hist.slice(-100)));
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-1000)));
 }
 
 function restartQuiz(){answered={};selections={};localStorage.removeItem(EXAM_ID+'-state');document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}

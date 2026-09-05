@@ -108,7 +108,7 @@ function showScore() {
   localStorage.setItem(EXAM_ID + '-label', EXAM_LABEL);
   var hist = JSON.parse(localStorage.getItem('examHistory') || '[]');
   hist.push({ examId: EXAM_ID, examLabel: EXAM_LABEL, date: new Date().toISOString(), score: pct, correct: correct, total: questions.length });
-  localStorage.setItem('examHistory', JSON.stringify(hist.slice(-20)));
+  localStorage.setItem('examHistory', JSON.stringify(hist.slice(-1000)));
 }
 
 function restartQuiz() {
