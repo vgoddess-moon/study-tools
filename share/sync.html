@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Score Sync — Study Tools</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding:1.5rem;max-width:520px;margin:0 auto}
+h1{font-size:1.25rem;font-weight:700;color:#f8fafc;margin-bottom:.25rem}
+.sub{font-size:.85rem;color:#64748b;margin-bottom:2rem}
+.section{background:#13181f;border:1px solid #1e293b;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+.section h2{font-size:.9rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.9rem}
+.passphrase-box{background:#0c0f14;border:1px solid #334155;border-radius:10px;padding:.9rem 1rem;
+  font-family:'Courier New',monospace;font-size:1.1rem;color:#a78bfa;word-break:break-all;
+  cursor:pointer;user-select:all;margin-bottom:.5rem;min-height:2.5rem}
+.passphrase-box:empty::before{content:'Not found — unlock the site on this device first';
+  color:#475569;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.85rem}
+.hint{font-size:.78rem;color:#475569;margin-bottom:.75rem}
+.btn{display:inline-block;padding:.55rem 1.1rem;border-radius:9px;font-size:.85rem;font-weight:600;
+  cursor:pointer;border:none;transition:opacity .15s}
+.btn-copy{background:#7c3aed;color:#fff}
+.btn-import{background:#059669;color:#fff}
+.btn-clear{background:#1e293b;color:#94a3b8;font-size:.8rem}
+.btn:active{opacity:.75}
+.btn:disabled{opacity:.4;cursor:default}
+textarea{width:100%;background:#0c0f14;border:1px solid #334155;border-radius:10px;
+  padding:.75rem;color:#cbd5e1;font-family:'Courier New',monospace;font-size:.75rem;
+  resize:vertical;min-height:90px;margin-bottom:.6rem;line-height:1.4}
+textarea:focus{outline:none;border-color:#7c3aed}
+.flash{font-size:.82rem;font-weight:600;color:#34d399;min-height:1.2rem;margin-top:.35rem}
+.flash.err{color:#f87171}
+.stat-row{display:flex;justify-content:space-between;font-size:.82rem;color:#64748b;margin-bottom:.3rem}
+.stat-val{color:#94a3b8;font-weight:600}
+a.back{display:inline-block;margin-top:1.5rem;font-size:.82rem;color:#7c3aed;text-decoration:none}
+a.back:hover{text-decoration:underline}
+hr{border:none;border-top:1px solid #1e293b;margin:1rem 0}
+</style>
+</head>
+<body>
+<h1>&#128251; Score Sync</h1>
+<p class="sub">Move your progress between devices without opening any other app.</p>
+
+<div class="section" id="pwSection">
+  <h2>Your Passphrase</h2>
+  <div class="passphrase-box" id="pwDisplay"></div>
+  <div class="hint">Tap the box to select, then copy. This is the code you type to unlock any study tools page.</div>
+  <button class="btn btn-copy" onclick="copyPassphrase()">Copy passphrase</button>
+  <div class="flash" id="pwFlash"></div>
+</div>
+
+<div class="section">
+  <h2>Export scores from this device</h2>
+  <div id="stats"></div>
+  <hr>
+  <button class="btn btn-copy" onclick="doExport()">Generate export code</button>
+  <div class="flash" id="expFlash"></div>
+  <textarea id="expArea" placeholder="Tap the button above to generate your export code..." readonly></textarea>
+  <button class="btn btn-copy" id="copyExpBtn" onclick="copyExport()" disabled>Copy code</button>
+</div>
+
+<div class="section">
+  <h2>Import scores onto this device</h2>
+  <p class="hint" style="margin-bottom:.75rem">Paste the code you exported from the other device. <b>This will merge — your existing scores are never deleted.</b></p>
+  <textarea id="impArea" placeholder="Paste export code here..."></textarea>
+  <button class="btn btn-import" onclick="doImport()">Import</button>
+  <div class="flash" id="impFlash"></div>
+</div>
+
+<a class="back" href="../v-f646fda2f330/index.html">&#8592; Back to study tools</a>
+
+<script>
+// Keys that belong to the study tools
+function isStudyKey(k){
+  return k === 'examHistory'
+    || k === 'studyToolsPassphrase'
+    || k.endsWith('_history') || k.endsWith('-history')
+    || k.endsWith('_last')    || k.endsWith('-last')
+    || k.endsWith('-label')   || k.endsWith('_label')
+    || k.endsWith('-state')   || k.endsWith('_state')
+    || k.startsWith('primer_')
+    || k.startsWith('ms2_') || k.startsWith('mat_')
+    || k.startsWith('exam') || k.startsWith('igna')
+    || k.startsWith('leifer') || k.startsWith('brunner');
+}
+
+function flash(id, msg, isErr){
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'flash' + (isErr ? ' err' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.textContent = ''; }, 3500);
+}
+
+// Show passphrase
+(function(){
+  const pw = localStorage.getItem('studyToolsPassphrase') || '';
+  const el = document.getElementById('pwDisplay');
+  if(pw){ el.textContent = pw; }
+})();
+
+function copyPassphrase(){
+  const pw = document.getElementById('pwDisplay').textContent;
+  if(!pw){ flash('pwFlash','Not found — unlock the study tools on this device first.', true); return; }
+  navigator.clipboard.writeText(pw).then(()=>flash('pwFlash','Copied!'))
+    .catch(()=>{ document.getElementById('pwDisplay').select?.(); flash('pwFlash','Tap the box → select all → copy manually.', true); });
+}
+
+// Stats
+(function(){
+  let sessions = 0, exams = 0;
+  try{
+    const h = JSON.parse(localStorage.getItem('examHistory')||'[]');
+    sessions = h.length;
+  }catch(e){}
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if((k.endsWith('-last')||k.endsWith('_last')) && k !== 'studyToolsPassphrase') exams++;
+  }
+  const el = document.getElementById('stats');
+  el.innerHTML =
+    '<div class="stat-row"><span>Exams/drills with recorded history</span><span class="stat-val">'+exams+'</span></div>'+
+    '<div class="stat-row"><span>Total sessions logged</span><span class="stat-val">'+sessions+'</span></div>';
+})();
+
+// Export
+let lastExport = '';
+function doExport(){
+  const data = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(isStudyKey(k)){
+      try{ data[k] = JSON.parse(localStorage.getItem(k)); }
+      catch(e){ data[k] = localStorage.getItem(k); }
+    }
+  }
+  const keys = Object.keys(data).length;
+  if(!keys){ flash('expFlash','No study data found on this device yet.', true); return; }
+  lastExport = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  document.getElementById('expArea').value = lastExport;
+  document.getElementById('copyExpBtn').disabled = false;
+  flash('expFlash', keys + ' keys exported. Copy the code and send it to yourself.');
+}
+
+function copyExport(){
+  if(!lastExport){ flash('expFlash','Generate the code first.',true); return; }
+  navigator.clipboard.writeText(lastExport)
+    .then(()=>flash('expFlash','Copied! Paste it on your other device.'))
+    .catch(()=>flash('expFlash','Tap the text box, select all, copy manually.',true));
+}
+
+// Import
+function doImport(){
+  const raw = document.getElementById('impArea').value.trim();
+  if(!raw){ flash('impFlash','Paste a code first.',true); return; }
+  let data;
+  try{
+    data = JSON.parse(decodeURIComponent(escape(atob(raw))));
+  }catch(e){ flash('impFlash','Invalid code — make sure you copied the whole thing.',true); return; }
+  let count = 0;
+  for(const [k, v] of Object.entries(data)){
+    if(!isStudyKey(k)) continue;
+    try{
+      // Merge history arrays instead of overwriting
+      if((k.endsWith('_history')||k.endsWith('-history')||k==='examHistory') && Array.isArray(v)){
+        let existing = [];
+        try{ existing = JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){}
+        if(!Array.isArray(existing)) existing = [];
+        // Merge by date, deduplicate
+        const merged = [...existing];
+        const seenDates = new Set(existing.map(r=>r&&r.date));
+        for(const rec of v){ if(rec&&rec.date&&!seenDates.has(rec.date)){ merged.push(rec); seenDates.add(rec.date); } }
+        merged.sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
+        localStorage.setItem(k, JSON.stringify(merged.slice(-1000)));
+      } else {
+        localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+      }
+      count++;
+    }catch(e){}
+  }
+  flash('impFlash', count + ' keys imported. Your scores are now on this device.');
+  // Refresh stats
+  location.reload();
+}
+</script>
+</body>
+</html>
