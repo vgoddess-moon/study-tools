@@ -72,3 +72,16 @@ h1,h2,h3{font-family:'DM Serif Display',serif}
 .mk-panel .svg-card{background:transparent;border:none;padding:0;margin:0}
 .mk-panel .svg-card h3{display:none}
 @media(min-width:700px){.mk-overlay{align-items:center}.mk-panel{border-radius:16px;max-height:82vh}.mk-overlay.open .mk-panel{transform:translateY(0)}.mk-panel{transform:translateY(24px)}}
+
+/* ---- Filter bar + drill-missed (opt-in via #harnessFilterBar) ---- */
+.filter-bar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:1rem 0 .5rem}
+.filter-label{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-right:.2rem}
+.fbtn{background:#13181f;color:#94a3b8;border:1px solid #334155;border-radius:999px;padding:.4rem .85rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.fbtn:hover{background:#1e293b;color:#e2e8f0}
+.fbtn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.fbtn-hot{border-color:#7c3aed;color:#c4b5fd}
+.fbtn-sata{border-color:#f59e0b;color:#fbbf24}
+.fbtn-sata.active{background:#f59e0b;border-color:#f59e0b;color:#0c0f14}
+.filter-note{font-size:.8rem;color:#64748b;margin-bottom:1rem;line-height:1.5}
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
+.btn-missed:hover{background:#14532d}
