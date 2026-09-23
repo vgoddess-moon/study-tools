@@ -14,6 +14,15 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a
 function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
 
 function _isCorrect(q){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];return c.length===s.length&&c.every(l=>s.includes(l));}
+// SATA partial credit: all right = 1.0, right but incomplete = 0.5, any wrong option selected = 0.
+function _credit(q){
+if(_isCorrect(q))return 1;
+if(!q.sata)return 0;
+const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];
+if(!s.length||s.some(l=>!c.includes(l)))return 0;
+return 0.5;
+}
+function _fmt(n){return n%1?n.toFixed(1):String(n);}
 function _activeQ(){
 if(__filterMode==='all')return ALL_Q;
 if(__filterMode==='sata')return ALL_Q.filter(q=>q.sata);
@@ -54,8 +63,9 @@ const correct=q.options.filter(o=>o.correct).map(o=>o.letter);
 const ok=correct.length===selections[qId].length&&correct.every(l=>selections[qId].includes(l));
 q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';});
 document.getElementById('tip-'+qId).style.display='block';
-const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':'answered-wrong');
-const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';
+const cr=_credit(q);
+const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');
+const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';
 updateProgress();saveState();
 if(_answeredCount()===_activeQ().length)showScore();
 }
@@ -64,18 +74,18 @@ function updateProgress(){const t=_activeQ().length;document.getElementById('pro
 
 function _buildBreakdown(){
 const tally={};
-_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;if(_isCorrect(q))tally[b].c++;});
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
 let html='';
-Object.keys(BLOCKS).forEach(b=>{if(!tally[b])return;const t=tally[b];const pct=Math.round(t.c/t.t*100);const col=pct>=80?'#22c55e':pct>=66?'#fbbf24':'#f87171';html+='<div class="breakdown-row"><span class="bd-label">'+BLOCKS[b]+'</span><span class="bd-score" style="color:'+col+'">'+t.c+'/'+t.t+' &middot; '+pct+'%</span></div>';});
+Object.keys(BLOCKS).forEach(b=>{if(!tally[b])return;const t=tally[b];const pct=Math.round(t.c/t.t*100);const col=pct>=80?'#22c55e':pct>=66?'#fbbf24':'#f87171';html+='<div class="breakdown-row"><span class="bd-label">'+BLOCKS[b]+'</span><span class="bd-score" style="color:'+col+'">'+_fmt(t.c)+'/'+t.t+' &middot; '+pct+'%</span></div>';});
 document.getElementById('breakdownArea').innerHTML=html;
 }
 
 function showScore(doSave){
 const act=_activeQ();
-let correct=0;act.forEach(q=>{if(answered[q.id]&&_isCorrect(q))correct++;});
+let correct=0;act.forEach(q=>{if(answered[q.id])correct+=_credit(q);});
 const total=act.length;
 const pct=total?Math.round(correct/total*100):0;
-document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=correct+' of '+total+' correct';
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=_fmt(correct)+' of '+total+' correct';
 _buildBreakdown();
 _syncMissedBtn();
 document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
@@ -129,7 +139,7 @@ b.classList.toggle('active',b.getAttribute('data-f')===__filterMode);});
 const note=document.getElementById('harnessFilterNote');
 if(note){const n=_activeQ().length;
 note.textContent=__filterMode==='all'?'All '+n+' questions, every loop mixed together. Use this once each loop already holds on its own.'
-:__filterMode==='sata'?n+' select-all questions. This is the format that costs the most points — no partial credit here.'
+:__filterMode==='sata'?n+' select-all questions. Scored at half credit: all right = full point, right but incomplete = half, one wrong option = zero.'
 :__filterMode==='missed'?n+' question'+(n===1?'':'s')+' you missed, reset and reshuffled. Answer them again.'
 :n+' questions from '+_filterLabel(__filterMode)+' only. The teaching panel above matches this loop.';}
 }
@@ -176,7 +186,7 @@ function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answe
 function loadState(){
 const saved=localStorage.getItem(EXAM_ID+'-state');
 if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
-Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':'Review the reasoning';}});
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const cr=_credit(q);const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';}});
 updateProgress();if(_activeQ().length&&_answeredCount()===_activeQ().length)showScore(false);}
 const last=localStorage.getItem(EXAM_ID+'-last');
 if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
