@@ -83,6 +83,8 @@ h1,h2,h3{font-family:'DM Serif Display',serif}
 .fbtn-hot{border-color:#7c3aed;color:#c4b5fd}
 .fbtn-sata{border-color:#f59e0b;color:#fbbf24}
 .fbtn-sata.active{background:#f59e0b;border-color:#f59e0b;color:#0c0f14}
+.fbtn-fresh{margin-left:auto;border-color:#475569;color:#94a3b8}
+.fbtn-fresh:hover{background:#334155;color:#f8fafc}
 .filter-note{font-size:.8rem;color:#64748b;margin-bottom:1rem;line-height:1.5}
 .btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
 .btn-missed:hover{background:#14532d}

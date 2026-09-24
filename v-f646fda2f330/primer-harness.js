@@ -168,12 +168,27 @@ const n=ALL_Q.filter(q=>q.block===b).length;if(!n)return;
 html+='<button class="fbtn" data-f="'+b+'" onclick="applyBlockFilter(\''+b+'\')">'+(short[b]||BLOCKS[b])+' &middot; '+n+'</button>';});
 const ns=ALL_Q.filter(q=>q.sata).length;
 if(ns)html+='<button class="fbtn fbtn-sata" data-f="sata" onclick="applyBlockFilter(\'sata\')">SATA only &middot; '+ns+'</button>';
+// The page restores the last session on load, so landing on it shows whatever was
+// already answered. Without this there is no way to wipe that and start over.
+html+='<button class="fbtn fbtn-fresh" data-f="__fresh" onclick="clearAllAnswers()">Start fresh</button>';
 bar.innerHTML=html;
 if(!document.getElementById('harnessFilterNote')){
 const note=document.createElement('div');note.className='filter-note';note.id='harnessFilterNote';
 bar.parentNode.insertBefore(note,bar.nextSibling);}
 _syncFilterBtns();
 }
+function clearAllAnswers(){
+answered={};selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+window.__missedIds=null;
+if(__filterMode==='missed')__filterMode='all';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+window.__optsShuffled=false;
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function _buildMissedBtn(){
 const card=document.getElementById('scoreCard');if(!card||document.getElementById('drillMissedBtn'))return;
 const btn=document.createElement('button');
