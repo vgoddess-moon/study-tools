@@ -127,7 +127,16 @@ document.getElementById('quizArea').scrollIntoView({behavior:'smooth',block:'sta
 
 /* ---- Filter bar (opt-in: page must contain #harnessFilterBar) ---- */
 function applyBlockFilter(mode){
+const switching=mode!==__filterMode;
 __filterMode=mode;
+// Entering a single loop (or SATA-only) is a fresh drill. restartQuiz() only clears
+// what is in scope, so answers from an earlier pass over the full set used to survive
+// and reappear pre-clicked. 'all' is exempt because it is the review view and wiping
+// it would throw away a half-finished full run; 'missed' is exempt because
+// drillMissed() already cleared exactly those ids.
+if(switching&&mode!=='missed'&&mode!=='all'){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();}
 _syncFilterBtns();_syncLoopSections();
 document.getElementById('scoreCard').style.display='none';
 buildQuiz();
