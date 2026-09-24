@@ -242,5 +242,10 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 
 _buildFilterBar();
 _buildMissedBtn();
+// A drill page must open clean. Restoring the previous run meant landing on the
+// page with questions already clicked, rationales open and Submit locked — the
+// opposite of what a drill is for. The score itself is kept separately under
+// EXAM_ID+'-last' and still shows in the "last attempt" card.
+localStorage.removeItem(EXAM_ID+'-state');
 buildQuiz();
 _buildMustKnows();
