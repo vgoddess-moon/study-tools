@@ -59,3 +59,6 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 .btn-restart:hover{background:#334155}
 .chart-fab{position:fixed;bottom:1rem;right:1rem;background:#ec4899;color:#fff;border:none;border-radius:99px;padding:.7rem 1.1rem;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:60;font-family:'DM Sans',sans-serif}
 @media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}.scenario-body{padding:.9rem}}
+
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
+.btn-missed:hover{background:#14532d}

@@ -21,11 +21,55 @@ document.getElementById('quizRoot').innerHTML =
 function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
 function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;questions.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash((typeof EXAM_ID!=='undefined'&&EXAM_ID?EXAM_ID:'q')+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F','G','H'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+/* 'Drill missed' narrows the page to just the ones she got wrong. Everything
+   that counts questions has to respect that narrowing or the progress bar and
+   the score will be computed against the full set. */
+function _activeQ() {
+  return (window.__missedIds && window.__missedIds.length)
+    ? questions.filter(function (q) { return window.__missedIds.indexOf(q.id) > -1; })
+    : questions;
+}
+function _isCorrect(q) {
+  var c = q.options.filter(function (o) { return o.correct; }).map(function (o) { return o.letter; });
+  var s = selections[q.id] || [];
+  return c.length === s.length && c.every(function (l) { return s.indexOf(l) > -1; });
+}
+function _answeredCount() {
+  return _activeQ().filter(function (q) { return answered[q.id]; }).length;
+}
+function drillMissed() {
+  var ids = _activeQ().filter(function (q) { return answered[q.id] && !_isCorrect(q); })
+    .map(function (q) { return q.id; });
+  if (!ids.length) return;
+  window.__missedIds = ids;
+  ids.forEach(function (id) { delete answered[id]; delete selections[id]; });
+  saveState();
+  document.getElementById('scoreCard').style.display = 'none';
+  buildQuiz();
+  document.getElementById('quizArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function _buildMissedBtn() {
+  var card = document.getElementById('scoreCard');
+  if (!card) return;
+  var btn = document.getElementById('drillMissedBtn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.className = 'btn-missed'; btn.id = 'drillMissedBtn'; btn.type = 'button';
+    btn.setAttribute('onclick', 'drillMissed()');
+    var restart = card.querySelector('.btn-restart');
+    if (restart && restart.parentNode === card) card.insertBefore(btn, restart.nextSibling);
+    else card.appendChild(btn);
+  }
+  var n = _activeQ().filter(function (q) { return answered[q.id] && !_isCorrect(q); }).length;
+  btn.style.display = n > 0 ? 'block' : 'none';
+  btn.textContent = 'Drill missed — ' + n + (n === 1 ? ' question' : ' questions');
+}
+
 function buildQuiz() {
   _shuffleAllOptions();
   var area = document.getElementById('quizArea');
   area.innerHTML = '';
-  questions.forEach(function (q, idx) {
+  _activeQ().forEach(function (q, idx) {
     var card = document.createElement('div');
     card.className = 'q-card';
     card.id = 'qcard-' + q.id;
@@ -82,38 +126,42 @@ function submitQ(qId) {
   btn.disabled = true; btn.textContent = ok ? 'Correct!' : 'Review the reasoning';
   updateProgress();
   saveState();
-  if (Object.keys(answered).length === questions.length) showScore();
+  if (_answeredCount() === _activeQ().length) showScore(true);
 }
 
 function updateProgress() {
-  document.getElementById('progressBar').style.width = (Object.keys(answered).length / questions.length * 100) + '%';
+  document.getElementById('progressBar').style.width = (_answeredCount() / _activeQ().length * 100) + '%';
 }
 
-function showScore() {
-  var correct = 0;
-  questions.forEach(function (q) {
-    if (answered[q.id]) {
-      var c = q.options.filter(function (o) { return o.correct; }).map(function (o) { return o.letter; });
-      var s = selections[q.id] || [];
-      if (c.length === s.length && c.every(function (l) { return s.indexOf(l) > -1; })) correct++;
-    }
-  });
-  var pct = Math.round(correct / questions.length * 100);
+function showScore(doSave) {
+  var active = _activeQ(), total = active.length, correct = 0;
+  active.forEach(function (q) { if (answered[q.id] && _isCorrect(q)) correct++; });
+  var pct = Math.round(correct / total * 100);
   document.getElementById('finalScore').textContent = pct + '%';
-  document.getElementById('finalText').textContent = correct + ' of ' + questions.length + ' correct';
+  document.getElementById('finalText').textContent = correct + ' of ' + total + ' correct';
   document.getElementById('scoreCard').style.display = 'block';
   document.getElementById('scoreCard').scrollIntoView({ behavior: 'smooth' });
-  var rec = { score: pct, correct: correct, total: questions.length, date: new Date().toLocaleDateString() };
-  localStorage.setItem(EXAM_ID + '-last', JSON.stringify(rec));
-  localStorage.setItem(EXAM_ID + '-label', EXAM_LABEL);
+  _buildMissedBtn();
+  if (doSave !== true) return;
+  // A missed-only rerun is tagged so a 4/4 on the ones she already got wrong
+  // never reads as a full pass in the history.
+  var drill = !!(window.__missedIds && window.__missedIds.length);
+  if (!drill) {
+    localStorage.setItem(EXAM_ID + '-last', JSON.stringify(
+      { score: pct, correct: correct, total: total, date: new Date().toLocaleDateString() }));
+    localStorage.setItem(EXAM_ID + '-label', EXAM_LABEL);
+  }
   var hist = JSON.parse(localStorage.getItem('examHistory') || '[]');
-  hist.push({ examId: EXAM_ID, examLabel: EXAM_LABEL, date: new Date().toISOString(), score: pct, correct: correct, total: questions.length });
+  hist.push({ examId: EXAM_ID, examLabel: EXAM_LABEL + (drill ? ' (missed drill)' : ''),
+    date: new Date().toISOString(), score: pct, correct: correct, total: total });
   localStorage.setItem('examHistory', JSON.stringify(hist.slice(-1000)));
 }
 
 function restartQuiz() {
   answered = {}; selections = {};
+  window.__missedIds = null;
   localStorage.removeItem(EXAM_ID + '-state');
+  window.__optsShuffled = false;
   document.getElementById('scoreCard').style.display = 'none';
   buildQuiz();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -132,21 +180,28 @@ function loadState() {
       var c = q.options.filter(function (o) { return o.correct; }).map(function (o) { return o.letter; });
       var s = selections[qId] || [];
       var ok = c.length === s.length && c.every(function (l) { return s.indexOf(l) > -1; });
+      // In a missed-only drill the other cards are not rendered, so every
+      // lookup here can legitimately come back null.
+      var cd = document.getElementById('qcard-' + qId);
+      if (!cd) return;
       q.options.forEach(function (o) {
         var el = document.getElementById('opt-' + qId + '-' + o.letter);
+        if (!el) return;
         if (s.indexOf(o.letter) > -1) el.classList.add('selected');
         if (o.correct) el.classList.add('correct-show');
         else if (s.indexOf(o.letter) > -1 && !o.correct) el.classList.add('wrong-show');
         el.style.cursor = 'default';
-        document.getElementById('rat-' + qId + '-' + o.letter).style.display = 'block';
+        var r = document.getElementById('rat-' + qId + '-' + o.letter);
+        if (r) r.style.display = 'block';
       });
-      document.getElementById('tip-' + qId).style.display = 'block';
-      document.getElementById('qcard-' + qId).classList.add(ok ? 'answered-correct' : 'answered-wrong');
+      var tp = document.getElementById('tip-' + qId);
+      if (tp) tp.style.display = 'block';
+      cd.classList.add(ok ? 'answered-correct' : 'answered-wrong');
       var btn = document.getElementById('btn-' + qId);
-      btn.disabled = true; btn.textContent = ok ? 'Correct!' : 'Review the reasoning';
+      if (btn) { btn.disabled = true; btn.textContent = ok ? 'Correct!' : 'Review the reasoning'; }
     });
     updateProgress();
-    if (Object.keys(answered).length === questions.length) showScore();
+    if (_activeQ().length && _answeredCount() === _activeQ().length) showScore(false);
   }
   var last = localStorage.getItem(EXAM_ID + '-last');
   if (last) {
@@ -169,4 +224,8 @@ function jumpToChart() {
   document.getElementById('scenario').scrollIntoView({ behavior: 'smooth' });
 }
 
+// A drill must open clean. Restoring the previous run meant landing on the page
+// with questions already clicked and Submit locked. The score itself lives under
+// EXAM_ID+'-last' and still shows in the "last attempt" card.
+localStorage.removeItem(EXAM_ID + '-state');
 buildQuiz();

@@ -62,3 +62,6 @@ code,.mono{font-family:'IBM Plex Mono',monospace}
 .activate-line{font-size:.92rem;color:#fde68a;line-height:1.45;font-weight:500}
 .score-reframe{font-size:.92rem;color:#fde68a;line-height:1.5;margin:.75rem auto 0;max-width:30rem}
 @media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
+.btn-missed:hover{background:#14532d}
