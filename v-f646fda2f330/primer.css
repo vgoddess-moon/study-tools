@@ -88,3 +88,26 @@ h1,h2,h3{font-family:'DM Serif Display',serif}
 .filter-note{font-size:.8rem;color:#64748b;margin-bottom:1rem;line-height:1.5}
 .btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
 .btn-missed:hover{background:#14532d}
+
+/* ---- Stats panel (attempt history + block averages) ---- */
+.stats-wrap{background:#13181f;border:1px solid #1e293b;border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
+.stats-toggle{width:100%;background:none;border:none;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;color:#c4b5fd}
+.stats-toggle:hover{background:#1a1f2e}
+.stats-toggle .st-summary{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#94a3b8;font-weight:400}
+.stats-toggle .st-arrow{transition:transform .2s;color:#64748b}
+.stats-wrap.open .stats-toggle .st-arrow{transform:rotate(180deg)}
+.stats-body{display:none;padding:0 1rem 1rem;border-top:1px solid #1e293b}
+.stats-wrap.open .stats-body{display:block}
+.stats-body h4{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 .4rem}
+.st-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.4rem .8rem;margin-bottom:.25rem;font-size:.78rem}
+.st-row.best{border-color:#7c3aed}
+.st-date{color:#94a3b8;font-family:'IBM Plex Mono',monospace;min-width:7rem}
+.st-score{font-family:'IBM Plex Mono',monospace;font-weight:600;margin-left:auto}
+.st-label{color:#94a3b8;font-size:.72rem;margin-left:.5rem}
+.st-blk-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.45rem .8rem;margin-bottom:.3rem;font-size:.78rem}
+.st-blk-name{color:#cbd5e1;min-width:40%;flex-shrink:0}
+.st-blk-bar{flex:1;height:5px;border-radius:99px;background:#1e293b;overflow:hidden;margin:0 .7rem}
+.st-blk-bar i{display:block;height:100%;border-radius:99px}
+.st-blk-pct{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:3rem;text-align:right}
+.st-note{color:#64748b;font-size:.72rem;margin-top:.5rem;line-height:1.45}
+.st-empty{color:#64748b;font-size:.78rem;font-style:italic;padding:.5rem 0}

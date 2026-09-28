@@ -96,6 +96,7 @@ localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(E
 const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
 hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL+tag,date:new Date().toISOString(),score:pct,correct:correct,total:total});
 localStorage.setItem('examHistory',JSON.stringify(hist.slice(-1000)));
+_refreshStatsSummary();
 }
 
 function _filterLabel(m){
@@ -240,6 +241,65 @@ overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 }
 
+function _tone(p){return p>=85?'#22c55e':p>=70?'#fbbf24':'#f87171';}
+function _buildStatsPanel(){
+const anchor=document.getElementById('lastAttempt');
+if(!anchor||document.querySelector('.stats-wrap'))return;
+const wrap=document.createElement('div');wrap.className='stats-wrap';
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const reps=hist.length;
+const best=reps?Math.max(...hist.map(e=>e.score)):0;
+const avg=reps?Math.round(hist.reduce((s,e)=>s+e.score,0)/reps):0;
+const last=reps?hist.sort((a,b)=>new Date(b.date)-new Date(a.date))[0]:null;
+const sumText=reps?reps+' rep'+(reps>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%':'no attempts yet';
+wrap.innerHTML='<button class="stats-toggle" type="button"><span>Rep History</span><span class="st-summary">'+sumText+'</span><span class="st-arrow">&#9660;</span></button><div class="stats-body" id="statsBody"></div>';
+anchor.parentNode.insertBefore(wrap,anchor.nextSibling);
+wrap.querySelector('.stats-toggle').addEventListener('click',function(){wrap.classList.toggle('open');if(wrap.classList.contains('open'))_renderStatsBody();});
+}
+function _renderStatsBody(){
+const body=document.getElementById('statsBody');if(!body)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+if(!hist.length){body.innerHTML='<div class="st-empty">No attempts recorded yet. Finish a run and it lands here.</div>';return;}
+hist.sort((a,b)=>new Date(b.date)-new Date(a.date));
+const bestPct=Math.max(...hist.map(e=>e.score));
+let bestShown=false;
+let rows='<h4>Attempts ('+hist.length+')</h4>';
+hist.forEach(e=>{
+const d=new Date(e.date);
+const ds=isNaN(d.getTime())?e.date:d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+const isBest=e.score===bestPct&&!bestShown;if(isBest)bestShown=true;
+const isDrill=e.examLabel&&/drill|missed/i.test(e.examLabel);
+const label=isDrill?' <span class="st-label">drill</span>':'';
+const tag=isBest?' <span class="st-label">best</span>':'';
+rows+='<div class="st-row'+(isBest?' best':'')+'"><span class="st-date">'+ds+'</span><span class="st-score" style="color:'+_tone(e.score)+'">'+Math.round(e.score)+'%'+tag+label+'</span></div>';
+});
+const blkKeys=typeof BLOCKS!=='undefined'?Object.keys(BLOCKS):[];
+let blkHtml='';
+if(blkKeys.length>1){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+const blks=blkKeys.filter(b=>tally[b]).map(b=>({key:b,name:BLOCKS[b],pct:Math.round(tally[b].c/tally[b].t*100)})).sort((a,b)=>a.pct-b.pct);
+if(blks.length){
+blkHtml='<h4>Block averages (this run)</h4>';
+blks.forEach(b=>{
+blkHtml+='<div class="st-blk-row"><span class="st-blk-name">'+b.name+'</span><span class="st-blk-bar"><i style="width:'+b.pct+'%;background:'+_tone(b.pct)+'"></i></span><span class="st-blk-pct" style="color:'+_tone(b.pct)+'">'+b.pct+'%</span></div>';
+});
+blkHtml+='<div class="st-note">Sorted weakest first. Red blocks need another rep.</div>';
+}}
+body.innerHTML=rows+blkHtml;
+}
+
+function _refreshStatsSummary(){
+const el=document.querySelector('.st-summary');if(!el)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const n=hist.length;
+if(!n){el.textContent='no attempts yet';return;}
+const best=Math.max(...hist.map(e=>e.score));
+const avg=Math.round(hist.reduce((s,e)=>s+e.score,0)/n);
+el.textContent=n+' rep'+(n>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%';
+if(document.querySelector('.stats-wrap.open'))_renderStatsBody();
+}
+
 _buildFilterBar();
 _buildMissedBtn();
 // A drill page must open clean. Restoring the previous run meant landing on the
@@ -248,4 +308,5 @@ _buildMissedBtn();
 // EXAM_ID+'-last' and still shows in the "last attempt" card.
 localStorage.removeItem(EXAM_ID+'-state');
 buildQuiz();
+_buildStatsPanel();
 _buildMustKnows();
