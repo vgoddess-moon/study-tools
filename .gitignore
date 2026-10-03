@@ -11,3 +11,8 @@
 !/.gitignore
 !/share/
 !/v-*/
+
+# never publish plaintext notes/sources
+v-*/*.txt
+v-*/*.md
+_private_sources/
