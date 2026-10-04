@@ -310,3 +310,6 @@ localStorage.removeItem(EXAM_ID+'-state');
 buildQuiz();
 _buildStatsPanel();
 _buildMustKnows();
+
+/* Weak-question tracker: every harness quiz feeds the shared weak list. */
+if(!window.WeakQ&&!window.__wqLoading){window.__wqLoading=true;var _wq=document.createElement('script');_wq.src='weak-tracker.js';document.head.appendChild(_wq);}
