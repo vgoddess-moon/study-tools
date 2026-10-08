@@ -46,7 +46,74 @@ card.innerHTML='<div class="q-top"><span class="q-num">Q'+(idx+1)+'</span>'+badg
 area.appendChild(card);
 });
 loadState();
+_focusRefresh();
 }
+
+/* ---- One-at-a-time view: every card is still built, so scoring and the weak tracker are untouched. ---- */
+function _focusOn(){try{return localStorage.getItem('primerFocus')!=='0';}catch(e){return true;}}
+function _focusCards(){return Array.prototype.slice.call(document.querySelectorAll('#quizArea .q-card'));}
+function _focusEnsureUI(){
+if(!document.getElementById('focusCss')){
+const st=document.createElement('style');st.id='focusCss';
+st.textContent='.focus-bar{position:sticky;bottom:0;z-index:30;display:none;align-items:center;gap:.5rem;background:#0c0f14ee;backdrop-filter:blur(6px);border-top:1px solid #1e293b;padding:.6rem .5rem;margin:0 -.5rem}'
++'.focus-on .focus-bar{display:flex}'
++'.focus-bar button{border:none;border-radius:8px;padding:.7rem 1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}'
++'.fb-prev{background:#1e293b;color:#e2e8f0}.fb-next{background:#7c3aed;color:#fff;flex:1}.fb-next.ready{background:#22c55e;color:#04210f;box-shadow:0 0 0 2px #22c55e55}'
++'.fb-prev:disabled{opacity:.35;cursor:not-allowed}.fb-count{color:#94a3b8;font-size:.8rem;min-width:5.5rem;text-align:center}'
++'.fb-mode{background:transparent;color:#94a3b8;border:1px solid #334155!important;font-size:.72rem!important;padding:.45rem .6rem!important}'
++'.focus-on #quizArea .q-card{display:none}.focus-on #quizArea .q-card.focus-cur{display:block}.focus-on .mk-fab{bottom:5rem}.focus-on a[href*="weak-drill"]{bottom:4.6rem!important}'
++'.focus-toggle-top{display:flex;justify-content:flex-end;margin:.25rem 0 .75rem}'
++'.focus-toggle-top button{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:.4rem .8rem;font-size:.75rem;cursor:pointer;font-family:inherit}';
+document.head.appendChild(st);}
+if(!document.getElementById('focusBar')){
+const area=document.getElementById('quizArea');if(!area)return;
+const bar=document.createElement('div');bar.className='focus-bar';bar.id='focusBar';
+bar.innerHTML='<button type="button" class="fb-prev" id="fbPrev">&#8249; Prev</button><span class="fb-count" id="fbCount"></span><button type="button" class="fb-next" id="fbNext">Next &#8250;</button><button type="button" class="fb-mode" id="fbMode">Show all</button>';
+area.parentNode.insertBefore(bar,area.nextSibling);
+const top=document.createElement('div');top.className='focus-toggle-top';top.id='focusTop';
+top.innerHTML='<button type="button" id="fbModeTop">One at a time: on</button>';
+area.parentNode.insertBefore(top,area);
+document.getElementById('fbPrev').onclick=function(){_focusGo(-1);};
+document.getElementById('fbNext').onclick=function(){_focusNext();};
+document.getElementById('fbMode').onclick=_focusToggle;
+document.getElementById('fbModeTop').onclick=_focusToggle;
+}}
+function _focusToggle(){try{localStorage.setItem('primerFocus',_focusOn()?'0':'1');}catch(e){}_focusRefresh(true);}
+function _focusShow(i,scroll){
+const cards=_focusCards();if(!cards.length)return;
+window.__fi=Math.max(0,Math.min(cards.length-1,i));
+cards.forEach(function(c,k){c.classList.toggle('focus-cur',k===window.__fi);});
+_focusUpdateBar();
+if(scroll&&_focusOn()){const top=cards[window.__fi].getBoundingClientRect().top+window.pageYOffset-70;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+}
+function _focusGo(d){_focusShow((window.__fi||0)+d,true);}
+function _focusNext(){
+const cards=_focusCards();
+if((window.__fi||0)<cards.length-1){_focusShow((window.__fi||0)+1,true);return;}
+const firstOpen=cards.findIndex(function(c){return !/answered-/.test(c.className);});
+if(firstOpen>=0){_focusShow(firstOpen,true);return;}
+const sc=document.getElementById('scoreCard');if(sc){sc.style.display='block';sc.scrollIntoView({behavior:'smooth'});}
+}
+function _focusUpdateBar(){
+const cards=_focusCards();const i=window.__fi||0;
+const cnt=document.getElementById('fbCount');if(cnt)cnt.textContent='Question '+(i+1)+' of '+cards.length;
+const prev=document.getElementById('fbPrev');if(prev)prev.disabled=i<=0;
+const nx=document.getElementById('fbNext');
+if(nx&&cards[i]){const done=/answered-/.test(cards[i].className);nx.classList.toggle('ready',done);
+nx.innerHTML=i>=cards.length-1?'Finish &#8250;':'Next &#8250;';}
+const tp=document.getElementById('fbModeTop');if(tp)tp.textContent='One at a time: '+(_focusOn()?'on':'off');
+const bm=document.getElementById('fbMode');if(bm)bm.textContent=_focusOn()?'Show all':'One at a time';
+}
+function _focusRefresh(keepPlace){
+_focusEnsureUI();
+document.body.classList.toggle('focus-on',_focusOn());
+const cards=_focusCards();if(!cards.length)return;
+_focusShow(keepPlace?(window.__fi||0):0,false);
+}
+document.addEventListener('click',function(e){
+if(!_focusOn())return;
+if(e.target&&e.target.closest&&e.target.closest('.btn-submit')){setTimeout(_focusUpdateBar,60);}
+},true);
 
 function selectOption(qId,letter,isSata){
 if(answered[qId])return;if(!selections[qId])selections[qId]=[];
