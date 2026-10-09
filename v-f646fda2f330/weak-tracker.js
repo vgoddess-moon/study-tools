@@ -259,3 +259,52 @@ window.WeakQ={
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver);
 else startObserver();
 })();
+
+/* One-at-a-time view for the bank/mock engine (submitQ/toggleOpt pages). Primer-engine pages get theirs from primer-harness.js. */
+(function(){
+'use strict';
+function boot(){
+if(window.ALL_Q||window.__bankFocus||typeof window.submitQ!=='function'||typeof window.buildQuiz!=='function')return;
+var area=document.getElementById('quizArea');if(!area)return;
+window.__bankFocus=true;
+var fi=0;
+function on(){try{return localStorage.getItem('primerFocus')!=='0';}catch(e){return true;}}
+function cards(){return Array.prototype.slice.call(document.querySelectorAll('#quizArea .q-card'));}
+var st=document.createElement('style');
+st.textContent='.focus-bar{position:sticky;bottom:0;z-index:30;display:none;align-items:center;gap:.5rem;background:#0c0f14ee;backdrop-filter:blur(6px);border-top:1px solid #1e293b;padding:.6rem .5rem;margin:0 -.5rem}'
++'.focus-on .focus-bar{display:flex}.focus-bar button{border:none;border-radius:8px;padding:.7rem 1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}'
++'.fb-prev{background:#1e293b;color:#e2e8f0}.fb-next{background:#7c3aed;color:#fff;flex:1}.fb-next.ready{background:#22c55e;color:#04210f;box-shadow:0 0 0 2px #22c55e55}'
++'.fb-prev:disabled{opacity:.35;cursor:not-allowed}.fb-count{color:#94a3b8;font-size:.8rem;min-width:5.5rem;text-align:center}'
++'.fb-mode{background:transparent;color:#94a3b8;border:1px solid #334155!important;font-size:.72rem!important;padding:.45rem .6rem!important}'
++'.focus-on #quizArea .q-card{display:none}.focus-on #quizArea .q-card.focus-cur{display:block}.focus-on .mk-fab{bottom:5rem}.focus-on a[href*="weak-drill"]{bottom:4.6rem!important}'
++'.focus-toggle-top{display:flex;justify-content:flex-end;margin:.25rem 0 .75rem}.focus-toggle-top button{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:.4rem .8rem;font-size:.75rem;cursor:pointer;font-family:inherit}';
+document.head.appendChild(st);
+var bar=document.createElement('div');bar.className='focus-bar';bar.id='focusBar';
+bar.innerHTML='<button type="button" class="fb-prev" id="fbPrev">&#8249; Prev</button><span class="fb-count" id="fbCount"></span><button type="button" class="fb-next" id="fbNext">Next &#8250;</button><button type="button" class="fb-mode" id="fbMode">Show all</button>';
+area.parentNode.insertBefore(bar,area.nextSibling);
+var top=document.createElement('div');top.className='focus-toggle-top';top.innerHTML='<button type="button" id="fbModeTop"></button>';
+area.parentNode.insertBefore(top,area);
+function done(c){return /answered-/.test(c.className);}
+function bumpBar(){var cs=cards();if(!cs.length)return;
+document.getElementById('fbCount').textContent='Question '+(fi+1)+' of '+cs.length;
+document.getElementById('fbPrev').disabled=fi<=0;
+var nx=document.getElementById('fbNext');nx.classList.toggle('ready',!!cs[fi]&&done(cs[fi]));nx.innerHTML=fi>=cs.length-1?'Finish &#8250;':'Next &#8250;';
+document.getElementById('fbModeTop').textContent='One at a time: '+(on()?'on':'off');
+document.getElementById('fbMode').textContent=on()?'Show all':'One at a time';}
+function show(i,scroll){var cs=cards();if(!cs.length)return;fi=Math.max(0,Math.min(cs.length-1,i));
+cs.forEach(function(c,k){c.classList.toggle('focus-cur',k===fi);});bumpBar();
+if(scroll&&on()){var t=cs[fi].getBoundingClientRect().top+window.pageYOffset-70;window.scrollTo({top:Math.max(0,t),behavior:'smooth'});}}
+function refresh(keep){document.body.classList.toggle('focus-on',on());if(cards().length)show(keep?fi:0,false);}
+function next(){var cs=cards();if(fi<cs.length-1){show(fi+1,true);return;}
+var open=cs.findIndex(function(c){return !done(c);});if(open>=0){show(open,true);return;}
+var sc=document.getElementById('scoreCard');if(sc){sc.style.display='block';sc.scrollIntoView({behavior:'smooth'});}}
+function toggle(){try{localStorage.setItem('primerFocus',on()?'0':'1');}catch(e){}refresh(true);}
+document.getElementById('fbPrev').onclick=function(){show(fi-1,true);};
+document.getElementById('fbNext').onclick=next;
+document.getElementById('fbMode').onclick=toggle;document.getElementById('fbModeTop').onclick=toggle;
+var orig=window.buildQuiz;window.buildQuiz=function(){var r=orig.apply(this,arguments);refresh(false);return r;};
+if(window.MutationObserver)new MutationObserver(function(){bumpBar();}).observe(area,{attributes:true,attributeFilter:['class'],subtree:true});
+refresh(false);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
