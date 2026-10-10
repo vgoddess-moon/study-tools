@@ -311,7 +311,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* ---- Remote / keyboard control (Scope mini remote and any keyboard) ----
    Works on both quiz engines through the shared DOM: .q-card, .opt, .btn-submit, .q-undo, #fbNext, #fbPrev.
-   Scope remote as tested 2026-10-10: top B=1, right A=4, left=2, bottom=Space, small left=y, small right=h, big=u (it can also emit ArrowUp/ArrowDown).
+   Scope remote as tested 2026-10-10: top B=1, right A=4, left=2, bottom=Space, small left=y, small right=h, big thumb-stick=ArrowUp/ArrowDown plus u (u is ignored on purpose; the stick only scrolls).
    Keyboard: A to D pick an option directly. Preference key: remoteKeys ('0' = off). */
 (function(){
 var KEY='remoteKeys',idx=0,lastCard=null,lastU=0,lastPick=0,active=false,pill=null,panel=null;
@@ -331,20 +331,23 @@ function prev(c){var p=document.getElementById('fbPrev');if(p){p.click();return;
 function undo(c){var u=c.querySelector('.q-undo');if(u)u.click();}
 function smart(c){if(isDone(c)){next(c);return;}if(selCount(c)>0){submit(c);return;}pick(c,idx);}
 function scrollPage(d){window.scrollBy({top:d*Math.round(window.innerHeight*0.6),behavior:'smooth'});}
+function scrollStep(d){window.scrollBy({top:d*Math.round(window.innerHeight*0.18),behavior:'auto'});}
 function typing(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable);}
 function handle(e){
 if(!on()||typing(e)||e.ctrlKey||e.metaKey||e.altKey)return;
 var k=e.key,c=sync();if(!c)return;
-var ar=(k==='ArrowUp'||k==='ArrowDown');
-if(ar&&Date.now()-lastU<200){e.preventDefault();return;} /* big button sends u plus arrows */
 var done=isDone(c),used=true;
-if(k==='h'||k==='ArrowDown'){if(done)scrollPage(1);else move(c,1);}
-else if(k==='y'||k==='ArrowUp'){if(done)scrollPage(-1);else move(c,-1);}
+/* The big button is a thumb-stick: tilt sends ArrowUp/ArrowDown and it also fires u. It ONLY scrolls; u does nothing, so it can never pick or submit by accident. */
+if(k==='ArrowDown'){scrollStep(1);}
+else if(k==='ArrowUp'){scrollStep(-1);}
+else if(k==='u'){}
+else if(k==='h'){if(done)scrollPage(1);else move(c,1);}
+else if(k==='y'){if(done)scrollPage(-1);else move(c,-1);}
 else if(k===' '){if(done)scrollPage(1);else pick(c,idx);}
 else if(k==='4'){if(!done)submit(c);else next(c);}
 else if(k==='1'){undo(c);}
 else if(k==='2'){prev(c);}
-else if(k==='u'||k==='Enter'){lastU=Date.now();smart(c);}
+else if(k==='Enter'){smart(c);}
 else if(/^[a-dA-D]$/.test(k)&&!done){pick(c,k.toLowerCase().charCodeAt(0)-97);}
 else used=false;
 if(used){active=true;e.preventDefault();setTimeout(function(){paint(sync());},60);}
@@ -354,7 +357,7 @@ var st=document.createElement('style');st.textContent='.opt.rm-cur{outline:3px s
 document.head.appendChild(st);
 pill=document.createElement('button');pill.id='rmPill';pill.type='button';pill.title='Remote keys';pill.textContent='⌨';
 panel=document.createElement('div');panel.id='rmPanel';
-function fill(){panel.innerHTML='<b>Remote keys</b> '+(on()?'on':'off')+'<br>Small L / R: option up / down<br>Bottom: pick the highlighted option<br>Big: pick, submit, next (one button)<br>A (right): submit &middot; B (top): undo<br>Left: previous question<br>After submit, up / down scroll the rationale<br>Keyboard: A to D pick an option<br><button type="button" id="rmTog">'+(on()?'Turn off':'Turn on')+'</button>';
+function fill(){panel.innerHTML='<b>Remote keys</b> '+(on()?'on':'off')+'<br>Small L / R: option up / down (scroll after submit)<br>Bottom: pick the highlighted option<br>Big stick: scroll the page up / down only<br>A (right): submit, then next &middot; B (top): undo<br>Left: previous question<br>After submit, up / down scroll the rationale<br>Keyboard: A to D pick an option<br><button type="button" id="rmTog">'+(on()?'Turn off':'Turn on')+'</button>';
 document.getElementById('rmTog').onclick=function(){try{localStorage.setItem(KEY,on()?'0':'1');}catch(x){}active=false;paint(null);fill();};}
 pill.onclick=function(){panel.style.display=panel.style.display==='block'?'none':'block';fill();};
 document.body.appendChild(pill);document.body.appendChild(panel);
