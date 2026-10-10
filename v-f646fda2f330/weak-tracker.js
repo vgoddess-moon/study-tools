@@ -308,3 +308,57 @@ refresh(false);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
+
+/* ---- Remote / keyboard control (Scope mini remote and any keyboard) ----
+   Works on both quiz engines through the shared DOM: .q-card, .opt, .btn-submit, .q-undo, #fbNext, #fbPrev.
+   Scope remote as tested 2026-10-10: top B=1, right A=4, left=2, bottom=Space, small left=y, small right=h, big=u (it can also emit ArrowUp/ArrowDown).
+   Keyboard: A to D pick an option directly. Preference key: remoteKeys ('0' = off). */
+(function(){
+var KEY='remoteKeys',idx=0,lastCard=null,lastU=0,lastPick=0,active=false,pill=null,panel=null;
+function on(){try{return localStorage.getItem(KEY)!=='0';}catch(e){return true;}}
+function cards(){return [].slice.call(document.querySelectorAll('#quizArea .q-card'));}
+function isDone(c){return /answered-/.test(c.className);}
+function cur(){var f=document.querySelector('#quizArea .q-card.focus-cur');if(f)return f;var cs=cards();for(var i=0;i<cs.length;i++){if(!isDone(cs[i]))return cs[i];}return cs[cs.length-1]||null;}
+function opts(c){return c?[].slice.call(c.querySelectorAll('.opt')):[];}
+function paint(c){[].forEach.call(document.querySelectorAll('.opt.rm-cur'),function(e){e.classList.remove('rm-cur');});if(!active||!c||isDone(c))return;var o=opts(c);if(o[idx])o[idx].classList.add('rm-cur');}
+function sync(){var c=cur();if(c!==lastCard){lastCard=c;idx=0;}paint(c);return c;}
+function selCount(c){return c.querySelectorAll('.opt.selected').length;}
+function move(c,d){var o=opts(c);if(!o.length)return;idx=(idx+d+o.length)%o.length;paint(c);if(o[idx].scrollIntoView)o[idx].scrollIntoView({block:'nearest'});}
+function pick(c,i){var o=opts(c);if(!o[i])return;idx=i;lastPick=Date.now();o[i].click();paint(c);}
+function submit(c){var b=c.querySelector('.btn-submit');if(!b||b.disabled)return false;var wait=Math.max(0,420-(Date.now()-lastPick));setTimeout(function(){b.click();},wait);return true;}
+function next(c){if(!isDone(c))return;var n=document.getElementById('fbNext');if(n){n.click();return;}var cs=cards(),i=cs.indexOf(c);if(cs[i+1])cs[i+1].scrollIntoView({block:'start'});}
+function prev(c){var p=document.getElementById('fbPrev');if(p){p.click();return;}var cs=cards(),i=cs.indexOf(c);if(i>0)cs[i-1].scrollIntoView({block:'start'});}
+function undo(c){var u=c.querySelector('.q-undo');if(u)u.click();}
+function smart(c){if(isDone(c)){next(c);return;}if(selCount(c)>0){submit(c);return;}pick(c,idx);}
+function scrollPage(d){window.scrollBy({top:d*Math.round(window.innerHeight*0.6),behavior:'smooth'});}
+function typing(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable);}
+function handle(e){
+if(!on()||typing(e)||e.ctrlKey||e.metaKey||e.altKey)return;
+var k=e.key,c=sync();if(!c)return;
+var ar=(k==='ArrowUp'||k==='ArrowDown');
+if(ar&&Date.now()-lastU<200){e.preventDefault();return;} /* big button sends u plus arrows */
+var done=isDone(c),used=true;
+if(k==='h'||k==='ArrowDown'){if(done)scrollPage(1);else move(c,1);}
+else if(k==='y'||k==='ArrowUp'){if(done)scrollPage(-1);else move(c,-1);}
+else if(k===' '){if(done)scrollPage(1);else pick(c,idx);}
+else if(k==='4'){if(!done)submit(c);else next(c);}
+else if(k==='1'){undo(c);}
+else if(k==='2'){prev(c);}
+else if(k==='u'||k==='Enter'){lastU=Date.now();smart(c);}
+else if(/^[a-dA-D]$/.test(k)&&!done){pick(c,k.toLowerCase().charCodeAt(0)-97);}
+else used=false;
+if(used){active=true;e.preventDefault();setTimeout(function(){paint(sync());},60);}
+}
+function ui(){
+var st=document.createElement('style');st.textContent='.opt.rm-cur{outline:3px solid #7dd3fc;outline-offset:2px}#rmPill{position:fixed;left:10px;bottom:10px;z-index:60;width:34px;height:34px;border-radius:50%;background:#13181f;color:#7dd3fc;border:1px solid #1e3a4f;font-size:16px;cursor:pointer;padding:0;line-height:1}#rmPanel{position:fixed;left:10px;bottom:52px;z-index:60;background:#13181f;color:#e2e8f0;border:1px solid #1e3a4f;border-radius:10px;padding:10px 12px;font:13px/1.55 system-ui,sans-serif;max-width:260px;display:none}#rmPanel b{color:#7dd3fc}#rmPanel button{margin-top:6px;background:#0c1f2e;color:#7dd3fc;border:1px solid #1e3a4f;border-radius:8px;padding:6px 10px;font-size:13px}';
+document.head.appendChild(st);
+pill=document.createElement('button');pill.id='rmPill';pill.type='button';pill.title='Remote keys';pill.textContent='⌨';
+panel=document.createElement('div');panel.id='rmPanel';
+function fill(){panel.innerHTML='<b>Remote keys</b> '+(on()?'on':'off')+'<br>Small L / R: option up / down<br>Bottom: pick the highlighted option<br>Big: pick, submit, next (one button)<br>A (right): submit &middot; B (top): undo<br>Left: previous question<br>After submit, up / down scroll the rationale<br>Keyboard: A to D pick an option<br><button type="button" id="rmTog">'+(on()?'Turn off':'Turn on')+'</button>';
+document.getElementById('rmTog').onclick=function(){try{localStorage.setItem(KEY,on()?'0':'1');}catch(x){}active=false;paint(null);fill();};}
+pill.onclick=function(){panel.style.display=panel.style.display==='block'?'none':'block';fill();};
+document.body.appendChild(pill);document.body.appendChild(panel);
+}
+function boot(){if(!document.getElementById('quizArea'))return;ui();document.addEventListener('keydown',handle,true);setInterval(function(){if(active)sync();},400);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
