@@ -209,6 +209,7 @@ function startObserver(){
   var active=false;
   ['pointerdown','touchstart','keydown','click'].forEach(function(ev){
     document.addEventListener(ev,function(e){
+      if(window.__rsReplaying)return; // resume.js replaying taps after a reload: not new attempts
       active=true;
       if(ev==='click'&&e.target&&e.target.closest){
         var u=e.target.closest('.q-undo'),card=u&&u.closest('.q-card');
@@ -221,6 +222,7 @@ function startObserver(){
     return l.contains('answered-correct')||l.contains('answered-wrong')||l.contains('answered-partial');
   }
   function handle(card){
+    if(window.__rsReplaying)return;
     var has=answered(card);
     if(has&&!card._wq&&active){
       var snap=snapshot(card);
