@@ -84,7 +84,8 @@ function isStudyKey(k){
     || k.startsWith('primer_')
     || k.startsWith('ms2_') || k.startsWith('mat_')
     || k.startsWith('exam') || k.startsWith('igna')
-    || k.startsWith('leifer') || k.startsWith('brunner');
+    || k.startsWith('leifer') || k.startsWith('brunner')
+    || k.startsWith('rs:');   // resume.js: the spot inside an unfinished quiz
 }
 
 function mergeWeakQ(a,b){var out={v:1,q:{}};[a,b].forEach(function(s){if(!s||!s.q)return;Object.keys(s.q).forEach(function(k){var e=s.q[k],c=out.q[k];if(!c||(e.ts||0)>(c.ts||0))out.q[k]=e;});});return out;}
