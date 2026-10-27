@@ -108,6 +108,12 @@
     try {
       for (var i = 0; i < pending.length; i++) {
         var el = resolve(pending[i]);
+        if (!el && pending[i].i && pending[i].i.indexOf('qt-') === 0) {
+          // A 25-second time-out (quiz-timer.js) whose hidden button is not wired yet.
+          var tc = document.getElementById(pending[i].i.slice(3));
+          if (tc && window.__qtTimeOut) window.__qtTimeOut(tc);
+          ok++; continue;
+        }
         if (!el) break;
         reseed(i);
         offset += 1500;

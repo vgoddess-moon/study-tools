@@ -367,3 +367,6 @@ document.body.appendChild(pill);document.body.appendChild(panel);
 function boot(){if(!document.getElementById('quizArea'))return;ui();document.addEventListener('keydown',handle,true);setInterval(function(){if(active)sync();},400);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
+
+/* The optional 25-second question timer rides along with the tracker, so every quiz page gets it. */
+if(!window.__qtLoaded&&!window.__qtLoading){window.__qtLoading=true;var _qt=document.createElement("script");_qt.src="quiz-timer.js";document.head.appendChild(_qt);}
