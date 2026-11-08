@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+/* Keep my place: resumes an unfinished quiz after the tab reloads.
+   Phones and iPads throw away a sleeping tab and reload it on unlock, which put
+   every quiz back at Q1. This works on every quiz engine (primer harness, banks,
+   mocks, pre-lecture, case study, the older inline pages) without knowing their
+   internals:
+     1. Math.random is seeded per session, and reseeded before every tap, so a
+        reload rebuilds the exact same question set and option order.
+     2. Every quiz tap is logged (option, Submit, Undo, Next/Prev, filters, Drill missed).
+     3. On reload the log is replayed. Storage writes are switched off during the
+        replay, so scores, history and the weak list are never counted twice.
+   A finished quiz (score card showing) still opens clean, like before.
+   Must load as the FIRST script in <head>. Kill switch: localStorage keepPlace = '0'. */
+(function () {
+  'use strict';
+  if (window.__rsLoaded) return;
+  window.__rsLoaded = true;
+  var LS = window.localStorage, KEY = 'rs:' + location.pathname, MAX_AGE = 7 * 864e5;
+  var realRandom = Math.random, realNow = Date.now;
+  try { if (LS.getItem('keepPlace') === '0') return; } catch (e) { return; }
+
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function read() { try { return JSON.parse(LS.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function write(o) { try { Storage.prototype.setItem.call(LS, KEY, JSON.stringify(o)); } catch (e) {} }
+  function fresh() { return { v: 1, seed: (realRandom() * 4294967296) >>> 0, log: [], done: false, ts: realNow() }; }
+
+  var sess = read();
+  if (!sess || sess.v !== 1 || sess.done || !sess.log || realNow() - sess.ts > MAX_AGE) sess = fresh();
+  var pending = sess.log.slice();   // what to replay on this load
+  write(sess);
+
+  var rng = mulberry(hash(sess.seed + ':load'));
+  Math.random = function () { return rng(); };
+  function reseed(n) { rng = mulberry(hash(sess.seed + ':' + n)); }
+
+  /* ---------- which taps count ---------- */
+  var ZONE = '.q-card,#quizArea,#focusBar,#scoreCard,.q-opts,.options,[data-f]';
+  var SKIP = 'a[href],#fbMode,#fbModeTop,#rmPill,#rmPanel,.stats-wrap,.mk-fab,.mk-overlay,#rsToast';
+  var VERB = /^\s*(applyFilter|pick|sataDone|submit\w*|select\w*|toggleOpt|drillMissed|restart\w*|retake\w*|startExam|next\w*|prev\w*|go\w*|showScore|finish\w*|undo\w*)\b/;
+  var RESET = /clearAllAnswers|hardReset|clearHistory|resetAll/;
+  function actionable(t) { return t && t.closest ? t.closest('[onclick],button,.opt,.q-opt,[data-f]') : null; }
+  function classify(el) {
+    if (!el || el.closest(SKIP)) return null;
+    var oc = el.getAttribute('onclick') || '';
+    if (RESET.test(oc) || el.getAttribute('data-f') === '__fresh') return 'reset';
+    if (el.closest(ZONE) || VERB.test(oc)) return 'log';
+    return null;
+  }
+  function locate(el) {
+    if (el.id) return { i: el.id };
+    var f = el.getAttribute('data-f');
+    if (f !== null) return { f: f };
+    var path = [], n = el;
+    while (n && n !== document.body && !n.id) { path.unshift(Array.prototype.indexOf.call(n.parentNode.children, n)); n = n.parentNode; }
+    return { a: n && n.id ? n.id : null, p: path };
+  }
+  function resolve(loc) {
+    if (loc.i) return document.getElementById(loc.i);
+    if (loc.f !== undefined) { var fs = document.querySelectorAll('[data-f]'); for (var k = 0; k < fs.length; k++) if (fs[k].getAttribute('data-f') === loc.f) return fs[k]; return null; }
+    var n = loc.a ? document.getElementById(loc.a) : document.body;
+    for (var j = 0; n && j < loc.p.length; j++) n = n.children[loc.p[j]];
+    return n || null;
+  }
+
+  /* ---------- finished? (score card showing) ---------- */
+  function finished() {
+    var sc = document.getElementById('scoreCard') || document.getElementById('results');
+    if (!sc) return false;
+    // Any unanswered card left means it is not finished, whatever the score card says.
+    // (Only for engines that mark answered cards with answered-* classes.)
+    var cards = document.querySelectorAll('.q-card'), open = 0, marked = 0;
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].style.display === 'none') continue;
+      if (/answered-/.test(cards[i].className)) marked++; else open++;
+    }
+    if (marked && open) return false;
+    try { return window.getComputedStyle(sc).display !== 'none' && sc.style.display !== 'none'; } catch (e) { return false; }
+  }
+  var doneTimer = null;
+  function checkDone() {
+    clearTimeout(doneTimer);
+    doneTimer = setTimeout(function () { var s = read() || sess; s.done = finished(); s.ts = realNow(); sess = s; write(s); }, 120);
+  }
+
+  /* ---------- record ---------- */
+  window.__rsReplaying = false;
+  window.addEventListener('click', function (e) {
+    if (window.__rsReplaying) return;
+    var el = actionable(e.target), kind = classify(el);
+    if (!kind) return;
+    if (kind === 'reset') { sess = fresh(); write(sess); return; }
+    var s = read() || sess;
+    if (s.done) { s.done = false; }
+    reseed(s.log.length);
+    s.log.push(locate(el)); s.ts = realNow(); sess = s; write(s);
+    checkDone();
+  }, true);
+
+  /* ---------- replay ---------- */
+  function replay() {
+    if (!pending.length) return;
+    var SP = Storage.prototype, oSet = SP.setItem, oRem = SP.removeItem, oClr = SP.clear;
+    SP.setItem = function (k) { if (String(k).indexOf('rs:') === 0) return oSet.apply(this, arguments); };
+    SP.removeItem = function () {}; SP.clear = function () {};
+    var offset = 0, ok = 0;
+    Date.now = function () { return realNow() + offset; };
+    window.__rsReplaying = true;
+    try {
+      for (var i = 0; i < pending.length; i++) {
+        var el = resolve(pending[i]);
+        if (!el && pending[i].i && pending[i].i.indexOf('qt-') === 0) {
+          // A 25-second time-out (quiz-timer.js) whose hidden button is not wired yet.
+          var tc = document.getElementById(pending[i].i.slice(3));
+          if (tc && window.__qtTimeOut) window.__qtTimeOut(tc);
+          ok++; continue;
+        }
+        if (!el) break;
+        reseed(i);
+        offset += 1500;
+        try { el.click(); } catch (e) {}
+        ok++;
+      }
+    } finally {
+      Date.now = realNow;
+      setTimeout(function () {
+        window.__rsReplaying = false;
+        SP.setItem = oSet; SP.removeItem = oRem; SP.clear = oClr;
+        if (ok < pending.length) { sess.log = pending.slice(0, ok); write(sess); }
+        if (finished()) { sess = fresh(); write(sess); return; }
+        place(); toast();
+      }, 0);
+    }
+  }
+
+  function place() {
+    var cur = document.querySelector('.focus-on #quizArea .q-card.focus-cur');
+    if (!cur) {
+      var cards = document.querySelectorAll('.q-card');
+      for (var i = 0; i < cards.length; i++) { if (!/answered-/.test(cards[i].className)) { cur = cards[i]; break; } }
+    }
+    if (cur && cur.getBoundingClientRect) {
+      var top = cur.getBoundingClientRect().top + (window.pageYOffset || 0) - 70;
+      try { window.scrollTo(0, Math.max(0, top)); } catch (e) {}
+    }
+  }
+
+  function toast() {
+    var answered = document.querySelectorAll('.q-card.answered-correct,.q-card.answered-wrong,.q-card.answered-partial').length;
+    var d = document.createElement('div');
+    d.id = 'rsToast';
+    d.setAttribute('style', 'position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:9999;background:#13181f;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:8px 12px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 6px 20px #0008;display:flex;gap:10px;align-items:center;max-width:calc(100% - 32px)');
+    d.innerHTML = '<span>&#128278; Picked up where you left off' + (answered ? ' &middot; ' + answered + ' answered' : '') + '</span>'
+      + '<button type="button" style="background:transparent;color:#a78bfa;border:1px solid #4c1d95;border-radius:8px;padding:4px 8px;font:inherit;cursor:pointer">Start over</button>';
+    d.querySelector('button').onclick = function () { sess = fresh(); write(sess); location.reload(); };
+    document.body.appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.style.transition = 'opacity .6s', d.style.opacity = '0'; }, 5000);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 5800);
+  }
+
+  function boot() { setTimeout(replay, 60); }
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+})();
+
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam 5 Comp Mock C &mdash; Ch 53&ndash;56</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.svg-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;overflow-x:auto}
+.svg-card h3{color:#fb7185;font-size:1rem;margin-bottom:.75rem;text-align:center}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#fb7185}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#e11d48,#fb7185);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-card.answered-partial{border-color:#fbbf24}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch{background:#0a1f2a;color:#7dd3fc}
+.badge-type{background:#0a2018;color:#6ee7b7}
+.badge-new{background:#1a0a2a;color:#c4b5fd;border:1px solid #7c3aed}
+.badge-f8{background:#052e16;color:#6ee7b7;border:1px solid #22c55e}
+.badge-miss{background:#7c2d12;color:#fdba74;border:1px solid #ea580c}
+.badge-alert{background:#2a1505;color:#fbbf24;border:1px solid #b45309}
+.badge-sata{background:#2a0a16;color:#fda4af;border:1px solid #e11d48}
+.badge-vlow{background:#08202b;color:#7dd3fc;border:1px solid #0369a1}
+.badge-vhigh{background:#2a1605;color:#fdba74;border:1px solid #c2410c}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#fda4af;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#fb7185;background:#2a0a16}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.05rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b;line-height:1.5}
+.btn-submit{background:#e11d48;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#be123c}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#fb7185;margin:.5rem 0}
+.breakdown-wrap{margin-top:1.5rem;text-align:left}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.85rem}
+.breakdown-row .bd-label{color:#cbd5e1}
+.breakdown-row .bd-score{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.hist-wrap{text-align:left;margin-top:1.1rem}
+.hist-wrap h3{font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:1rem 0 .5rem}
+.hist-row{display:flex;justify-content:space-between;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.5rem .9rem;margin-bottom:.35rem;font-size:.8rem}
+.hist-row.best{border-color:#e11d48}
+.h-date{color:#94a3b8;font-family:'IBM Plex Mono',monospace;font-size:.75rem}
+.h-score{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.weak-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.45rem .9rem;margin-bottom:.3rem;font-size:.8rem}
+.weak-row .w-ch{color:#cbd5e1;min-width:4.5rem}
+.weak-bar{flex:1;height:5px;border-radius:99px;background:#1e293b;overflow:hidden;margin:0 .8rem}
+.weak-bar i{display:block;height:100%;border-radius:99px}
+.hist-empty{color:#64748b;font-size:.78rem;font-style:italic}
+.hist-note{color:#64748b;font-size:.72rem;margin-top:.5rem;line-height:1.45}
+.btn-clear{background:none;border:1px solid #334155;color:#64748b;border-radius:6px;padding:.3rem .6rem;font-size:.7rem;font-family:'IBM Plex Mono',monospace;cursor:pointer;margin-top:.6rem}
+.btn-clear:hover{color:#ef4444;border-color:#ef4444}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
+.ref-box{background:#0c0f14;border:1px solid #334155;border-radius:8px;padding:.85rem 1rem}
+.ref-box h4{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;margin-bottom:.55rem;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.ref-box ul{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.ref-box li{font-size:.82rem;color:#e2e8f0;line-height:1.45}
+.ref-box li.dim{color:#94a3b8;font-size:.78rem}
+.q-teach{margin-top:.85rem;background:#0c0f14;border:1px solid #334155;border-left:3px solid #fbbf24;border-radius:8px;padding:.7rem .9rem;font-size:.82rem;color:#cbd5e1;line-height:1.55}
+.q-teach-lbl{display:block;font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#fbbf24;margin-bottom:.35rem}
+.opt,.btn-submit,.q-undo,.quiz-reset{touch-action:manipulation}
+.q-undo{display:block;margin-top:.6rem;background:transparent;border:1px solid #475569;color:#94a3b8;border-radius:8px;padding:.55rem 1rem;min-height:44px;font-size:.78rem;font-family:inherit;cursor:pointer}
+.q-undo:hover,.q-undo:active{border-color:#fbbf24;color:#fbbf24}
+.quiz-reset{display:block;width:100%;margin:.6rem 0 1rem;background:transparent;border:1px dashed #475569;color:#64748b;border-radius:8px;padding:.6rem;min-height:44px;font-size:.78rem;font-family:inherit;cursor:pointer}
+.quiz-reset:hover,.quiz-reset:active{border-color:#f87171;color:#f87171}
+.back-link{display:inline-block;margin-bottom:1rem;color:#fb7185;text-decoration:none;font-size:.85rem;font-family:'IBM Plex Mono',monospace}
+.back-link:hover{color:#fecdd3}
+.chart-pin{position:fixed;bottom:1.1rem;right:1.1rem;z-index:100;background:#e11d48;color:#fff;border:1px solid #fb7185;border-radius:99px;padding:.6rem .95rem;font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.55)}
+.chart-pin:hover{background:#be123c}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}.exam-header{padding:1rem .5rem}.ref-grid{grid-template-columns:1fr}}
+
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0 8px}
+.filter-label{color:#94a3b8;font-size:13px;font-weight:700;margin-right:2px}
+.fbtn{background:#13181f;border:1px solid #1e293b;color:#cbd5e1;border-radius:999px;
+  padding:10px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+  min-height:44px;touch-action:manipulation}
+.fbtn:hover{border-color:#38bdf8}
+.fbtn.active{background:#0c4a6e;border-color:#38bdf8;color:#e0f2fe}
+.filter-note{color:#94a3b8;font-size:13px;margin:0 0 10px}
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}.btn-missed:hover{background:#14532d}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Exam 5 Comp Mock C</h1>
+<p class="subtitle">Hormone matching, parathyroid, the drug table and sick days &middot; 30 questions (5 SATA)</p>
+</div>
+<div class="exam-info"><b>Exam 5 is Monday 11/16: Ch 53&ndash;56 only, 30 questions.</b> Renal (57&ndash;60) is only on the retake. This mock is built from her lecture recordings, the textbook tables, and the three review videos she posted on Evolve. The <b>She said it</b> badge marks points she flagged out loud in lecture.<br><br><b>Mock C covers what A and B skipped:</b> hormone-to-gland matching, Addison&rsquo;s features, DI after pituitary surgery, the parathyroid glands (missing from both summaries), radioactive iodine, the diabetes drug table (SGLT2, GLP-1, TZD), HHS, and sick-day rules.<br><br><b>Two textbook corrections are built in.</b> NPH peaks <b>6&ndash;14 hours</b> (Table 56.6), not 4&ndash;12. The drug table she calls &ldquo;56.3&rdquo; is <b>Table 56.5</b> in your PDF; 56.3 is the lab table (A1C, fasting glucose).</div>
+<div class="svg-card">
+<h3>Must-Know Chart &mdash; Hot vs Cold, Ketones vs No Ketones</h3>
+<svg viewBox="0 0 820 470" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="DM Sans, sans-serif">
+<rect width="820" height="470" fill="#0c0f14"/>
+<text x="410" y="24" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Thyroid &mdash; one is fast and hot, one is slow and cold</text>
+<line x1="20" y1="33" x2="800" y2="33" stroke="#334155"/>
+<rect x="14" y="42" width="390" height="120" rx="8" fill="#13181f" stroke="#e11d48"/>
+<text x="209" y="63" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">THYROID STORM (hyper)</text>
+<text x="28" y="88" fill="#e2e8f0" font-size="11.5">Fever &middot; HR 150+ &middot; agitation</text>
+<text x="28" y="108" fill="#e2e8f0" font-size="11.5">Even a 1&deg;F rise in Graves&rsquo; = report</text>
+<text x="28" y="128" fill="#e2e8f0" font-size="11.5">Airway &rarr; PTU/methimazole &rarr; propranolol</text>
+<text x="28" y="148" fill="#e2e8f0" font-size="11.5">Acetaminophen, never aspirin</text>
+<rect x="416" y="42" width="390" height="120" rx="8" fill="#13181f" stroke="#38bdf8"/>
+<text x="611" y="63" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle">MYXEDEMA COMA (hypo)</text>
+<text x="430" y="88" fill="#e2e8f0" font-size="11.5">Low temp &middot; slow breathing &middot; low LOC</text>
+<text x="430" y="108" fill="#e2e8f0" font-size="11.5">Hypersensitive to sedatives/opioids</text>
+<text x="430" y="128" fill="#e2e8f0" font-size="11.5">Airway &rarr; IV thyroid hormone</text>
+<text x="430" y="148" fill="#e2e8f0" font-size="11.5">Warm slowly, monitor breathing</text>
+<text x="410" y="194" fill="#7dd3fc" font-size="15" font-weight="700" text-anchor="middle">Hyperglycemic emergencies &mdash; FLUIDS first in both</text>
+<line x1="20" y1="203" x2="800" y2="203" stroke="#334155"/>
+<rect x="14" y="212" width="390" height="120" rx="8" fill="#13181f" stroke="#f59e0b"/>
+<text x="209" y="233" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle">DKA &mdash; type 1, fast</text>
+<text x="28" y="258" fill="#e2e8f0" font-size="11.5">Glucose >300 &middot; KETONES &middot; pH low</text>
+<text x="28" y="278" fill="#e2e8f0" font-size="11.5">Kussmaul breathing, fruity breath</text>
+<text x="28" y="298" fill="#e2e8f0" font-size="11.5">NS &rarr; insulin drip &rarr; D5 at 250</text>
+<text x="28" y="318" fill="#e2e8f0" font-size="11.5">No pee, no K &middot; K drops on insulin</text>
+<rect x="416" y="212" width="390" height="120" rx="8" fill="#13181f" stroke="#a78bfa"/>
+<text x="611" y="233" fill="#c4b5fd" font-size="13" font-weight="700" text-anchor="middle">HHS &mdash; type 2, older, slow</text>
+<text x="430" y="258" fill="#e2e8f0" font-size="11.5">Glucose often >600 &middot; NO ketones</text>
+<text x="430" y="278" fill="#e2e8f0" font-size="11.5">Severe dehydration, confusion</text>
+<text x="430" y="298" fill="#e2e8f0" font-size="11.5">Rapid IV fluids is the priority</text>
+<text x="430" y="318" fill="#e2e8f0" font-size="11.5">Watch for fluid overload in elderly</text>
+</svg>
+</div>
+<div class="ref-grid">
+<div class="ref-box">
+<h4 style="color:#fbbf24">Where the 30 come from (estimate)</h4>
+<ul>
+<li><b>Ch 56 diabetes: 11</b> &mdash; half the 87-item bank is diabetes.</li>
+<li><b>Ch 55 thyroid: 7 &middot; Ch 54 pituitary/adrenal: 7 &middot; Ch 53 assessment: 5</b></li>
+<li class="dim">She never said the split out loud. This mirrors the bank and her two review videos (thyroid, insulin peaks).</li>
+</ul>
+</div>
+<div class="ref-box">
+<h4 style="color:#38bdf8">How to run this mock</h4>
+<ul>
+<li><b>Timed, cold, all 30.</b> About 1 minute a question.</li>
+<li>Read the rationale on every miss <b>and</b> every lucky guess.</li>
+<li>Goal: <b>85 or higher</b> on a mock you have never seen. Then move to the next letter.</li>
+<li class="dim">A, B and C cover different points. All three together cover every flag from her lectures.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="last-attempt" id="lastAttempt">
+Last attempt: <span class="score-val" id="lastScore">&mdash;</span> &nbsp;&middot;&nbsp; <span id="lastDate">&mdash;</span>
+<div class="hist-wrap" id="histPanelTop"></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div class="filter-bar" id="filterBar"><span class="filter-label">Drill:</span><button class="fbtn active" data-f="all" onclick="applyFilter('all')">Everything &middot; 30</button><button class="fbtn" data-f="Ch 53" onclick="applyFilter('Ch 53')">Ch 53 &middot; Assessment &middot; 5</button><button class="fbtn" data-f="Ch 54" onclick="applyFilter('Ch 54')">Ch 54 &middot; Pituitary &amp; adrenal &middot; 7</button><button class="fbtn" data-f="Ch 55" onclick="applyFilter('Ch 55')">Ch 55 &middot; Thyroid &amp; parathyroid &middot; 7</button><button class="fbtn" data-f="Ch 56" onclick="applyFilter('Ch 56')">Ch 56 &middot; Diabetes &middot; 11</button><button class="fbtn" data-f="sata" onclick="applyFilter('sata')">SATA only &middot; 5</button></div><div class="filter-note" id="filterNote"></div><button class="quiz-reset" onclick="hardReset()">Start over &mdash; clear every answer on this mock</button>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Comp Mock C Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<div class="hist-wrap" id="histPanelBottom"></div>
+<p style="color:#fda4af;font-size:.85rem;margin-top:1rem">Under 85? Retake this one in 2 days. 85 or higher? Move to the next mock. Spaced attempts beat one long night.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+<button class="btn-missed" id="drillMissedBtn" onclick="drillMissed()">Drill missed</button>
+</div>
+</div>
+<button class="chart-pin" onclick="jumpToChart()" title="Jump back to the Must-Know chart">&#128202; Must-Know</button>
+
+<script>
+function jumpToChart(){document.querySelector('.svg-card').scrollIntoView({behavior:'smooth',block:'start'});}
+
+const STORAGE_KEY = 'ms2_ex5_comp_mock_c_last';
+const HISTORY_KEY = 'ms2_ex5_comp_mock_c_history';
+
+// Save this attempt in this browser.
+const SYS_EXAM_ID = 'ms2-ex5-comp-mock-c';
+const SYS_EXAM_LABEL = 'Exam 5 Comp Mock C - Ch 53-56';
+function reportToSystem(rec){
+  try{
+    const src = rec.ch || rec.cat || {};
+    const chapters = {};
+    Object.keys(src).forEach(function(k){
+      const v = src[k];
+      if (Array.isArray(v)) chapters[k] = {correct: v[0], total: v[1]};
+      else if (v && typeof v === 'object') chapters[k] = {correct: v.earned, total: v.total};
+    });
+    localStorage.setItem(SYS_EXAM_ID + '-last', JSON.stringify({
+      score: rec.pct, correct: rec.earned, total: rec.total, date: rec.date, chapters: chapters
+    }));
+    localStorage.setItem(SYS_EXAM_ID + '-label', SYS_EXAM_LABEL);
+    const hist = JSON.parse(localStorage.getItem('examHistory') || '[]');
+    hist.push({examId: SYS_EXAM_ID, examLabel: SYS_EXAM_LABEL, date: (function(){ const d = new Date(rec.date); return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString(); })(),
+      score: rec.pct, correct: rec.earned, total: rec.total, topicBreakdown: chapters});
+    localStorage.setItem('examHistory', JSON.stringify(hist.slice(-1000)));
+  }catch(e){}
+}
+
+
+// One-time backfill: replay the newest pre-existing attempt into The System.
+(function(){
+  try{
+    if (localStorage.getItem(SYS_EXAM_ID + '-last')) return;
+    const legacy = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if (!Array.isArray(legacy) || !legacy.length) return;
+    const r = legacy[legacy.length - 1];
+    if (r && typeof r.pct === 'number') reportToSystem(r);
+  }catch(e){}
+})();
+
+const MAX_HISTORY = 40;
+
+// SATA is graded the way her program grades it: all correct = 1, some correct
+// with nothing wrong = 0.5, any wrong pick = 0. MC needs no special case.
+function creditFor(selectedOis, correctOis){
+  if(!selectedOis.length) return 0;
+  if(selectedOis.some(oi=>!correctOis.includes(oi))) return 0;
+  return selectedOis.length===correctOis.length ? 1 : 0.5;
+}
+const r1=n=>Math.round(n*10)/10;
+const tone=p=>p>=78?'#22c55e':p>=60?'#fbbf24':'#ef4444';
+
+function loadHistory(){
+  try{ const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; }
+}
+function saveHistory(h){ try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(-MAX_HISTORY))); }catch(e){} }
+
+let clearArmed=false;
+function clearHistory(){
+  const btns=document.querySelectorAll('.btn-clear');
+  if(!clearArmed){
+    clearArmed=true; btns.forEach(b=>b.textContent='Tap again to confirm');
+    setTimeout(()=>{clearArmed=false;document.querySelectorAll('.btn-clear').forEach(b=>b.textContent='Clear history');},4000);
+    return;
+  }
+  clearArmed=false;
+  try{ localStorage.removeItem(HISTORY_KEY); localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  renderHistory();
+}
+
+function renderHistory(){
+  const els=[document.getElementById('histPanelTop'),document.getElementById('histPanelBottom')].filter(Boolean);
+  const h=loadHistory();
+  if(!h.length){ els.forEach(el=>el.innerHTML='<div class="hist-empty">No attempts recorded yet. Finish a run and it lands here.</div>'); return; }
+  const best=Math.max(...h.map(r=>r.pct));
+  let bestShown=false;
+  const rows=h.slice().reverse().map(r=>{
+    const isBest=r.pct===best&&!bestShown; if(isBest) bestShown=true;
+    const sata=r.sata?` <span class="h-date">&middot; SATA ${r.sata.full}F/${r.sata.half}H/${r.sata.zero}Z</span>`:'';
+    return `<div class="hist-row${isBest?' best':''}"><span class="h-date">${r.date}</span><span><span class="h-score" style="color:${tone(r.pct)}">${r.earned}/${r.total} &middot; ${r.pct}%</span>${isBest?' <span class="h-date">best</span>':''}${sata}</span></div>`;
+  }).join('');
+  const agg={};
+  h.forEach(r=>Object.entries(r.ch||{}).forEach(([ch,v])=>{ if(!agg[ch])agg[ch]={e:0,t:0}; agg[ch].e+=v[0]; agg[ch].t+=v[1]; }));
+  const weak=Object.keys(agg).map(ch=>({ch,p:Math.round(agg[ch].e/agg[ch].t*100)})).sort((a,b)=>a.p-b.p);
+  const weakBlock = weak.length
+    ? `<h3>Weak spots across ${h.length} attempt${h.length>1?'s':''}</h3>`+weak.map(w=>`<div class="weak-row"><span class="w-ch">${w.ch}</span><span class="weak-bar"><i style="width:${w.p}%;background:${tone(w.p)}"></i></span><span class="h-score" style="color:${tone(w.p)}">${w.p}%</span></div>`).join('')+`<div class="hist-note">Worst chapter first, averaged over every run. A chapter that stays red across attempts is where your study time belongs.</div>`
+    : '';
+  const html=`<h3>Attempt history (${h.length})</h3>${rows}${weakBlock}<button class="btn-clear" onclick="clearHistory()">Clear history</button>`;
+  els.forEach(el=>el.innerHTML=html);
+}
+
+const BANKQ = [
+{ch:"Ch 53",topic:"Hormone matching",type:"SATA",alert:true,
+stem:"Which hormone and gland pairs are correctly matched? <b>Select all that apply.</b>",
+opts:[
+{t:"Calcitonin &mdash; thyroid gland",c:true,r:"Correct. Calcitonin is made by the thyroid (C cells) and lowers serum calcium."},
+{t:"Parathyroid hormone (PTH) &mdash; parathyroid glands",c:true,r:"Correct. PTH raises serum calcium by pulling it from bone and holding it at the kidney."},
+{t:"Epinephrine &mdash; adrenal cortex",c:false,r:"Wrong. Epinephrine and norepinephrine come from the adrenal MEDULLA (the middle). The cortex makes cortisol and aldosterone."},
+{t:"Cortisol &mdash; adrenal cortex",c:true,r:"Correct. Cortisol is a glucocorticoid from the adrenal cortex."},
+{t:"Insulin &mdash; alpha cells of the pancreas",c:false,r:"Wrong. Insulin is made by BETA cells. Alpha cells make glucagon."}],
+teach:"Her hormone-to-gland sheet: calcitonin = thyroid, PTH = parathyroid, cortisol and aldosterone = adrenal cortex, epinephrine = adrenal medulla, insulin = beta cells, glucagon = alpha cells."},
+{ch:"Ch 53",topic:"24-hour urine error",type:"MC",alert:true,
+stem:"Ten hours into a 24-hour urine collection, the nursing assistant reports that the client urinated and the urine was flushed. What should the nurse do?",
+opts:[
+{t:"Continue the collection and note the missed void on the lab slip",c:false,r:"A missed void makes the results inaccurate. The test is not valid with a specimen missing."},
+{t:"Collect the next void twice to make up for the missing amount",c:false,r:"There is no way to make up the missed volume."},
+{t:"Discard the urine and restart the collection with new times",c:true,r:"Correct. Any missed specimen invalidates the test, so it restarts. This is exactly why she said to post a sign with the start and stop times and tell the aides."},
+{t:"End the test early and send what has been collected",c:false,r:"A partial collection gives false results."}],
+teach:"Missed or flushed void = start over. Prevent it: sign on the door and in the bathroom, and tell the aides."},
+{ch:"Ch 53",topic:"Stimulation test",type:"MC",alert:false,
+stem:"The provider suspects adrenal insufficiency (Addison&rsquo;s disease). Which test is the nurse most likely to prepare the client for?",
+opts:[
+{t:"Dexamethasone suppression test",c:false,r:"Suppression tests are used when a gland is suspected of making TOO MUCH, as in Cushing&rsquo;s."},
+{t:"ACTH stimulation test",c:true,r:"Correct. Addison&rsquo;s is an underactive gland. A stimulation (provocative) test gives ACTH to see whether the adrenal cortex can respond by making cortisol. In Addison&rsquo;s, cortisol stays low."},
+{t:"Radioactive iodine uptake test",c:false,r:"This evaluates the thyroid, not the adrenals."},
+{t:"Water deprivation test",c:false,r:"This is used for diabetes insipidus."}],
+teach:"Underactive gland: poke it (stimulation test). Overactive gland: hush it (suppression test)."},
+{ch:"Ch 53",topic:"Hypothalamus",type:"MC",alert:false,
+stem:"A client asks why a problem in the hypothalamus can affect the thyroid, adrenal glands and reproductive organs. Which response is best?",
+opts:[
+{t:"It sends releasing hormones that direct the pituitary",c:true,r:"Correct. The hypothalamus is the link between the nervous and endocrine systems. It signals the pituitary, which then signals the target glands."},
+{t:"The hypothalamus makes thyroid hormone, cortisol and estrogen directly",c:false,r:"The hypothalamus does not make those hormones. The target glands do, after pituitary signaling."},
+{t:"The hypothalamus filters hormones out of the blood like the kidneys do",c:false,r:"The hypothalamus does not filter hormones."},
+{t:"The hypothalamus only affects sleep and temperature, so this is unlikely",c:false,r:"The hypothalamus controls much more, including the pituitary hormones."}],
+teach:"Hypothalamus = CEO. Pituitary = manager. Thyroid, adrenals, gonads = workers."},
+{ch:"Ch 53",topic:"Fasting lab prep",type:"MC",alert:false,
+stem:"A client is scheduled for a fasting blood glucose test at 0700. Which instruction should the nurse give?",
+opts:[
+{t:"Eat a normal breakfast before coming in",c:false,r:"Eating will raise the glucose and give a false result."},
+{t:"Drink a sugary drink 2 hours before the test",c:false,r:"That describes a glucose tolerance test, which is done in the lab with a measured drink."},
+{t:"Avoid all food and all liquids, including water, for 24 hours before the test",c:false,r:"A 24-hour fast is unnecessary and could cause dehydration."},
+{t:"Nothing but water for at least 8 hours before the test",c:true,r:"Correct. A fasting glucose requires at least 8 hours with no food or caloric drinks. Water is allowed."}],
+teach:"Fasting glucose = at least 8 hours with no calories. Water is OK."},
+{ch:"Ch 54",topic:"Addison features",type:"SATA",alert:true,
+stem:"Which findings would the nurse expect in a client with Addison&rsquo;s disease? <b>Select all that apply.</b>",
+opts:[
+{t:"Darkened, bronze-colored skin",c:true,r:"Correct. Low cortisol makes the pituitary pump out ACTH, which also stimulates skin pigment."},
+{t:"Low blood pressure and dizziness when standing",c:true,r:"Correct. No aldosterone means sodium and water are lost, so blood volume falls."},
+{t:"Serum potassium of 3.0 mEq/L",c:false,r:"Wrong. Addison&rsquo;s causes HIGH potassium. Low potassium points toward Cushing&rsquo;s."},
+{t:"Salt craving",c:true,r:"Correct. The body is losing sodium."},
+{t:"Moon face and buffalo hump",c:false,r:"Wrong. Those are Cushing&rsquo;s features, the opposite disease."},
+{t:"Low blood glucose",c:true,r:"Correct. Cortisol normally raises glucose. Without it, glucose runs low."}],
+teach:"Box 54.6, \"understand the opposites\": Addison&rsquo;s = low cortisol and low aldosterone: low BP, low Na, low glucose, HIGH K, bronze skin."},
+{ch:"Ch 54",topic:"SIADH cause",type:"MC",alert:false,
+stem:"The nurse is monitoring several clients. Which client is at greatest risk for developing SIADH?",
+opts:[
+{t:"A client with Addison&rsquo;s disease taking fludrocortisone",c:false,r:"Fludrocortisone treats Addison&rsquo;s and is not a classic SIADH trigger."},
+{t:"A client with type 2 diabetes taking metformin",c:false,r:"Metformin is not associated with SIADH."},
+{t:"A client with small cell lung cancer",c:true,r:"Correct. Small cell lung cancer can make its own ADH. Other causes include head injury, brain surgery and some drugs, such as SSRIs."},
+{t:"A client recovering from a thyroidectomy",c:false,r:"Thyroidectomy puts the client at risk for low calcium, not SIADH."}],
+teach:"SIADH causes: small cell lung cancer, head injury or brain surgery, and some drugs (SSRIs, carbamazepine)."},
+{ch:"Ch 54",topic:"DI priority",type:"MC",alert:true,
+stem:"A client with diabetes insipidus has a urine output of 6 L per day, sodium of 151 mEq/L, and severe thirst. Which intervention is the priority?",
+opts:[
+{t:"Restrict fluids to 1,000 mL per day",c:false,r:"Never restrict fluids in DI. The client is losing water and would quickly become severely dehydrated."},
+{t:"Keep water available and replace fluids, tracking I&amp;O",c:true,r:"Correct. DI = Dry Inside. Replace what is being lost and monitor closely while desmopressin starts working."},
+{t:"Give furosemide to reduce the serum sodium and the thirst",c:false,r:"A diuretic would worsen the water loss."},
+{t:"Give tolvaptan to lower the urine output",c:false,r:"Tolvaptan makes the kidneys lose MORE water. It is an SIADH drug."}],
+teach:"DI: replace water and give desmopressin. SIADH: restrict water, give hypertonic saline or tolvaptan carefully. Opposite diseases, opposite treatments."},
+{ch:"Ch 54",topic:"Post-hypophysectomy DI",type:"MC",alert:true,
+stem:"On the first day after a transsphenoidal hypophysectomy, the client&rsquo;s urine output is 350 mL/hr for 2 hours, and the urine is pale. What should the nurse do?",
+opts:[
+{t:"Recognize this as expected diuresis from IV fluids given in surgery",c:false,r:"An output this high with very dilute urine after pituitary surgery is not assumed to be normal."},
+{t:"Encourage the client to limit fluid intake",c:false,r:"Restricting fluids would dehydrate a client who may be developing DI."},
+{t:"Clamp the urinary catheter for 1 hour",c:false,r:"Clamping does not treat the problem and is not appropriate."},
+{t:"Check urine specific gravity and report possible DI",c:true,r:"Correct. Surgery near the posterior pituitary can disrupt ADH. Large amounts of dilute urine (specific gravity below 1.005) after this surgery point to DI."}],
+teach:"After pituitary surgery, watch urine output. A lot of pale urine with specific gravity below 1.005 = DI. Report it."},
+{ch:"Ch 54",topic:"Pituitary tumor",type:"MC",alert:false,
+stem:"A client with a growing pituitary adenoma is most likely to report which early symptom?",
+opts:[
+{t:"Excessive sweating of the hands and feet, mostly at night",c:false,r:"This is not the classic early sign of a pituitary mass."},
+{t:"Bumping into things because side vision is narrowing",c:true,r:"Correct. The pituitary sits just under the optic chiasm. A growing tumor presses up on it and causes loss of peripheral vision."},
+{t:"Ringing in the ears",c:false,r:"This is not the typical early finding."},
+{t:"Pain in the lower back",c:false,r:"This is not related to a pituitary mass."}],
+teach:"Pituitary tumor pushes up on the optic chiasm: loss of side vision and headache."},
+{ch:"Ch 54",topic:"Cushing labs",type:"MC",alert:false,
+stem:"A client with Cushing&rsquo;s syndrome has these lab results. Which one should the nurse report first?",
+opts:[
+{t:"Blood glucose 168 mg/dL",c:false,r:"Hyperglycemia is expected in Cushing&rsquo;s and needs follow-up, but it is less immediately dangerous."},
+{t:"Potassium 2.9 mEq/L",c:true,r:"Correct. Excess cortisol causes potassium loss. A potassium this low can cause dangerous dysrhythmias and muscle weakness."},
+{t:"Sodium 146 mEq/L",c:false,r:"Mild sodium retention is expected and is not the most urgent result."},
+{t:"White blood cell count 11,200/mm&sup3;",c:false,r:"Steroids can raise the white count. Watch for infection, but potassium is the immediate threat."}],
+teach:"Cushing&rsquo;s: high glucose, high sodium, LOW potassium. Low K can stop the heart, so it gets reported first."},
+{ch:"Ch 54",topic:"SIADH safety",type:"MC",alert:false,
+stem:"A client with SIADH has a serum sodium of 118 mEq/L. Which nursing action is most important?",
+opts:[
+{t:"Encourage the client to drink sports drinks freely",c:false,r:"The client is on fluid restriction. Free fluid intake lowers sodium further."},
+{t:"Place the client in a dim, quiet room to promote sleep",c:false,r:"Rest is fine, but the critical action is protecting the client from seizures and monitoring neurologic status."},
+{t:"Start seizure precautions and monitor neurologic status closely",c:true,r:"Correct. As sodium falls, brain cells swell. Below about 120, seizures, coma and death can occur."},
+{t:"Ambulate the client in the hallway every 2 hours",c:false,r:"The client is at risk for confusion, falls and seizures. Close monitoring comes first."}],
+teach:"Low sodium swells the brain. Very low sodium = seizure precautions and frequent neuro checks."},
+{ch:"Ch 55",topic:"Thyroidectomy hemorrhage",type:"MC",alert:false,
+stem:"A client is 4 hours after a thyroidectomy. The front of the dressing looks dry. What should the nurse do next?",
+opts:[
+{t:"Document that the dressing is dry and intact",c:false,r:"The front of the dressing can look dry while blood collects behind the neck."},
+{t:"Check behind the neck and shoulders for pooled blood",c:true,r:"Correct. Blood drains with gravity to the back of the neck and the bed. Always check there for hemorrhage."},
+{t:"Remove the dressing to inspect the incision",c:false,r:"The surgical dressing is not removed without a prescription."},
+{t:"Ask the client to turn the head side to side to check for stiffness",c:false,r:"Movement stresses the incision. The neck is kept in a neutral position."}],
+teach:"After thyroidectomy, look BEHIND the neck. Blood pools where you cannot see it from the front."},
+{ch:"Ch 55",topic:"Laryngeal nerve",type:"MC",alert:false,
+stem:"After a thyroidectomy, the nurse asks the client to speak every 2 hours. What is the purpose of this assessment?",
+opts:[
+{t:"To check for hypocalcemia",c:false,r:"Calcium is checked with labs, tingling, and the Chvostek and Trousseau signs."},
+{t:"To evaluate pain control",c:false,r:"Pain is assessed with a pain scale, not by voice quality."},
+{t:"To detect laryngeal nerve damage",c:true,r:"Correct. The laryngeal nerves run right next to the thyroid. Some hoarseness from the breathing tube is common, but a worsening or very weak voice may mean nerve injury."},
+{t:"To check for a thyroid storm",c:false,r:"Thyroid storm shows up as fever, tachycardia and agitation, not voice change."}],
+teach:"Thyroidectomy checks: airway, bleeding (back of the neck), calcium (tingling) and voice (laryngeal nerve)."},
+{ch:"Ch 55",topic:"Radioactive iodine",type:"SATA",alert:false,
+stem:"A client is going home after radioactive iodine (RAI) therapy for hyperthyroidism. Which teaching points are correct? <b>Select all that apply.</b>",
+opts:[
+{t:"Flush the toilet two or three times after each use",c:true,r:"Correct. Radioactive iodine leaves the body in urine."},
+{t:"Avoid close contact with pregnant women and young children for the period the provider specifies",c:true,r:"Correct. They are the most sensitive to radiation exposure."},
+{t:"You will need to be in strict isolation in the hospital for a month",c:false,r:"Wrong. RAI is usually given as an outpatient with home precautions for a short time."},
+{t:"Use separate towels and eating utensils, and wash your laundry separately",c:true,r:"Correct. Saliva and sweat carry small amounts of radioactivity for a short period."},
+{t:"You will need radioactive iodine every week for life",c:false,r:"Wrong. One dose is often enough. Many clients eventually become HYPOthyroid and need levothyroxine."}],
+teach:"RAI at home: flush 2&ndash;3 times, keep distance from pregnant women and children, separate utensils and laundry. Watch for hypothyroidism later."},
+{ch:"Ch 55",topic:"Hypothyroid signs",type:"SATA",alert:false,
+stem:"Which findings would the nurse expect in a client with hypothyroidism? <b>Select all that apply.</b>",
+opts:[
+{t:"Feeling cold when others are comfortable",c:true,r:"Correct. Low metabolism means less heat production."},
+{t:"Unexplained weight loss",c:false,r:"Wrong. Hypothyroid clients usually GAIN weight. Weight loss is hyperthyroid."},
+{t:"Constipation",c:true,r:"Correct. The gut slows down, which is why fiber and fluids are taught."},
+{t:"Heart rate of 52",c:true,r:"Correct. Bradycardia fits a slowed metabolism."},
+{t:"Bulging eyes",c:false,r:"Wrong. Exophthalmos is from Graves&rsquo; disease (hyperthyroid)."}],
+teach:"Hypothyroid = slow and low: cold, tired, weight gain, constipation, slow heart rate, dry skin. Hashimoto&rsquo;s is the most common cause."},
+{ch:"Ch 55",topic:"Propranolol",type:"MC",alert:true,
+stem:"A client with hyperthyroidism is prescribed propranolol. What is the purpose of this medication?",
+opts:[
+{t:"It stops the thyroid from making hormone",c:false,r:"That is what PTU and methimazole do."},
+{t:"It destroys thyroid tissue",c:false,r:"That is radioactive iodine."},
+{t:"It replaces missing thyroid hormone",c:false,r:"That is levothyroxine, used for HYPOthyroidism."},
+{t:"It controls the fast heart rate, tremors and anxiety",c:true,r:"Correct. Propranolol is a beta-blocker. It does not lower thyroid hormone but blocks the adrenaline-like symptoms while antithyroid drugs take effect."}],
+teach:"Propranolol treats the symptoms (heart rate, tremor). PTU and methimazole treat the cause (hormone production)."},
+{ch:"Ch 55",topic:"Thyroid storm drugs",type:"MC",alert:true,
+stem:"During thyroid storm, after the airway is secured, which medication does Box 55.6 list next?",
+opts:[
+{t:"Methimazole or propylthiouracil (PTU)",c:true,r:"Correct. Box 55.6: airway first, then antithyroid drugs, then iodide, nonsalicylate fever reducers and glucocorticoids, and propranolol for the heart rate."},
+{t:"Levothyroxine to stabilize the hormone level",c:false,r:"Levothyroxine adds more thyroid hormone. It would make the storm worse."},
+{t:"Aspirin to bring down the high fever quickly",c:false,r:"Aspirin is avoided because it frees more thyroid hormone. Acetaminophen is used instead."},
+{t:"Desmopressin to control fluid losses from fever and sweating",c:false,r:"Desmopressin treats diabetes insipidus, not thyroid storm."}],
+teach:"Box 55.6: airway, antithyroid drug (PTU or methimazole), iodide, steroids, acetaminophen (not aspirin), propranolol, cooling."},
+{ch:"Ch 55",topic:"Hypoparathyroidism",type:"MC",alert:false,
+stem:"A client has chronic hypoparathyroidism after neck surgery. Which long-term treatment should the nurse teach?",
+opts:[
+{t:"A low-calcium diet to protect the kidneys from calcium stones",c:false,r:"The client&rsquo;s calcium is already LOW."},
+{t:"Cinacalcet to lower parathyroid hormone",c:false,r:"Cinacalcet lowers PTH and calcium. It treats HYPERparathyroidism."},
+{t:"Daily oral calcium and vitamin D, for life",c:true,r:"Correct. Without PTH, calcium falls. Daily calcium and active vitamin D keep it in the low-normal range. IV calcium gluconate is for acute tetany."},
+{t:"Levothyroxine on an empty stomach",c:false,r:"Levothyroxine replaces thyroid hormone, not parathyroid function."}],
+teach:"Hypoparathyroid = low calcium for life: oral calcium + vitamin D daily. IV calcium gluconate only for the emergency."},
+{ch:"Ch 56",topic:"Islet cells",type:"MC",alert:false,
+stem:"Which statement about the pancreatic islet cells is correct?",
+opts:[
+{t:"Alpha cells release insulin after a meal",c:false,r:"Alpha cells release glucagon, not insulin."},
+{t:"Beta cells release glucagon when glucose is low",c:false,r:"Beta cells release insulin. Glucagon comes from alpha cells."},
+{t:"Beta cells release insulin, and alpha cells release glucagon",c:true,r:"Correct. Beta = insulin (\"bring it into the cells\"). Alpha = glucagon (\"glucose is gone, glucagon goes and gets more\")."},
+{t:"Both cell types release insulin at different times of day",c:false,r:"They release opposite hormones."}],
+teach:"Beta = insulin, lowers glucose. Alpha = glucagon, raises glucose."},
+{ch:"Ch 56",topic:"Lipohypertrophy",type:"MC",alert:false,
+stem:"A client&rsquo;s glucose readings have become unpredictable. The nurse finds soft, spongy lumps where the client always injects insulin. Which teaching is best?",
+opts:[
+{t:"Keep using the same spot, because it hurts less",c:false,r:"Insulin is absorbed poorly and unpredictably from these lumps, which explains the readings."},
+{t:"Rotate sites within the same body area",c:true,r:"Correct. This is lipohypertrophy from repeated injections in one spot. Rotating within one area (such as the abdomen) keeps absorption consistent."},
+{t:"Massage the area firmly after every injection",c:false,r:"Massage changes absorption and does not fix lipohypertrophy."},
+{t:"Inject into the lumps to soften them",c:false,r:"Injecting into the lumps keeps absorption unpredictable."}],
+teach:"Spongy lumps = lipohypertrophy. Rotate within one area so absorption stays steady. The abdomen absorbs fastest."},
+{ch:"Ch 56",topic:"Sick-day rules",type:"SATA",alert:true,
+stem:"A client with type 1 diabetes has the flu and is not eating much. Which instructions are correct? <b>Select all that apply.</b>",
+opts:[
+{t:"Keep taking your insulin, even if you are not eating",c:true,r:"Correct. Illness raises glucose through stress hormones. Skipping insulin is how DKA starts."},
+{t:"Check your blood glucose at least every 4 hours",c:true,r:"Correct. Frequent checks catch both highs and lows."},
+{t:"Drink fluids every hour while awake",c:true,r:"Correct. Dehydration worsens hyperglycemia. Sugar-containing fluids can substitute when solid food is not tolerated."},
+{t:"Skip your insulin if you are vomiting, then restart when you feel better",c:false,r:"Wrong. Never skip insulin. If vomiting prevents fluid intake, call the provider."},
+{t:"Test your urine for ketones when your glucose is high (textbook: above 240; her slide: above 300)",c:true,r:"Correct. Ketones signal DKA risk. The textbook (Box 56.12) uses 240 mg/dL; her slide says 300. If a question gives 320, both rules say test."}],
+teach:"Sick day: never skip insulin, check glucose often, drink fluids every hour, test ketones when glucose is high, call if vomiting."},
+{ch:"Ch 56",topic:"SGLT2 inhibitors",type:"MC",alert:true,
+stem:"A client is started on empagliflozin (an SGLT2 inhibitor). Which side effect should the nurse teach the client to watch for?",
+opts:[
+{t:"Pancreatitis with persistent abdominal pain",c:false,r:"Pancreatitis is the warning for GLP-1 agonists and DPP-4 inhibitors."},
+{t:"Urinary tract and genital yeast infections",c:true,r:"Correct. SGLT2 inhibitors make the kidneys dump glucose into the urine. Sugary urine feeds bacteria and yeast. Dehydration is another risk."},
+{t:"Severe weight gain and swelling of the ankles",c:false,r:"Weight gain and edema are TZD (pioglitazone) side effects."},
+{t:"Lactic acidosis after drinking alcohol",c:false,r:"This is the metformin warning."}],
+teach:"SGLT2 (-flozins): sugar in the urine = UTIs, yeast infections, dehydration. GLP-1: pancreatitis. TZD: heart failure. Metformin: lactic acidosis."},
+{ch:"Ch 56",topic:"GLP-1 agonists",type:"MC",alert:true,
+stem:"A client taking weekly semaglutide injections reports severe abdominal pain that spreads to the back, with nausea. What should the nurse suspect?",
+opts:[
+{t:"An expected side effect that will pass in a few days",c:false,r:"Mild nausea can be expected early on, but persistent severe abdominal pain must be reported."},
+{t:"Hypoglycemia from the injection",c:false,r:"GLP-1 agonists rarely cause hypoglycemia alone, and hypoglycemia does not cause this pain."},
+{t:"An allergic reaction to the injection site",c:false,r:"An allergy would cause a rash or swelling, not abdominal pain radiating to the back."},
+{t:"Pancreatitis, which must be reported right away",c:true,r:"Correct. GLP-1 agonists carry a pancreatitis warning. Pain radiating to the back with nausea is the classic presentation."}],
+teach:"GLP-1 agonists (-glutides): weekly or daily shots, slow stomach emptying, pancreatitis warning."},
+{ch:"Ch 56",topic:"TZDs",type:"MC",alert:false,
+stem:"A client with heart disease takes pioglitazone. What should the nurse teach?",
+opts:[
+{t:"Weigh daily; report a gain over 2 lb in a day or 4 lb in a week",c:true,r:"Correct. TZDs cause fluid retention and raise the risk of heart failure. Report vision changes too, because of the risk of macular edema."},
+{t:"Take it only on days you eat carbohydrates",c:false,r:"Pioglitazone is taken daily as prescribed."},
+{t:"Expect frequent low blood sugars, even when it is your only diabetes drug",c:false,r:"TZDs alone rarely cause hypoglycemia."},
+{t:"Stop it if you notice swelling in your ankles",c:false,r:"Swelling should be reported to the provider, but the client should not stop medications without guidance."}],
+teach:"TZDs (-glitazones): fluid retention and heart failure. Daily weights. Report a gain of more than 2 lb/day or 4 lb/week."},
+{ch:"Ch 56",topic:"HHS priority",type:"MC",alert:true,
+stem:"An 80-year-old client with type 2 diabetes is admitted with a glucose of 910 mg/dL, no ketones, and severe dehydration. What is the priority intervention?",
+opts:[
+{t:"Give sodium bicarbonate to correct acidosis",c:false,r:"HHS usually has no significant acidosis."},
+{t:"Give insulin glargine subcutaneously",c:false,r:"Long-acting subcutaneous insulin is not the emergency treatment."},
+{t:"Establish IV access and begin rapid fluid replacement",c:true,r:"Correct. The biggest problem in HHS is extreme dehydration. Fluids come first, with careful monitoring in an older adult for fluid overload."},
+{t:"Encourage oral fluids and recheck glucose in 4 hours",c:false,r:"The client is too sick for oral rehydration alone."}],
+teach:"HHS: the glucose is very high but the dehydration is what kills. IV fluids first."},
+{ch:"Ch 56",topic:"Potassium before insulin",type:"MC",alert:false,
+stem:"A client with DKA is about to start an insulin infusion. The serum potassium is 3.0 mEq/L. What should the nurse do?",
+opts:[
+{t:"Start the insulin infusion as prescribed",c:false,r:"Insulin would push potassium into the cells and drop the serum level further, which could cause a deadly dysrhythmia."},
+{t:"Hold the insulin and notify the provider",c:true,r:"Correct. When potassium is low, it is replaced before (or with) insulin. Confirm urine output first: no pee, no K."},
+{t:"Give the insulin as an IV push instead of an infusion",c:false,r:"An IV push would shift potassium even faster."},
+{t:"Restrict potassium in the diet",c:false,r:"Potassium is already low. Restricting it makes no sense."}],
+teach:"Insulin drives potassium into the cells. Low K + insulin = dangerous dysrhythmia. Replace potassium first, after confirming urine output."},
+{ch:"Ch 56",topic:"Eye exam",type:"MC",alert:true,
+stem:"A client has had type 2 diabetes for 3 years. Which screening should the nurse recommend every year?",
+opts:[
+{t:"A colonoscopy",c:false,r:"This is general cancer screening, not specific to diabetes."},
+{t:"A dilated eye exam",c:true,r:"Correct. Diabetic retinopathy can develop without symptoms. A yearly dilated eye exam catches it early. Yearly urine albumin and foot exams are also recommended."},
+{t:"A chest x-ray",c:false,r:"Not part of routine diabetes complication screening."},
+{t:"An echocardiogram",c:false,r:"Not part of routine yearly diabetes screening."}],
+teach:"Diabetes yearly checklist: dilated eye exam, urine albumin, comprehensive foot exam, plus A1C every 3&ndash;6 months."},
+{ch:"Ch 56",topic:"Regular insulin timing",type:"MC",alert:true,
+stem:"A client takes regular insulin before meals. When should the nurse teach the client to inject it?",
+opts:[
+{t:"At bedtime",c:false,r:"Regular insulin before meals is meant to cover the meal."},
+{t:"Right after finishing the meal, while still at the table",c:false,r:"Regular insulin takes 30&ndash;60 minutes to start working, so a dose after the meal acts too late."},
+{t:"About 30 minutes before the meal",c:true,r:"Correct. Table 56.6: regular insulin onset 30&ndash;60 minutes, peak 1&ndash;5 hours. Giving it about 30 minutes ahead lines up its action with the meal."},
+{t:"Two hours before the meal",c:false,r:"Two hours early risks hypoglycemia before the food arrives."}],
+teach:"Rapid-acting: with the tray. Regular: about 30 minutes before the meal. NPH: peaks 6&ndash;14 hr. Glargine: no peak."},
+{ch:"Ch 56",topic:"Injection site",type:"MC",alert:false,
+stem:"A client with type 1 diabetes asks which injection site absorbs insulin the fastest. Which response is correct?",
+opts:[
+{t:"The thigh",c:false,r:"The thigh absorbs more slowly than the abdomen, and exercise can change absorption there."},
+{t:"The buttocks",c:false,r:"The buttocks are one of the slowest sites."},
+{t:"The upper arm",c:false,r:"The arm absorbs moderately, slower than the abdomen."},
+{t:"The abdomen",c:true,r:"Correct. The abdomen absorbs insulin the fastest and most consistently. Avoid the 2 inches around the navel."}],
+teach:"Fastest to slowest: abdomen, arm, thigh, buttocks. Rotate within one area."},
+];
+let questions = [];
+
+function applyFilter(mode){
+  if(mode === 'all') questions = BANKQ.slice();
+  else if(mode === 'sata') questions = BANKQ.filter(function(q){ return q.type === 'SATA'; });
+  else questions = BANKQ.filter(function(q){ return q.ch === mode; });
+  document.querySelectorAll('.fbtn').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-f') === mode);
+  });
+  document.getElementById('filterNote').textContent =
+    mode === 'sata' ? 'Select-all items only. All-correct-but-incomplete still earns half credit \u2014 never leave one blank.'
+    : mode === 'all' ? 'All 30, all four chapters mixed, the way Monday will feel. This is the rep that matters.'
+    : questions.length + ' items from ' + mode + '.';
+  document.getElementById('scoreCard').style.display = 'none';
+  if(state.scored){ const h = loadHistory(); h.pop(); saveHistory(h); state.scored = false; renderHistory(); }
+  buildQuiz();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+const state = { answered: [], score: 0, shuffledOpts: [], lastTap: 0, scored: false };
+
+function _dmMissedIdx(){
+  const a=(state&&state.answered)||[];const out=[];
+  for(let i=0;i<a.length;i++){if(a[i]!==null&&a[i]!==undefined&&a[i]<1)out.push(i);}
+  return out;
+}
+function _dmSync(){
+  const b=document.getElementById("drillMissedBtn");if(!b)return;
+  const n=_dmMissedIdx().length;
+  b.style.display=n>0?"block":"none";
+  b.textContent="Drill missed \u2014 "+n+(n===1?" question":" questions");
+}
+function _dmShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function drillMissed(){
+  const idx=_dmMissedIdx();if(!idx.length)return;
+  const subset=idx.map(i=>questions[i]);
+  questions=_dmShuffle(subset);
+  document.getElementById("scoreCard").style.display="none";
+  buildQuiz();
+  const qa=document.getElementById("quizArea");
+  if(qa)qa.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function buildQuiz(){ if(!window.__dmMaster)window.__dmMaster=questions.slice();
+  state.answered = new Array(questions.length).fill(null);
+  state.score = 0;
+  state.scored = false;
+  state.shuffledOpts = questions.map(q => shuffle([...q.opts.map((o,i)=>({...o,origIdx:i}))]));
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  questions.forEach((q,qi) => {
+    const letters = ['A','B','C','D','E','F'];
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = 'q'+qi;
+    const vulnBadge = q.vuln==='low' ? '<span class="badge badge-vlow">Vocab swap</span>'
+                    : q.vuln==='high' ? '<span class="badge badge-vhigh">Numbers move</span>' : '';
+    const badges = `<span class="badge badge-ch">${q.ch}</span>${q.type==='SATA'?'':'<span class="badge badge-type">MC</span>'}${vulnBadge}${q.isNew?'<span class="badge badge-new">New</span>':''}${q.f8?'<span class="badge badge-f8">Final Eight</span>':''}${q.alert?'<span class="badge badge-alert">She said it</span>':''}${q.miss?'<span class="badge badge-miss">You missed this</span>':''}${q.type==='SATA'?'<span class="badge badge-sata">SATA</span>':''}`;
+    const sataHint = q.type==='SATA' ? '<div class="sata-hint">Select all that apply &mdash; a wrong pick scores <b>zero</b>; all-correct-but-incomplete earns <b>half credit</b>. Leave the maybes unchecked, but never leave it blank.</div>' : '';
+    const optsHtml = state.shuffledOpts[qi].map((o,oi)=>`
+      <div class="opt" id="q${qi}o${oi}" onclick="toggleOpt(${qi},${oi})">
+        <span class="opt-letter">${letters[oi]}</span>
+        <span class="opt-text">${o.t}<div class="opt-rationale" id="q${qi}r${oi}">${o.r}</div></span>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="q-top"><span class="q-num">Q${qi+1}</span>${badges}</div>
+      <div class="q-stem">${q.stem}</div>
+      ${sataHint}
+      <div class="opts">${optsHtml}</div>
+      <button class="btn-submit" onclick="submitQ(${qi})" id="btn${qi}" disabled>Submit</button>`;
+    area.appendChild(card);
+  });
+  updateProgress();
+  const h=loadHistory();
+  if(h.length){
+    const last=h[h.length-1];
+    document.getElementById('lastAttempt').style.display='block';
+    document.getElementById('lastScore').textContent=last.pct+'%';
+    document.getElementById('lastDate').textContent=last.date;
+  }
+  renderHistory();
+}
+
+function toggleOpt(qi,oi){
+  if(state.answered[qi]!==null) return;
+  state.lastTap=Date.now();
+  const q=questions[qi];
+  const el=document.getElementById(`q${qi}o${oi}`);
+  if(q.type==='SATA'){
+    el.classList.toggle('selected');
+  } else {
+    document.querySelectorAll(`#q${qi} .opt`).forEach(e=>e.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  const anySelected = document.querySelectorAll(`#q${qi} .opt.selected`).length > 0;
+  document.getElementById(`btn${qi}`).disabled = !anySelected;
+}
+
+function submitQ(qi){
+  if(state.answered[qi]!==null) return;
+  if(Date.now()-state.lastTap < 350) return;
+  const q=questions[qi];
+  const sopts=state.shuffledOpts[qi];
+  const card=document.getElementById('q'+qi);
+  const anchorTop=card.getBoundingClientRect().top;
+  const selectedEls = [...document.querySelectorAll(`#q${qi} .opt.selected`)];
+  const selectedOis = selectedEls.map(el=>parseInt(el.id.split('o')[1]));
+  const correctOis = sopts.map((o,oi)=>o.c?oi:-1).filter(v=>v>=0);
+  const credit = creditFor(selectedOis, correctOis);
+  state.answered[qi] = credit;
+  state.score += credit;
+  sopts.forEach((o,oi)=>{
+    const el=document.getElementById(`q${qi}o${oi}`);
+    const rat=document.getElementById(`q${qi}r${oi}`);
+    if(o.c){ el.classList.add('correct-show'); el.classList.remove('selected'); }
+    else if(selectedOis.includes(oi)){ el.classList.add('wrong-show'); el.classList.remove('selected'); }
+    rat.style.display='block';
+  });
+  if(q.teach && !document.getElementById('t'+qi)){
+    const tb=document.createElement('div');
+    tb.className='q-teach'; tb.id='t'+qi;
+    tb.innerHTML='<span class="q-teach-lbl">Anchor</span>'+q.teach;
+    card.querySelector('.opts').insertAdjacentElement('afterend', tb);
+  }
+  card.classList.add(credit===1?'answered-correct':credit===0.5?'answered-partial':'answered-wrong');
+  document.getElementById(`btn${qi}`).disabled=true;
+  if(!document.getElementById('u'+qi)){
+    const ub=document.createElement('button');
+    ub.className='q-undo'; ub.id='u'+qi;
+    ub.textContent='Undo \u2014 I tapped the wrong one';
+    ub.onclick=function(){ undoQ(qi); };
+    document.getElementById('btn'+qi).insertAdjacentElement('afterend', ub);
+  }
+  const drift=card.getBoundingClientRect().top-anchorTop;
+  if(drift) window.scrollBy(0, drift);
+  updateProgress();
+  if(state.answered.every(a=>a!==null)) showScore();
+}
+
+function updateProgress(){
+  const done=state.answered.filter(a=>a!==null).length;
+  document.getElementById('progressBar').style.width=(done/questions.length*100)+'%';
+}
+
+function showScore(){
+  const total=questions.length;
+  const earned=r1(state.score);
+  const pct=Math.round(earned/total*100);
+  document.getElementById('finalScore').textContent=pct+'%';
+  const goal=pct>=90;
+  const sata={full:0,half:0,zero:0};
+  questions.forEach((q,i)=>{ if(q.type!=='SATA') return; const c=state.answered[i]; sata[c===1?'full':c===0.5?'half':'zero']++; });
+  document.getElementById('finalText').textContent=
+    `${earned} / ${total} points — ${goal?'At your 90 target':pct>=78?'Passing, but under your 90 target':'Below passing (need 78%+)'}`
+    +(sata.full+sata.half+sata.zero ? ` · SATA: ${sata.full} full, ${sata.half} half, ${sata.zero} zero` : '');
+  const byChapter={};
+  questions.forEach((q,i)=>{ if(!byChapter[q.ch]) byChapter[q.ch]={earned:0,total:0}; byChapter[q.ch].total++; byChapter[q.ch].earned+=state.answered[i]||0; });
+  const bw=document.getElementById('breakdownArea');
+  bw.innerHTML=Object.entries(byChapter).map(([ch,v])=>{
+    const p=Math.round(v.earned/v.total*100);
+    return `<div class="breakdown-row"><span class="bd-label">${ch}</span><span class="bd-score" style="color:${tone(p)}">${r1(v.earned)}/${v.total} (${p}%)</span></div>`;
+  }).join('');
+  const rec={date:new Date().toLocaleDateString(),pct:pct,earned:earned,total:total,sata:sata,
+    ch:Object.fromEntries(Object.entries(byChapter).map(([k,v])=>[k,[r1(v.earned),v.total]]))};
+  const h=loadHistory(); h.push(rec); saveHistory(h); state.scored=true;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({score:pct+'%',date:rec.date}));
+  reportToSystem(rec);
+  renderHistory();
+  document.getElementById('scoreCard').style.display='block';
+  _dmSync(); // activate
+  document.getElementById('scoreCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function undoQ(qi){
+  if(state.answered[qi]===null) return;
+  state.score-=state.answered[qi];
+  state.answered[qi]=null;
+  const card=document.getElementById('q'+qi);
+  card.classList.remove('answered-correct','answered-partial','answered-wrong');
+  state.shuffledOpts[qi].forEach(function(o,oi){
+    const el=document.getElementById('q'+qi+'o'+oi);
+    el.classList.remove('correct-show','wrong-show','selected');
+    document.getElementById('q'+qi+'r'+oi).style.display='none';
+  });
+  const tb=document.getElementById('t'+qi); if(tb) tb.remove();
+  const ub=document.getElementById('u'+qi); if(ub) ub.remove();
+  document.getElementById('btn'+qi).disabled=true;
+  // A finished attempt already banked a score; undoing an item retracts it so the
+  // history keeps only the run she actually meant to give.
+  if(state.scored){
+    const h=loadHistory(); h.pop(); saveHistory(h);
+    state.scored=false; renderHistory();
+    document.getElementById('lastAttempt').style.display=h.length?'block':'none';
+    if(h.length){
+      document.getElementById('lastScore').textContent=h[h.length-1].pct+'%';
+      document.getElementById('lastDate').textContent=h[h.length-1].date;
+    }
+  }
+  document.getElementById('scoreCard').style.display='none';
+  updateProgress();
+  state.lastTap=Date.now();
+  card.scrollIntoView({block:'center'});
+}
+
+function hardReset(){
+  if(state.scored){ const h=loadHistory(); h.pop(); saveHistory(h); state.scored=false; }
+  restartQuiz();
+}
+
+function restartQuiz(){ if(window.__dmMaster)questions=window.__dmMaster.slice();
+  document.getElementById('scoreCard').style.display='none';
+  buildQuiz();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+applyFilter('all');
+</script>
+</body>
+</html>
