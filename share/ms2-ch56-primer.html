@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+/* Keep my place: resumes an unfinished quiz after the tab reloads.
+   Phones and iPads throw away a sleeping tab and reload it on unlock, which put
+   every quiz back at Q1. This works on every quiz engine (primer harness, banks,
+   mocks, pre-lecture, case study, the older inline pages) without knowing their
+   internals:
+     1. Math.random is seeded per session, and reseeded before every tap, so a
+        reload rebuilds the exact same question set and option order.
+     2. Every quiz tap is logged (option, Submit, Undo, Next/Prev, filters, Drill missed).
+     3. On reload the log is replayed. Storage writes are switched off during the
+        replay, so scores, history and the weak list are never counted twice.
+   A finished quiz (score card showing) still opens clean, like before.
+   Must load as the FIRST script in <head>. Kill switch: localStorage keepPlace = '0'. */
+(function () {
+  'use strict';
+  if (window.__rsLoaded) return;
+  window.__rsLoaded = true;
+  var LS = window.localStorage, KEY = 'rs:' + location.pathname, MAX_AGE = 7 * 864e5;
+  var realRandom = Math.random, realNow = Date.now;
+  try { if (LS.getItem('keepPlace') === '0') return; } catch (e) { return; }
+
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function read() { try { return JSON.parse(LS.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function write(o) { try { Storage.prototype.setItem.call(LS, KEY, JSON.stringify(o)); } catch (e) {} }
+  function fresh() { return { v: 1, seed: (realRandom() * 4294967296) >>> 0, log: [], done: false, ts: realNow() }; }
+
+  var sess = read();
+  if (!sess || sess.v !== 1 || sess.done || !sess.log || realNow() - sess.ts > MAX_AGE) sess = fresh();
+  var pending = sess.log.slice();   // what to replay on this load
+  write(sess);
+
+  var rng = mulberry(hash(sess.seed + ':load'));
+  Math.random = function () { return rng(); };
+  function reseed(n) { rng = mulberry(hash(sess.seed + ':' + n)); }
+
+  /* ---------- which taps count ---------- */
+  var ZONE = '.q-card,#quizArea,#focusBar,#scoreCard,.q-opts,.options,[data-f]';
+  var SKIP = 'a[href],#fbMode,#fbModeTop,#rmPill,#rmPanel,.stats-wrap,.mk-fab,.mk-overlay,#rsToast';
+  var VERB = /^\s*(applyFilter|pick|sataDone|submit\w*|select\w*|toggleOpt|drillMissed|restart\w*|retake\w*|startExam|next\w*|prev\w*|go\w*|showScore|finish\w*|undo\w*)\b/;
+  var RESET = /clearAllAnswers|hardReset|clearHistory|resetAll/;
+  function actionable(t) { return t && t.closest ? t.closest('[onclick],button,.opt,.q-opt,[data-f]') : null; }
+  function classify(el) {
+    if (!el || el.closest(SKIP)) return null;
+    var oc = el.getAttribute('onclick') || '';
+    if (RESET.test(oc) || el.getAttribute('data-f') === '__fresh') return 'reset';
+    if (el.closest(ZONE) || VERB.test(oc)) return 'log';
+    return null;
+  }
+  function locate(el) {
+    if (el.id) return { i: el.id };
+    var f = el.getAttribute('data-f');
+    if (f !== null) return { f: f };
+    var path = [], n = el;
+    while (n && n !== document.body && !n.id) { path.unshift(Array.prototype.indexOf.call(n.parentNode.children, n)); n = n.parentNode; }
+    return { a: n && n.id ? n.id : null, p: path };
+  }
+  function resolve(loc) {
+    if (loc.i) return document.getElementById(loc.i);
+    if (loc.f !== undefined) { var fs = document.querySelectorAll('[data-f]'); for (var k = 0; k < fs.length; k++) if (fs[k].getAttribute('data-f') === loc.f) return fs[k]; return null; }
+    var n = loc.a ? document.getElementById(loc.a) : document.body;
+    for (var j = 0; n && j < loc.p.length; j++) n = n.children[loc.p[j]];
+    return n || null;
+  }
+
+  /* ---------- finished? (score card showing) ---------- */
+  function finished() {
+    var sc = document.getElementById('scoreCard') || document.getElementById('results');
+    if (!sc) return false;
+    // Any unanswered card left means it is not finished, whatever the score card says.
+    // (Only for engines that mark answered cards with answered-* classes.)
+    var cards = document.querySelectorAll('.q-card'), open = 0, marked = 0;
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].style.display === 'none') continue;
+      if (/answered-/.test(cards[i].className)) marked++; else open++;
+    }
+    if (marked && open) return false;
+    try { return window.getComputedStyle(sc).display !== 'none' && sc.style.display !== 'none'; } catch (e) { return false; }
+  }
+  var doneTimer = null;
+  function checkDone() {
+    clearTimeout(doneTimer);
+    doneTimer = setTimeout(function () { var s = read() || sess; s.done = finished(); s.ts = realNow(); sess = s; write(s); }, 120);
+  }
+
+  /* ---------- record ---------- */
+  window.__rsReplaying = false;
+  window.addEventListener('click', function (e) {
+    if (window.__rsReplaying) return;
+    var el = actionable(e.target), kind = classify(el);
+    if (!kind) return;
+    if (kind === 'reset') { sess = fresh(); write(sess); return; }
+    var s = read() || sess;
+    if (s.done) { s.done = false; }
+    reseed(s.log.length);
+    s.log.push(locate(el)); s.ts = realNow(); sess = s; write(s);
+    checkDone();
+  }, true);
+
+  /* ---------- replay ---------- */
+  function replay() {
+    if (!pending.length) return;
+    var SP = Storage.prototype, oSet = SP.setItem, oRem = SP.removeItem, oClr = SP.clear;
+    SP.setItem = function (k) { if (String(k).indexOf('rs:') === 0) return oSet.apply(this, arguments); };
+    SP.removeItem = function () {}; SP.clear = function () {};
+    var offset = 0, ok = 0;
+    Date.now = function () { return realNow() + offset; };
+    window.__rsReplaying = true;
+    try {
+      for (var i = 0; i < pending.length; i++) {
+        var el = resolve(pending[i]);
+        if (!el && pending[i].i && pending[i].i.indexOf('qt-') === 0) {
+          // A 25-second time-out (quiz-timer.js) whose hidden button is not wired yet.
+          var tc = document.getElementById(pending[i].i.slice(3));
+          if (tc && window.__qtTimeOut) window.__qtTimeOut(tc);
+          ok++; continue;
+        }
+        if (!el) break;
+        reseed(i);
+        offset += 1500;
+        try { el.click(); } catch (e) {}
+        ok++;
+      }
+    } finally {
+      Date.now = realNow;
+      setTimeout(function () {
+        window.__rsReplaying = false;
+        SP.setItem = oSet; SP.removeItem = oRem; SP.clear = oClr;
+        if (ok < pending.length) { sess.log = pending.slice(0, ok); write(sess); }
+        if (finished()) { sess = fresh(); write(sess); return; }
+        place(); toast();
+      }, 0);
+    }
+  }
+
+  function place() {
+    var cur = document.querySelector('.focus-on #quizArea .q-card.focus-cur');
+    if (!cur) {
+      var cards = document.querySelectorAll('.q-card');
+      for (var i = 0; i < cards.length; i++) { if (!/answered-/.test(cards[i].className)) { cur = cards[i]; break; } }
+    }
+    if (cur && cur.getBoundingClientRect) {
+      var top = cur.getBoundingClientRect().top + (window.pageYOffset || 0) - 70;
+      try { window.scrollTo(0, Math.max(0, top)); } catch (e) {}
+    }
+  }
+
+  function toast() {
+    var answered = document.querySelectorAll('.q-card.answered-correct,.q-card.answered-wrong,.q-card.answered-partial').length;
+    var d = document.createElement('div');
+    d.id = 'rsToast';
+    d.setAttribute('style', 'position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:9999;background:#13181f;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:8px 12px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 6px 20px #0008;display:flex;gap:10px;align-items:center;max-width:calc(100% - 32px)');
+    d.innerHTML = '<span>&#128278; Picked up where you left off' + (answered ? ' &middot; ' + answered + ' answered' : '') + '</span>'
+      + '<button type="button" style="background:transparent;color:#a78bfa;border:1px solid #4c1d95;border-radius:8px;padding:4px 8px;font:inherit;cursor:pointer">Start over</button>';
+    d.querySelector('button').onclick = function () { sess = fresh(); write(sess); location.reload(); };
+    document.body.appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.style.transition = 'opacity .6s', d.style.opacity = '0'; }, 5000);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 5800);
+  }
+
+  function boot() { setTimeout(replay, 60); }
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+})();
+
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 56 &mdash; Diabetes Mellitus Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Shared primer styles — dark theme, matches study-tools design system */
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.back-link{display:inline-block;margin-bottom:1rem;color:#c084fc;text-decoration:none;font-size:.85rem;font-family:'IBM Plex Mono',monospace}
+.back-link:hover{color:#e9d5ff}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.svg-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;overflow-x:auto}
+.svg-card h3{color:#c084fc;font-size:1rem;margin-bottom:.75rem;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#c084fc}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#7c3aed,#c084fc);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-card.answered-partial{border-color:#fbbf24}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch{background:#0a1f2a;color:#7dd3fc}
+.badge-blk{background:#1a1425;color:#c4b5fd}
+.badge-type{background:#0a2018;color:#6ee7b7}
+.badge-trap{background:#2a0a0a;color:#f87171}
+.badge-sata{background:#1a1f2e;color:#c084fc;border:1px solid #7c3aed}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#c084fc;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#c084fc;background:#1a0a2a}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.05rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b;line-height:1.5}
+.btn-submit{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#6d28d9}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#150a1f;border-left:3px solid #c084fc;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#e9d5ff;line-height:1.5}
+.vocab-tip strong{color:#c084fc}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#c084fc;margin:.5rem 0}
+.breakdown-wrap{margin-top:1.5rem;text-align:left}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.85rem}
+.breakdown-row .bd-label{color:#cbd5e1}
+.breakdown-row .bd-score{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+
+/* Floating must-knows / labs reference — injected by harness */
+.mk-fab{position:fixed;right:1rem;bottom:1rem;z-index:200;display:flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#7c3aed,#c084fc);color:#fff;border:none;border-radius:99px;padding:.7rem 1.1rem;font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;letter-spacing:.02em;cursor:pointer;box-shadow:0 6px 20px -4px rgba(124,58,237,.7);transition:transform .15s,box-shadow .15s}
+.mk-fab:hover{transform:translateY(-2px);box-shadow:0 8px 26px -4px rgba(124,58,237,.85)}
+.mk-fab:active{transform:translateY(0)}
+.mk-fab .mk-ico{font-size:1rem;line-height:1}
+.mk-overlay{position:fixed;inset:0;z-index:210;background:rgba(6,8,12,.72);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.mk-overlay.open{display:flex}
+.mk-panel{background:#13181f;border:1px solid #2a3444;border-radius:16px 16px 0 0;width:100%;max-width:860px;max-height:85vh;overflow-y:auto;padding:1.25rem 1.25rem 1.5rem;box-shadow:0 -10px 40px -8px rgba(0,0,0,.7);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.mk-overlay.open .mk-panel{transform:translateY(0)}
+.mk-panel-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.9rem;position:sticky;top:-1.25rem;background:#13181f;padding:.25rem 0 .5rem;border-bottom:1px solid #1e293b}
+.mk-panel-head h3{color:#c084fc;font-size:1rem;margin:0}
+.mk-close{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:99px;width:2rem;height:2rem;font-size:1.1rem;line-height:1;cursor:pointer;flex-shrink:0;transition:background .15s}
+.mk-close:hover{background:#334155}
+.mk-panel .svg-card{background:transparent;border:none;padding:0;margin:0}
+.mk-panel .svg-card h3{display:none}
+@media(min-width:700px){.mk-overlay{align-items:center}.mk-panel{border-radius:16px;max-height:82vh}.mk-overlay.open .mk-panel{transform:translateY(0)}.mk-panel{transform:translateY(24px)}}
+
+/* ---- Filter bar + drill-missed (opt-in via #harnessFilterBar) ---- */
+.filter-bar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:1rem 0 .5rem}
+.filter-label{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-right:.2rem}
+.fbtn{background:#13181f;color:#94a3b8;border:1px solid #334155;border-radius:999px;padding:.4rem .85rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.fbtn:hover{background:#1e293b;color:#e2e8f0}
+.fbtn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.fbtn-hot{border-color:#7c3aed;color:#c4b5fd}
+.fbtn-sata{border-color:#f59e0b;color:#fbbf24}
+.fbtn-sata.active{background:#f59e0b;border-color:#f59e0b;color:#0c0f14}
+.fbtn-fresh{margin-left:auto;border-color:#475569;color:#94a3b8}
+.fbtn-fresh:hover{background:#334155;color:#f8fafc}
+.filter-note{font-size:.8rem;color:#64748b;margin-bottom:1rem;line-height:1.5}
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
+.btn-missed:hover{background:#14532d}
+
+/* ---- Stats panel (attempt history + block averages) ---- */
+.stats-wrap{background:#13181f;border:1px solid #1e293b;border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
+.stats-toggle{width:100%;background:none;border:none;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;color:#c4b5fd}
+.stats-toggle:hover{background:#1a1f2e}
+.stats-toggle .st-summary{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#94a3b8;font-weight:400}
+.stats-toggle .st-arrow{transition:transform .2s;color:#64748b}
+.stats-wrap.open .stats-toggle .st-arrow{transform:rotate(180deg)}
+.stats-body{display:none;padding:0 1rem 1rem;border-top:1px solid #1e293b}
+.stats-wrap.open .stats-body{display:block}
+.stats-body h4{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 .4rem}
+.st-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.4rem .8rem;margin-bottom:.25rem;font-size:.78rem}
+.st-row.best{border-color:#7c3aed}
+.st-date{color:#94a3b8;font-family:'IBM Plex Mono',monospace;min-width:7rem}
+.st-score{font-family:'IBM Plex Mono',monospace;font-weight:600;margin-left:auto}
+.st-label{color:#94a3b8;font-size:.72rem;margin-left:.5rem}
+.st-blk-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.45rem .8rem;margin-bottom:.3rem;font-size:.78rem}
+.st-blk-name{color:#cbd5e1;min-width:40%;flex-shrink:0}
+.st-blk-bar{flex:1;height:5px;border-radius:99px;background:#1e293b;overflow:hidden;margin:0 .7rem}
+.st-blk-bar i{display:block;height:100%;border-radius:99px}
+.st-blk-pct{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:3rem;text-align:right}
+.st-note{color:#64748b;font-size:.72rem;margin-top:.5rem;line-height:1.45}
+.st-empty{color:#64748b;font-size:.78rem;font-style:italic;padding:.5rem 0}
+
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 56 &mdash; Concepts of Care for Patients With Diabetes Mellitus</h1>
+<p class="subtitle">MS2 Exam 5 &middot; built from Prof. Vil&rsquo;s recap sheet</p>
+</div>
+<div class="exam-info">This is the biggest chapter on the exam and it rewards memorized numbers. The insulin table at the top is the one thing to know cold &mdash; she ended her sheet with USE THE SPECIFIC ONSET, PEAK AND DURATION TIMES GIVEN IN YOUR BOOK, and those are the book&rsquo;s. Everything else here is a pair you have to keep straight: DKA vs. HHS, Dawn vs. Somogyi, hypo vs. hyper, and which drugs can drop you versus which cannot. Seven of her prompts on this sheet were left blank. All seven are answered inside these questions.</div>
+<div class="svg-card">
+<h3>The Insulin Table, DKA vs. HHS, Dawn vs. Somogyi &amp; the Metformin Rules</h3>
+<svg viewBox="0 0 820 525" xmlns="http://www.w3.org/2000/svg">
+<rect width="820" height="525" fill="#0f172a"/>
+
+<rect x="14" y="14" width="792" height="170" rx="8" fill="#1e293b" stroke="#93c5fd" stroke-width="2"/>
+<text x="26" y="36" fill="#93c5fd" font-family="DM Sans" font-size="14" font-weight="700">INSULIN &#8212; ONSET / PEAK / DURATION (IGNATAVICIUS 11e)</text>
+<text x="26" y="58" fill="#94a3b8" font-family="IBM Plex Mono" font-size="10" font-weight="700">TYPE</text>
+<text x="240" y="58" fill="#94a3b8" font-family="IBM Plex Mono" font-size="10" font-weight="700">ONSET</text>
+<text x="360" y="58" fill="#94a3b8" font-family="IBM Plex Mono" font-size="10" font-weight="700">PEAK</text>
+<text x="480" y="58" fill="#94a3b8" font-family="IBM Plex Mono" font-size="10" font-weight="700">DURATION</text>
+<text x="600" y="58" fill="#94a3b8" font-family="IBM Plex Mono" font-size="10" font-weight="700">REMEMBER</text>
+<line x1="26" y1="64" x2="794" y2="64" stroke="#334155" stroke-width="1"/>
+<text x="26" y="84" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="10">RAPID  lispro/aspart</text>
+<text x="240" y="84" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">10&#8211;30 min</text>
+<text x="360" y="84" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">30 min&#8211;3 hr</text>
+<text x="480" y="84" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">3&#8211;5 hr</text>
+<text x="600" y="84" fill="#fcd34d" font-family="IBM Plex Mono" font-size="10">FOOD IN FRONT OF HER</text>
+<text x="26" y="106" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="10">SHORT  regular</text>
+<text x="240" y="106" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">30 min&#8211;1 hr</text>
+<text x="360" y="106" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">2&#8211;5 hr</text>
+<text x="480" y="106" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">6&#8211;10 hr</text>
+<text x="600" y="106" fill="#fcd34d" font-family="IBM Plex Mono" font-size="10">THE ONLY ONE GIVEN IV</text>
+<text x="26" y="128" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="10">INTERMED. NPH</text>
+<text x="240" y="128" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">1.5&#8211;4 hr</text>
+<text x="360" y="128" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">4&#8211;12 hr</text>
+<text x="480" y="128" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">12&#8211;18 hr</text>
+<text x="600" y="128" fill="#fcd34d" font-family="IBM Plex Mono" font-size="10">CLOUDY &#183; the mixable one</text>
+<text x="26" y="150" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="10">LONG  glargine/detemir</text>
+<text x="240" y="150" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">1&#8211;4 hr</text>
+<text x="360" y="150" fill="#fca5a5" font-family="IBM Plex Mono" font-size="10">NO PEAK</text>
+<text x="480" y="150" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="10">24 hr+</text>
+<text x="600" y="150" fill="#fca5a5" font-family="IBM Plex Mono" font-size="10">NEVER mix &#183; NEVER IV</text>
+<text x="26" y="174" fill="#c084fc" font-family="IBM Plex Mono" font-size="11">HYPOGLYCEMIA IS MOST LIKELY AT THE PEAK &#183; DRAW UP CLEAR BEFORE CLOUDY (R before N)</text>
+
+<rect x="14" y="196" width="386" height="150" rx="8" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+<text x="26" y="218" fill="#f87171" font-family="DM Sans" font-size="14" font-weight="700">DKA vs. HHS</text>
+<text x="26" y="240" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">DKA    usually TYPE 1 &#183; fast (hours)</text>
+<text x="26" y="256" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  glucose &#62;250 &#183; pH &#60;7.35 &#183; KETONES +</text>
+<text x="26" y="272" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  KUSSMAUL &#183; fruity breath &#183; bicarb LOW</text>
+<text x="26" y="294" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">HHS    usually TYPE 2 &#183; slow (days)</text>
+<text x="26" y="310" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  glucose &#62;600 &#183; pH NORMAL &#183; NO ketones</text>
+<text x="26" y="326" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  profound DEHYDRATION &#183; neuro changes</text>
+<text x="26" y="342" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">BOTH: FLUIDS FIRST &#183; then insulin &#183; watch K+</text>
+
+<rect x="416" y="196" width="390" height="150" rx="8" fill="#1e293b" stroke="#fcd34d" stroke-width="2"/>
+<text x="428" y="218" fill="#fcd34d" font-family="DM Sans" font-size="14" font-weight="700">DAWN vs. SOMOGYI &#8212; CHECK AT 3 AM</text>
+<text x="428" y="240" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">DAWN   3 AM glucose is NORMAL or HIGH</text>
+<text x="428" y="256" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  morning hormone surge &#183; not enough insulin</text>
+<text x="428" y="272" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">  FIX = give MORE / move dose later</text>
+<text x="428" y="294" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">SOMOGYI 3 AM glucose is LOW</text>
+<text x="428" y="310" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  night hypoglycemia &#8594; rebound high by AM</text>
+<text x="428" y="326" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">  FIX = give LESS / add a bedtime snack</text>
+<text x="428" y="342" fill="#c084fc" font-family="IBM Plex Mono" font-size="11">Same 7 AM number. The 3 AM check decides.</text>
+
+<rect x="14" y="360" width="386" height="150" rx="8" fill="#1e293b" stroke="#6ee7b7" stroke-width="2"/>
+<text x="26" y="382" fill="#6ee7b7" font-family="DM Sans" font-size="14" font-weight="700">HYPO vs. HYPER &#8212; THE RHYME</text>
+<text x="26" y="404" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">COLD AND CLAMMY = NEEDS SOME CANDY</text>
+<text x="26" y="420" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">shaky &#183; sweaty &#183; tachy &#183; hungry &#183; confused</text>
+<text x="26" y="436" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">SUDDEN onset &#183; &#60;70 mg/dL &#183; 15&#8211;15 RULE</text>
+<text x="26" y="458" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">HOT AND DRY = SUGAR HIGH</text>
+<text x="26" y="474" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">3 Ps &#183; flushed &#183; dry mucosa &#183; weak, drowsy</text>
+<text x="26" y="490" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">GRADUAL onset over hours to days</text>
+<text x="26" y="506" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">UNCONSCIOUS? Nothing by mouth &#8594; D50 / glucagon</text>
+
+<rect x="416" y="360" width="390" height="150" rx="8" fill="#1e293b" stroke="#c084fc" stroke-width="2"/>
+<text x="428" y="382" fill="#c084fc" font-family="DM Sans" font-size="14" font-weight="700">METFORMIN &#8212; THE PRECAUTIONS SHE ASKS FOR</text>
+<text x="428" y="404" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">HOLD 48 HOURS for IODINATED CONTRAST</text>
+<text x="428" y="420" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  restart only after renal function is checked</text>
+<text x="428" y="436" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">LACTIC ACIDOSIS is the fatal adverse effect</text>
+<text x="428" y="452" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  muscle aches &#183; hyperventilation &#183; drowsy</text>
+<text x="428" y="468" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">HOLD in renal or hepatic impairment, sepsis,</text>
+<text x="428" y="484" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">  hypoxia, dehydration &#183; LIMIT ALCOHOL</text>
+<text x="428" y="504" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">Alone it does NOT cause hypoglycemia. Take WITH food.</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch56-primer';
+const EXAM_LABEL='MS2 Ch 56 - Diabetes Mellitus';
+const BLOCKS={A:'Type 1 vs. Type 2 vs. Gestational &amp; Metabolic Syndrome',B:'A1C, Diagnosis &amp; Monitoring',C:'Insulins &mdash; Onset, Peak, Duration &amp; Administration',D:'Oral &amp; Non-Insulin Drugs &amp; Metformin Precautions',E:'Hypoglycemia, the 15-15 Rule, Dawn vs. Somogyi',F:'DKA vs. HHS',G:'Chronic Complications, Foot Care &amp; Exercise'};
+const ALL_Q=[
+{id:1,block:'A',chapter:56,type:'Concept',
+stem:'Which statement correctly distinguishes type 1 from type 2 diabetes mellitus?',
+options:[
+{letter:'A',text:'Type 1 is autoimmune destruction of the beta cells producing absolute insulin deficiency; type 2 is insulin resistance with a relative deficiency',correct:true,rationale:'Correct. In type 1 the pancreas makes essentially NO insulin, so exogenous insulin is required for life. In type 2 insulin is present but the tissues resist it and the beta cells eventually cannot keep up.'},
+{letter:'B',text:'Type 1 is caused by obesity and type 2 by autoimmunity',correct:false,rationale:'Reversed. Obesity is the dominant risk factor for type 2; autoimmunity causes type 1.'},
+{letter:'C',text:'Type 1 never requires insulin',correct:false,rationale:'Type 1 ALWAYS requires insulin because there is no endogenous production.'},
+{letter:'D',text:'Type 2 patients can never require insulin',correct:false,rationale:'Many type 2 patients eventually need insulin as beta-cell function declines over time.'}
+],
+vocabTip:'<strong>Absolute deficiency</strong> = none is made. <strong>Relative deficiency</strong> = some is made but not enough for the demand created by resistance.',
+trap:'&ldquo;Type 2 patients do not take insulin&rdquo; is false and is a common distractor. The type determines the CAUSE, not permanently the treatment.'},
+
+{id:2,block:'A',chapter:56,type:'Concept',
+stem:'Which patient presentation is most consistent with new-onset type 1 diabetes?',
+options:[
+{letter:'A',text:'A thin 14-year-old with a two-week history of polyuria, polydipsia, polyphagia and 12 pounds of unintentional weight loss',correct:true,rationale:'Correct. Type 1 presents abruptly, typically in a young lean patient, with the three Ps and weight loss because cells cannot use glucose and the body breaks down fat and muscle for fuel.'},
+{letter:'B',text:'A 58-year-old with obesity found to have a fasting glucose of 132 on routine labs',correct:false,rationale:'This is the typical type 2 presentation &mdash; gradual, often asymptomatic, found incidentally.'},
+{letter:'C',text:'A 60-year-old with acanthosis nigricans and a family history of diabetes',correct:false,rationale:'Acanthosis nigricans is a marker of insulin RESISTANCE, pointing to type 2.'},
+{letter:'D',text:'A 45-year-old with hypertension and an elevated triglyceride level',correct:false,rationale:'These are metabolic syndrome features associated with type 2.'}
+],
+vocabTip:'The <strong>three Ps</strong>: polyuria (glucose pulls water into the urine), polydipsia (thirst from that fluid loss), polyphagia (hunger because cells are starving despite high blood glucose).',
+trap:'Weight LOSS with high glucose points to type 1. The body is burning fat and muscle because it cannot get glucose into cells.'},
+
+{id:3,block:'A',chapter:56,type:'Concept',
+sata:true,
+stem:'A patient is being evaluated for metabolic syndrome. Which findings count toward the diagnosis? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Waist circumference 42 inches in a male',correct:true,rationale:'Correct. Abdominal obesity, defined as greater than 40 inches in men or 35 inches in women, is a core criterion. Visceral fat is the fat that drives insulin resistance.'},
+{letter:'B',text:'Fasting blood glucose of 108 mg/dL',correct:true,rationale:'Correct. A fasting glucose of 100 mg/dL or higher counts &mdash; this is impaired fasting glucose, below the diabetes threshold.'},
+{letter:'C',text:'Triglycerides of 180 mg/dL',correct:true,rationale:'Correct. Triglycerides of 150 mg/dL or higher meet the criterion.'},
+{letter:'D',text:'HDL cholesterol of 32 mg/dL in a male',correct:true,rationale:'Correct. A LOW HDL counts &mdash; under 40 in men, under 50 in women.'},
+{letter:'E',text:'Blood pressure 138/88 mm Hg',correct:true,rationale:'Correct. A blood pressure of 130/85 or higher, or being on treatment for hypertension, meets the criterion.'},
+{letter:'F',text:'LDL cholesterol of 160 mg/dL',correct:false,rationale:'A high LDL is a cardiovascular risk factor but it is NOT one of the five metabolic syndrome criteria. HDL and triglycerides are the lipids counted.'}
+],
+vocabTip:'<strong>Metabolic syndrome</strong> = any 3 of 5: big waist, high glucose, high triglycerides, low HDL, high blood pressure. It markedly raises the risk of type 2 diabetes and cardiovascular disease.',
+trap:'LDL is the lipid students automatically pick, and it is the one that does NOT count. The lipid criteria are HIGH triglycerides and LOW HDL.'},
+
+{id:4,block:'A',chapter:56,type:'Concept',
+stem:'A patient asks what metabolic syndrome means for her. What is the nurse&rsquo;s best response?',
+options:[
+{letter:'A',text:'&ldquo;It is a cluster of risk factors that together greatly increase your chance of developing type 2 diabetes and heart disease, and weight loss with activity can reverse several of them.&rdquo;',correct:true,rationale:'Correct. Metabolic syndrome is a risk state, not a disease in itself. It is driven by insulin resistance, and losing even 5 to 10 percent of body weight with regular activity improves every criterion.'},
+{letter:'B',text:'&ldquo;It means you already have type 2 diabetes.&rdquo;',correct:false,rationale:'Metabolic syndrome precedes diabetes; the glucose criterion is below the diabetic range.'},
+{letter:'C',text:'&ldquo;It is a genetic condition that cannot be changed.&rdquo;',correct:false,rationale:'This is one of the most modifiable conditions in medicine, and false hopelessness undermines the intervention that works.'},
+{letter:'D',text:'&ldquo;It only affects your cholesterol.&rdquo;',correct:false,rationale:'It involves glucose, blood pressure, waist circumference and lipids together.'}
+],
+vocabTip:'<strong>Insulin resistance</strong> = the tissues stop responding normally to insulin, so the pancreas compensates by making more until it cannot keep up.'},
+
+{id:5,block:'A',chapter:56,type:'Concept',
+stem:'Which statement about gestational diabetes is accurate?',
+options:[
+{letter:'A',text:'It is glucose intolerance first recognized during pregnancy, caused by placental hormones creating insulin resistance, and it raises the mother&rsquo;s lifetime risk of type 2 diabetes',correct:true,rationale:'Correct. Human placental lactogen and other placental hormones antagonize insulin. Most women return to normal after delivery, but roughly half develop type 2 diabetes within 10 to 20 years, so lifelong screening is needed.'},
+{letter:'B',text:'It always resolves permanently after delivery with no future risk',correct:false,rationale:'The glucose usually normalizes, but the future risk of type 2 diabetes is substantially increased.'},
+{letter:'C',text:'It is treated only with oral agents, never insulin',correct:false,rationale:'Insulin is commonly used and is a first-line option in pregnancy.'},
+{letter:'D',text:'It poses no risk to the fetus',correct:false,rationale:'It increases the risk of macrosomia, birth trauma, neonatal hypoglycemia and respiratory distress.'}
+],
+vocabTip:'<strong>Macrosomia</strong> = an excessively large infant. Maternal glucose crosses the placenta, the fetal pancreas responds with insulin, and insulin is a growth hormone.'},
+
+{id:6,block:'A',chapter:56,type:'Concept',
+stem:'The nurse is explaining how insulin works. Which statement is accurate?',
+options:[
+{letter:'A',text:'Insulin moves glucose from the bloodstream into cells and promotes storage of glucose as glycogen, which is why the blood level falls',correct:true,rationale:'Correct. Insulin is the key that opens the cell to glucose. Without it, glucose piles up in the blood while the cells starve &mdash; which explains hyperglycemia, polyphagia and weight loss all at once.'},
+{letter:'B',text:'Insulin breaks glycogen down into glucose',correct:false,rationale:'That is glucagon&rsquo;s job. Insulin and glucagon are opposites.'},
+{letter:'C',text:'Insulin is made by the alpha cells of the pancreas',correct:false,rationale:'BETA cells make insulin; ALPHA cells make glucagon.'},
+{letter:'D',text:'Insulin raises blood glucose during stress',correct:false,rationale:'The counterregulatory hormones &mdash; cortisol, epinephrine, growth hormone and glucagon &mdash; raise glucose during stress.'}
+],
+vocabTip:'<strong>Beta cells = insulin</strong> (B for Bring glucose in). <strong>Alpha cells = glucagon</strong> (A for Ascend the glucose).'},
+
+{id:7,block:'B',chapter:56,type:'Lab Read',
+stem:'A patient&rsquo;s A1C is 8.4 percent. What does the nurse explain this value means?',
+options:[
+{letter:'A',text:'It reflects the average blood glucose over roughly the past 2 to 3 months and indicates the diabetes is not adequately controlled',correct:true,rationale:'Correct. The A1C measures the percentage of hemoglobin that has glucose permanently attached. Because red cells live about 120 days, it is a 2-to-3-month average that cannot be faked by eating well the week before the appointment.'},
+{letter:'B',text:'It reflects the blood glucose at the moment of the draw',correct:false,rationale:'That is a point-of-care or fasting glucose. The A1C is historical.'},
+{letter:'C',text:'It reflects the average glucose over the past week',correct:false,rationale:'A 7-day picture is what continuous glucose monitoring or a log provides, not the A1C.'},
+{letter:'D',text:'It indicates excellent control',correct:false,rationale:'The general target for most nonpregnant adults is less than 7 percent; 8.4 is above goal.'}
+],
+vocabTip:'<strong>Glycosylated hemoglobin (A1C)</strong> = glucose stuck to hemoglobin. The more glucose has been circulating, the more of it sticks.',
+trap:'This is the answer to her blank &ldquo;A1C?&rdquo; prompt: 2 to 3 months, target under 7 percent for most adults, diagnostic at 6.5 percent or higher.'},
+
+{id:8,block:'B',chapter:56,type:'Lab Read',
+sata:true,
+stem:'Which laboratory results are diagnostic of diabetes mellitus? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'A1C of 6.8 percent',correct:true,rationale:'Correct. An A1C of 6.5 percent or higher is diagnostic.'},
+{letter:'B',text:'Fasting plasma glucose of 142 mg/dL',correct:true,rationale:'Correct. A fasting glucose of 126 mg/dL or higher, with fasting defined as no caloric intake for at least 8 hours, is diagnostic.'},
+{letter:'C',text:'Two-hour glucose of 215 mg/dL during an oral glucose tolerance test',correct:true,rationale:'Correct. A 2-hour value of 200 mg/dL or higher during a 75-gram OGTT is diagnostic.'},
+{letter:'D',text:'Random glucose of 260 mg/dL in a patient with polyuria and polydipsia',correct:true,rationale:'Correct. A random glucose of 200 mg/dL or higher WITH classic symptoms is diagnostic without further testing.'},
+{letter:'E',text:'A1C of 6.0 percent',correct:false,rationale:'This falls in the prediabetes range of 5.7 to 6.4 percent, not the diabetic range.'},
+{letter:'F',text:'Fasting plasma glucose of 110 mg/dL',correct:false,rationale:'This is impaired fasting glucose (100 to 125), which is prediabetes.'}
+],
+vocabTip:'The four numbers: <strong>A1C 6.5 &middot; fasting 126 &middot; 2-hour OGTT 200 &middot; random 200 with symptoms.</strong> Prediabetes sits just under each.',
+trap:'Prediabetes values are placed in these questions on purpose. 5.7 to 6.4 percent and fasting 100 to 125 are warnings, not diagnoses.'},
+
+{id:9,block:'B',chapter:56,type:'Concept',
+stem:'A patient with sickle cell trait and chronic anemia has an A1C that does not match her glucose logs. What does the nurse understand?',
+options:[
+{letter:'A',text:'Conditions that change red blood cell lifespan, including hemoglobinopathies, anemia and recent transfusion, make the A1C unreliable',correct:true,rationale:'Correct. The A1C assumes a normal 120-day red cell lifespan. Shortened survival gives a falsely LOW result; conditions prolonging it can raise it. These patients are monitored with fructosamine or continuous glucose monitoring instead.'},
+{letter:'B',text:'The glucose logs must be falsified',correct:false,rationale:'Accusing the patient before considering a known assay limitation is both clinically wrong and damaging to trust.'},
+{letter:'C',text:'The A1C is always more accurate than a glucose log',correct:false,rationale:'Not in a patient with altered red cell survival.'},
+{letter:'D',text:'Anemia raises the A1C in every case',correct:false,rationale:'The direction depends on the mechanism; hemolysis lowers it.'}
+],
+vocabTip:'<strong>Fructosamine</strong> measures glucose bound to serum proteins and reflects the past 2 to 3 weeks. It is the alternative when the A1C cannot be trusted.'},
+
+{id:10,block:'B',chapter:56,type:'Concept',
+stem:'A patient checks her blood glucose before meals and at bedtime. Which additional check does the nurse teach her to perform?',
+options:[
+{letter:'A',text:'Check any time she feels symptoms of hypoglycemia, and during illness check every 3 to 4 hours',correct:true,rationale:'Correct. Symptoms are always verified with a number when possible, and illness raises glucose through stress hormones even when intake drops, so sick-day monitoring is intensified.'},
+{letter:'B',text:'Check only when she feels ill enough to miss work',correct:false,rationale:'Sick-day monitoring starts with the illness, not with its severity.'},
+{letter:'C',text:'Stop checking during illness since she is eating less',correct:false,rationale:'This is the dangerous misconception behind many DKA admissions. Illness raises glucose even with reduced intake.'},
+{letter:'D',text:'Check once weekly to conserve supplies',correct:false,rationale:'Far too infrequent for a patient on insulin.'}
+],
+vocabTip:'<strong>Sick-day rules:</strong> never stop the insulin, check glucose every 3 to 4 hours, check ketones if glucose is over 240, and keep drinking fluids.',
+trap:'&ldquo;I was not eating so I skipped my insulin&rdquo; is the sentence that precedes DKA. Insulin is never stopped during illness in type 1.'},
+
+{id:11,block:'B',chapter:56,type:'Concept',
+stem:'Which fingerstick technique does the nurse teach?',
+options:[
+{letter:'A',text:'Wash hands with soap and water, let them dry, and puncture the SIDE of the fingertip',correct:true,rationale:'Correct. The sides have fewer nerve endings so the stick hurts less, and they bleed well. Washing removes food residue that falsely elevates the reading; alcohol is avoided because residual alcohol alters the result and dries the skin.'},
+{letter:'B',text:'Use the center pad of the fingertip for the best sample',correct:false,rationale:'The center pad is the most nerve-dense and painful area, which discourages testing.'},
+{letter:'C',text:'Cleanse with alcohol and stick immediately while wet',correct:false,rationale:'Wet alcohol can alter the reading and stings.'},
+{letter:'D',text:'Squeeze the finger hard to get enough blood',correct:false,rationale:'Hard squeezing dilutes the sample with tissue fluid and gives an inaccurate result. Hang the hand down and warm it instead.'}
+],
+vocabTip:'<strong>Rotating sites</strong> prevents calluses that keep the finger from bleeding and make testing painful over time.'},
+
+{id:12,block:'B',chapter:56,type:'Concept',
+stem:'Which statement by a patient about continuous glucose monitoring requires further teaching?',
+options:[
+{letter:'A',text:'&ldquo;Since the sensor shows my number all the time, I will never need a fingerstick again.&rdquo;',correct:true,rationale:'Correct &mdash; this needs correction. CGM measures interstitial fluid, which lags behind blood by several minutes. When the reading does not match symptoms, or before treating a hypoglycemic reading, a confirmatory fingerstick is still performed.'},
+{letter:'B',text:'&ldquo;The arrows tell me which way my glucose is heading, not just where it is.&rdquo;',correct:false,rationale:'Accurate. Trend arrows are the major advantage of CGM.'},
+{letter:'C',text:'&ldquo;I can set an alarm to warn me if I am dropping overnight.&rdquo;',correct:false,rationale:'Accurate and one of the most valuable safety features.'},
+{letter:'D',text:'&ldquo;I still need to rotate the sensor site.&rdquo;',correct:false,rationale:'Accurate. Sensor sites are rotated per manufacturer instructions.'}
+],
+vocabTip:'<strong>Interstitial lag</strong> = the delay between a change in blood glucose and the same change appearing in the fluid around the cells. It matters most when glucose is moving fast.'},
+
+{id:13,block:'C',chapter:56,type:'Medication',
+stem:'A patient receives insulin lispro at 0800. At what time is the nurse most alert for hypoglycemia?',
+options:[
+{letter:'A',text:'Between 0830 and 1100, when the insulin peaks',correct:true,rationale:'Correct. Rapid-acting insulin has an onset of 10 to 30 minutes and peaks between 30 minutes and 3 hours. Hypoglycemia is most likely at the PEAK, so an 0800 dose puts the danger window in the late morning.'},
+{letter:'B',text:'Between 1400 and 1800',correct:false,rationale:'That window fits an intermediate-acting insulin, not lispro.'},
+{letter:'C',text:'At 2200, 14 hours later',correct:false,rationale:'Lispro has a total duration of only 3 to 5 hours and is long gone.'},
+{letter:'D',text:'Immediately at 0800',correct:false,rationale:'Onset is 10 to 30 minutes; nothing has happened yet at the moment of injection.'}
+],
+vocabTip:'<strong>Onset</strong> = when it starts working. <strong>Peak</strong> = when it works hardest, so when hypoglycemia is most likely. <strong>Duration</strong> = how long it lasts.',
+trap:'The peak is the whole reason to memorize the numbers. Every &ldquo;when will this patient go low&rdquo; question is really asking for the peak.'},
+
+{id:14,block:'C',chapter:56,type:'Medication',
+stem:'When should the nurse administer insulin aspart relative to the patient&rsquo;s meal?',
+options:[
+{letter:'A',text:'Within 15 minutes before the meal, with the tray already at the bedside',correct:true,rationale:'Correct. Rapid-acting insulin starts working in 10 to 30 minutes. If the tray is delayed, the insulin acts with no food to cover and the patient goes hypoglycemic. The safe rule is: see the food before you give the dose.'},
+{letter:'B',text:'Thirty to sixty minutes before the meal',correct:false,rationale:'That is the timing for REGULAR (short-acting) insulin.'},
+{letter:'C',text:'One hour after the meal',correct:false,rationale:'This misses the postprandial glucose rise entirely.'},
+{letter:'D',text:'At bedtime regardless of meals',correct:false,rationale:'That is basal (long-acting) insulin timing.'}
+],
+vocabTip:'<strong>Prandial</strong> = related to a meal. Rapid-acting insulins are prandial (mealtime) insulins.',
+trap:'&ldquo;Food in front of her.&rdquo; Never give a rapid-acting insulin on a promise that the tray is coming.'},
+
+{id:15,block:'C',chapter:56,type:'Medication',
+stem:'A patient in DKA requires an insulin infusion. Which insulin can be administered intravenously?',
+options:[
+{letter:'A',text:'Regular insulin',correct:true,rationale:'Correct. Regular (short-acting) insulin is the ONLY insulin given IV. It is a clear solution of unmodified insulin, so it acts immediately when infused and can be titrated minute to minute.'},
+{letter:'B',text:'NPH insulin',correct:false,rationale:'NPH is a suspension &mdash; that is why it is cloudy &mdash; and suspensions are never given IV.'},
+{letter:'C',text:'Insulin glargine',correct:false,rationale:'Glargine precipitates in tissue to release slowly. Giving it IV would be dangerous and defeats its design.'},
+{letter:'D',text:'Insulin detemir',correct:false,rationale:'Detemir is a long-acting basal insulin and is never given IV.'}
+],
+vocabTip:'<strong>Suspension</strong> = particles floating in liquid (cloudy). <strong>Solution</strong> = fully dissolved (clear). Only clear solutions go in a vein.',
+trap:'Clear does not automatically mean IV-safe &mdash; glargine is clear and is never given IV. The IV insulin is REGULAR, period.'},
+
+{id:16,block:'C',chapter:56,type:'Medication',
+stem:'The nurse is mixing regular insulin and NPH insulin in one syringe. Which sequence is correct?',
+options:[
+{letter:'A',text:'Inject air into the NPH vial, inject air into the regular vial, withdraw the regular first, then withdraw the NPH',correct:true,rationale:'Correct. Air goes into the cloudy vial first without touching the solution, then into the clear vial, and the CLEAR is drawn up BEFORE the cloudy. This keeps the modified NPH from contaminating the regular vial, which would alter its action.'},
+{letter:'B',text:'Withdraw the NPH first, then the regular',correct:false,rationale:'This contaminates the regular insulin with NPH, changing the onset of every future dose from that vial.'},
+{letter:'C',text:'Draw them into two separate syringes and give two injections',correct:false,rationale:'They are compatible and are deliberately mixed to spare the patient a second stick.'},
+{letter:'D',text:'Shake both vials vigorously before withdrawing',correct:false,rationale:'Insulin is gently rolled, never shaken. Shaking creates bubbles that cause dosing errors.'}
+],
+vocabTip:'Memory hook: <strong>clear before cloudy</strong> &mdash; RN, Regular before NPH, the same order as the letters in your own credential.',
+trap:'NPH is the only insulin that gets mixed. Glargine, detemir and degludec are NEVER mixed with anything.'},
+
+{id:17,block:'C',chapter:56,type:'Medication',
+stem:'A patient asks why her insulin glargine is given once daily at the same time and does not require food. What is the nurse&rsquo;s best explanation?',
+options:[
+{letter:'A',text:'&ldquo;It has no pronounced peak and lasts 24 hours or more, so it provides a steady background level rather than covering a meal.&rdquo;',correct:true,rationale:'Correct. Glargine is a basal insulin: onset 1 to 4 hours, NO peak, duration over 24 hours. Because there is no peak, it is not timed to food and carries a lower risk of a sharp hypoglycemic episode.'},
+{letter:'B',text:'&ldquo;It peaks in 4 to 12 hours, so it covers lunch and dinner.&rdquo;',correct:false,rationale:'That peak describes NPH. Glargine is peakless.'},
+{letter:'C',text:'&ldquo;It works within 15 minutes.&rdquo;',correct:false,rationale:'That is a rapid-acting insulin. Glargine takes 1 to 4 hours to begin.'},
+{letter:'D',text:'&ldquo;It can be held on days you do not eat.&rdquo;',correct:false,rationale:'Basal insulin covers the liver&rsquo;s background glucose output and is needed whether or not the patient eats.'}
+],
+vocabTip:'<strong>Basal</strong> = the steady background insulin. <strong>Bolus</strong> = the extra dose that covers a meal or corrects a high.',
+trap:'NO PEAK is the single most testable fact about long-acting insulin, and it is why it cannot be mixed or used to correct a high.'},
+
+{id:18,block:'C',chapter:56,type:'Medication',
+stem:'A nurse is reviewing a patient&rsquo;s NPH insulin given at 0700. When should the nurse plan to reassess for hypoglycemia?',
+options:[
+{letter:'A',text:'Between 1100 and 1900, matching the 4-to-12-hour peak',correct:true,rationale:'Correct. NPH has an onset of 1.5 to 4 hours, peaks at 4 to 12 hours and lasts 12 to 18 hours. A morning dose puts the peak squarely over lunch and the afternoon, which is why an afternoon snack is often needed.'},
+{letter:'B',text:'Between 0715 and 0800',correct:false,rationale:'NPH has not even reached onset that early.'},
+{letter:'C',text:'Between 0100 and 0400 the following morning',correct:false,rationale:'That window fits a bedtime NPH dose, not a 0700 dose.'},
+{letter:'D',text:'NPH has no peak',correct:false,rationale:'NPH does peak. The peakless insulins are glargine, detemir and degludec.'}
+],
+vocabTip:'NPH is <strong>Neutral Protamine Hagedorn</strong> &mdash; protamine is the additive that slows absorption and makes the suspension cloudy.'},
+
+{id:19,block:'C',chapter:56,type:'Medication',
+sata:true,
+stem:'Which instructions should the nurse include when teaching subcutaneous insulin self-administration? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Rotate injection sites within one anatomic area rather than jumping between areas',correct:true,rationale:'Correct. Absorption differs by site &mdash; abdomen fastest, then arm, thigh, buttock. Staying in one area keeps absorption predictable while rotating within it prevents lipohypertrophy.'},
+{letter:'B',text:'Keep the vial in use at room temperature for up to 28 days and store spares in the refrigerator',correct:true,rationale:'Correct. Room-temperature insulin is far less painful to inject. Unopened vials stay refrigerated until needed.'},
+{letter:'C',text:'Gently roll cloudy insulin between the palms rather than shaking it',correct:true,rationale:'Correct. Rolling resuspends the particles evenly; shaking froths the insulin and makes accurate measurement impossible.'},
+{letter:'D',text:'Inject at a 90-degree angle, or 45 degrees if very thin',correct:true,rationale:'Correct. The goal is subcutaneous tissue. A thin patient needs a shallower angle to avoid intramuscular injection, which speeds absorption unpredictably.'},
+{letter:'E',text:'Never share an insulin pen, even with a new needle',correct:true,rationale:'Correct. Blood can be drawn back into the cartridge. Pens are single-patient devices without exception.'},
+{letter:'F',text:'Massage the site vigorously after injecting to improve absorption',correct:false,rationale:'Massaging speeds and randomizes absorption, which can cause unexpected hypoglycemia. Do not rub the site.'}
+],
+vocabTip:'<strong>Lipohypertrophy</strong> = fatty lumps from repeated injection in one spot. Insulin absorbs erratically from those lumps, which is a hidden cause of unstable glucose.',
+trap:'Injecting into a favorite painless lump is common and is exactly what causes it. Ask to SEE the sites when glucose is unexplainably erratic.'},
+
+{id:20,block:'C',chapter:56,type:'Medication',
+stem:'A patient with an insulin pump reports the site is red, painful and her glucose has been over 300 for six hours. What should the nurse instruct?',
+options:[
+{letter:'A',text:'Change the infusion set and site now, check ketones, and give a correction dose by syringe or pen',correct:true,rationale:'Correct. A pump delivers only rapid-acting insulin, so an occluded or infected site means the patient has NO insulin on board and can develop DKA within hours. The site is changed and a backup injection is given immediately.'},
+{letter:'B',text:'Increase the basal rate and continue monitoring',correct:false,rationale:'Raising the rate through a site that is not delivering accomplishes nothing.'},
+{letter:'C',text:'Disconnect the pump and wait for the glucose to come down',correct:false,rationale:'Disconnecting without a backup injection guarantees DKA.'},
+{letter:'D',text:'Apply ice to the site and recheck in 4 hours',correct:false,rationale:'Waiting four hours with no insulin delivery is dangerous.'}
+],
+vocabTip:'Pump patients have <strong>no long-acting insulin reservoir</strong> in their body. Any interruption is an emergency on a clock measured in hours.',
+trap:'Unexplained hyperglycemia in a pump patient is a SITE problem until proven otherwise. Look at the site before adjusting any setting.'},
+
+{id:21,block:'C',chapter:56,type:'Priority',
+stem:'A nurse prepares to give 12 units of insulin. Which action is required before administration?',
+options:[
+{letter:'A',text:'Have a second licensed nurse independently verify the order, the insulin type and the dose drawn up',correct:true,rationale:'Correct. Insulin is a high-alert medication and independent double-check is standard practice. The verification covers the drug, the concentration, the dose and the syringe &mdash; an insulin syringe, never a tuberculin syringe.'},
+{letter:'B',text:'Confirm the patient has finished eating',correct:false,rationale:'For rapid-acting insulin the food must be PRESENT, but the required safety step for any insulin dose is the independent verification.'},
+{letter:'C',text:'Warm the vial under hot water',correct:false,rationale:'Never. Heat degrades insulin.'},
+{letter:'D',text:'Document the dose before giving it',correct:false,rationale:'Documentation always follows administration.'}
+],
+vocabTip:'<strong>High-alert medication</strong> = a drug with a heightened risk of significant harm when used in error. Insulin, heparin, opioids and concentrated electrolytes lead the list.',
+trap:'Never write &ldquo;u&rdquo; for units. A handwritten &ldquo;10u&rdquo; has been read as 100. Spell out UNITS.'},
+
+{id:22,block:'D',chapter:56,type:'Medication',
+stem:'A patient taking metformin is scheduled for a CT scan with iodinated contrast. What does the nurse anticipate?',
+options:[
+{letter:'A',text:'The metformin will be held at the time of the study and for 48 hours afterward, and restarted only after renal function is rechecked',correct:true,rationale:'Correct. Contrast can impair kidney function. If metformin is not cleared it accumulates and causes lactic acidosis, which is frequently fatal. Holding it for 48 hours and confirming the creatinine before restarting is the standard precaution.'},
+{letter:'B',text:'The dose will be doubled before the study',correct:false,rationale:'This would increase the exact risk the precaution exists to prevent.'},
+{letter:'C',text:'No change is needed because metformin is not renally cleared',correct:false,rationale:'Metformin is cleared almost entirely by the kidneys, which is precisely why this precaution exists.'},
+{letter:'D',text:'The metformin will be switched to insulin permanently',correct:false,rationale:'It is held temporarily, not permanently discontinued.'}
+],
+vocabTip:'<strong>Lactic acidosis</strong> = a buildup of lactic acid causing a dangerous metabolic acidosis. Early signs are muscle aches, unusual drowsiness, hyperventilation and abdominal discomfort.',
+trap:'This is the answer to her blank &ldquo;Metformin precautions?&rdquo; prompt: HOLD 48 HOURS FOR CONTRAST. It appears on nearly every diabetes exam.'},
+
+{id:23,block:'D',chapter:56,type:'Medication',
+sata:true,
+stem:'In which situations should the nurse question an order for metformin? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Serum creatinine elevated with a reduced glomerular filtration rate',correct:true,rationale:'Correct. Renal impairment is the leading contraindication because the drug accumulates when it cannot be cleared.'},
+{letter:'B',text:'Active alcohol use disorder',correct:true,rationale:'Correct. Alcohol independently raises lactate and impairs hepatic clearance, compounding the risk.'},
+{letter:'C',text:'Acute heart failure exacerbation with hypoperfusion',correct:true,rationale:'Correct. Any state of tissue hypoxia or hypoperfusion raises lactate production and makes acidosis more likely.'},
+{letter:'D',text:'Sepsis',correct:true,rationale:'Correct. Sepsis produces both hypoperfusion and acute kidney injury &mdash; a worst-case combination for this drug.'},
+{letter:'E',text:'Severe dehydration from vomiting and diarrhea',correct:true,rationale:'Correct. Volume depletion reduces renal clearance, so metformin is held on sick days with significant fluid losses.'},
+{letter:'F',text:'A fasting glucose of 148 mg/dL in a stable outpatient',correct:false,rationale:'This is exactly the patient metformin is intended for. It is an indication, not a reason to question the order.'}
+],
+vocabTip:'The theme across all contraindications is the same: <strong>anything that impairs clearance or raises lactate.</strong> Kidneys, liver, alcohol, low perfusion, low oxygen.'},
+
+{id:24,block:'D',chapter:56,type:'Medication',
+stem:'Which teaching point is correct for a patient starting metformin?',
+options:[
+{letter:'A',text:'&ldquo;Take it with food to reduce stomach upset; by itself it does not usually cause low blood sugar.&rdquo;',correct:true,rationale:'Correct. Metformin reduces hepatic glucose production and improves insulin sensitivity rather than forcing insulin release, so it does not cause hypoglycemia on its own. GI upset and diarrhea are the common early effects and improve with food and time.'},
+{letter:'B',text:'&ldquo;Take it on an empty stomach for best absorption.&rdquo;',correct:false,rationale:'This maximizes the GI side effects that cause patients to quit the drug.'},
+{letter:'C',text:'&ldquo;Carry glucose tablets because this drug commonly causes hypoglycemia.&rdquo;',correct:false,rationale:'Metformin alone does not cause hypoglycemia. Sulfonylureas and insulin do.'},
+{letter:'D',text:'&ldquo;Stop it immediately if you have any diarrhea.&rdquo;',correct:false,rationale:'Mild GI upset is expected initially and usually resolves; the patient is taught to expect it rather than abandon the drug.'}
+],
+vocabTip:'<strong>Biguanide</strong> = metformin&rsquo;s drug class. It works mainly by telling the liver to stop dumping glucose into the blood.'},
+
+{id:25,block:'D',chapter:56,type:'Medication',
+stem:'A patient takes glipizide, a sulfonylurea. Which teaching is most important?',
+options:[
+{letter:'A',text:'&ldquo;This drug makes your pancreas release more insulin, so it CAN cause low blood sugar &mdash; carry a fast sugar source and do not skip meals.&rdquo;',correct:true,rationale:'Correct. Sulfonylureas are insulin secretagogues. Because they force insulin release regardless of the glucose level, skipping a meal after taking one produces hypoglycemia. The risk is highest in older adults and in renal impairment.'},
+{letter:'B',text:'&ldquo;This drug cannot cause low blood sugar.&rdquo;',correct:false,rationale:'Hypoglycemia is its principal adverse effect.'},
+{letter:'C',text:'&ldquo;Take it only when your glucose is above 200.&rdquo;',correct:false,rationale:'It is a scheduled medication, not a PRN correction drug.'},
+{letter:'D',text:'&ldquo;Alcohol has no interaction with this drug.&rdquo;',correct:false,rationale:'Alcohol deepens hypoglycemia, and some sulfonylureas cause a disulfiram-like reaction.'}
+],
+vocabTip:'<strong>Secretagogue</strong> = a drug that makes a gland secrete. If a diabetes drug pushes insulin out, it can cause hypoglycemia.',
+trap:'Sort the oral drugs by one question: does it FORCE insulin out? Sulfonylureas and meglitinides do, so they cause lows. Metformin, DPP-4 inhibitors and SGLT2 inhibitors generally do not.'},
+
+{id:26,block:'D',chapter:56,type:'Medication',
+stem:'A patient is started on empagliflozin, an SGLT2 inhibitor. Which teaching does the nurse include?',
+options:[
+{letter:'A',text:'&ldquo;This drug makes you spill sugar in your urine, so drink adequate fluids and report burning with urination or genital itching.&rdquo;',correct:true,rationale:'Correct. SGLT2 inhibitors block glucose reabsorption in the kidney. Sugar in the urine raises the risk of urinary and genital yeast infections, and the osmotic diuresis causes volume depletion, dizziness and hypotension.'},
+{letter:'B',text:'&ldquo;Restrict your fluids while taking this drug.&rdquo;',correct:false,rationale:'Fluid restriction would compound the osmotic diuresis and risk dehydration.'},
+{letter:'C',text:'&ldquo;Sugar in your urine means the drug is not working.&rdquo;',correct:false,rationale:'Glucosuria is the drug&rsquo;s mechanism, not a failure.'},
+{letter:'D',text:'&ldquo;This drug commonly causes severe hypoglycemia.&rdquo;',correct:false,rationale:'Hypoglycemia is uncommon unless combined with insulin or a sulfonylurea.'}
+],
+vocabTip:'<strong>SGLT2</strong> = sodium-glucose cotransporter 2, the kidney protein that normally reabsorbs filtered glucose. Blocking it dumps glucose into the urine.',
+trap:'SGLT2 inhibitors can cause euglycemic DKA &mdash; ketoacidosis with a nearly normal glucose. Ketones must be checked based on SYMPTOMS, not on the glucose number.'},
+
+{id:27,block:'D',chapter:56,type:'Medication',
+stem:'A patient is prescribed a GLP-1 receptor agonist such as semaglutide. Which effect should the nurse teach the patient to expect?',
+options:[
+{letter:'A',text:'Nausea and early fullness with meals, and weight loss, because the drug slows gastric emptying and reduces appetite',correct:true,rationale:'Correct. GLP-1 agonists increase glucose-dependent insulin release, suppress glucagon, slow gastric emptying and act centrally to reduce appetite. Nausea is the most common effect and usually improves as the dose is titrated.'},
+{letter:'B',text:'Significant weight gain',correct:false,rationale:'Weight loss is one of the principal benefits of this class.'},
+{letter:'C',text:'Constant hunger',correct:false,rationale:'Appetite suppression is the expected effect.'},
+{letter:'D',text:'Severe hypoglycemia when used alone',correct:false,rationale:'Insulin release is glucose-dependent, so hypoglycemia is uncommon unless combined with insulin or a sulfonylurea.'}
+],
+vocabTip:'<strong>Incretin</strong> = a gut hormone released with eating that tells the pancreas to release insulin. GLP-1 agonists mimic it; DPP-4 inhibitors keep the body&rsquo;s own from being broken down.',
+trap:'GLP-1 agonists carry a thyroid C-cell tumor warning and are avoided with a personal or family history of medullary thyroid carcinoma or MEN 2 &mdash; the link back to Chapter 55.'},
+
+{id:28,block:'D',chapter:56,type:'Medication',
+stem:'A patient asks why she must still follow a meal plan and exercise if she is taking medication for her type 2 diabetes. What is the nurse&rsquo;s best response?',
+options:[
+{letter:'A',text:'&ldquo;Nutrition and activity are the foundation of treatment; the medication works with them, not instead of them, and activity directly improves how your cells respond to insulin.&rdquo;',correct:true,rationale:'Correct. Exercise increases glucose uptake into muscle by a mechanism that does not require insulin, and that improvement in sensitivity persists for hours to days after the session. No medication replaces that effect.'},
+{letter:'B',text:'&ldquo;Once the medication is working you can eat whatever you want.&rdquo;',correct:false,rationale:'This undermines the intervention with the largest long-term effect.'},
+{letter:'C',text:'&ldquo;Exercise is optional if your A1C is at goal.&rdquo;',correct:false,rationale:'Activity also reduces cardiovascular risk, the leading cause of death in diabetes.'},
+{letter:'D',text:'&ldquo;Diet only matters for patients on insulin.&rdquo;',correct:false,rationale:'Nutrition therapy is central for every type of diabetes.'}
+],
+vocabTip:'<strong>Medical nutrition therapy (MNT)</strong> = the individualized eating plan developed with a dietitian. It is a prescribed treatment, not general advice.'},
+
+{id:29,block:'E',chapter:56,type:'Assessment',
+stem:'A patient becomes suddenly shaky, diaphoretic, pale and irritable with a heart rate of 112. What does the nurse suspect and do first?',
+options:[
+{letter:'A',text:'Hypoglycemia &mdash; check the blood glucose immediately',correct:true,rationale:'Correct. Sudden onset with adrenergic symptoms &mdash; shaky, sweaty, tachycardic, anxious &mdash; is hypoglycemia until proven otherwise. These come from the epinephrine surge triggered by the falling glucose. Confirm with a number, then treat.'},
+{letter:'B',text:'Hyperglycemia &mdash; administer the sliding-scale insulin',correct:false,rationale:'Giving insulin to a hypoglycemic patient can be fatal. Hyperglycemia also develops gradually and presents hot and dry, not cold and clammy.'},
+{letter:'C',text:'Anxiety &mdash; provide reassurance and reassess in an hour',correct:false,rationale:'These symptoms are indistinguishable from anxiety, which is exactly why a glucose check is mandatory rather than optional.'},
+{letter:'D',text:'Infection &mdash; obtain a temperature and blood cultures',correct:false,rationale:'Nothing here suggests infection, and the onset is far too abrupt.'}
+],
+vocabTip:'Memory hook: <strong>cold and clammy, need some candy.</strong> Hypoglycemia is the wet, fast, sudden one.',
+trap:'Hypoglycemia is the emergency because the brain runs only on glucose. When you cannot tell hypo from hyper, treat for LOW &mdash; a few minutes of hyperglycemia is survivable, a few minutes of severe hypoglycemia may not be.'},
+
+{id:30,block:'E',chapter:56,type:'Priority',
+stem:'An alert patient&rsquo;s blood glucose is 54 mg/dL. What does the nurse do?',
+options:[
+{letter:'A',text:'Give 15 grams of a fast-acting carbohydrate, recheck in 15 minutes, and repeat if still below 70',correct:true,rationale:'Correct. This is the 15-15 rule. Four ounces of juice, four glucose tablets or a tablespoon of honey are all 15 grams. Once the glucose is above 70, a snack with protein and carbohydrate prevents a second drop.'},
+{letter:'B',text:'Give a candy bar with chocolate and nuts',correct:false,rationale:'Fat slows gastric emptying and delays glucose absorption, which is the opposite of what an acute low needs.'},
+{letter:'C',text:'Give 50 grams of carbohydrate to bring it up quickly',correct:false,rationale:'Overtreating causes rebound hyperglycemia and a glucose roller coaster.'},
+{letter:'D',text:'Withhold treatment and recheck in one hour',correct:false,rationale:'Hypoglycemia is treated immediately; an hour is long enough to become severe.'}
+],
+vocabTip:'<strong>15-15 rule:</strong> 15 grams of fast carbohydrate, wait 15 minutes, recheck. Repeat up to three times, then escalate.',
+trap:'Fat is the enemy of fast absorption. Chocolate, ice cream and peanut butter crackers are all wrong answers for an acute low.'},
+
+{id:31,block:'E',chapter:56,type:'Priority',
+stem:'A patient with diabetes is found unresponsive with a blood glucose of 38 mg/dL. IV access is not yet established. What should the nurse do?',
+options:[
+{letter:'A',text:'Administer glucagon intramuscularly or subcutaneously and turn the patient on their side',correct:true,rationale:'Correct. Nothing is given by mouth to an unresponsive patient because of aspiration risk. Glucagon mobilizes the liver&rsquo;s stored glycogen and can be given IM or subcutaneously. Side-lying protects the airway because glucagon frequently causes vomiting.'},
+{letter:'B',text:'Place glucose gel in the patient&rsquo;s mouth',correct:false,rationale:'Any oral treatment in an unresponsive patient risks aspiration. This is a classic wrong answer.'},
+{letter:'C',text:'Give 4 ounces of orange juice through a straw',correct:false,rationale:'Same aspiration risk. Nothing by mouth.'},
+{letter:'D',text:'Wait for the patient to wake up before treating',correct:false,rationale:'Severe hypoglycemia causes permanent neurologic injury. It is treated immediately.'}
+],
+vocabTip:'<strong>Glucagon</strong> works only if there is glycogen stored in the liver. It may fail in a patient who is malnourished, alcohol-intoxicated or has been hypoglycemic for a long time &mdash; those patients need IV dextrose.',
+trap:'If IV access exists, D50 IV push is the treatment. Glucagon is the answer when there is no line.'},
+
+{id:32,block:'E',chapter:56,type:'Concept',
+stem:'A patient on a beta blocker has diabetes. What is the nurse&rsquo;s specific concern about hypoglycemia?',
+options:[
+{letter:'A',text:'The beta blocker masks the adrenergic warning signs, so the patient may not feel the shakiness and palpitations that normally warn of a low',correct:true,rationale:'Correct. Beta blockade blunts tremor, tachycardia and palpitations. Diaphoresis is usually preserved, so sweating may be the only clue. These patients need more frequent monitoring because they lose their early warning system.'},
+{letter:'B',text:'The beta blocker raises the glucose so hypoglycemia cannot occur',correct:false,rationale:'Beta blockers do not prevent hypoglycemia; they hide it.'},
+{letter:'C',text:'The beta blocker eliminates the need for glucose monitoring',correct:false,rationale:'It makes monitoring MORE important, not less.'},
+{letter:'D',text:'There is no interaction of clinical significance',correct:false,rationale:'Masked hypoglycemia is a well-established and dangerous interaction.'}
+],
+vocabTip:'<strong>Hypoglycemia unawareness</strong> = loss of the warning symptoms, from beta blockers, autonomic neuropathy, or repeated lows blunting the response over time.'},
+
+{id:33,block:'E',chapter:56,type:'Concept',
+stem:'A patient consistently wakes with a glucose near 210 mg/dL. A 3 AM check shows 48 mg/dL. How does the nurse interpret this?',
+options:[
+{letter:'A',text:'Somogyi phenomenon &mdash; nighttime hypoglycemia triggers counterregulatory hormones that rebound the morning glucose up; the evening insulin should be DECREASED or a bedtime snack added',correct:true,rationale:'Correct. The LOW 3 AM value is the whole tell. The body dumps cortisol, glucagon, epinephrine and growth hormone to rescue itself, and overshoots. Giving more insulin here would deepen the nighttime low and make the morning number worse.'},
+{letter:'B',text:'Dawn phenomenon &mdash; increase the evening insulin',correct:false,rationale:'Dawn phenomenon shows a NORMAL or high 3 AM glucose. This patient was low at 3 AM, so more insulin is the wrong direction.'},
+{letter:'C',text:'The patient is eating overnight',correct:false,rationale:'Eating overnight would raise the 3 AM glucose, not drop it to 48.'},
+{letter:'D',text:'The meter is malfunctioning',correct:false,rationale:'The pattern is internally consistent and describes a recognized phenomenon.'}
+],
+vocabTip:'<strong>Counterregulatory hormones</strong> = cortisol, glucagon, epinephrine and growth hormone. Their job is to raise glucose, and in Somogyi they overshoot.',
+trap:'This is the answer to her blank &ldquo;Dawn vs. Somogyi?&rdquo; prompt. Both look identical at 7 AM. The 3 AM check is the ONLY way to tell them apart &mdash; and the treatments are opposite.'},
+
+{id:34,block:'E',chapter:56,type:'Concept',
+stem:'A patient wakes with a glucose of 195 mg/dL and a 3 AM check shows 140 mg/dL. What does the nurse conclude?',
+options:[
+{letter:'A',text:'Dawn phenomenon &mdash; the early-morning surge of growth hormone and cortisol is outpacing the available insulin; the evening basal dose may be increased or moved later',correct:true,rationale:'Correct. The 3 AM value is NOT low, so there is no rebound. The rise is a normal hormonal surge between about 4 and 8 AM that this patient does not have enough insulin to cover. More basal insulin, or a later dose, is the appropriate fix.'},
+{letter:'B',text:'Somogyi phenomenon &mdash; reduce the evening insulin',correct:false,rationale:'Somogyi requires a LOW 3 AM value. Reducing insulin here would worsen the morning hyperglycemia.'},
+{letter:'C',text:'The patient needs to stop eating breakfast',correct:false,rationale:'The glucose is already elevated before breakfast is eaten.'},
+{letter:'D',text:'The patient should skip the evening insulin dose',correct:false,rationale:'This would markedly worsen the morning hyperglycemia and risk DKA.'}
+],
+vocabTip:'Memory hook: <strong>DAWN is the normal one</strong> &mdash; dawn breaks, hormones rise, glucose rises. <strong>SOMOGYI has the low</strong> in it: Sinking at 3 AM.',
+trap:'Same 7 AM number, opposite treatment. Never answer a morning-hyperglycemia question until you have found the 3 AM value in the stem.'},
+
+{id:35,block:'E',chapter:56,type:'Concept',
+sata:true,
+stem:'Which circumstances increase a patient&rsquo;s risk for hypoglycemia? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Skipping or delaying a meal after taking insulin',correct:true,rationale:'Correct. The insulin acts on schedule whether or not the food arrives.'},
+{letter:'B',text:'Unplanned or more intense exercise than usual',correct:true,rationale:'Correct. Exercise increases glucose uptake into muscle and the effect can persist for many hours afterward.'},
+{letter:'C',text:'Drinking alcohol, especially without food',correct:true,rationale:'Correct. Alcohol blocks the liver from making new glucose, and the resulting hypoglycemia can occur many hours later and be mistaken for intoxication.'},
+{letter:'D',text:'Worsening kidney function',correct:true,rationale:'Correct. The kidneys clear insulin and many oral agents; as function declines, drug levels rise and doses often must be reduced.'},
+{letter:'E',text:'Taking a sulfonylurea in an older adult',correct:true,rationale:'Correct. Older adults are especially vulnerable because of reduced clearance, irregular intake and blunted warning symptoms.'},
+{letter:'F',text:'An acute infection with fever',correct:false,rationale:'Infection and fever raise glucose through stress hormones. That is a HYPERglycemia and DKA risk, not a hypoglycemia risk.'}
+],
+vocabTip:'<strong>Gluconeogenesis</strong> = the liver making new glucose. Alcohol shuts it down, which is why alcohol-related hypoglycemia is delayed and dangerous.',
+trap:'Alcohol-related hypoglycemia can arrive hours later, overnight, and looks exactly like being drunk. Teach patients to eat when they drink and to check before bed.'},
+
+{id:36,block:'E',chapter:56,type:'Concept',
+stem:'After successfully treating a hypoglycemic episode and confirming the glucose is 96 mg/dL, what should the nurse do next?',
+options:[
+{letter:'A',text:'Provide a snack containing carbohydrate and protein if a meal is more than an hour away, and investigate what caused the episode',correct:true,rationale:'Correct. The fast carbohydrate is gone within an hour, so without longer-acting food the patient drops again. Identifying the cause &mdash; a missed meal, a dose error, new exercise, worsening renal function &mdash; is what prevents the next episode.'},
+{letter:'B',text:'Give an additional 15 grams of carbohydrate',correct:false,rationale:'The glucose is already normal; more carbohydrate causes rebound hyperglycemia.'},
+{letter:'C',text:'Administer the scheduled insulin dose immediately',correct:false,rationale:'Insulin timing after a hypoglycemic episode requires provider input, not reflex administration.'},
+{letter:'D',text:'Document the event and take no further action',correct:false,rationale:'Documentation without root-cause review guarantees a repeat episode.'}
+],
+vocabTip:'<strong>Protein plus carbohydrate</strong> sustains the glucose because protein digests slowly. Crackers with cheese or peanut butter is the classic follow-up snack.'},
+
+{id:37,block:'F',chapter:56,type:'Lab Read',
+stem:'A patient with type 1 diabetes presents with glucose 420 mg/dL, pH 7.22, bicarbonate 12 mEq/L, and positive serum ketones. What is the nurse&rsquo;s interpretation?',
+options:[
+{letter:'A',text:'Diabetic ketoacidosis',correct:true,rationale:'Correct. DKA is defined by the triad of hyperglycemia, metabolic acidosis and ketosis. With no insulin at all, the body breaks down fat for fuel and the ketone byproducts acidify the blood.'},
+{letter:'B',text:'Hyperglycemic hyperosmolar state',correct:false,rationale:'HHS has a NORMAL pH and no significant ketones, with glucose typically above 600.'},
+{letter:'C',text:'Hypoglycemia',correct:false,rationale:'The glucose is 420 mg/dL.'},
+{letter:'D',text:'Somogyi phenomenon',correct:false,rationale:'Somogyi is a pattern of morning hyperglycemia after a nocturnal low, not an acute acidotic crisis.'}
+],
+vocabTip:'<strong>Ketones</strong> = acidic byproducts of fat breakdown. They appear when there is not enough insulin to let glucose into cells, so the body burns fat instead.',
+trap:'The pH and the ketones separate DKA from HHS. Glucose alone cannot &mdash; both are high.'},
+
+{id:38,block:'F',chapter:56,type:'Assessment',
+stem:'A patient in DKA has deep, rapid respirations and breath with a fruity odor. How does the nurse interpret these findings?',
+options:[
+{letter:'A',text:'Kussmaul respirations compensating for the metabolic acidosis, with acetone being exhaled',correct:true,rationale:'Correct. The lungs blow off CO2 to reduce the acid load &mdash; that is the deep, rapid pattern. Acetone, a volatile ketone, is exhaled and produces the fruity odor. Both are signs of severity, not of respiratory disease.'},
+{letter:'B',text:'Early respiratory failure requiring immediate intubation',correct:false,rationale:'This is compensation, not failure. Suppressing it with sedation or intubation can worsen the acidosis dangerously.'},
+{letter:'C',text:'Anxiety-related hyperventilation',correct:false,rationale:'The fruity odor and the clinical context point to ketoacidosis.'},
+{letter:'D',text:'Pneumonia',correct:false,rationale:'Pneumonia produces rapid shallow breathing with adventitious sounds, not deep regular Kussmaul respirations with ketotic breath.'}
+],
+vocabTip:'<strong>Kussmaul respirations</strong> = deep, labored, regular breathing driven by metabolic acidosis. The body is trying to exhale acid.',
+trap:'Do not suppress Kussmaul breathing. It is the compensation keeping the patient alive until the acidosis is corrected.'},
+
+{id:39,block:'F',chapter:56,type:'Priority',
+stem:'A patient is admitted in DKA with a blood pressure of 88/50 and a heart rate of 126. Which order does the nurse implement FIRST?',
+options:[
+{letter:'A',text:'Begin IV 0.9 percent sodium chloride at the ordered rapid rate',correct:true,rationale:'Correct. These patients are profoundly volume depleted from osmotic diuresis. Fluid resuscitation restores perfusion, begins lowering the glucose by dilution and improved renal clearance, and is required before insulin can work safely. Fluids first, always.'},
+{letter:'B',text:'Give the IV insulin bolus',correct:false,rationale:'Insulin drives potassium and glucose into cells, pulling water with them. Giving it before volume is restored can cause circulatory collapse.'},
+{letter:'C',text:'Administer IV sodium bicarbonate',correct:false,rationale:'Bicarbonate is reserved for extreme acidosis; treating the underlying insulin deficiency and volume loss corrects the pH.'},
+{letter:'D',text:'Give oral fluids and a carbohydrate-free meal',correct:false,rationale:'The patient needs IV resuscitation, and altered mental status makes oral intake unsafe.'}
+],
+vocabTip:'<strong>Osmotic diuresis</strong> = glucose in the urine dragging water with it. It is why DKA and HHS patients can lose many liters of fluid.',
+trap:'FLUIDS BEFORE INSULIN. This is the most commonly tested sequencing question in the entire chapter.'},
+
+{id:40,block:'F',chapter:56,type:'Lab Read',
+stem:'A patient in DKA has a serum potassium of 5.4 mEq/L on admission. The insulin infusion is about to start. What does the nurse anticipate?',
+options:[
+{letter:'A',text:'The potassium will fall rapidly once insulin is started, so replacement will be added and the level monitored frequently',correct:true,rationale:'Correct. The admission potassium looks high because acidosis has pushed potassium OUT of cells, but total body potassium is depleted. Insulin drives it back in and the level can crash, causing lethal dysrhythmias. Potassium is monitored hourly and replaced.'},
+{letter:'B',text:'The potassium will continue to rise and a binder will be needed',correct:false,rationale:'Insulin lowers serum potassium; that is why it is also a treatment for hyperkalemia.'},
+{letter:'C',text:'The potassium requires no monitoring during treatment',correct:false,rationale:'Potassium shifts are the most dangerous part of DKA management.'},
+{letter:'D',text:'The insulin should be held until the potassium is above 6.0',correct:false,rationale:'A high potassium is not a reason to hold insulin. Insulin is held when potassium is LOW, below about 3.3, until it is replaced.'}
+],
+vocabTip:'<strong>Transcellular shift</strong> = potassium moving between the blood and the inside of cells without any change in total body potassium. Acidosis pushes it out; insulin pushes it in.',
+trap:'A normal or high potassium in DKA is falsely reassuring. The real total-body store is depleted and the number is about to fall.'},
+
+{id:41,block:'F',chapter:56,type:'Concept',
+stem:'During treatment of DKA the glucose falls to 245 mg/dL. What does the nurse anticipate?',
+options:[
+{letter:'A',text:'Dextrose will be added to the IV fluid while the insulin infusion continues until the acidosis resolves',correct:true,rationale:'Correct. The insulin is treating the KETOACIDOSIS, not just the glucose. Stopping it when the glucose normalizes leaves the acidosis uncorrected, so dextrose is added around 250 mg/dL to allow the insulin to keep running safely.'},
+{letter:'B',text:'The insulin infusion will be stopped immediately',correct:false,rationale:'Stopping insulin before the anion gap closes allows the ketoacidosis to recur.'},
+{letter:'C',text:'The patient will be discharged',correct:false,rationale:'The acidosis has not yet resolved.'},
+{letter:'D',text:'The IV fluids will be discontinued',correct:false,rationale:'Fluid replacement continues until the deficit is corrected.'}
+],
+vocabTip:'<strong>Anion gap</strong> = a calculated value that rises with ketoacids. Closing the gap, not normalizing the glucose, is what signals that DKA has resolved.',
+trap:'Lowering the glucose is not the goal. Clearing the KETONES and closing the gap is the goal.'},
+
+{id:42,block:'F',chapter:56,type:'Concept',
+sata:true,
+stem:'Which findings distinguish hyperglycemic hyperosmolar state from diabetic ketoacidosis? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Glucose often above 600 mg/dL',correct:true,rationale:'Correct. HHS glucose values run far higher than DKA because the process develops slowly over days.'},
+{letter:'B',text:'Absent or minimal ketones',correct:true,rationale:'Correct. Enough insulin remains to prevent fat breakdown, so ketones do not accumulate.'},
+{letter:'C',text:'Normal arterial pH and bicarbonate',correct:true,rationale:'Correct. Without ketoacids there is no metabolic acidosis, which is the single cleanest difference from DKA.'},
+{letter:'D',text:'Profound dehydration with markedly elevated serum osmolality',correct:true,rationale:'Correct. Days of osmotic diuresis produce far greater fluid deficits than DKA, often 8 to 10 liters.'},
+{letter:'E',text:'Prominent neurologic changes such as confusion, seizures or coma',correct:true,rationale:'Correct. The extreme osmolality pulls water out of brain cells, producing the neurologic picture that dominates HHS.'},
+{letter:'F',text:'Kussmaul respirations with fruity breath',correct:false,rationale:'These are DKA findings. With no acidosis and no ketones, HHS patients do not have them.'}
+],
+vocabTip:'<strong>Osmolality</strong> = the concentration of particles in the blood. Very high osmolality dehydrates brain cells, which is why HHS is a neurologic presentation.',
+trap:'HHS is usually an older type 2 patient with an infection who could not get to water. The dehydration, not the glucose, is what kills.'},
+
+{id:43,block:'F',chapter:56,type:'Concept',
+stem:'Which patient is at highest risk for hyperglycemic hyperosmolar state?',
+options:[
+{letter:'A',text:'An 82-year-old nursing home resident with type 2 diabetes, pneumonia, and limited ability to request fluids',correct:true,rationale:'Correct. HHS requires two things: enough insulin to prevent ketosis and an inability to keep up with fluid losses. An older, dependent patient with an acute infection who cannot drink freely is the classic case.'},
+{letter:'B',text:'A 19-year-old with type 1 diabetes who missed one insulin dose',correct:false,rationale:'That patient is at risk for DKA, because type 1 produces no insulin at all.'},
+{letter:'C',text:'A 30-year-old with well-controlled type 1 diabetes on a pump',correct:false,rationale:'A pump failure would produce DKA, not HHS.'},
+{letter:'D',text:'A 45-year-old with prediabetes and a normal A1C on metformin',correct:false,rationale:'This patient is not at meaningful risk for either crisis.'}
+],
+vocabTip:'<strong>Precipitating illness</strong> &mdash; usually infection &mdash; is present in most HHS cases. Treating the crisis without finding the trigger leaves the patient to relapse.'},
+
+{id:44,block:'F',chapter:56,type:'Concept',
+stem:'The nurse teaches a patient with type 1 diabetes when to check urine or blood ketones. Which instruction is correct?',
+options:[
+{letter:'A',text:'&ldquo;Check ketones whenever your glucose is over 240, or any time you are sick, even if the glucose is not that high.&rdquo;',correct:true,rationale:'Correct. Ketones signal that the body has started burning fat, which precedes DKA. Illness alone raises the risk through stress hormones, so sick days trigger ketone checks regardless of the glucose value.'},
+{letter:'B',text:'&ldquo;Check ketones only if you have already vomited.&rdquo;',correct:false,rationale:'Vomiting is a late sign. The point of checking is to act before that.'},
+{letter:'C',text:'&ldquo;Ketone testing is only needed once a year at your checkup.&rdquo;',correct:false,rationale:'Ketone testing is a home self-management skill for type 1 patients.'},
+{letter:'D',text:'&ldquo;Only check ketones if your glucose is below 70.&rdquo;',correct:false,rationale:'Ketones accompany high glucose and insulin deficiency, not lows.'}
+],
+vocabTip:'<strong>Moderate to large urine ketones</strong> with hyperglycemia is a call-the-provider situation, not a wait-and-see one.'},
+
+{id:45,block:'G',chapter:56,type:'Concept',
+stem:'The nurse is teaching about the difference between the macrovascular and microvascular complications of diabetes. Which pairing is correct?',
+options:[
+{letter:'A',text:'Macrovascular: coronary artery disease, stroke and peripheral artery disease. Microvascular: retinopathy, nephropathy and neuropathy',correct:true,rationale:'Correct. Chronic hyperglycemia damages both the large vessels, accelerating atherosclerosis, and the small vessels of the eye, kidney and nerves. Cardiovascular disease is the leading cause of death in diabetes.'},
+{letter:'B',text:'Macrovascular: retinopathy and nephropathy',correct:false,rationale:'Those are small-vessel, microvascular complications.'},
+{letter:'C',text:'Microvascular: myocardial infarction and stroke',correct:false,rationale:'Those are large-vessel, macrovascular complications.'},
+{letter:'D',text:'Neuropathy is a macrovascular complication',correct:false,rationale:'Neuropathy results from damage to the tiny vessels supplying the nerves.'}
+],
+vocabTip:'<strong>Macro</strong> = large vessels (heart, brain, legs). <strong>Micro</strong> = small vessels (eyes, kidneys, nerves).'},
+
+{id:46,block:'G',chapter:56,type:'Concept',
+stem:'A patient with diabetes has an annual urine test for albumin. What is the nurse explaining?',
+options:[
+{letter:'A',text:'Albuminuria is the earliest detectable sign of diabetic kidney disease, and finding it early allows treatment with an ACE inhibitor or ARB to slow progression',correct:true,rationale:'Correct. Small amounts of albumin in the urine appear long before the creatinine rises. ACE inhibitors and ARBs reduce pressure inside the glomerulus and are renally protective even when the blood pressure is normal.'},
+{letter:'B',text:'It screens for urinary tract infection',correct:false,rationale:'A urinalysis and culture screen for infection.'},
+{letter:'C',text:'It measures long-term glucose control',correct:false,rationale:'That is the A1C.'},
+{letter:'D',text:'It is only done after dialysis begins',correct:false,rationale:'The entire purpose is early detection, long before dialysis is a consideration.'}
+],
+vocabTip:'<strong>Nephropathy</strong> = kidney damage. Diabetes is the leading cause of end-stage kidney disease in the United States.'},
+
+{id:47,block:'G',chapter:56,type:'Assessment',
+stem:'A patient with diabetes reports burning, tingling and numbness in both feet that is worse at night. What is the nurse&rsquo;s greatest concern?',
+options:[
+{letter:'A',text:'Loss of protective sensation means the patient can sustain an injury without feeling it, which is how diabetic foot ulcers begin',correct:true,rationale:'Correct. Peripheral neuropathy in a stocking-glove distribution removes the pain that would normally prompt a person to stop walking on a blister or remove a pebble. Combined with poor circulation and impaired healing, it is the pathway to ulceration and amputation.'},
+{letter:'B',text:'The symptoms indicate an acute deep vein thrombosis',correct:false,rationale:'DVT is typically unilateral with swelling, warmth and pain, not bilateral burning and numbness.'},
+{letter:'C',text:'The symptoms are unrelated to the diabetes',correct:false,rationale:'This is the textbook presentation of diabetic peripheral neuropathy.'},
+{letter:'D',text:'The patient is having a stroke',correct:false,rationale:'Stroke produces sudden, usually unilateral deficits, not gradual bilateral foot symptoms.'}
+],
+vocabTip:'<strong>Loss of protective sensation</strong> is tested with a 10-gram monofilament. If the patient cannot feel it, they cannot feel an injury either.',
+trap:'The symptom the patient complains about is the burning. The finding that will hurt them is the NUMBNESS.'},
+
+{id:48,block:'G',chapter:56,type:'Concept',
+sata:true,
+stem:'Which foot care instructions should the nurse include for a patient with diabetes? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Inspect the feet daily, using a mirror or asking someone to check the soles',correct:true,rationale:'Correct. Daily inspection catches injuries the patient cannot feel, while they are still minor.'},
+{letter:'B',text:'Wash with lukewarm water tested with the elbow or a thermometer, and pat dry between the toes',correct:true,rationale:'Correct. Neuropathic feet cannot judge water temperature, so burns occur. Drying between the toes prevents the maceration that leads to fungal infection.'},
+{letter:'C',text:'Apply lotion to the tops and bottoms of the feet but NOT between the toes',correct:true,rationale:'Correct. Dry skin cracks and lets bacteria in, but moisture trapped between the toes causes breakdown and fungal growth.'},
+{letter:'D',text:'Cut toenails straight across, or have a podiatrist do it',correct:true,rationale:'Correct. Straight across prevents ingrown nails. Patients with neuropathy or vision loss should not cut their own nails.'},
+{letter:'E',text:'Never go barefoot, even indoors, and shake out shoes before putting them on',correct:true,rationale:'Correct. An unfelt puncture wound or a pebble inside a shoe can become a limb-threatening ulcer.'},
+{letter:'F',text:'Use a heating pad on the feet at night to relieve the burning',correct:false,rationale:'Absolutely not. A patient who cannot feel heat will sustain a serious burn. Heating pads and hot water bottles are prohibited.'}
+],
+vocabTip:'<strong>Diabetic foot ulcer</strong> = the combination of neuropathy (cannot feel it), ischemia (cannot heal it) and hyperglycemia (cannot fight infection in it).',
+trap:'The heating pad is the classic wrong option and it appears in some form on nearly every diabetes exam. Never apply heat to a neuropathic foot.'},
+
+{id:49,block:'G',chapter:56,type:'Concept',
+sata:true,
+stem:'Which exercise guidelines should the nurse teach a patient with type 1 diabetes? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Check blood glucose before, during prolonged activity, and after exercising',correct:true,rationale:'Correct. Exercise lowers glucose during and for many hours afterward, so the pattern of response must be learned individually.'},
+{letter:'B',text:'Carry a fast-acting carbohydrate source during every session',correct:true,rationale:'Correct. Hypoglycemia can occur during or well after exercise, so treatment must be within reach.'},
+{letter:'C',text:'Do NOT exercise if the glucose is over 250 with ketones present',correct:true,rationale:'Correct. Exercising without adequate insulin raises glucose further and accelerates ketone production, pushing the patient toward DKA.'},
+{letter:'D',text:'Eat a snack if the glucose is below 100 before starting',correct:true,rationale:'Correct. Starting an activity session already near the low end invites hypoglycemia.'},
+{letter:'E',text:'Avoid injecting insulin into a limb that is about to be exercised',correct:true,rationale:'Correct. Increased blood flow to a working limb speeds absorption from that site and can cause an unexpectedly sharp drop.'},
+{letter:'F',text:'Exercise only on days when blood glucose is above 300',correct:false,rationale:'Backwards and dangerous. Marked hyperglycemia is a reason to hold exercise, not a reason to start it.'}
+],
+vocabTip:'Exercise acts like insulin: it moves glucose into muscle. That is why it helps &mdash; and why it can cause a low hours later.',
+trap:'This is the answer to her blank &ldquo;Exercise do&rsquo;s and don&rsquo;ts?&rdquo; prompt. The single hardest-tested don&rsquo;t: no exercise with glucose over 250 AND ketones.'},
+
+{id:50,block:'G',chapter:56,type:'Concept',
+stem:'A patient with type 2 diabetes plans to begin walking 30 minutes daily. What should the nurse teach about the timing of this activity?',
+options:[
+{letter:'A',text:'&ldquo;Exercise about an hour after a meal when glucose is rising, keep the schedule consistent, and avoid exercising at the peak of your insulin if you take it.&rdquo;',correct:true,rationale:'Correct. Post-meal activity blunts the after-meal glucose rise. Consistency lets insulin and food be matched to a predictable pattern, and avoiding the insulin peak prevents stacking two glucose-lowering effects at once.'},
+{letter:'B',text:'&ldquo;Exercise first thing in the morning before taking any medication or eating.&rdquo;',correct:false,rationale:'Fasting exercise raises the hypoglycemia risk for patients on insulin or a sulfonylurea.'},
+{letter:'C',text:'&ldquo;Exercise only on weekends so you can rest during the week.&rdquo;',correct:false,rationale:'The insulin-sensitivity benefit fades within a few days, so regular activity across the week is what matters.'},
+{letter:'D',text:'&ldquo;The timing does not matter at all.&rdquo;',correct:false,rationale:'Timing matters a great deal for patients on glucose-lowering medication.'}
+],
+vocabTip:'<strong>Postprandial</strong> = after a meal. Exercising then puts the muscle demand right where the glucose surge is.'},
+
+{id:51,block:'G',chapter:56,type:'Concept',
+stem:'A patient with diabetes has a surgical wound that is healing slowly. What does the nurse understand about the relationship?',
+options:[
+{letter:'A',text:'Hyperglycemia impairs white blood cell function and reduces tissue perfusion, so both infection risk and healing time increase',correct:true,rationale:'Correct. High glucose blunts neutrophil chemotaxis and phagocytosis, and damaged small vessels limit oxygen delivery to the wound. Tighter glucose control during the perioperative period measurably improves outcomes.'},
+{letter:'B',text:'Slow healing is unrelated to glucose control',correct:false,rationale:'Glucose control is one of the strongest modifiable determinants of surgical wound healing.'},
+{letter:'C',text:'Higher glucose speeds wound healing by supplying energy',correct:false,rationale:'The opposite is true; high glucose also feeds bacteria.'},
+{letter:'D',text:'Only patients with type 1 diabetes have impaired healing',correct:false,rationale:'Impaired healing follows the hyperglycemia, regardless of type.'}
+],
+vocabTip:'<strong>Phagocytosis</strong> = the process by which white cells engulf and destroy bacteria. Hyperglycemia directly impairs it.'},
+
+{id:52,block:'G',chapter:56,type:'Concept',
+stem:'A patient with diabetes asks why the provider recommends annual dilated eye examinations even though her vision seems fine. What is the nurse&rsquo;s best response?',
+options:[
+{letter:'A',text:'&ldquo;Diabetic retinopathy causes no symptoms until damage is advanced, and treatment is far more effective when it is found early.&rdquo;',correct:true,rationale:'Correct. The retina is damaged silently. By the time vision changes are noticed, significant and often irreversible damage has occurred. Annual dilated examination is the only way to catch it in the treatable stage.'},
+{letter:'B',text:'&ldquo;The exam checks for glaucoma only.&rdquo;',correct:false,rationale:'Diabetes raises the risk of glaucoma and cataracts too, but retinopathy screening is the primary purpose.'},
+{letter:'C',text:'&ldquo;You only need an exam once your vision changes.&rdquo;',correct:false,rationale:'Waiting for symptoms is waiting too long.'},
+{letter:'D',text:'&ldquo;Eye exams are only needed for type 1 diabetes.&rdquo;',correct:false,rationale:'Both types require annual screening; type 2 patients may already have retinopathy at diagnosis.'}
+],
+vocabTip:'<strong>Retinopathy</strong> = damage to the small vessels of the retina. Diabetes is a leading cause of new blindness in working-age adults.'},
+
+{id:53,block:'G',chapter:56,type:'Concept',
+stem:'A patient with long-standing diabetes has a silent myocardial infarction discovered on a routine ECG. What explains the absence of chest pain?',
+options:[
+{letter:'A',text:'Autonomic neuropathy can blunt the perception of cardiac pain, so myocardial infarction may present atypically or without pain at all',correct:true,rationale:'Correct. Diabetic autonomic neuropathy damages the nerves that carry cardiac pain. Patients may present with only dyspnea, fatigue, nausea or confusion, which delays both recognition and treatment.'},
+{letter:'B',text:'Patients with diabetes cannot have myocardial infarctions',correct:false,rationale:'Cardiovascular disease is the leading cause of death in diabetes.'},
+{letter:'C',text:'The ECG was performed incorrectly',correct:false,rationale:'Silent infarction is a well-documented phenomenon in diabetes.'},
+{letter:'D',text:'High glucose prevents cardiac muscle damage',correct:false,rationale:'Hyperglycemia worsens cardiovascular outcomes.'}
+],
+vocabTip:'<strong>Autonomic neuropathy</strong> also causes gastroparesis, orthostatic hypotension, erectile dysfunction and hypoglycemia unawareness &mdash; the nerves that run automatically.',
+trap:'In a patient with diabetes, unexplained dyspnea, fatigue or nausea deserves a cardiac workup. Absence of chest pain does not rule out infarction.'},
+
+{id:54,block:'G',chapter:56,type:'Concept',
+stem:'A patient with diabetes reports early fullness, bloating and nausea after meals, with unpredictable glucose readings. What does the nurse suspect?',
+options:[
+{letter:'A',text:'Gastroparesis &mdash; delayed gastric emptying from autonomic neuropathy, which makes food absorption unpredictable relative to insulin timing',correct:true,rationale:'Correct. When the stomach empties erratically, mealtime insulin may peak before the carbohydrate arrives, causing a low followed by a late high. Smaller, more frequent low-fat, low-fiber meals help, and insulin timing may need adjustment.'},
+{letter:'B',text:'Peptic ulcer disease requiring immediate endoscopy',correct:false,rationale:'Possible but not the pattern; the link to erratic glucose points to gastroparesis.'},
+{letter:'C',text:'Appendicitis',correct:false,rationale:'Appendicitis presents with acute right lower quadrant pain, not chronic post-meal fullness.'},
+{letter:'D',text:'These symptoms are unrelated to the diabetes',correct:false,rationale:'Gastroparesis is a recognized autonomic complication of long-standing diabetes.'}
+],
+vocabTip:'<strong>Gastroparesis</strong> = a paralyzed stomach. Treatment is dietary modification, glucose control and sometimes a prokinetic agent.'},
+
+{id:55,block:'G',chapter:56,type:'Concept',
+stem:'Which statement best summarizes the goal of tight glucose control for a patient with diabetes?',
+options:[
+{letter:'A',text:'Keeping glucose near target reduces the risk of microvascular and macrovascular complications, with the target individualized to the patient&rsquo;s age, comorbidities and hypoglycemia risk',correct:true,rationale:'Correct. Landmark trials showed that lowering the A1C reduces retinopathy, nephropathy and neuropathy. But in frail older adults, or anyone with hypoglycemia unawareness, a looser target is safer because a severe low is a more immediate threat than a slightly higher A1C.'},
+{letter:'B',text:'Every patient should maintain an A1C below 6.0 percent regardless of circumstances',correct:false,rationale:'Aggressive targets in vulnerable patients increase severe hypoglycemia and mortality.'},
+{letter:'C',text:'Glucose control has no effect on long-term complications',correct:false,rationale:'The relationship between glucose control and complications is one of the best-established findings in diabetes care.'},
+{letter:'D',text:'Only blood pressure control matters for preventing complications',correct:false,rationale:'Blood pressure and lipid control matter greatly, but so does glucose control. All three are managed together.'}
+],
+vocabTip:'<strong>Individualized target</strong> = the A1C goal is set for the person, not the disease. Under 7 percent for most adults; 7.5 to 8 percent or higher may be appropriate for a frail older adult.'}
+];
+</script>
+<script>
+/* Shared primer harness — reads globals EXAM_ID, EXAM_LABEL, BLOCKS, ALL_Q.
+   Each per-chapter primer is a small shell that defines those four globals,
+   links primer.css, then includes this file.
+
+   Optional, opt-in per page:
+     <div id="harnessFilterBar"></div>   → renders block/SATA/missed filter buttons
+     elements with [data-loop="<blockKey>"] → shown/hidden to match the active block */
+let answered={};
+let selections={};
+let __filterMode='all';
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function _isCorrect(q){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];return c.length===s.length&&c.every(l=>s.includes(l));}
+// SATA partial credit: all right = 1.0, right but incomplete = 0.5, any wrong option selected = 0.
+function _credit(q){
+if(_isCorrect(q))return 1;
+if(!q.sata)return 0;
+const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];
+if(!s.length||s.some(l=>!c.includes(l)))return 0;
+return 0.5;
+}
+function _fmt(n){return n%1?n.toFixed(1):String(n);}
+function _activeQ(){
+if(__filterMode==='all')return ALL_Q;
+if(__filterMode==='sata')return ALL_Q.filter(q=>q.sata);
+if(__filterMode==='missed')return ALL_Q.filter(q=>window.__missedIds&&window.__missedIds.includes(q.id));
+return ALL_Q.filter(q=>q.block===__filterMode);
+}
+function _answeredCount(){return _activeQ().filter(q=>answered[q.id]).length;}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+_activeQ().forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id='qcard-'+q.id;
+let badges='<span class="badge badge-blk">CH '+q.chapter+'</span>';
+if(q.type)badges+='<span class="badge badge-type">'+q.type+'</span>';
+if(q.trap)badges+='<span class="badge badge-trap">Trap</span>';
+if(q.sata)badges+='<span class="badge badge-sata">SATA</span>';
+const optsHtml=q.options.map(o=>'<div class="opt" id="opt-'+q.id+'-'+o.letter+'" onclick="selectOption('+q.id+',\''+o.letter+'\','+(q.sata?true:false)+')"><div class="opt-letter">'+o.letter+'.</div><div class="opt-text">'+o.text+'<div class="opt-rationale" id="rat-'+q.id+'-'+o.letter+'">'+o.rationale+'</div></div></div>').join('');
+const sataHint=q.sata?'<div class="sata-hint">Select ALL that apply</div>':'';
+card.innerHTML='<div class="q-top"><span class="q-num">Q'+(idx+1)+'</span>'+badges+'</div><div class="q-stem">'+q.stem+'</div>'+sataHint+'<div class="opts">'+optsHtml+'</div><button class="btn-submit" id="btn-'+q.id+'" onclick="submitAnswer('+q.id+')" disabled>Submit</button><div class="vocab-tip" id="tip-'+q.id+'">'+q.vocabTip+'</div>';
+area.appendChild(card);
+});
+loadState();
+_focusRefresh();
+}
+
+/* ---- One-at-a-time view: every card is still built, so scoring and the weak tracker are untouched. ---- */
+function _focusOn(){try{return localStorage.getItem('primerFocus')!=='0';}catch(e){return true;}}
+function _focusCards(){return Array.prototype.slice.call(document.querySelectorAll('#quizArea .q-card'));}
+function _focusEnsureUI(){
+if(!document.getElementById('focusCss')){
+const st=document.createElement('style');st.id='focusCss';
+st.textContent='.focus-bar{position:sticky;bottom:0;z-index:30;display:none;align-items:center;gap:.5rem;background:#0c0f14ee;backdrop-filter:blur(6px);border-top:1px solid #1e293b;padding:.6rem .5rem;margin:0 -.5rem}'
++'.focus-on .focus-bar{display:flex}'
++'.focus-bar button{border:none;border-radius:8px;padding:.7rem 1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}'
++'.fb-prev{background:#1e293b;color:#e2e8f0}.fb-next{background:#7c3aed;color:#fff;flex:1}.fb-next.ready{background:#22c55e;color:#04210f;box-shadow:0 0 0 2px #22c55e55}'
++'.fb-prev:disabled{opacity:.35;cursor:not-allowed}.fb-count{color:#94a3b8;font-size:.8rem;min-width:5.5rem;text-align:center}'
++'.fb-mode{background:transparent;color:#94a3b8;border:1px solid #334155!important;font-size:.72rem!important;padding:.45rem .6rem!important}'
++'.focus-on #quizArea .q-card{display:none}.focus-on #quizArea .q-card.focus-cur{display:block}.focus-on .mk-fab{bottom:5rem}.focus-on a[href*="weak-drill"]{bottom:4.6rem!important}'
++'.focus-toggle-top{display:flex;justify-content:flex-end;margin:.25rem 0 .75rem}'
++'.focus-toggle-top button{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:.4rem .8rem;font-size:.75rem;cursor:pointer;font-family:inherit}';
+document.head.appendChild(st);}
+if(!document.getElementById('focusBar')){
+const area=document.getElementById('quizArea');if(!area)return;
+const bar=document.createElement('div');bar.className='focus-bar';bar.id='focusBar';
+bar.innerHTML='<button type="button" class="fb-prev" id="fbPrev">&#8249; Prev</button><span class="fb-count" id="fbCount"></span><button type="button" class="fb-next" id="fbNext">Next &#8250;</button><button type="button" class="fb-mode" id="fbMode">Show all</button>';
+area.parentNode.insertBefore(bar,area.nextSibling);
+const top=document.createElement('div');top.className='focus-toggle-top';top.id='focusTop';
+top.innerHTML='<button type="button" id="fbModeTop">One at a time: on</button>';
+area.parentNode.insertBefore(top,area);
+document.getElementById('fbPrev').onclick=function(){_focusGo(-1);};
+document.getElementById('fbNext').onclick=function(){_focusNext();};
+document.getElementById('fbMode').onclick=_focusToggle;
+document.getElementById('fbModeTop').onclick=_focusToggle;
+}}
+function _focusToggle(){try{localStorage.setItem('primerFocus',_focusOn()?'0':'1');}catch(e){}_focusRefresh(true);}
+function _focusShow(i,scroll){
+const cards=_focusCards();if(!cards.length)return;
+window.__fi=Math.max(0,Math.min(cards.length-1,i));
+cards.forEach(function(c,k){c.classList.toggle('focus-cur',k===window.__fi);});
+_focusUpdateBar();
+if(scroll&&_focusOn()){const top=cards[window.__fi].getBoundingClientRect().top+window.pageYOffset-70;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+}
+function _focusGo(d){_focusShow((window.__fi||0)+d,true);}
+function _focusNext(){
+const cards=_focusCards();
+if((window.__fi||0)<cards.length-1){_focusShow((window.__fi||0)+1,true);return;}
+const firstOpen=cards.findIndex(function(c){return !/answered-/.test(c.className);});
+if(firstOpen>=0){_focusShow(firstOpen,true);return;}
+const sc=document.getElementById('scoreCard');if(sc){sc.style.display='block';sc.scrollIntoView({behavior:'smooth'});}
+}
+function _focusUpdateBar(){
+const cards=_focusCards();const i=window.__fi||0;
+const cnt=document.getElementById('fbCount');if(cnt)cnt.textContent='Question '+(i+1)+' of '+cards.length;
+const prev=document.getElementById('fbPrev');if(prev)prev.disabled=i<=0;
+const nx=document.getElementById('fbNext');
+if(nx&&cards[i]){const done=/answered-/.test(cards[i].className);nx.classList.toggle('ready',done);
+nx.innerHTML=i>=cards.length-1?'Finish &#8250;':'Next &#8250;';}
+const tp=document.getElementById('fbModeTop');if(tp)tp.textContent='One at a time: '+(_focusOn()?'on':'off');
+const bm=document.getElementById('fbMode');if(bm)bm.textContent=_focusOn()?'Show all':'One at a time';
+}
+function _focusRefresh(keepPlace){
+_focusEnsureUI();
+document.body.classList.toggle('focus-on',_focusOn());
+const cards=_focusCards();if(!cards.length)return;
+_focusShow(keepPlace?(window.__fi||0):0,false);
+}
+document.addEventListener('click',function(e){
+if(!_focusOn())return;
+if(e.target&&e.target.closest&&e.target.closest('.btn-submit')){setTimeout(_focusUpdateBar,60);}
+},true);
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById('opt-'+qId+'-'+letter);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const p=document.getElementById('opt-'+qId+'-'+l);if(p)p.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById('btn-'+qId).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correct=q.options.filter(o=>o.correct).map(o=>o.letter);
+const ok=correct.length===selections[qId].length&&correct.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';});
+document.getElementById('tip-'+qId).style.display='block';
+const cr=_credit(q);
+const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');
+const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';
+updateProgress();saveState();
+if(_answeredCount()===_activeQ().length)showScore();
+}
+
+function updateProgress(){const t=_activeQ().length;document.getElementById('progressBar').style.width=(t?_answeredCount()/t*100:0)+'%';}
+
+function _buildBreakdown(){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+let html='';
+Object.keys(BLOCKS).forEach(b=>{if(!tally[b])return;const t=tally[b];const pct=Math.round(t.c/t.t*100);const col=pct>=80?'#22c55e':pct>=66?'#fbbf24':'#f87171';html+='<div class="breakdown-row"><span class="bd-label">'+BLOCKS[b]+'</span><span class="bd-score" style="color:'+col+'">'+_fmt(t.c)+'/'+t.t+' &middot; '+pct+'%</span></div>';});
+document.getElementById('breakdownArea').innerHTML=html;
+}
+
+function showScore(doSave){
+const act=_activeQ();
+let correct=0;act.forEach(q=>{if(answered[q.id])correct+=_credit(q);});
+const total=act.length;
+const pct=total?Math.round(correct/total*100):0;
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=_fmt(correct)+' of '+total+' correct';
+_buildBreakdown();
+_syncMissedBtn();
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+if(doSave===false)return;
+const tag=__filterMode==='all'?'':' ['+_filterLabel(__filterMode)+']';
+const rec={score:pct,correct:correct,total:total,date:new Date().toLocaleDateString(),filter:__filterMode};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL+tag,date:new Date().toISOString(),score:pct,correct:correct,total:total});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-1000)));
+_refreshStatsSummary();
+}
+
+function _filterLabel(m){
+if(m==='all')return 'All';
+if(m==='sata')return 'SATA only';
+if(m==='missed')return 'Drill missed';
+return (typeof BLOCKS!=='undefined'&&BLOCKS[m])?BLOCKS[m]:m;
+}
+
+/* ---- Drill missed ---- */
+function _missedIds(){return _activeQ().filter(q=>answered[q.id]&&!_isCorrect(q)).map(q=>q.id);}
+function _syncMissedBtn(){
+const btn=document.getElementById('drillMissedBtn');if(!btn)return;
+const n=_missedIds().length;
+btn.style.display=n>0?'block':'none';
+btn.textContent='Drill missed — '+n+(n===1?' question':' questions');
+}
+function drillMissed(){
+const ids=_missedIds();if(!ids.length)return;
+window.__missedIds=ids;
+ids.forEach(id=>{delete answered[id];delete selections[id];});
+saveState();
+__filterMode='missed';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+document.getElementById('quizArea').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ---- Filter bar (opt-in: page must contain #harnessFilterBar) ---- */
+function applyBlockFilter(mode){
+const switching=mode!==__filterMode;
+__filterMode=mode;
+// Entering a single loop (or SATA-only) is a fresh drill. restartQuiz() only clears
+// what is in scope, so answers from an earlier pass over the full set used to survive
+// and reappear pre-clicked. 'all' is exempt because it is the review view and wiping
+// it would throw away a half-finished full run; 'missed' is exempt because
+// drillMissed() already cleared exactly those ids.
+if(switching&&mode!=='missed'&&mode!=='all'){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();}
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+function _syncFilterBtns(){
+document.querySelectorAll('#harnessFilterBar .fbtn').forEach(b=>{
+b.classList.toggle('active',b.getAttribute('data-f')===__filterMode);});
+const note=document.getElementById('harnessFilterNote');
+if(note){const n=_activeQ().length;
+note.textContent=__filterMode==='all'?'All '+n+' questions, every loop mixed together. Use this once each loop already holds on its own.'
+:__filterMode==='sata'?n+' select-all questions. Scored at half credit: all right = full point, right but incomplete = half, one wrong option = zero.'
+:__filterMode==='missed'?n+' question'+(n===1?'':'s')+' you missed, reset and reshuffled. Answer them again.'
+:n+' questions from '+_filterLabel(__filterMode)+' only. The teaching panel above matches this loop.';}
+}
+function _syncLoopSections(){
+const secs=document.querySelectorAll('[data-loop]');if(!secs.length)return;
+secs.forEach(el=>{
+const show=(__filterMode==='all'||__filterMode==='sata'||__filterMode==='missed')||el.getAttribute('data-loop')===__filterMode;
+el.style.display=show?'':'none';});
+}
+function _buildFilterBar(){
+const bar=document.getElementById('harnessFilterBar');if(!bar)return;
+let html='<span class="filter-label">Loop:</span>';
+html+='<button class="fbtn fbtn-hot active" data-f="all" onclick="applyBlockFilter(\'all\')">All '+ALL_Q.length+'</button>';
+const short=window.BLOCK_SHORT||{};
+Object.keys(BLOCKS).forEach(b=>{
+const n=ALL_Q.filter(q=>q.block===b).length;if(!n)return;
+html+='<button class="fbtn" data-f="'+b+'" onclick="applyBlockFilter(\''+b+'\')">'+(short[b]||BLOCKS[b])+' &middot; '+n+'</button>';});
+const ns=ALL_Q.filter(q=>q.sata).length;
+if(ns)html+='<button class="fbtn fbtn-sata" data-f="sata" onclick="applyBlockFilter(\'sata\')">SATA only &middot; '+ns+'</button>';
+// The page restores the last session on load, so landing on it shows whatever was
+// already answered. Without this there is no way to wipe that and start over.
+html+='<button class="fbtn fbtn-fresh" data-f="__fresh" onclick="clearAllAnswers()">Start fresh</button>';
+bar.innerHTML=html;
+if(!document.getElementById('harnessFilterNote')){
+const note=document.createElement('div');note.className='filter-note';note.id='harnessFilterNote';
+bar.parentNode.insertBefore(note,bar.nextSibling);}
+_syncFilterBtns();
+}
+function clearAllAnswers(){
+answered={};selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+window.__missedIds=null;
+if(__filterMode==='missed')__filterMode='all';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+window.__optsShuffled=false;
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function _buildMissedBtn(){
+const card=document.getElementById('scoreCard');if(!card||document.getElementById('drillMissedBtn'))return;
+const btn=document.createElement('button');
+btn.className='btn-missed';btn.id='drillMissedBtn';btn.type='button';
+btn.setAttribute('onclick','drillMissed()');
+btn.textContent='Drill missed';
+const restart=card.querySelector('.btn-restart');
+if(restart&&restart.parentNode===card)card.insertBefore(btn,restart.nextSibling);else card.appendChild(btn);
+}
+
+function restartQuiz(){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();
+// 'missed' is a transient drill, not a scope to stay stuck in — pages without a
+// filter bar have no other way back to the full set.
+if(__filterMode==='missed'){__filterMode='all';_syncFilterBtns();_syncLoopSections();}
+document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered:answered,selections:selections}));}
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const cr=_credit(q);const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';}});
+updateProgress();if(_activeQ().length&&_answeredCount()===_activeQ().length)showScore(false);}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+function _buildMustKnows(){
+const src=document.querySelector('.svg-card');
+if(!src||document.querySelector('.mk-fab'))return;
+const titleEl=src.querySelector('h3');
+const title=titleEl?titleEl.textContent:'Labs & Must-Knows';
+const fab=document.createElement('button');
+fab.className='mk-fab';fab.type='button';
+fab.setAttribute('aria-label','Show labs and must-knows');
+fab.innerHTML='<span class="mk-ico">&#128204;</span>Must-Knows';
+const overlay=document.createElement('div');
+overlay.className='mk-overlay';
+const panel=document.createElement('div');
+panel.className='mk-panel';
+panel.innerHTML='<div class="mk-panel-head"><h3>'+title+'</h3><button class="mk-close" type="button" aria-label="Close">&times;</button></div>'+src.outerHTML;
+overlay.appendChild(panel);
+document.body.appendChild(fab);document.body.appendChild(overlay);
+function open(){overlay.classList.add('open');}
+function close(){overlay.classList.remove('open');}
+fab.addEventListener('click',open);
+panel.querySelector('.mk-close').addEventListener('click',close);
+overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+}
+
+function _tone(p){return p>=85?'#22c55e':p>=70?'#fbbf24':'#f87171';}
+function _buildStatsPanel(){
+const anchor=document.getElementById('lastAttempt');
+if(!anchor||document.querySelector('.stats-wrap'))return;
+const wrap=document.createElement('div');wrap.className='stats-wrap';
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const reps=hist.length;
+const best=reps?Math.max(...hist.map(e=>e.score)):0;
+const avg=reps?Math.round(hist.reduce((s,e)=>s+e.score,0)/reps):0;
+const last=reps?hist.sort((a,b)=>new Date(b.date)-new Date(a.date))[0]:null;
+const sumText=reps?reps+' rep'+(reps>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%':'no attempts yet';
+wrap.innerHTML='<button class="stats-toggle" type="button"><span>Rep History</span><span class="st-summary">'+sumText+'</span><span class="st-arrow">&#9660;</span></button><div class="stats-body" id="statsBody"></div>';
+anchor.parentNode.insertBefore(wrap,anchor.nextSibling);
+wrap.querySelector('.stats-toggle').addEventListener('click',function(){wrap.classList.toggle('open');if(wrap.classList.contains('open'))_renderStatsBody();});
+}
+function _renderStatsBody(){
+const body=document.getElementById('statsBody');if(!body)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+if(!hist.length){body.innerHTML='<div class="st-empty">No attempts recorded yet. Finish a run and it lands here.</div>';return;}
+hist.sort((a,b)=>new Date(b.date)-new Date(a.date));
+const bestPct=Math.max(...hist.map(e=>e.score));
+let bestShown=false;
+let rows='<h4>Attempts ('+hist.length+')</h4>';
+hist.forEach(e=>{
+const d=new Date(e.date);
+const ds=isNaN(d.getTime())?e.date:d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+const isBest=e.score===bestPct&&!bestShown;if(isBest)bestShown=true;
+const isDrill=e.examLabel&&/drill|missed/i.test(e.examLabel);
+const label=isDrill?' <span class="st-label">drill</span>':'';
+const tag=isBest?' <span class="st-label">best</span>':'';
+rows+='<div class="st-row'+(isBest?' best':'')+'"><span class="st-date">'+ds+'</span><span class="st-score" style="color:'+_tone(e.score)+'">'+Math.round(e.score)+'%'+tag+label+'</span></div>';
+});
+const blkKeys=typeof BLOCKS!=='undefined'?Object.keys(BLOCKS):[];
+let blkHtml='';
+if(blkKeys.length>1){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+const blks=blkKeys.filter(b=>tally[b]).map(b=>({key:b,name:BLOCKS[b],pct:Math.round(tally[b].c/tally[b].t*100)})).sort((a,b)=>a.pct-b.pct);
+if(blks.length){
+blkHtml='<h4>Block averages (this run)</h4>';
+blks.forEach(b=>{
+blkHtml+='<div class="st-blk-row"><span class="st-blk-name">'+b.name+'</span><span class="st-blk-bar"><i style="width:'+b.pct+'%;background:'+_tone(b.pct)+'"></i></span><span class="st-blk-pct" style="color:'+_tone(b.pct)+'">'+b.pct+'%</span></div>';
+});
+blkHtml+='<div class="st-note">Sorted weakest first. Red blocks need another rep.</div>';
+}}
+body.innerHTML=rows+blkHtml;
+}
+
+function _refreshStatsSummary(){
+const el=document.querySelector('.st-summary');if(!el)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const n=hist.length;
+if(!n){el.textContent='no attempts yet';return;}
+const best=Math.max(...hist.map(e=>e.score));
+const avg=Math.round(hist.reduce((s,e)=>s+e.score,0)/n);
+el.textContent=n+' rep'+(n>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%';
+if(document.querySelector('.stats-wrap.open'))_renderStatsBody();
+}
+
+_buildFilterBar();
+_buildMissedBtn();
+// A drill page must open clean. Restoring the previous run meant landing on the
+// page with questions already clicked, rationales open and Submit locked — the
+// opposite of what a drill is for. The score itself is kept separately under
+// EXAM_ID+'-last' and still shows in the "last attempt" card.
+localStorage.removeItem(EXAM_ID+'-state');
+buildQuiz();
+_buildStatsPanel();
+_buildMustKnows();
+
+/* Weak-question tracker: every harness quiz feeds the shared weak list. */
+
+
+</script>
+</body>
+</html>

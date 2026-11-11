@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+/* Keep my place: resumes an unfinished quiz after the tab reloads.
+   Phones and iPads throw away a sleeping tab and reload it on unlock, which put
+   every quiz back at Q1. This works on every quiz engine (primer harness, banks,
+   mocks, pre-lecture, case study, the older inline pages) without knowing their
+   internals:
+     1. Math.random is seeded per session, and reseeded before every tap, so a
+        reload rebuilds the exact same question set and option order.
+     2. Every quiz tap is logged (option, Submit, Undo, Next/Prev, filters, Drill missed).
+     3. On reload the log is replayed. Storage writes are switched off during the
+        replay, so scores, history and the weak list are never counted twice.
+   A finished quiz (score card showing) still opens clean, like before.
+   Must load as the FIRST script in <head>. Kill switch: localStorage keepPlace = '0'. */
+(function () {
+  'use strict';
+  if (window.__rsLoaded) return;
+  window.__rsLoaded = true;
+  var LS = window.localStorage, KEY = 'rs:' + location.pathname, MAX_AGE = 7 * 864e5;
+  var realRandom = Math.random, realNow = Date.now;
+  try { if (LS.getItem('keepPlace') === '0') return; } catch (e) { return; }
+
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function read() { try { return JSON.parse(LS.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function write(o) { try { Storage.prototype.setItem.call(LS, KEY, JSON.stringify(o)); } catch (e) {} }
+  function fresh() { return { v: 1, seed: (realRandom() * 4294967296) >>> 0, log: [], done: false, ts: realNow() }; }
+
+  var sess = read();
+  if (!sess || sess.v !== 1 || sess.done || !sess.log || realNow() - sess.ts > MAX_AGE) sess = fresh();
+  var pending = sess.log.slice();   // what to replay on this load
+  write(sess);
+
+  var rng = mulberry(hash(sess.seed + ':load'));
+  Math.random = function () { return rng(); };
+  function reseed(n) { rng = mulberry(hash(sess.seed + ':' + n)); }
+
+  /* ---------- which taps count ---------- */
+  var ZONE = '.q-card,#quizArea,#focusBar,#scoreCard,.q-opts,.options,[data-f]';
+  var SKIP = 'a[href],#fbMode,#fbModeTop,#rmPill,#rmPanel,.stats-wrap,.mk-fab,.mk-overlay,#rsToast';
+  var VERB = /^\s*(applyFilter|pick|sataDone|submit\w*|select\w*|toggleOpt|drillMissed|restart\w*|retake\w*|startExam|next\w*|prev\w*|go\w*|showScore|finish\w*|undo\w*)\b/;
+  var RESET = /clearAllAnswers|hardReset|clearHistory|resetAll/;
+  function actionable(t) { return t && t.closest ? t.closest('[onclick],button,.opt,.q-opt,[data-f]') : null; }
+  function classify(el) {
+    if (!el || el.closest(SKIP)) return null;
+    var oc = el.getAttribute('onclick') || '';
+    if (RESET.test(oc) || el.getAttribute('data-f') === '__fresh') return 'reset';
+    if (el.closest(ZONE) || VERB.test(oc)) return 'log';
+    return null;
+  }
+  function locate(el) {
+    if (el.id) return { i: el.id };
+    var f = el.getAttribute('data-f');
+    if (f !== null) return { f: f };
+    var path = [], n = el;
+    while (n && n !== document.body && !n.id) { path.unshift(Array.prototype.indexOf.call(n.parentNode.children, n)); n = n.parentNode; }
+    return { a: n && n.id ? n.id : null, p: path };
+  }
+  function resolve(loc) {
+    if (loc.i) return document.getElementById(loc.i);
+    if (loc.f !== undefined) { var fs = document.querySelectorAll('[data-f]'); for (var k = 0; k < fs.length; k++) if (fs[k].getAttribute('data-f') === loc.f) return fs[k]; return null; }
+    var n = loc.a ? document.getElementById(loc.a) : document.body;
+    for (var j = 0; n && j < loc.p.length; j++) n = n.children[loc.p[j]];
+    return n || null;
+  }
+
+  /* ---------- finished? (score card showing) ---------- */
+  function finished() {
+    var sc = document.getElementById('scoreCard') || document.getElementById('results');
+    if (!sc) return false;
+    // Any unanswered card left means it is not finished, whatever the score card says.
+    // (Only for engines that mark answered cards with answered-* classes.)
+    var cards = document.querySelectorAll('.q-card'), open = 0, marked = 0;
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].style.display === 'none') continue;
+      if (/answered-/.test(cards[i].className)) marked++; else open++;
+    }
+    if (marked && open) return false;
+    try { return window.getComputedStyle(sc).display !== 'none' && sc.style.display !== 'none'; } catch (e) { return false; }
+  }
+  var doneTimer = null;
+  function checkDone() {
+    clearTimeout(doneTimer);
+    doneTimer = setTimeout(function () { var s = read() || sess; s.done = finished(); s.ts = realNow(); sess = s; write(s); }, 120);
+  }
+
+  /* ---------- record ---------- */
+  window.__rsReplaying = false;
+  window.addEventListener('click', function (e) {
+    if (window.__rsReplaying) return;
+    var el = actionable(e.target), kind = classify(el);
+    if (!kind) return;
+    if (kind === 'reset') { sess = fresh(); write(sess); return; }
+    var s = read() || sess;
+    if (s.done) { s.done = false; }
+    reseed(s.log.length);
+    s.log.push(locate(el)); s.ts = realNow(); sess = s; write(s);
+    checkDone();
+  }, true);
+
+  /* ---------- replay ---------- */
+  function replay() {
+    if (!pending.length) return;
+    var SP = Storage.prototype, oSet = SP.setItem, oRem = SP.removeItem, oClr = SP.clear;
+    SP.setItem = function (k) { if (String(k).indexOf('rs:') === 0) return oSet.apply(this, arguments); };
+    SP.removeItem = function () {}; SP.clear = function () {};
+    var offset = 0, ok = 0;
+    Date.now = function () { return realNow() + offset; };
+    window.__rsReplaying = true;
+    try {
+      for (var i = 0; i < pending.length; i++) {
+        var el = resolve(pending[i]);
+        if (!el && pending[i].i && pending[i].i.indexOf('qt-') === 0) {
+          // A 25-second time-out (quiz-timer.js) whose hidden button is not wired yet.
+          var tc = document.getElementById(pending[i].i.slice(3));
+          if (tc && window.__qtTimeOut) window.__qtTimeOut(tc);
+          ok++; continue;
+        }
+        if (!el) break;
+        reseed(i);
+        offset += 1500;
+        try { el.click(); } catch (e) {}
+        ok++;
+      }
+    } finally {
+      Date.now = realNow;
+      setTimeout(function () {
+        window.__rsReplaying = false;
+        SP.setItem = oSet; SP.removeItem = oRem; SP.clear = oClr;
+        if (ok < pending.length) { sess.log = pending.slice(0, ok); write(sess); }
+        if (finished()) { sess = fresh(); write(sess); return; }
+        place(); toast();
+      }, 0);
+    }
+  }
+
+  function place() {
+    var cur = document.querySelector('.focus-on #quizArea .q-card.focus-cur');
+    if (!cur) {
+      var cards = document.querySelectorAll('.q-card');
+      for (var i = 0; i < cards.length; i++) { if (!/answered-/.test(cards[i].className)) { cur = cards[i]; break; } }
+    }
+    if (cur && cur.getBoundingClientRect) {
+      var top = cur.getBoundingClientRect().top + (window.pageYOffset || 0) - 70;
+      try { window.scrollTo(0, Math.max(0, top)); } catch (e) {}
+    }
+  }
+
+  function toast() {
+    var answered = document.querySelectorAll('.q-card.answered-correct,.q-card.answered-wrong,.q-card.answered-partial').length;
+    var d = document.createElement('div');
+    d.id = 'rsToast';
+    d.setAttribute('style', 'position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:9999;background:#13181f;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:8px 12px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 6px 20px #0008;display:flex;gap:10px;align-items:center;max-width:calc(100% - 32px)');
+    d.innerHTML = '<span>&#128278; Picked up where you left off' + (answered ? ' &middot; ' + answered + ' answered' : '') + '</span>'
+      + '<button type="button" style="background:transparent;color:#a78bfa;border:1px solid #4c1d95;border-radius:8px;padding:4px 8px;font:inherit;cursor:pointer">Start over</button>';
+    d.querySelector('button').onclick = function () { sess = fresh(); write(sess); location.reload(); };
+    document.body.appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.style.transition = 'opacity .6s', d.style.opacity = '0'; }, 5000);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 5800);
+  }
+
+  function boot() { setTimeout(replay, 60); }
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+})();
+
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 55 &mdash; Thyroid &amp; Parathyroid Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Shared primer styles — dark theme, matches study-tools design system */
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.back-link{display:inline-block;margin-bottom:1rem;color:#c084fc;text-decoration:none;font-size:.85rem;font-family:'IBM Plex Mono',monospace}
+.back-link:hover{color:#e9d5ff}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.svg-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;overflow-x:auto}
+.svg-card h3{color:#c084fc;font-size:1rem;margin-bottom:.75rem;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#c084fc}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#7c3aed,#c084fc);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-card.answered-partial{border-color:#fbbf24}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch{background:#0a1f2a;color:#7dd3fc}
+.badge-blk{background:#1a1425;color:#c4b5fd}
+.badge-type{background:#0a2018;color:#6ee7b7}
+.badge-trap{background:#2a0a0a;color:#f87171}
+.badge-sata{background:#1a1f2e;color:#c084fc;border:1px solid #7c3aed}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#c084fc;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#c084fc;background:#1a0a2a}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.05rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b;line-height:1.5}
+.btn-submit{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#6d28d9}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#150a1f;border-left:3px solid #c084fc;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#e9d5ff;line-height:1.5}
+.vocab-tip strong{color:#c084fc}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#c084fc;margin:.5rem 0}
+.breakdown-wrap{margin-top:1.5rem;text-align:left}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.85rem}
+.breakdown-row .bd-label{color:#cbd5e1}
+.breakdown-row .bd-score{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+
+/* Floating must-knows / labs reference — injected by harness */
+.mk-fab{position:fixed;right:1rem;bottom:1rem;z-index:200;display:flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#7c3aed,#c084fc);color:#fff;border:none;border-radius:99px;padding:.7rem 1.1rem;font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;letter-spacing:.02em;cursor:pointer;box-shadow:0 6px 20px -4px rgba(124,58,237,.7);transition:transform .15s,box-shadow .15s}
+.mk-fab:hover{transform:translateY(-2px);box-shadow:0 8px 26px -4px rgba(124,58,237,.85)}
+.mk-fab:active{transform:translateY(0)}
+.mk-fab .mk-ico{font-size:1rem;line-height:1}
+.mk-overlay{position:fixed;inset:0;z-index:210;background:rgba(6,8,12,.72);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.mk-overlay.open{display:flex}
+.mk-panel{background:#13181f;border:1px solid #2a3444;border-radius:16px 16px 0 0;width:100%;max-width:860px;max-height:85vh;overflow-y:auto;padding:1.25rem 1.25rem 1.5rem;box-shadow:0 -10px 40px -8px rgba(0,0,0,.7);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.mk-overlay.open .mk-panel{transform:translateY(0)}
+.mk-panel-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.9rem;position:sticky;top:-1.25rem;background:#13181f;padding:.25rem 0 .5rem;border-bottom:1px solid #1e293b}
+.mk-panel-head h3{color:#c084fc;font-size:1rem;margin:0}
+.mk-close{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:99px;width:2rem;height:2rem;font-size:1.1rem;line-height:1;cursor:pointer;flex-shrink:0;transition:background .15s}
+.mk-close:hover{background:#334155}
+.mk-panel .svg-card{background:transparent;border:none;padding:0;margin:0}
+.mk-panel .svg-card h3{display:none}
+@media(min-width:700px){.mk-overlay{align-items:center}.mk-panel{border-radius:16px;max-height:82vh}.mk-overlay.open .mk-panel{transform:translateY(0)}.mk-panel{transform:translateY(24px)}}
+
+/* ---- Filter bar + drill-missed (opt-in via #harnessFilterBar) ---- */
+.filter-bar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:1rem 0 .5rem}
+.filter-label{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-right:.2rem}
+.fbtn{background:#13181f;color:#94a3b8;border:1px solid #334155;border-radius:999px;padding:.4rem .85rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.fbtn:hover{background:#1e293b;color:#e2e8f0}
+.fbtn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.fbtn-hot{border-color:#7c3aed;color:#c4b5fd}
+.fbtn-sata{border-color:#f59e0b;color:#fbbf24}
+.fbtn-sata.active{background:#f59e0b;border-color:#f59e0b;color:#0c0f14}
+.fbtn-fresh{margin-left:auto;border-color:#475569;color:#94a3b8}
+.fbtn-fresh:hover{background:#334155;color:#f8fafc}
+.filter-note{font-size:.8rem;color:#64748b;margin-bottom:1rem;line-height:1.5}
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
+.btn-missed:hover{background:#14532d}
+
+/* ---- Stats panel (attempt history + block averages) ---- */
+.stats-wrap{background:#13181f;border:1px solid #1e293b;border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
+.stats-toggle{width:100%;background:none;border:none;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;color:#c4b5fd}
+.stats-toggle:hover{background:#1a1f2e}
+.stats-toggle .st-summary{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#94a3b8;font-weight:400}
+.stats-toggle .st-arrow{transition:transform .2s;color:#64748b}
+.stats-wrap.open .stats-toggle .st-arrow{transform:rotate(180deg)}
+.stats-body{display:none;padding:0 1rem 1rem;border-top:1px solid #1e293b}
+.stats-wrap.open .stats-body{display:block}
+.stats-body h4{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 .4rem}
+.st-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.4rem .8rem;margin-bottom:.25rem;font-size:.78rem}
+.st-row.best{border-color:#7c3aed}
+.st-date{color:#94a3b8;font-family:'IBM Plex Mono',monospace;min-width:7rem}
+.st-score{font-family:'IBM Plex Mono',monospace;font-weight:600;margin-left:auto}
+.st-label{color:#94a3b8;font-size:.72rem;margin-left:.5rem}
+.st-blk-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.45rem .8rem;margin-bottom:.3rem;font-size:.78rem}
+.st-blk-name{color:#cbd5e1;min-width:40%;flex-shrink:0}
+.st-blk-bar{flex:1;height:5px;border-radius:99px;background:#1e293b;overflow:hidden;margin:0 .7rem}
+.st-blk-bar i{display:block;height:100%;border-radius:99px}
+.st-blk-pct{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:3rem;text-align:right}
+.st-note{color:#64748b;font-size:.72rem;margin-top:.5rem;line-height:1.45}
+.st-empty{color:#64748b;font-size:.78rem;font-style:italic;padding:.5rem 0}
+
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 55 &mdash; Care of Patients With Problems of the Thyroid and Parathyroid Glands</h1>
+<p class="subtitle">MS2 Exam 5 &middot; built from Prof. Vil&rsquo;s recap sheet</p>
+</div>
+<div class="exam-info">This chapter is two glands stacked on top of each other, and the exam punishes you for blurring them. Thyroid runs the metabolic SPEED. Parathyroid runs the CALCIUM. Every question here is built around four reversals: TSH vs. T4 direction, slow vs. fast, warm-passively vs. cool, and irritable vs. sedated calcium. If you can say each reversal out loud without looking, the chapter is yours.</div>
+<div class="svg-card">
+<h3>The TSH Rule, Slow vs. Fast, the Two Emergencies &amp; the Calcium Seesaw</h3>
+<svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg">
+<rect width="820" height="460" fill="#0f172a"/>
+
+<rect x="14" y="14" width="792" height="92" rx="8" fill="#1e293b" stroke="#93c5fd" stroke-width="2"/>
+<text x="26" y="36" fill="#93c5fd" font-family="DM Sans" font-size="14" font-weight="700">THE RULE THAT ANSWERS MOST THYROID LAB QUESTIONS</text>
+<text x="26" y="58" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">TSH HIGH + T4 LOW  = PRIMARY HYPOthyroid &#183; the gland failed, the pituitary is yelling</text>
+<text x="26" y="76" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">TSH LOW  + T4 HIGH = PRIMARY HYPERthyroid &#183; the gland is loud, the pituitary went quiet</text>
+<text x="26" y="96" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">BOTH MOVE THE SAME DIRECTION = the PITUITARY is the problem (secondary), not the thyroid</text>
+
+<rect x="14" y="120" width="386" height="150" rx="8" fill="#1e293b" stroke="#6ee7b7" stroke-width="2"/>
+<text x="26" y="142" fill="#6ee7b7" font-family="DM Sans" font-size="14" font-weight="700">SLOW AND LOW vs. HIGH AND FAST</text>
+<text x="26" y="162" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">HYPO  brady &#183; cold &#183; gains &#183; constipated</text>
+<text x="26" y="178" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">      DTRs slow, DELAYED RELAXATION</text>
+<text x="26" y="194" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">      cholesterol HIGH &#183; outer brows thin</text>
+<text x="26" y="216" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">HYPER tachy &#183; hot &#183; loses &#183; diarrhea</text>
+<text x="26" y="232" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">      DTRs brisk &#183; FINE TREMOR &#183; chol LOW</text>
+<text x="26" y="248" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">      EXOPHTHALMOS = GRAVES ONLY</text>
+<text x="26" y="266" fill="#c084fc" font-family="IBM Plex Mono" font-size="11">GOITER = SIZE, not FUNCTION &#8594; check TSH</text>
+
+<rect x="416" y="120" width="390" height="150" rx="8" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+<text x="428" y="142" fill="#f87171" font-family="DM Sans" font-size="14" font-weight="700">THE TWO EMERGENCIES</text>
+<text x="428" y="162" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">MYXEDEMA COMA &#8212; everything CRASHES</text>
+<text x="428" y="178" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">hypothermia &#183; brady &#183; hypotension</text>
+<text x="428" y="194" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">hypoglycemia &#183; hypoNa &#183; CO2 retention</text>
+<text x="428" y="210" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">WARM PASSIVELY &#8212; blankets ONLY, no devices</text>
+<text x="428" y="232" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">THYROID STORM &#8212; everything RACES</text>
+<text x="428" y="248" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">fever &#62;105F &#183; HR &#62;130 &#183; delirium &#183; COOL</text>
+<text x="428" y="264" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">NO ASPIRIN &#183; iodine &#8805;1 HR AFTER PTU</text>
+
+<rect x="14" y="284" width="386" height="160" rx="8" fill="#1e293b" stroke="#fcd34d" stroke-width="2"/>
+<text x="26" y="306" fill="#fcd34d" font-family="DM Sans" font-size="14" font-weight="700">AFTER A THYROIDECTOMY &#8212; 4 + 1</text>
+<text x="26" y="328" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">1 HEMORRHAGE &#8212; LOOK BEHIND THE NECK</text>
+<text x="26" y="346" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">2 AIRWAY &#8212; trach tray, O2, suction at bed</text>
+<text x="26" y="364" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">3 HYPOCALCEMIA &#8212; Trousseau / Chvostek</text>
+<text x="26" y="380" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">    calcium gluconate AT THE BEDSIDE</text>
+<text x="26" y="398" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">4 LARYNGEAL NERVE &#8212; check VOICE q1&#8211;2h</text>
+<text x="26" y="416" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">+ THYROID STORM</text>
+<text x="26" y="436" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">SEMI-FOWLER &#183; support neck &#183; NO FLEXION</text>
+
+<rect x="416" y="284" width="390" height="160" rx="8" fill="#1e293b" stroke="#c084fc" stroke-width="2"/>
+<text x="428" y="306" fill="#c084fc" font-family="DM Sans" font-size="14" font-weight="700">CALCIUM &#8212; ONE LINE COVERS BOTH GLANDS</text>
+<text x="428" y="328" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">LOW Ca = IRRITABLE body (hypoPARA)</text>
+<text x="428" y="344" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">twitch &#183; tetany &#183; seizure &#183; LONG QT</text>
+<text x="428" y="360" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">TROUSSEAU = tourniquet &#183; CHVOSTEK = cheek</text>
+<text x="428" y="376" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">AIRWAY / laryngospasm is the killer</text>
+<text x="428" y="396" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">HIGH Ca = SEDATED body (hyperPARA)</text>
+<text x="428" y="412" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">weak &#183; constipated &#183; SHORT QT &#183; stones,</text>
+<text x="428" y="428" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">bones, groans, psych overtones &#183; FRACTURE</text>
+<text x="428" y="446" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">Ca and PHOSPHORUS always move OPPOSITE</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch55-primer';
+const EXAM_LABEL='MS2 Ch 55 - Thyroid and Parathyroid';
+const BLOCKS={A:'The Thyroid Axis, TSH Logic &amp; Goiter',B:'Hypothyroidism, Myxedema Coma &amp; Levothyroxine',C:'Hyperthyroidism, Graves Disease &amp; Thyroid Storm',D:'Antithyroid Drugs, RAI &amp; Thyroidectomy Care',E:'Thyroiditis &amp; Thyroid Cancer',F:'Parathyroid &mdash; Hypo vs. Hyper, Calcium &amp; Phosphorus'};
+const ALL_Q=[
+{id:1,block:'A',chapter:55,type:'Lab Read',
+stem:'A patient&rsquo;s labs return TSH 14 mU/L (high) and free T4 0.4 ng/dL (low). How does the nurse interpret this?',
+options:[
+{letter:'A',text:'Primary hypothyroidism &mdash; the thyroid gland itself has failed',correct:true,rationale:'Correct. In PRIMARY disease the two values move in OPPOSITE directions. The gland cannot make T4, so the pituitary keeps shouting by pumping out more TSH. High TSH + low T4 = the gland is the problem.'},
+{letter:'B',text:'Secondary hypothyroidism from a pituitary tumor',correct:false,rationale:'In secondary (pituitary) disease the TSH would be LOW or inappropriately normal alongside the low T4 &mdash; both moving the SAME direction.'},
+{letter:'C',text:'Primary hyperthyroidism',correct:false,rationale:'Hyperthyroidism is the mirror image: TSH LOW, T4 HIGH.'},
+{letter:'D',text:'Normal thyroid function with lab error',correct:false,rationale:'Both values are clearly abnormal and they fit a classic, internally consistent pattern. There is nothing to suggest error.'}
+],
+vocabTip:'<strong>Primary</strong> = the problem is in the target gland itself. <strong>Secondary</strong> = the problem is upstream in the pituitary. This one word changes which lab you expect to be high.',
+trap:'Students read only the T4 and answer &ldquo;hypothyroid.&rdquo; You must read BOTH values &mdash; the direction they move relative to each other is what tells you WHERE the problem lives.'},
+
+{id:2,block:'A',chapter:55,type:'Lab Read',
+stem:'A patient has a low TSH AND a low free T4. What does the nurse suspect?',
+options:[
+{letter:'A',text:'A pituitary (secondary) problem &mdash; the pituitary is not sending the signal',correct:true,rationale:'Correct. Both values moving the SAME direction breaks the normal feedback loop. A healthy pituitary faced with a low T4 would raise TSH. A low TSH with a low T4 means the pituitary is not doing its job.'},
+{letter:'B',text:'Primary hypothyroidism',correct:false,rationale:'Primary hypothyroidism gives a HIGH TSH with the low T4.'},
+{letter:'C',text:'Graves disease',correct:false,rationale:'Graves gives a low TSH with a HIGH T4 plus exophthalmos.'},
+{letter:'D',text:'Iodine excess',correct:false,rationale:'This does not produce the same-direction pattern that points to the pituitary.'}
+],
+vocabTip:'<strong>Negative feedback loop:</strong> low hormone should raise the stimulating hormone. When it does not, the failure is in the organ doing the stimulating.',
+trap:'SAME direction = pituitary. OPPOSITE directions = the gland. Say that sentence out loud before you answer any thyroid lab question.'},
+
+{id:3,block:'A',chapter:55,type:'Concept',
+stem:'Which laboratory test is the most sensitive screening test for thyroid dysfunction?',
+options:[
+{letter:'A',text:'TSH',correct:true,rationale:'Correct. TSH changes before T3 and T4 drift out of range, because the pituitary is exquisitely sensitive to even small shifts in circulating thyroid hormone. It is the first test to move and the standard screen.'},
+{letter:'B',text:'Total T3',correct:false,rationale:'T3 is useful in confirming hyperthyroidism but is not the screening test.'},
+{letter:'C',text:'Thyroglobulin',correct:false,rationale:'Thyroglobulin is used as a tumor marker to monitor for recurrence AFTER thyroid cancer treatment, not for screening function.'},
+{letter:'D',text:'Serum calcitonin',correct:false,rationale:'Calcitonin is the marker for MEDULLARY thyroid cancer, not a function screen.'}
+],
+vocabTip:'<strong>TSH</strong> = thyroid-stimulating hormone, made by the anterior pituitary. Think of it as the pituitary&rsquo;s volume knob for the thyroid.'},
+
+{id:4,block:'A',chapter:55,type:'Concept',
+stem:'A patient asks why the provider ordered a free T4 rather than a total T4. What is the nurse&rsquo;s best explanation?',
+options:[
+{letter:'A',text:'Free T4 measures the unbound hormone that is actually available to the tissues, so it is not skewed by changes in binding proteins',correct:true,rationale:'Correct. Most T4 travels bound to protein and is inactive. Pregnancy, estrogen and liver disease change the amount of binding protein, which shifts the TOTAL but not the FREE level. Free T4 reflects true function.'},
+{letter:'B',text:'Free T4 is cheaper',correct:false,rationale:'Cost is not the clinical rationale.'},
+{letter:'C',text:'Total T4 requires a fasting specimen',correct:false,rationale:'This is not the reason free T4 is preferred.'},
+{letter:'D',text:'Free T4 also measures TSH',correct:false,rationale:'They are separate assays.'}
+],
+vocabTip:'<strong>Free</strong> hormone = unbound = active. Bound hormone is in storage and cannot enter a cell.'},
+
+{id:5,block:'A',chapter:55,type:'Concept',
+stem:'A patient has a visibly enlarged thyroid gland. What is the nurse&rsquo;s correct understanding of this finding?',
+options:[
+{letter:'A',text:'A goiter indicates gland SIZE, not gland function; the TSH and T4 determine whether the patient is hypo-, hyper- or euthyroid',correct:true,rationale:'Correct. A goiter can occur with hypothyroidism (iodine deficiency, Hashimoto), with hyperthyroidism (Graves, toxic nodular goiter), or with completely normal function. Size tells you nothing about output.'},
+{letter:'B',text:'A goiter always means hyperthyroidism',correct:false,rationale:'Iodine-deficiency goiter and Hashimoto goiter occur with HYPOthyroidism.'},
+{letter:'C',text:'A goiter always means hypothyroidism',correct:false,rationale:'Graves disease and toxic nodular goiter enlarge the gland while output is HIGH.'},
+{letter:'D',text:'A goiter is always malignant and requires immediate biopsy',correct:false,rationale:'Most goiters are benign. A single firm fixed nodule is the finding that raises cancer concern.'}
+],
+vocabTip:'<strong>Goiter</strong> = enlargement of the thyroid gland. <strong>Euthyroid</strong> = normal thyroid function.',
+trap:'&ldquo;Goiter&rdquo; in a stem is not a function clue. Go find the TSH.'},
+
+{id:6,block:'A',chapter:55,type:'Assessment',
+sata:true,
+stem:'A patient has a large multinodular goiter. Which findings should the nurse report as evidence of compression? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Difficulty swallowing solid food',correct:true,rationale:'Correct. The enlarged gland presses on the esophagus, which sits directly behind it, producing dysphagia.'},
+{letter:'B',text:'A new hoarse or weak voice',correct:true,rationale:'Correct. Pressure on the recurrent laryngeal nerve changes the voice &mdash; the same nerve at risk during thyroidectomy.'},
+{letter:'C',text:'Inspiratory stridor',correct:true,rationale:'Correct. Stridor means the trachea is being narrowed. This is an airway emergency and is reported immediately.'},
+{letter:'D',text:'A sensation of tightness or choking when lying flat',correct:true,rationale:'Correct. Positional airway symptoms are a classic compression complaint with a substernal goiter.'},
+{letter:'E',text:'Fine tremor of the outstretched hands',correct:false,rationale:'A fine tremor reflects excess thyroid HORMONE, not mechanical compression by the gland.'},
+{letter:'F',text:'Cold intolerance',correct:false,rationale:'Cold intolerance is a hypothyroid symptom, not a compression sign.'}
+],
+vocabTip:'<strong>Compression symptoms</strong> come from the gland&rsquo;s bulk pressing on neighbors: trachea (stridor), esophagus (dysphagia), recurrent laryngeal nerve (hoarseness).',
+trap:'Separate SIZE problems from HORMONE problems. Tremor and cold intolerance are hormone findings and do not belong in a compression answer.'},
+
+{id:7,block:'B',chapter:55,type:'Assessment',
+sata:true,
+stem:'Which findings does the nurse expect in a patient with untreated hypothyroidism? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Bradycardia and hypotension',correct:true,rationale:'Correct. Everything slows. Low thyroid hormone reduces heart rate, contractility and cardiac output.'},
+{letter:'B',text:'Weight gain despite a poor appetite',correct:true,rationale:'Correct. The metabolic rate falls faster than intake does, so patients gain even while eating less.'},
+{letter:'C',text:'Constipation',correct:true,rationale:'Correct. Slowed peristalsis is one of the most reliable hypothyroid findings.'},
+{letter:'D',text:'Deep tendon reflexes with a delayed relaxation phase',correct:true,rationale:'Correct. The hallmark is not just a slow reflex but the slow RETURN &mdash; the muscle hangs on the way back.'},
+{letter:'E',text:'An elevated serum cholesterol',correct:true,rationale:'Correct. Thyroid hormone drives LDL clearance, so cholesterol rises when the hormone falls.'},
+{letter:'F',text:'Heat intolerance and diaphoresis',correct:false,rationale:'This is the hyperthyroid picture. Hypothyroid patients are COLD.'}
+],
+vocabTip:'<strong>Myxedema</strong> = the non-pitting, doughy tissue swelling of severe hypothyroidism (face, hands, tongue), caused by mucopolysaccharides pulling water into tissue.',
+trap:'Cholesterol is the one lab students put in the wrong column. Slow metabolism = cholesterol goes UP.'},
+
+{id:8,block:'B',chapter:55,type:'Concept',
+stem:'A 68-year-old is brought in by family for &ldquo;getting forgetful, sleeping all day, and not caring about anything.&rdquo; What should the nurse consider?',
+options:[
+{letter:'A',text:'Hypothyroidism can present in older adults as apathy, confusion and lethargy and is easily mistaken for depression or dementia',correct:true,rationale:'Correct. This is a classic missed diagnosis. Older adults often lack the textbook cold intolerance and weight gain; the presentation is cognitive and behavioral. A TSH is warranted before labeling it dementia.'},
+{letter:'B',text:'These findings are an expected part of aging',correct:false,rationale:'Apathy and new cognitive decline are never dismissed as normal aging.'},
+{letter:'C',text:'This is the classic presentation of hyperthyroidism',correct:false,rationale:'Hyperthyroidism in an older adult usually presents as new atrial fibrillation or unexplained weight loss, not somnolence.'},
+{letter:'D',text:'These findings indicate thyroid storm',correct:false,rationale:'Thyroid storm is hyperactive and febrile, the opposite of this picture.'}
+],
+vocabTip:'<strong>Apathetic hypothyroidism</strong> = the older-adult presentation, where the behavioral changes dominate and the classic physical signs are absent.',
+trap:'&ldquo;Looks like depression or dementia&rdquo; in an older adult is a cue to check the TSH, not a cue to accept the label.'},
+
+{id:9,block:'B',chapter:55,type:'Concept',
+stem:'The nurse is teaching about the most common cause of hypothyroidism in the United States. Which statement is accurate?',
+options:[
+{letter:'A',text:'Hashimoto (chronic autoimmune) thyroiditis is the leading cause in the United States, while iodine deficiency remains the leading cause worldwide',correct:true,rationale:'Correct. In iodine-sufficient countries like the US the gland is destroyed by autoantibodies. Worldwide, where salt is not iodized, deficiency dominates. Both produce a goiter with a low T4.'},
+{letter:'B',text:'Iodine deficiency is the leading US cause because of low-salt diets',correct:false,rationale:'US table salt is iodized and deficiency is rare here; Hashimoto leads.'},
+{letter:'C',text:'Thyroid cancer is the leading cause',correct:false,rationale:'Cancer is an uncommon cause of hypothyroidism; treatment for it is a more common cause than the cancer itself.'},
+{letter:'D',text:'Lithium is the leading cause',correct:false,rationale:'Lithium and amiodarone are recognized drug causes but account for a small fraction of cases.'}
+],
+vocabTip:'<strong>Hashimoto thyroiditis</strong> = autoimmune destruction of thyroid tissue, often with an initial brief hyperthyroid leak phase before permanent hypothyroidism sets in.'},
+
+{id:10,block:'B',chapter:55,type:'Priority',
+stem:'A patient with long-untreated hypothyroidism is admitted with a temperature of 93.4&deg;F (34.1&deg;C), heart rate 44, blood pressure 78/40, and is difficult to arouse. What is the nurse&rsquo;s PRIORITY action?',
+options:[
+{letter:'A',text:'Maintain a patent airway and support ventilation',correct:true,rationale:'Correct. Myxedema coma causes respiratory depression with CO2 retention, and the swollen tongue plus depressed drive threaten the airway. Airway and breathing come before hormone replacement or warming.'},
+{letter:'B',text:'Apply a warming blanket set to high and a heating pad',correct:false,rationale:'Active external heat is contraindicated &mdash; it dilates peripheral vessels and drops an already dangerously low blood pressure. Warm passively with blankets only.'},
+{letter:'C',text:'Give the oral levothyroxine dose immediately',correct:false,rationale:'Absorption in the shut-down gut is unreliable and the patient cannot safely swallow. Replacement is given IV, and still after the airway is secured.'},
+{letter:'D',text:'Encourage a high-fiber meal to treat the constipation',correct:false,rationale:'The patient is not arousable. Nothing by mouth.'}
+],
+vocabTip:'<strong>Myxedema coma</strong> = decompensated hypothyroidism with hypothermia, bradycardia, hypotension, hypoglycemia, hyponatremia and hypoventilation. Mortality is high.',
+trap:'The heat trap. Instinct says warm the cold patient aggressively. Vasodilation in a patient with a BP of 78/40 can be fatal &mdash; blankets ONLY.'},
+
+{id:11,block:'B',chapter:55,type:'Concept',
+sata:true,
+stem:'Which factors can precipitate myxedema coma in a patient with hypothyroidism? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Stopping levothyroxine',correct:true,rationale:'Correct. Abrupt discontinuation, often because the patient felt fine or ran out, is one of the most common triggers.'},
+{letter:'B',text:'Acute infection such as pneumonia',correct:true,rationale:'Correct. Any acute physiologic stress can overwhelm the minimal reserve of a hypothyroid patient.'},
+{letter:'C',text:'Opioids or sedatives',correct:true,rationale:'Correct. These patients metabolize drugs slowly and are exquisitely sensitive; a normal dose can suppress respiration.'},
+{letter:'D',text:'Exposure to cold',correct:true,rationale:'Correct. Cold exposure is a classic trigger, which is why cases cluster in winter.'},
+{letter:'E',text:'Surgery or trauma',correct:true,rationale:'Correct. The metabolic demand of surgery or injury exceeds what the gland can supply.'},
+{letter:'F',text:'A high-iodine diet',correct:false,rationale:'Dietary iodine is not a recognized precipitant of myxedema coma.'}
+],
+vocabTip:'<strong>Precipitating factor</strong> = the added stressor that tips a chronically compensated patient into crisis.',
+trap:'Sedatives and opioids belong on this list. Hypothyroid patients clear drugs slowly &mdash; start low and go slow is a safety rule, not a courtesy.'},
+
+{id:12,block:'B',chapter:55,type:'Medication',
+stem:'The nurse is teaching a patient starting levothyroxine. Which instruction is correct?',
+options:[
+{letter:'A',text:'Take it in the morning on an empty stomach with water, 30 to 60 minutes before breakfast, at the same time every day',correct:true,rationale:'Correct. Food markedly reduces absorption, and morning dosing avoids the insomnia that evening dosing can cause. Consistent timing keeps the blood level steady.'},
+{letter:'B',text:'Take it with breakfast to prevent stomach upset',correct:false,rationale:'Food, especially soy, coffee and high-fiber cereal, blocks absorption.'},
+{letter:'C',text:'Take it at bedtime with a calcium supplement',correct:false,rationale:'Calcium is one of the agents that must be separated by four hours.'},
+{letter:'D',text:'Take it only on the days fatigue is noticeable',correct:false,rationale:'This is lifelong daily replacement, not a symptom-triggered drug. Skipping doses risks myxedema coma.'}
+],
+vocabTip:'<strong>Levothyroxine</strong> = synthetic T4. It has a narrow therapeutic index and a long half-life, so effects take weeks to show.'},
+
+{id:13,block:'B',chapter:55,type:'Medication',
+stem:'A patient takes levothyroxine, calcium carbonate, ferrous sulfate and an aluminum antacid. What is the nurse&rsquo;s most important teaching point?',
+options:[
+{letter:'A',text:'Separate the levothyroxine from the calcium, iron and antacid by at least 4 hours',correct:true,rationale:'Correct. Calcium, iron, magnesium and aluminum all bind levothyroxine in the gut and block its absorption. Four hours of separation preserves the dose. This is a very common exam item.'},
+{letter:'B',text:'Take all four together in the morning for convenience',correct:false,rationale:'This is exactly what causes the levothyroxine to fail and the TSH to rise despite &ldquo;adherence.&rdquo;'},
+{letter:'C',text:'Discontinue the calcium and iron permanently',correct:false,rationale:'They are not contraindicated, only separated in time.'},
+{letter:'D',text:'Crush all four and take them in applesauce',correct:false,rationale:'Crushing does not prevent the binding interaction and is not indicated.'}
+],
+vocabTip:'<strong>Chelation</strong> = a drug binding to a mineral in the gut, forming a complex too large to absorb.',
+trap:'If a patient&rsquo;s TSH is climbing even though she swears she takes her pill, ask WHAT ELSE she takes with it.'},
+
+{id:14,block:'B',chapter:55,type:'Medication',
+stem:'Which finding in a patient newly started on levothyroxine requires the nurse to notify the provider immediately?',
+options:[
+{letter:'A',text:'New chest pain with a heart rate of 118',correct:true,rationale:'Correct. Raising the metabolic rate raises myocardial oxygen demand. In an older adult or anyone with coronary disease this can precipitate angina, dysrhythmia or infarction. That is why the drug is started low and titrated slowly.'},
+{letter:'B',text:'Gradual improvement in energy over three weeks',correct:false,rationale:'This is the expected therapeutic response.'},
+{letter:'C',text:'Slow weight loss back toward baseline',correct:false,rationale:'Expected as the metabolic rate normalizes.'},
+{letter:'D',text:'Return of normal bowel movements',correct:false,rationale:'Expected resolution of the hypothyroid constipation.'}
+],
+vocabTip:'<strong>Myocardial oxygen demand</strong> rises with heart rate and contractility. Thyroid hormone raises both.',
+trap:'The risk of levothyroxine is not the thyroid &mdash; it is the HEART. Any chest pain or palpitation during titration is reported.'},
+
+{id:15,block:'B',chapter:55,type:'Medication',
+stem:'A patient on levothyroxine for six months reports weight loss, nervousness, insomnia, and a heart rate of 106. What do these findings most likely indicate?',
+options:[
+{letter:'A',text:'The dose is too high and the patient is now showing hyperthyroid effects',correct:true,rationale:'Correct. Over-replacement produces the hyperthyroid picture. The nurse holds the dose per protocol, notifies the provider, and expects a TSH to be drawn &mdash; it will be suppressed if the dose is excessive.'},
+{letter:'B',text:'The dose is too low',correct:false,rationale:'Under-replacement would leave the patient fatigued, cold and constipated.'},
+{letter:'C',text:'The patient has developed Graves disease',correct:false,rationale:'The far simpler and more likely explanation in a patient on replacement therapy is the dose.'},
+{letter:'D',text:'This is the expected response and needs no action',correct:false,rationale:'Tachycardia and insomnia are toxicity, not therapeutic effect.'}
+],
+vocabTip:'<strong>Over-replacement</strong> of levothyroxine also accelerates bone loss over time &mdash; a real concern in older women.'},
+
+{id:16,block:'B',chapter:55,type:'Concept',
+stem:'A hypothyroid patient asks how soon she will feel better after starting levothyroxine. What is the nurse&rsquo;s best response?',
+options:[
+{letter:'A',text:'&ldquo;It usually takes several weeks to feel the full effect, and the dose is adjusted based on your TSH about 6 to 8 weeks after any change.&rdquo;',correct:true,rationale:'Correct. T4 has a long half-life and the pituitary needs weeks to re-equilibrate, so the TSH is not rechecked too early. Setting this expectation prevents the patient from stopping the drug for &ldquo;not working.&rdquo;'},
+{letter:'B',text:'&ldquo;You should feel completely normal within 24 hours.&rdquo;',correct:false,rationale:'This false expectation is a common reason patients abandon the drug.'},
+{letter:'C',text:'&ldquo;You may double the dose any week you feel tired.&rdquo;',correct:false,rationale:'Patients never self-titrate a narrow-therapeutic-index hormone.'},
+{letter:'D',text:'&ldquo;Once your symptoms resolve you can stop taking it.&rdquo;',correct:false,rationale:'Replacement is lifelong; symptom resolution means the dose is working, not that it is no longer needed.'}
+],
+vocabTip:'<strong>Half-life</strong> = the time for half of a drug to leave the body. Levothyroxine&rsquo;s is about 7 days, which is why steady state takes weeks.'},
+
+{id:17,block:'B',chapter:55,type:'Concept',
+stem:'Which teaching point should the nurse include for a patient whose levothyroxine brand is being switched to a different manufacturer?',
+options:[
+{letter:'A',text:'&ldquo;Tell your provider about the change; a TSH will be rechecked because products are not always perfectly interchangeable.&rdquo;',correct:true,rationale:'Correct. Small bioavailability differences between products matter for a narrow-therapeutic-index drug. The safest practice is to stay on one product and recheck the TSH if it must change.'},
+{letter:'B',text:'&ldquo;All brands are identical, so no follow-up is needed.&rdquo;',correct:false,rationale:'This ignores the narrow therapeutic index.'},
+{letter:'C',text:'&ldquo;Take a double dose for the first week of the new brand.&rdquo;',correct:false,rationale:'Never. This would cause an overdose.'},
+{letter:'D',text:'&ldquo;Stop the medication until the new prescription is confirmed.&rdquo;',correct:false,rationale:'Stopping replacement risks decompensation.'}
+],
+vocabTip:'<strong>Narrow therapeutic index</strong> = the gap between an effective dose and a toxic dose is small, so small changes matter.'},
+
+{id:18,block:'C',chapter:55,type:'Assessment',
+sata:true,
+stem:'Which findings does the nurse expect in a patient with hyperthyroidism? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Weight loss despite an increased appetite',correct:true,rationale:'Correct. The metabolic rate outruns intake, so patients eat more and still lose.'},
+{letter:'B',text:'Heat intolerance and diaphoresis',correct:true,rationale:'Correct. Excess hormone raises heat production; the patient is hot when everyone else is comfortable.'},
+{letter:'C',text:'A fine tremor of the outstretched hands',correct:true,rationale:'Correct. A fine, rapid tremor is characteristic. It is different from the coarse tremor of Parkinson disease.'},
+{letter:'D',text:'Frequent loose stools',correct:true,rationale:'Correct. Peristalsis accelerates, producing increased stool frequency or frank diarrhea.'},
+{letter:'E',text:'Insomnia and emotional lability',correct:true,rationale:'Correct. Nervousness, irritability and difficulty sleeping are hallmark CNS effects.'},
+{letter:'F',text:'Elevated serum cholesterol',correct:false,rationale:'Cholesterol falls in hyperthyroidism because LDL clearance is accelerated. It RISES in hypothyroidism.'}
+],
+vocabTip:'<strong>Thyrotoxicosis</strong> = the clinical syndrome of excess circulating thyroid hormone, regardless of the cause.',
+trap:'Cholesterol is the reversal students miss twice. HYPER = cholesterol LOW. HYPO = cholesterol HIGH.'},
+
+{id:19,block:'C',chapter:55,type:'Concept',
+stem:'Which findings are specific to Graves disease rather than to hyperthyroidism from any other cause?',
+options:[
+{letter:'A',text:'Exophthalmos, pretibial myxedema and a diffuse goiter with a bruit',correct:true,rationale:'Correct. These three are the autoimmune fingerprints of Graves. The antibodies attack retro-orbital tissue and pretibial skin in addition to stimulating the TSH receptor, which no other cause of hyperthyroidism does.'},
+{letter:'B',text:'Tachycardia, weight loss and heat intolerance',correct:false,rationale:'These come from excess hormone and occur with ANY cause of hyperthyroidism.'},
+{letter:'C',text:'Fine tremor and diarrhea',correct:false,rationale:'Also generic hormone-excess findings.'},
+{letter:'D',text:'Insomnia and anxiety',correct:false,rationale:'Generic hormone-excess findings.'}
+],
+vocabTip:'<strong>Exophthalmos</strong> = protrusion of the eyeballs from swelling of the tissue behind them. <strong>Pretibial myxedema</strong> = thickened, waxy skin over the shins.',
+trap:'If the stem says exophthalmos, the cause is GRAVES. Treating the hormone does not reverse the eye changes &mdash; they often persist after the patient is euthyroid.'},
+
+{id:20,block:'C',chapter:55,type:'Assessment',
+sata:true,
+stem:'A patient with Graves disease has significant exophthalmos. Which interventions should the nurse include? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Elevate the head of the bed at night',correct:true,rationale:'Correct. Elevation promotes drainage of periorbital fluid and reduces morning swelling.'},
+{letter:'B',text:'Apply artificial tears during the day',correct:true,rationale:'Correct. The protruding globe dries because the lids cannot cover it fully. Drying leads to corneal ulceration.'},
+{letter:'C',text:'Teach the patient to wear dark glasses outdoors',correct:true,rationale:'Correct. Photophobia is common and the exposed cornea needs protection from wind and dust.'},
+{letter:'D',text:'Tape the eyelids closed at night if they do not fully close',correct:true,rationale:'Correct. Lid taping or a shield prevents nocturnal corneal exposure and abrasion.'},
+{letter:'E',text:'Restrict dietary sodium to reduce periorbital edema',correct:true,rationale:'Correct. Reducing salt reduces the fluid retention that worsens periorbital swelling.'},
+{letter:'F',text:'Reassure the patient the eye changes will resolve once the TSH normalizes',correct:false,rationale:'False reassurance. Eye changes frequently persist after the patient becomes euthyroid and may require steroids, radiation or surgery.'}
+],
+vocabTip:'<strong>Corneal abrasion</strong> is the feared complication of exophthalmos &mdash; it is why every intervention centers on keeping the cornea moist and covered.'},
+
+{id:21,block:'C',chapter:55,type:'Medication',
+stem:'A patient with new hyperthyroidism is prescribed propranolol along with an antithyroid drug. What should the nurse teach about the propranolol?',
+options:[
+{letter:'A',text:'&ldquo;It does not treat the thyroid, but it blocks the adrenergic effects so your heart rate, tremor and anxiety improve within hours while the other drug takes weeks.&rdquo;',correct:true,rationale:'Correct. Beta blockers give symptom relief immediately because excess thyroid hormone works largely by amplifying catecholamine effects. The antithyroid drug takes 3 to 8 weeks to deplete stored hormone.'},
+{letter:'B',text:'&ldquo;It stops the thyroid from making hormone.&rdquo;',correct:false,rationale:'That is what methimazole and PTU do. Propranolol does not touch hormone synthesis.'},
+{letter:'C',text:'&ldquo;It will cure the Graves disease.&rdquo;',correct:false,rationale:'It is symptomatic therapy only.'},
+{letter:'D',text:'&ldquo;Take it only when you feel your heart racing.&rdquo;',correct:false,rationale:'It is scheduled, not PRN, to keep the heart rate controlled continuously.'}
+],
+vocabTip:'<strong>Adrenergic</strong> = related to epinephrine/norepinephrine. Thyroid hormone increases the sensitivity of beta receptors, which is why beta blockade works so well.'},
+
+{id:22,block:'C',chapter:55,type:'Priority',
+stem:'A patient two hours post-thyroidectomy has a temperature rise from 99.2&deg;F to 100.4&deg;F, a heart rate of 128, and new restlessness. What is the nurse&rsquo;s interpretation and first action?',
+options:[
+{letter:'A',text:'Impending thyroid storm &mdash; notify the provider immediately and place the patient in a quiet, cool, dimly lit room',correct:true,rationale:'Correct. A rise of even ONE degree with tachycardia and agitation is the classic early warning of thyroid storm. Environmental stimulation worsens it, so the room is darkened and quieted while treatment is arranged.'},
+{letter:'B',text:'Normal postoperative response &mdash; continue routine monitoring',correct:false,rationale:'After a thyroidectomy this combination is never dismissed as routine.'},
+{letter:'C',text:'Postoperative hypocalcemia &mdash; obtain a calcium level and wait',correct:false,rationale:'Hypocalcemia presents with tingling, twitching and positive Trousseau or Chvostek signs, not fever and tachycardia.'},
+{letter:'D',text:'Wound infection &mdash; obtain a culture',correct:false,rationale:'Infection does not appear two hours after surgery, and does not explain the agitation and rate of 128.'}
+],
+vocabTip:'<strong>Thyroid storm (thyrotoxic crisis)</strong> = a life-threatening surge of thyroid hormone, triggered by surgery, infection, trauma, DKA or abrupt withdrawal of antithyroid drugs.',
+trap:'One degree is a finding. Post-thyroidectomy fever plus tachycardia is storm until proven otherwise.'},
+
+{id:23,block:'C',chapter:55,type:'Medication',
+stem:'A patient in thyroid storm has a temperature of 105.2&deg;F. The provider is called for an antipyretic order. Which drug must the nurse question?',
+options:[
+{letter:'A',text:'Aspirin',correct:true,rationale:'Correct. Aspirin displaces thyroid hormone from its binding proteins, which RAISES the free hormone level and makes the storm worse. Acetaminophen is the antipyretic of choice.'},
+{letter:'B',text:'Acetaminophen',correct:false,rationale:'Acetaminophen is the correct and expected antipyretic in thyroid storm.'},
+{letter:'C',text:'Propranolol',correct:false,rationale:'Propranolol is indicated to control the heart rate and adrenergic symptoms.'},
+{letter:'D',text:'Propylthiouracil',correct:false,rationale:'PTU is a cornerstone of storm treatment because it also blocks peripheral T4-to-T3 conversion.'}
+],
+vocabTip:'<strong>Protein-bound hormone</strong> is inactive. Anything that knocks hormone off its binding protein instantly raises the ACTIVE free level.',
+trap:'NO ASPIRIN IN THYROID STORM. This is a single-fact question that shows up on exams almost verbatim.'},
+
+{id:24,block:'C',chapter:55,type:'Medication',
+stem:'The orders for a patient in thyroid storm include propylthiouracil and potassium iodide (SSKI). How should the nurse sequence them?',
+options:[
+{letter:'A',text:'Give the propylthiouracil first and the iodide at least one hour later',correct:true,rationale:'Correct. Iodine is a raw material for hormone synthesis. If it is given before synthesis is blocked, the gland uses it to build MORE hormone. The antithyroid drug must block synthesis first; then iodine works to inhibit release.'},
+{letter:'B',text:'Give the iodide first to shrink the gland',correct:false,rationale:'This is the dangerous sequence &mdash; it can fuel additional hormone production.'},
+{letter:'C',text:'Give them together in the same cup',correct:false,rationale:'Simultaneous administration defeats the purpose of the sequencing.'},
+{letter:'D',text:'Hold the iodide entirely; it is contraindicated in storm',correct:false,rationale:'Iodide IS used in storm &mdash; it rapidly inhibits hormone release &mdash; but only after synthesis is blocked.'}
+],
+vocabTip:'<strong>Wolff-Chaikoff effect</strong> = high-dose iodide temporarily shuts down thyroid hormone release. Useful acutely, but it wears off, so it is a bridge, not a cure.',
+trap:'Order matters. PTU first, iodine an hour later. Reversing them is the wrong answer even though both drugs are correct.'},
+
+{id:25,block:'C',chapter:55,type:'Concept',
+stem:'An 80-year-old is admitted with new-onset atrial fibrillation and unexplained 15-pound weight loss but no tremor, no heat intolerance and no goiter. What should the nurse anticipate?',
+options:[
+{letter:'A',text:'A TSH will be drawn, because hyperthyroidism in older adults often presents only as a new dysrhythmia or weight loss',correct:true,rationale:'Correct. This is called apathetic thyrotoxicosis. The classic hyperactive signs are absent and the cardiac manifestation is the only clue. New atrial fibrillation in an older adult routinely triggers thyroid testing.'},
+{letter:'B',text:'Hyperthyroidism is ruled out because the classic symptoms are absent',correct:false,rationale:'Absence of classic symptoms is exactly the pattern in older adults; it does not rule the diagnosis out.'},
+{letter:'C',text:'The findings are unrelated to the endocrine system',correct:false,rationale:'New a-fib with weight loss is a recognized thyroid presentation.'},
+{letter:'D',text:'These are expected findings for the patient&rsquo;s age',correct:false,rationale:'Neither new atrial fibrillation nor a 15-pound weight loss is an expected age finding.'}
+],
+vocabTip:'<strong>Apathetic thyrotoxicosis</strong> = hyperthyroidism in an older adult that looks flat and cardiac rather than hyperactive.'},
+
+{id:26,block:'C',chapter:55,type:'Concept',
+stem:'Which diet does the nurse plan for a patient with untreated hyperthyroidism?',
+options:[
+{letter:'A',text:'High-calorie, high-protein, high-carbohydrate, with 4 to 6 small meals and no caffeine',correct:true,rationale:'Correct. The hypermetabolic state burns through calories and breaks down muscle, so intake must be increased and protein replaced. Small frequent meals are tolerated better with rapid transit, and caffeine adds to the tachycardia and tremor.'},
+{letter:'B',text:'Low-calorie, low-protein to avoid stressing the metabolism',correct:false,rationale:'This would accelerate the wasting these patients already have.'},
+{letter:'C',text:'Clear liquids only until the TSH normalizes',correct:false,rationale:'There is no indication to restrict to clear liquids, and it would worsen the calorie deficit.'},
+{letter:'D',text:'High-fiber with extra coffee to manage constipation',correct:false,rationale:'These patients have diarrhea, not constipation, and caffeine is restricted.'}
+],
+vocabTip:'<strong>Hypermetabolic state</strong> = the body burning fuel faster than normal at rest. Feed it or it consumes muscle.'},
+
+{id:27,block:'C',chapter:55,type:'Concept',
+stem:'While assessing a patient with untreated Graves disease, what should the nurse avoid?',
+options:[
+{letter:'A',text:'Vigorous palpation of the thyroid gland',correct:true,rationale:'Correct. Firm palpation of a hyperactive gland can release a bolus of stored hormone into the circulation and precipitate thyroid storm. Palpation is gentle and minimal.'},
+{letter:'B',text:'Auscultating the gland for a bruit',correct:false,rationale:'Auscultation is appropriate and expected &mdash; a bruit reflects the increased vascularity of Graves.'},
+{letter:'C',text:'Inspecting the neck while the patient swallows',correct:false,rationale:'Inspection during swallowing is a standard, safe part of thyroid assessment.'},
+{letter:'D',text:'Measuring the apical pulse for a full minute',correct:false,rationale:'This is appropriate given the risk of an irregular rhythm.'}
+],
+vocabTip:'<strong>Bruit</strong> = a whooshing sound over a vessel or gland from turbulent, high-volume blood flow.',
+trap:'Two things provoke a storm by mechanical means: rough palpation and surgery on an unprepared gland.'},
+
+{id:28,block:'D',chapter:55,type:'Medication',
+stem:'A pregnant patient in the first trimester requires an antithyroid drug. Which agent does the nurse anticipate, and why?',
+options:[
+{letter:'A',text:'Propylthiouracil, because methimazole carries a higher risk of fetal malformation in the first trimester',correct:true,rationale:'Correct. PTU is preferred in the first trimester despite its hepatotoxicity risk. Methimazole is associated with aplasia cutis and other defects early in pregnancy, so many patients switch to methimazole after the first trimester.'},
+{letter:'B',text:'Methimazole, because it is safer in pregnancy at all stages',correct:false,rationale:'Reversed. Methimazole is the usual first-line drug OUTSIDE the first trimester.'},
+{letter:'C',text:'Radioactive iodine, because it is a single dose',correct:false,rationale:'Radioactive iodine is absolutely contraindicated in pregnancy &mdash; it crosses the placenta and destroys the fetal thyroid.'},
+{letter:'D',text:'Levothyroxine, to balance the excess hormone',correct:false,rationale:'Adding thyroid hormone to a hyperthyroid patient would worsen the condition.'}
+],
+vocabTip:'<strong>Thionamides</strong> = methimazole and PTU. Both block hormone SYNTHESIS; only PTU also blocks peripheral T4-to-T3 conversion, which is why PTU is favored in storm.',
+trap:'PTU has two niches: FIRST TRIMESTER and THYROID STORM. Everywhere else, methimazole is preferred because PTU is more hepatotoxic.'},
+
+{id:29,block:'D',chapter:55,type:'Medication',
+stem:'Which report from a patient taking methimazole requires the nurse to contact the provider immediately?',
+options:[
+{letter:'A',text:'Sore throat and fever',correct:true,rationale:'Correct. Agranulocytosis is the feared adverse effect of the thionamides. A sore throat with fever may be the only sign that the white count has collapsed. The drug is held and a CBC with differential is obtained.'},
+{letter:'B',text:'Gradual reduction in heart rate over several weeks',correct:false,rationale:'This is the expected therapeutic effect.'},
+{letter:'C',text:'A mild metallic taste',correct:false,rationale:'A change in taste is a recognized nuisance effect, not an emergency.'},
+{letter:'D',text:'Slight weight gain back toward baseline',correct:false,rationale:'Expected as the hypermetabolic state resolves.'}
+],
+vocabTip:'<strong>Agranulocytosis</strong> = a severe drop in neutrophils leaving the patient defenseless against bacterial infection. Fever and sore throat are the sentinel symptoms.',
+trap:'&ldquo;Sore throat and fever&rdquo; is not a cold when the patient is on methimazole, PTU, clozapine or carbamazepine. It is a CBC.'},
+
+{id:30,block:'D',chapter:55,type:'Medication',
+stem:'A patient is prescribed oral potassium iodide solution. How should the nurse administer it?',
+options:[
+{letter:'A',text:'Dilute it in juice or water, give it through a straw after meals',correct:true,rationale:'Correct. Iodide solution is intensely bitter, irritates the gastric mucosa, and permanently stains teeth. Diluting it improves tolerance, a straw keeps it off the enamel, and giving it after meals reduces GI upset.'},
+{letter:'B',text:'Give it undiluted on an empty stomach',correct:false,rationale:'This maximizes both the nausea and the tooth staining.'},
+{letter:'C',text:'Mix it with milk and give it at bedtime',correct:false,rationale:'Neither milk nor bedtime timing is the standard, and a straw is still needed.'},
+{letter:'D',text:'Give it sublingually',correct:false,rationale:'It is an oral solution, not a sublingual preparation.'}
+],
+vocabTip:'<strong>SSKI</strong> = saturated solution of potassium iodide. Any strongly staining or irritating oral liquid gets diluted and given through a straw.'},
+
+{id:31,block:'D',chapter:55,type:'Concept',
+stem:'A patient with Graves disease is scheduled for a thyroidectomy and is receiving iodine solution preoperatively. What is the purpose?',
+options:[
+{letter:'A',text:'It decreases the size and vascularity of the gland over 10 to 14 days, reducing intraoperative bleeding',correct:true,rationale:'Correct. Graves glands are highly vascular. Iodine given for 10 to 14 days before surgery firms and shrinks the gland so the surgeon encounters far less bleeding.'},
+{letter:'B',text:'It prevents postoperative hypocalcemia',correct:false,rationale:'Hypocalcemia is prevented by preserving the parathyroid glands during surgery, not by iodine.'},
+{letter:'C',text:'It sterilizes the surgical field',correct:false,rationale:'This is oral therapy, not a skin antiseptic.'},
+{letter:'D',text:'It replaces thyroid hormone after the gland is removed',correct:false,rationale:'Levothyroxine does that, postoperatively.'}
+],
+vocabTip:'<strong>Vascularity</strong> = how much blood flow a tissue has. More vascular means more bleeding when it is cut.'},
+
+{id:32,block:'D',chapter:55,type:'Concept',
+sata:true,
+stem:'A patient is discharged after receiving radioactive iodine (I-131) therapy. Which home precautions should the nurse teach? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Sleep alone and avoid prolonged close contact for the prescribed number of days',correct:true,rationale:'Correct. Radiation exposure to others is reduced by distance and time. Sleeping alone removes the single longest daily period of close contact.'},
+{letter:'B',text:'Avoid close contact with pregnant women and young children',correct:true,rationale:'Correct. The fetus and growing children are the most radiosensitive; they are the highest-priority group to protect.'},
+{letter:'C',text:'Sit to urinate and flush the toilet two or three times',correct:true,rationale:'Correct. The isotope is excreted in urine. Sitting prevents splashing and repeated flushing dilutes what remains.'},
+{letter:'D',text:'Use separate utensils, towels and linens and wash them separately',correct:true,rationale:'Correct. Saliva and sweat carry the isotope, so personal items are kept separate during the restriction period.'},
+{letter:'E',text:'Increase fluid intake to flush the isotope from the body',correct:true,rationale:'Correct. Extra fluids speed urinary clearance of the unbound isotope.'},
+{letter:'F',text:'Expect the thyroid levels to normalize within 48 hours',correct:false,rationale:'The effect takes 6 to 8 weeks or longer, and symptoms may briefly worsen first as stored hormone is released from dying cells.'}
+],
+vocabTip:'<strong>Radioactive iodine (I-131)</strong> is taken up only by thyroid tissue, which is why it destroys the gland selectively. It is contraindicated in pregnancy and breastfeeding.',
+trap:'RAI is outpatient therapy, so ALL of the safety burden lands on home teaching. Time, distance and separate items are the three principles.'},
+
+{id:33,block:'D',chapter:55,type:'Concept',
+stem:'Several weeks after radioactive iodine therapy, a patient&rsquo;s TSH is elevated and the free T4 is low. How does the nurse interpret this?',
+options:[
+{letter:'A',text:'This is an expected outcome; the patient will need lifelong levothyroxine',correct:true,rationale:'Correct. Hypothyroidism after RAI is the anticipated and usually permanent result, not a treatment failure. Patients are counseled about this before therapy so they are not alarmed.'},
+{letter:'B',text:'The therapy failed and must be repeated immediately',correct:false,rationale:'These labs show the therapy WORKED &mdash; the gland is no longer overproducing.'},
+{letter:'C',text:'The patient has developed thyroid cancer',correct:false,rationale:'Nothing in these labs suggests malignancy.'},
+{letter:'D',text:'The patient is in thyroid storm',correct:false,rationale:'Storm is the opposite picture: suppressed TSH with excess hormone.'}
+],
+vocabTip:'<strong>Ablation</strong> = deliberate destruction of tissue. Trading hyperthyroidism for a controllable hypothyroidism is the goal, not a complication.'},
+
+{id:34,block:'D',chapter:55,type:'Priority',
+stem:'Four hours after a total thyroidectomy the patient reports a feeling of fullness in the neck. The anterior dressing is dry and intact. What should the nurse do FIRST?',
+options:[
+{letter:'A',text:'Slide a hand behind the patient&rsquo;s neck and check the back of the dressing and linens for blood',correct:true,rationale:'Correct. Blood follows gravity and pools behind the neck, so a dry anterior dressing means nothing. Checking behind the neck is the assessment that catches hemorrhage before it compresses the airway.'},
+{letter:'B',text:'Document the finding as an expected postoperative complaint',correct:false,rationale:'Neck fullness after thyroidectomy is a hemorrhage warning until you have ruled it out.'},
+{letter:'C',text:'Administer the ordered analgesic and reassess in an hour',correct:false,rationale:'Medicating before assessing could mask an expanding hematoma.'},
+{letter:'D',text:'Loosen the dressing to relieve the pressure',correct:false,rationale:'The nurse does not alter a fresh surgical dressing before assessing, and loosening it does not address bleeding underneath.'}
+],
+vocabTip:'<strong>Hematoma</strong> = a collection of blood in tissue. In the neck it compresses the trachea, which turns a bleeding problem into an airway problem within minutes.',
+trap:'LOOK BEHIND THE NECK. The dry front dressing is the distractor in this question.'},
+
+{id:35,block:'D',chapter:55,type:'Assessment',
+stem:'On the first postoperative day after a thyroidectomy, the patient reports tingling around the mouth and in the fingertips, and the nurse notes twitching of the facial muscles. What is the most likely cause?',
+options:[
+{letter:'A',text:'Hypocalcemia from inadvertent injury to or removal of the parathyroid glands',correct:true,rationale:'Correct. The parathyroids sit on the back of the thyroid and are easily bruised or removed. Without PTH the calcium falls, and perioral and fingertip tingling with facial twitching is the earliest presentation. IV calcium gluconate should be at the bedside.'},
+{letter:'B',text:'Thyroid storm',correct:false,rationale:'Storm produces fever, tachycardia and agitation, not focal tingling and twitching.'},
+{letter:'C',text:'Recurrent laryngeal nerve injury',correct:false,rationale:'That injury changes the VOICE and can cause stridor, not perioral numbness.'},
+{letter:'D',text:'Expected incisional swelling',correct:false,rationale:'Swelling does not cause distal fingertip paresthesia.'}
+],
+vocabTip:'<strong>Paresthesia</strong> = abnormal tingling or prickling. Perioral and fingertip paresthesia is the signature early sign of a falling calcium.',
+trap:'After a thyroidectomy, tingling means CALCIUM and hoarseness means NERVE. Do not swap them.'},
+
+{id:36,block:'D',chapter:55,type:'Priority',
+stem:'A patient six hours post-thyroidectomy develops audible inspiratory stridor and is becoming restless. What is the nurse&rsquo;s priority action?',
+options:[
+{letter:'A',text:'Call the Rapid Response Team, stay with the patient, and prepare for emergency airway management with the tracheostomy tray at the bedside',correct:true,rationale:'Correct. Stridor after a thyroidectomy means the airway is obstructing &mdash; from hematoma, laryngeal edema or bilateral cord paralysis. This is an emergency. The tracheostomy tray, oxygen and suction are kept at every post-thyroidectomy bedside precisely for this moment.'},
+{letter:'B',text:'Obtain a stat calcium level and await results',correct:false,rationale:'Even if hypocalcemic laryngospasm is the cause, the patient cannot wait for a lab result. Secure the airway.'},
+{letter:'C',text:'Place the patient flat and apply a cool compress to the neck',correct:false,rationale:'Flat positioning worsens airway compromise. Semi-Fowler is maintained.'},
+{letter:'D',text:'Administer the ordered antianxiety medication for the restlessness',correct:false,rationale:'Restlessness here is hypoxia, not anxiety. Sedating this patient is dangerous.'}
+],
+vocabTip:'<strong>Stridor</strong> = a high-pitched sound on inspiration caused by upper airway narrowing. It is always an emergency.',
+trap:'Restlessness is an early hypoxia sign, not a psychological one. Sedation for post-thyroidectomy restlessness is always the wrong answer.'},
+
+{id:37,block:'D',chapter:55,type:'Concept',
+stem:'Which nursing action is correct for a patient in the immediate period after a thyroidectomy?',
+options:[
+{letter:'A',text:'Position in semi-Fowler with the head and neck supported by pillows, avoiding flexion and hyperextension',correct:true,rationale:'Correct. Semi-Fowler reduces edema by promoting venous drainage, and supporting the head prevents tension on the suture line. Both flexion and hyperextension strain the incision.'},
+{letter:'B',text:'Encourage vigorous coughing and deep breathing every hour',correct:false,rationale:'Deep breathing is encouraged; vigorous coughing strains the suture line and is avoided.'},
+{letter:'C',text:'Keep the patient flat to prevent dizziness',correct:false,rationale:'Flat positioning increases neck edema and airway risk.'},
+{letter:'D',text:'Have the patient perform full range-of-motion neck exercises on the first postoperative day',correct:false,rationale:'Neck ROM exercises are introduced gradually and later, not on day one.'}
+],
+vocabTip:'<strong>Semi-Fowler</strong> = head of bed elevated roughly 30 to 45 degrees.'},
+
+{id:38,block:'D',chapter:55,type:'Assessment',
+stem:'How does the nurse monitor for recurrent laryngeal nerve damage after a thyroidectomy?',
+options:[
+{letter:'A',text:'Ask the patient to speak every 1 to 2 hours and compare the voice to baseline',correct:true,rationale:'Correct. A progressively weak, hoarse or breathy voice signals nerve injury. Some hoarseness from intubation is expected, which is why the comparison is to BASELINE and the trend matters more than a single check.'},
+{letter:'B',text:'Check the gag reflex hourly',correct:false,rationale:'The gag reflex is not the assessment for this nerve and repeated testing risks aspiration.'},
+{letter:'C',text:'Measure the neck circumference every shift',correct:false,rationale:'That would monitor for swelling or hematoma, not nerve function.'},
+{letter:'D',text:'Tap the facial nerve in front of the ear',correct:false,rationale:'That is the Chvostek sign, which tests for hypocalcemia.'}
+],
+vocabTip:'<strong>Recurrent laryngeal nerve</strong> controls the vocal cords. Unilateral damage = hoarseness; bilateral damage = airway obstruction.'},
+
+{id:39,block:'E',chapter:55,type:'Concept',
+stem:'A patient reports a tender, painful thyroid and neck pain radiating to the jaw and ear that began about two weeks after a viral illness. Which condition does the nurse suspect?',
+options:[
+{letter:'A',text:'Subacute (de Quervain) thyroiditis',correct:true,rationale:'Correct. PAIN is the distinguishing feature. Subacute thyroiditis follows a viral infection and produces a tender gland with radiating neck pain, low-grade fever and an elevated sedimentation rate. Hashimoto thyroiditis is painless.'},
+{letter:'B',text:'Hashimoto thyroiditis',correct:false,rationale:'Hashimoto is a painless autoimmune destruction. Tenderness points away from it.'},
+{letter:'C',text:'Graves disease',correct:false,rationale:'Graves produces a painless diffuse goiter with exophthalmos.'},
+{letter:'D',text:'Papillary thyroid carcinoma',correct:false,rationale:'Thyroid cancer typically presents as a painless firm nodule.'}
+],
+vocabTip:'<strong>Thyroiditis</strong> = inflammation of the thyroid. Sort the types by PAIN: subacute hurts, Hashimoto and silent thyroiditis do not.',
+trap:'A tender thyroid after a viral illness is subacute thyroiditis. If the stem says painless, think Hashimoto.'},
+
+{id:40,block:'E',chapter:55,type:'Concept',
+stem:'A patient with subacute thyroiditis is hyperthyroid on labs. Why does the nurse expect NSAIDs and a beta blocker rather than methimazole?',
+options:[
+{letter:'A',text:'The excess hormone is leaking from damaged follicles, not being newly made, so blocking synthesis would not help',correct:true,rationale:'Correct. This is a destructive thyroiditis. The inflamed gland spills preformed hormone. Antithyroid drugs block SYNTHESIS, which is not the problem. Treatment is anti-inflammatory plus symptom control until the leak stops.'},
+{letter:'B',text:'Methimazole is contraindicated in all viral illnesses',correct:false,rationale:'There is no such blanket contraindication; the reason is mechanistic.'},
+{letter:'C',text:'NSAIDs block thyroid hormone synthesis',correct:false,rationale:'NSAIDs treat the inflammation and pain; they have no effect on synthesis.'},
+{letter:'D',text:'Beta blockers cure thyroiditis',correct:false,rationale:'Beta blockers only control the adrenergic symptoms.'}
+],
+vocabTip:'<strong>Destructive thyroiditis</strong> = hormone released from dying cells. It is self-limited and typically runs hyperthyroid, then hypothyroid, then recovers.',
+trap:'Not every hyperthyroid lab gets an antithyroid drug. Ask whether the gland is MAKING too much or LEAKING what it stored.'},
+
+{id:41,block:'E',chapter:55,type:'Concept',
+stem:'Which statement about papillary thyroid carcinoma is accurate?',
+options:[
+{letter:'A',text:'It is the most common type and has the best prognosis, typically presenting as a painless, firm, fixed nodule',correct:true,rationale:'Correct. Papillary carcinoma accounts for the large majority of thyroid cancers, grows slowly, spreads first to local lymph nodes, and has an excellent survival rate with surgery and radioactive iodine.'},
+{letter:'B',text:'It is the rarest and most aggressive type',correct:false,rationale:'That describes ANAPLASTIC carcinoma, which has a very poor prognosis.'},
+{letter:'C',text:'It is diagnosed by an elevated serum calcitonin',correct:false,rationale:'Calcitonin is the marker for MEDULLARY carcinoma.'},
+{letter:'D',text:'It always presents with severe neck pain',correct:false,rationale:'Thyroid cancer nodules are characteristically painless.'}
+],
+vocabTip:'<strong>Fine-needle aspiration (FNA)</strong> is the diagnostic test for a thyroid nodule; it distinguishes benign from malignant tissue.'},
+
+{id:42,block:'E',chapter:55,type:'Concept',
+stem:'A patient with medullary thyroid carcinoma is found to have a pheochromocytoma as part of MEN type 2. Which condition must be treated FIRST?',
+options:[
+{letter:'A',text:'The pheochromocytoma, because an unrecognized catecholamine surge during thyroid surgery can cause a fatal hypertensive crisis',correct:true,rationale:'Correct. Anesthesia and surgical manipulation in a patient with an untreated pheochromocytoma can trigger a massive catecholamine release. The adrenal tumor is managed first, with alpha blockade, before any thyroid surgery.'},
+{letter:'B',text:'The thyroid carcinoma, because cancer always takes priority',correct:false,rationale:'Medullary carcinoma is slow enough to wait; the pheochromocytoma is the immediate perioperative threat.'},
+{letter:'C',text:'Neither; they are treated simultaneously in one operation',correct:false,rationale:'This would expose the patient to exactly the crisis that sequencing prevents.'},
+{letter:'D',text:'The hyperparathyroidism, which is always present first',correct:false,rationale:'Hyperparathyroidism is part of MEN 2A but is not the perioperative emergency.'}
+],
+vocabTip:'<strong>MEN 2</strong> (multiple endocrine neoplasia) = medullary thyroid carcinoma + pheochromocytoma, with hyperparathyroidism in type 2A. <strong>Pheochromocytoma</strong> = a catecholamine-secreting adrenal tumor.',
+trap:'When two endocrine tumors coexist, the one that can kill on the operating table gets treated first. That is the pheo, every time.'},
+
+{id:43,block:'E',chapter:55,type:'Medication',
+stem:'After a total thyroidectomy for papillary carcinoma the patient&rsquo;s levothyroxine dose is deliberately set higher than simple replacement. What is the rationale the nurse explains?',
+options:[
+{letter:'A',text:'A suppressed TSH removes the growth signal to any remaining thyroid cancer cells',correct:true,rationale:'Correct. Thyroid cancer cells still respond to TSH. Keeping the TSH suppressed with a higher levothyroxine dose removes the stimulus for recurrence. The trade-off is monitoring for bone loss and atrial fibrillation.'},
+{letter:'B',text:'A higher dose prevents hypocalcemia',correct:false,rationale:'Calcium is managed with calcium and calcitriol, not with levothyroxine.'},
+{letter:'C',text:'A higher dose speeds wound healing',correct:false,rationale:'This is not the rationale for suppression therapy.'},
+{letter:'D',text:'A higher dose compensates for the removed parathyroid glands',correct:false,rationale:'Parathyroid loss is treated with calcium and vitamin D.'}
+],
+vocabTip:'<strong>TSH suppression therapy</strong> = intentionally over-replacing thyroid hormone so the pituitary stops making TSH, starving any residual cancer of its growth signal.'},
+
+{id:44,block:'E',chapter:55,type:'Assessment',
+sata:true,
+stem:'Which findings in a patient with a thyroid nodule would raise the nurse&rsquo;s concern for malignancy? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'A hard, fixed nodule that does not move with swallowing',correct:true,rationale:'Correct. Benign nodules are usually soft and mobile. Hard and fixed suggests invasion into surrounding tissue.'},
+{letter:'B',text:'Rapid growth of the nodule over a few weeks',correct:true,rationale:'Correct. Rapid enlargement is a red flag for malignancy.'},
+{letter:'C',text:'New persistent hoarseness',correct:true,rationale:'Correct. Hoarseness suggests involvement of the recurrent laryngeal nerve.'},
+{letter:'D',text:'Enlarged, firm cervical lymph nodes',correct:true,rationale:'Correct. Papillary carcinoma spreads first to regional cervical nodes.'},
+{letter:'E',text:'A history of head or neck radiation in childhood',correct:true,rationale:'Correct. Prior radiation exposure is the strongest known risk factor for thyroid cancer.'},
+{letter:'F',text:'A soft, smooth nodule that moves freely with swallowing',correct:false,rationale:'Soft, smooth and mobile are the features of a benign nodule.'}
+],
+vocabTip:'<strong>Fixed</strong> means the mass is anchored to deeper structures. Fixed, hard and growing are the three words that move a nodule toward biopsy.'},
+
+{id:45,block:'F',chapter:55,type:'Concept',
+stem:'The nurse explains the action of parathyroid hormone. Which statement is accurate?',
+options:[
+{letter:'A',text:'PTH raises serum calcium by pulling it from bone, increasing kidney reabsorption, and activating vitamin D so the gut absorbs more &mdash; while phosphorus is wasted in the urine',correct:true,rationale:'Correct. PTH works on three organs: bone, kidney and (indirectly, through activated vitamin D) gut. Its net effect is calcium UP and phosphorus DOWN, because it makes the kidney dump phosphate.'},
+{letter:'B',text:'PTH lowers serum calcium and raises phosphorus',correct:false,rationale:'That is the action of calcitonin on calcium, and the inverse of PTH&rsquo;s phosphorus effect.'},
+{letter:'C',text:'PTH raises both calcium and phosphorus together',correct:false,rationale:'Calcium and phosphorus move in OPPOSITE directions under PTH control.'},
+{letter:'D',text:'PTH acts only on bone',correct:false,rationale:'It acts on bone, kidney and gut.'}
+],
+vocabTip:'<strong>Calcitriol</strong> = the activated form of vitamin D. PTH triggers the kidney to make it, and it is what actually lets the gut absorb calcium.',
+trap:'Calcium and phosphorus are a seesaw. If one is up in the stem, expect the other down &mdash; and that single rule solves a lot of parathyroid questions.'},
+
+{id:46,block:'F',chapter:55,type:'Concept',
+stem:'Which hormone opposes parathyroid hormone by lowering serum calcium?',
+options:[
+{letter:'A',text:'Calcitonin, made by the thyroid C cells',correct:true,rationale:'Correct. Calcitonin tones calcium DOWN by inhibiting bone breakdown and increasing urinary calcium loss. It is the counterweight to PTH, and it is the tumor marker for medullary thyroid carcinoma.'},
+{letter:'B',text:'Thyroxine (T4)',correct:false,rationale:'T4 sets the metabolic rate and has no direct calcium-lowering role.'},
+{letter:'C',text:'Cortisol',correct:false,rationale:'Cortisol affects bone over time but is not the direct opposing hormone.'},
+{letter:'D',text:'Aldosterone',correct:false,rationale:'Aldosterone regulates sodium, potassium and water.'}
+],
+vocabTip:'Memory hook: <strong>calciTONIN TONES calcium DOWN.</strong> PTH pulls it up.'},
+
+{id:47,block:'F',chapter:55,type:'Assessment',
+stem:'A nurse inflates a blood pressure cuff above systolic pressure for three minutes and the patient&rsquo;s hand contracts into a rigid, flexed spasm. What does the nurse document?',
+options:[
+{letter:'A',text:'A positive Trousseau sign, indicating hypocalcemia',correct:true,rationale:'Correct. Occluding circulation to an irritable, calcium-depleted neuromuscular system provokes carpal spasm. Trousseau = Tourniquet = the arm.'},
+{letter:'B',text:'A positive Chvostek sign',correct:false,rationale:'Chvostek is elicited by tapping the facial nerve in front of the ear and produces facial twitching. Chvostek = Cheek.'},
+{letter:'C',text:'A positive Homans sign',correct:false,rationale:'Homans sign involves calf pain on dorsiflexion and relates to DVT.'},
+{letter:'D',text:'A normal neuromuscular response',correct:false,rationale:'Carpal spasm is never a normal response.'}
+],
+vocabTip:'<strong>Carpal spasm</strong> = involuntary flexion of the wrist and fingers. <strong>Tetany</strong> = the sustained muscle contraction of severe hypocalcemia.',
+trap:'Trousseau = Tourniquet (arm). Chvostek = Cheek (face). Both mean the calcium is LOW.'},
+
+{id:48,block:'F',chapter:55,type:'Priority',
+stem:'A patient with hypoparathyroidism has a serum calcium of 6.2 mg/dL. Which assessment finding requires the most immediate intervention?',
+options:[
+{letter:'A',text:'Inspiratory stridor with a high-pitched crowing sound',correct:true,rationale:'Correct. Laryngospasm is the life-threatening manifestation of severe hypocalcemia. The airway is closing. This outranks every other finding and requires immediate emergency response with IV calcium.'},
+{letter:'B',text:'Numbness and tingling around the mouth',correct:false,rationale:'This is the classic early sign and must be reported, but it is not the airway emergency.'},
+{letter:'C',text:'A positive Chvostek sign',correct:false,rationale:'Expected and confirmatory in hypocalcemia, but not immediately life-threatening.'},
+{letter:'D',text:'Muscle cramping in the calves',correct:false,rationale:'Uncomfortable and consistent with hypocalcemia, but not an emergency.'}
+],
+vocabTip:'<strong>Laryngospasm</strong> = sudden spasm of the vocal cords closing the airway. It is the reason IV calcium gluconate is kept at the bedside.',
+trap:'In a hypocalcemia question, every option will be a real hypocalcemia finding. Pick the AIRWAY.'},
+
+{id:49,block:'F',chapter:55,type:'Medication',
+stem:'A patient is receiving IV calcium gluconate for acute hypocalcemia. Which nursing actions are correct?',
+options:[
+{letter:'A',text:'Infuse slowly through a patent line with the patient on a cardiac monitor, watching the IV site for infiltration',correct:true,rationale:'Correct. Rapid IV calcium causes bradycardia, hypotension and cardiac arrest, so it is infused slowly with continuous cardiac monitoring. Calcium is also a vesicant &mdash; extravasation causes tissue necrosis and sloughing.'},
+{letter:'B',text:'Give it as a rapid IV push to correct the level quickly',correct:false,rationale:'Rapid administration risks cardiac arrest.'},
+{letter:'C',text:'Run it in the same line as sodium bicarbonate to save access',correct:false,rationale:'Calcium precipitates with bicarbonate and with phosphate. They are never mixed in the same line.'},
+{letter:'D',text:'Give it IM if IV access is difficult',correct:false,rationale:'Calcium is not given IM; it causes severe tissue damage.'}
+],
+vocabTip:'<strong>Vesicant</strong> = a drug that causes blistering and tissue death if it leaks out of the vein. Calcium, vasopressors and many chemotherapies are vesicants.',
+trap:'Two incompatibilities to memorize: calcium + bicarbonate and calcium + phosphate. Both precipitate.'},
+
+{id:50,block:'F',chapter:55,type:'Medication',
+stem:'A patient with chronic hypoparathyroidism is prescribed calcium carbonate AND calcitriol. Why is the vitamin D needed?',
+options:[
+{letter:'A',text:'Without PTH the kidney cannot activate vitamin D, and without activated vitamin D the gut cannot absorb the calcium supplement',correct:true,rationale:'Correct. Giving calcium alone to a patient with no PTH is largely futile &mdash; it passes through. Calcitriol is the already-activated form, so it bypasses the missing step and allows absorption.'},
+{letter:'B',text:'Vitamin D prevents the constipation caused by calcium',correct:false,rationale:'That is not its purpose; stool softeners and fluid address constipation.'},
+{letter:'C',text:'Vitamin D replaces the missing parathyroid hormone directly',correct:false,rationale:'It substitutes for one of PTH&rsquo;s downstream effects, but it is not PTH replacement.'},
+{letter:'D',text:'Vitamin D lowers the phosphorus level',correct:false,rationale:'Vitamin D actually increases phosphate absorption; phosphate binders are used when phosphorus must be lowered.'}
+],
+vocabTip:'<strong>Calcitriol</strong> = 1,25-dihydroxyvitamin D, the active form. Ordinary vitamin D still needs the kidney activation step that these patients cannot perform.'},
+
+{id:51,block:'F',chapter:55,type:'Lab Read',
+stem:'A patient&rsquo;s calcium remains low despite adequate calcium and vitamin D replacement. Which additional laboratory value should the nurse check?',
+options:[
+{letter:'A',text:'Serum magnesium',correct:true,rationale:'Correct. Magnesium is required for PTH to be secreted and to act. A low magnesium makes hypocalcemia refractory &mdash; the calcium will not come up until the magnesium is corrected first.'},
+{letter:'B',text:'Serum sodium',correct:false,rationale:'Sodium does not govern calcium regulation.'},
+{letter:'C',text:'Serum potassium',correct:false,rationale:'Potassium abnormalities are important but do not explain refractory hypocalcemia.'},
+{letter:'D',text:'Serum glucose',correct:false,rationale:'Glucose is unrelated to calcium homeostasis.'}
+],
+vocabTip:'<strong>Refractory</strong> = not responding to the usual treatment. Refractory hypocalcemia = check the magnesium.',
+trap:'This is a favorite second-layer question: the calcium will not correct because the MAGNESIUM is the real problem.'},
+
+{id:52,block:'F',chapter:55,type:'Assessment',
+sata:true,
+stem:'Which findings does the nurse expect in a patient with primary hyperparathyroidism? <em>Select all that apply.</em>',
+options:[
+{letter:'A',text:'Bone pain and pathologic fractures',correct:true,rationale:'Correct. Excess PTH pulls calcium out of bone, leaving it weakened and prone to fracture with minimal force.'},
+{letter:'B',text:'Kidney stones and polyuria',correct:true,rationale:'Correct. The kidney filters the excess calcium, which precipitates into stones, and high calcium impairs urine concentration, causing polyuria and thirst.'},
+{letter:'C',text:'Constipation and abdominal pain',correct:true,rationale:'Correct. High calcium slows smooth muscle, producing constipation, anorexia, nausea and sometimes pancreatitis.'},
+{letter:'D',text:'Muscle weakness and fatigue',correct:true,rationale:'Correct. High calcium depresses neuromuscular excitability &mdash; the body is sedated rather than irritable.'},
+{letter:'E',text:'Depression, confusion and memory changes',correct:true,rationale:'Correct. These are the &ldquo;psychic groans&rdquo; of hypercalcemia and may be the presenting complaint in an older adult.'},
+{letter:'F',text:'A positive Chvostek sign with perioral tingling',correct:false,rationale:'These are hypoCALCEMIA findings. Hyperparathyroidism raises calcium, so the neuromuscular system is depressed, not irritable.'}
+],
+vocabTip:'Memory hook: <strong>stones, bones, groans and psychic overtones</strong> &mdash; kidney stones, bone pain, abdominal groans, and mood/cognitive changes.'},
+
+{id:53,block:'F',chapter:55,type:'Concept',
+stem:'A patient with hypercalcemia from hyperparathyroidism is admitted. Which intervention does the nurse expect FIRST?',
+options:[
+{letter:'A',text:'Aggressive IV normal saline hydration',correct:true,rationale:'Correct. Volume expansion dilutes the serum calcium and promotes urinary calcium excretion. These patients are usually volume depleted from polyuria, so rehydration is both the safest and most effective first step.'},
+{letter:'B',text:'A thiazide diuretic',correct:false,rationale:'Thiazides REDUCE urinary calcium excretion and will raise the calcium further. They are contraindicated.'},
+{letter:'C',text:'Fluid restriction to 1000 mL per day',correct:false,rationale:'Restricting fluid concentrates the calcium and worsens the problem.'},
+{letter:'D',text:'Oral calcium supplementation',correct:false,rationale:'Adding calcium to a hypercalcemic patient is never correct.'}
+],
+vocabTip:'<strong>Loop diuretics</strong> (furosemide) waste calcium and may be added AFTER the patient is rehydrated. <strong>Thiazides</strong> retain calcium.',
+trap:'Loop loses calcium, thiazide retains it. Picking the wrong diuretic here makes the patient worse.'},
+
+{id:54,block:'F',chapter:55,type:'Concept',
+stem:'Which safety measure is most important for a patient with long-standing hyperparathyroidism?',
+options:[
+{letter:'A',text:'Use a lift sheet for repositioning and implement fall precautions because the bones are demineralized',correct:true,rationale:'Correct. Chronic PTH excess leaves bone fragile enough that a routine pull on an arm or a minor fall can fracture it. Careful handling is a genuine safety intervention, not a courtesy.'},
+{letter:'B',text:'Maintain strict bed rest',correct:false,rationale:'Immobility accelerates bone loss and raises the calcium further. Ambulation is encouraged within safe limits.'},
+{letter:'C',text:'Restrict all fluids to prevent stone formation',correct:false,rationale:'Fluids are INCREASED to dilute the calcium and prevent stones.'},
+{letter:'D',text:'Encourage a high-calcium diet to strengthen the bones',correct:false,rationale:'Dietary calcium is moderated, not increased; the problem is too much circulating calcium already.'}
+],
+vocabTip:'<strong>Demineralization</strong> = loss of mineral from bone, leaving it structurally weak. It is why &ldquo;pathologic fracture&rdquo; means a fracture from force that should not have broken anything.'},
+
+{id:55,block:'F',chapter:55,type:'Concept',
+stem:'After a parathyroidectomy the patient&rsquo;s calcium falls rapidly and remains low despite replacement. The provider calls this hungry bone syndrome. What does the nurse understand?',
+options:[
+{letter:'A',text:'The chronically demineralized bone is rapidly pulling calcium out of the blood now that the excess PTH is gone',correct:true,rationale:'Correct. Once the PTH drive stops, starved bone absorbs calcium and phosphorus avidly, driving the serum level down fast. These patients need close monitoring and often substantial calcium and calcitriol replacement.'},
+{letter:'B',text:'The remaining parathyroid tissue is oversecreting',correct:false,rationale:'Oversecretion would keep the calcium HIGH.'},
+{letter:'C',text:'The kidneys have failed',correct:false,rationale:'Renal failure is a different problem with a different lab picture.'},
+{letter:'D',text:'The patient is not absorbing the oral calcium because of the surgery',correct:false,rationale:'The surgery does not affect gut absorption; the bone uptake is the mechanism.'}
+],
+vocabTip:'<strong>Hungry bone syndrome</strong> = a rapid, profound post-parathyroidectomy drop in calcium as depleted bone reclaims mineral.'},
+
+{id:56,block:'F',chapter:55,type:'Medication',
+stem:'A patient with hyperparathyroidism who is not a surgical candidate is prescribed cinacalcet. What should the nurse teach?',
+options:[
+{letter:'A',text:'&ldquo;Take it with food; it makes the parathyroid glands more sensitive to calcium so they release less PTH, and we will watch for signs of low calcium.&rdquo;',correct:true,rationale:'Correct. Cinacalcet is a calcimimetic &mdash; it tricks the calcium-sensing receptor into reading the calcium as higher than it is, so PTH secretion falls. Taking it with food improves tolerance, and hypocalcemia is the expected adverse effect to monitor.'},
+{letter:'B',text:'&ldquo;Take it on an empty stomach and expect your calcium to rise.&rdquo;',correct:false,rationale:'It is taken with food and it LOWERS calcium.'},
+{letter:'C',text:'&ldquo;This medication replaces parathyroid hormone.&rdquo;',correct:false,rationale:'It suppresses PTH; it does not replace it.'},
+{letter:'D',text:'&ldquo;Stop the medication if you feel tingling around your mouth.&rdquo;',correct:false,rationale:'Perioral tingling must be REPORTED, not self-managed by stopping the drug.'}
+],
+vocabTip:'<strong>Calcimimetic</strong> = a drug that mimics calcium at the parathyroid calcium-sensing receptor, fooling the gland into shutting off.'},
+
+{id:57,block:'F',chapter:55,type:'Medication',
+stem:'A patient with hypercalcemia also takes digoxin. What is the nurse&rsquo;s primary concern?',
+options:[
+{letter:'A',text:'Hypercalcemia potentiates digoxin and increases the risk of digoxin toxicity and dysrhythmias',correct:true,rationale:'Correct. Calcium and digoxin have additive effects on cardiac contractility and conduction. A high calcium can produce toxicity at a normal digoxin level. The nurse monitors the rhythm and watches for anorexia, nausea, visual changes and bradycardia.'},
+{letter:'B',text:'Hypercalcemia makes digoxin ineffective',correct:false,rationale:'The interaction increases, not decreases, the effect.'},
+{letter:'C',text:'Digoxin lowers the serum calcium',correct:false,rationale:'Digoxin does not alter serum calcium levels.'},
+{letter:'D',text:'There is no clinically significant interaction',correct:false,rationale:'This is a well-recognized and dangerous interaction.'}
+],
+vocabTip:'<strong>Potentiate</strong> = to increase the effect of another drug. High calcium and low potassium both potentiate digoxin.',
+trap:'On an ECG, HIGH calcium SHORTENS the QT and LOW calcium PROLONGS it. Pair that with the digoxin risk and you have the cardiac half of the calcium story.'}
+];
+</script>
+<script>
+/* Shared primer harness — reads globals EXAM_ID, EXAM_LABEL, BLOCKS, ALL_Q.
+   Each per-chapter primer is a small shell that defines those four globals,
+   links primer.css, then includes this file.
+
+   Optional, opt-in per page:
+     <div id="harnessFilterBar"></div>   → renders block/SATA/missed filter buttons
+     elements with [data-loop="<blockKey>"] → shown/hidden to match the active block */
+let answered={};
+let selections={};
+let __filterMode='all';
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function _isCorrect(q){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];return c.length===s.length&&c.every(l=>s.includes(l));}
+// SATA partial credit: all right = 1.0, right but incomplete = 0.5, any wrong option selected = 0.
+function _credit(q){
+if(_isCorrect(q))return 1;
+if(!q.sata)return 0;
+const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];
+if(!s.length||s.some(l=>!c.includes(l)))return 0;
+return 0.5;
+}
+function _fmt(n){return n%1?n.toFixed(1):String(n);}
+function _activeQ(){
+if(__filterMode==='all')return ALL_Q;
+if(__filterMode==='sata')return ALL_Q.filter(q=>q.sata);
+if(__filterMode==='missed')return ALL_Q.filter(q=>window.__missedIds&&window.__missedIds.includes(q.id));
+return ALL_Q.filter(q=>q.block===__filterMode);
+}
+function _answeredCount(){return _activeQ().filter(q=>answered[q.id]).length;}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+_activeQ().forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id='qcard-'+q.id;
+let badges='<span class="badge badge-blk">CH '+q.chapter+'</span>';
+if(q.type)badges+='<span class="badge badge-type">'+q.type+'</span>';
+if(q.trap)badges+='<span class="badge badge-trap">Trap</span>';
+if(q.sata)badges+='<span class="badge badge-sata">SATA</span>';
+const optsHtml=q.options.map(o=>'<div class="opt" id="opt-'+q.id+'-'+o.letter+'" onclick="selectOption('+q.id+',\''+o.letter+'\','+(q.sata?true:false)+')"><div class="opt-letter">'+o.letter+'.</div><div class="opt-text">'+o.text+'<div class="opt-rationale" id="rat-'+q.id+'-'+o.letter+'">'+o.rationale+'</div></div></div>').join('');
+const sataHint=q.sata?'<div class="sata-hint">Select ALL that apply</div>':'';
+card.innerHTML='<div class="q-top"><span class="q-num">Q'+(idx+1)+'</span>'+badges+'</div><div class="q-stem">'+q.stem+'</div>'+sataHint+'<div class="opts">'+optsHtml+'</div><button class="btn-submit" id="btn-'+q.id+'" onclick="submitAnswer('+q.id+')" disabled>Submit</button><div class="vocab-tip" id="tip-'+q.id+'">'+q.vocabTip+'</div>';
+area.appendChild(card);
+});
+loadState();
+_focusRefresh();
+}
+
+/* ---- One-at-a-time view: every card is still built, so scoring and the weak tracker are untouched. ---- */
+function _focusOn(){try{return localStorage.getItem('primerFocus')!=='0';}catch(e){return true;}}
+function _focusCards(){return Array.prototype.slice.call(document.querySelectorAll('#quizArea .q-card'));}
+function _focusEnsureUI(){
+if(!document.getElementById('focusCss')){
+const st=document.createElement('style');st.id='focusCss';
+st.textContent='.focus-bar{position:sticky;bottom:0;z-index:30;display:none;align-items:center;gap:.5rem;background:#0c0f14ee;backdrop-filter:blur(6px);border-top:1px solid #1e293b;padding:.6rem .5rem;margin:0 -.5rem}'
++'.focus-on .focus-bar{display:flex}'
++'.focus-bar button{border:none;border-radius:8px;padding:.7rem 1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}'
++'.fb-prev{background:#1e293b;color:#e2e8f0}.fb-next{background:#7c3aed;color:#fff;flex:1}.fb-next.ready{background:#22c55e;color:#04210f;box-shadow:0 0 0 2px #22c55e55}'
++'.fb-prev:disabled{opacity:.35;cursor:not-allowed}.fb-count{color:#94a3b8;font-size:.8rem;min-width:5.5rem;text-align:center}'
++'.fb-mode{background:transparent;color:#94a3b8;border:1px solid #334155!important;font-size:.72rem!important;padding:.45rem .6rem!important}'
++'.focus-on #quizArea .q-card{display:none}.focus-on #quizArea .q-card.focus-cur{display:block}.focus-on .mk-fab{bottom:5rem}.focus-on a[href*="weak-drill"]{bottom:4.6rem!important}'
++'.focus-toggle-top{display:flex;justify-content:flex-end;margin:.25rem 0 .75rem}'
++'.focus-toggle-top button{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:.4rem .8rem;font-size:.75rem;cursor:pointer;font-family:inherit}';
+document.head.appendChild(st);}
+if(!document.getElementById('focusBar')){
+const area=document.getElementById('quizArea');if(!area)return;
+const bar=document.createElement('div');bar.className='focus-bar';bar.id='focusBar';
+bar.innerHTML='<button type="button" class="fb-prev" id="fbPrev">&#8249; Prev</button><span class="fb-count" id="fbCount"></span><button type="button" class="fb-next" id="fbNext">Next &#8250;</button><button type="button" class="fb-mode" id="fbMode">Show all</button>';
+area.parentNode.insertBefore(bar,area.nextSibling);
+const top=document.createElement('div');top.className='focus-toggle-top';top.id='focusTop';
+top.innerHTML='<button type="button" id="fbModeTop">One at a time: on</button>';
+area.parentNode.insertBefore(top,area);
+document.getElementById('fbPrev').onclick=function(){_focusGo(-1);};
+document.getElementById('fbNext').onclick=function(){_focusNext();};
+document.getElementById('fbMode').onclick=_focusToggle;
+document.getElementById('fbModeTop').onclick=_focusToggle;
+}}
+function _focusToggle(){try{localStorage.setItem('primerFocus',_focusOn()?'0':'1');}catch(e){}_focusRefresh(true);}
+function _focusShow(i,scroll){
+const cards=_focusCards();if(!cards.length)return;
+window.__fi=Math.max(0,Math.min(cards.length-1,i));
+cards.forEach(function(c,k){c.classList.toggle('focus-cur',k===window.__fi);});
+_focusUpdateBar();
+if(scroll&&_focusOn()){const top=cards[window.__fi].getBoundingClientRect().top+window.pageYOffset-70;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+}
+function _focusGo(d){_focusShow((window.__fi||0)+d,true);}
+function _focusNext(){
+const cards=_focusCards();
+if((window.__fi||0)<cards.length-1){_focusShow((window.__fi||0)+1,true);return;}
+const firstOpen=cards.findIndex(function(c){return !/answered-/.test(c.className);});
+if(firstOpen>=0){_focusShow(firstOpen,true);return;}
+const sc=document.getElementById('scoreCard');if(sc){sc.style.display='block';sc.scrollIntoView({behavior:'smooth'});}
+}
+function _focusUpdateBar(){
+const cards=_focusCards();const i=window.__fi||0;
+const cnt=document.getElementById('fbCount');if(cnt)cnt.textContent='Question '+(i+1)+' of '+cards.length;
+const prev=document.getElementById('fbPrev');if(prev)prev.disabled=i<=0;
+const nx=document.getElementById('fbNext');
+if(nx&&cards[i]){const done=/answered-/.test(cards[i].className);nx.classList.toggle('ready',done);
+nx.innerHTML=i>=cards.length-1?'Finish &#8250;':'Next &#8250;';}
+const tp=document.getElementById('fbModeTop');if(tp)tp.textContent='One at a time: '+(_focusOn()?'on':'off');
+const bm=document.getElementById('fbMode');if(bm)bm.textContent=_focusOn()?'Show all':'One at a time';
+}
+function _focusRefresh(keepPlace){
+_focusEnsureUI();
+document.body.classList.toggle('focus-on',_focusOn());
+const cards=_focusCards();if(!cards.length)return;
+_focusShow(keepPlace?(window.__fi||0):0,false);
+}
+document.addEventListener('click',function(e){
+if(!_focusOn())return;
+if(e.target&&e.target.closest&&e.target.closest('.btn-submit')){setTimeout(_focusUpdateBar,60);}
+},true);
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById('opt-'+qId+'-'+letter);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const p=document.getElementById('opt-'+qId+'-'+l);if(p)p.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById('btn-'+qId).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correct=q.options.filter(o=>o.correct).map(o=>o.letter);
+const ok=correct.length===selections[qId].length&&correct.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';});
+document.getElementById('tip-'+qId).style.display='block';
+const cr=_credit(q);
+const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');
+const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';
+updateProgress();saveState();
+if(_answeredCount()===_activeQ().length)showScore();
+}
+
+function updateProgress(){const t=_activeQ().length;document.getElementById('progressBar').style.width=(t?_answeredCount()/t*100:0)+'%';}
+
+function _buildBreakdown(){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+let html='';
+Object.keys(BLOCKS).forEach(b=>{if(!tally[b])return;const t=tally[b];const pct=Math.round(t.c/t.t*100);const col=pct>=80?'#22c55e':pct>=66?'#fbbf24':'#f87171';html+='<div class="breakdown-row"><span class="bd-label">'+BLOCKS[b]+'</span><span class="bd-score" style="color:'+col+'">'+_fmt(t.c)+'/'+t.t+' &middot; '+pct+'%</span></div>';});
+document.getElementById('breakdownArea').innerHTML=html;
+}
+
+function showScore(doSave){
+const act=_activeQ();
+let correct=0;act.forEach(q=>{if(answered[q.id])correct+=_credit(q);});
+const total=act.length;
+const pct=total?Math.round(correct/total*100):0;
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=_fmt(correct)+' of '+total+' correct';
+_buildBreakdown();
+_syncMissedBtn();
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+if(doSave===false)return;
+const tag=__filterMode==='all'?'':' ['+_filterLabel(__filterMode)+']';
+const rec={score:pct,correct:correct,total:total,date:new Date().toLocaleDateString(),filter:__filterMode};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL+tag,date:new Date().toISOString(),score:pct,correct:correct,total:total});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-1000)));
+_refreshStatsSummary();
+}
+
+function _filterLabel(m){
+if(m==='all')return 'All';
+if(m==='sata')return 'SATA only';
+if(m==='missed')return 'Drill missed';
+return (typeof BLOCKS!=='undefined'&&BLOCKS[m])?BLOCKS[m]:m;
+}
+
+/* ---- Drill missed ---- */
+function _missedIds(){return _activeQ().filter(q=>answered[q.id]&&!_isCorrect(q)).map(q=>q.id);}
+function _syncMissedBtn(){
+const btn=document.getElementById('drillMissedBtn');if(!btn)return;
+const n=_missedIds().length;
+btn.style.display=n>0?'block':'none';
+btn.textContent='Drill missed — '+n+(n===1?' question':' questions');
+}
+function drillMissed(){
+const ids=_missedIds();if(!ids.length)return;
+window.__missedIds=ids;
+ids.forEach(id=>{delete answered[id];delete selections[id];});
+saveState();
+__filterMode='missed';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+document.getElementById('quizArea').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ---- Filter bar (opt-in: page must contain #harnessFilterBar) ---- */
+function applyBlockFilter(mode){
+const switching=mode!==__filterMode;
+__filterMode=mode;
+// Entering a single loop (or SATA-only) is a fresh drill. restartQuiz() only clears
+// what is in scope, so answers from an earlier pass over the full set used to survive
+// and reappear pre-clicked. 'all' is exempt because it is the review view and wiping
+// it would throw away a half-finished full run; 'missed' is exempt because
+// drillMissed() already cleared exactly those ids.
+if(switching&&mode!=='missed'&&mode!=='all'){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();}
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+function _syncFilterBtns(){
+document.querySelectorAll('#harnessFilterBar .fbtn').forEach(b=>{
+b.classList.toggle('active',b.getAttribute('data-f')===__filterMode);});
+const note=document.getElementById('harnessFilterNote');
+if(note){const n=_activeQ().length;
+note.textContent=__filterMode==='all'?'All '+n+' questions, every loop mixed together. Use this once each loop already holds on its own.'
+:__filterMode==='sata'?n+' select-all questions. Scored at half credit: all right = full point, right but incomplete = half, one wrong option = zero.'
+:__filterMode==='missed'?n+' question'+(n===1?'':'s')+' you missed, reset and reshuffled. Answer them again.'
+:n+' questions from '+_filterLabel(__filterMode)+' only. The teaching panel above matches this loop.';}
+}
+function _syncLoopSections(){
+const secs=document.querySelectorAll('[data-loop]');if(!secs.length)return;
+secs.forEach(el=>{
+const show=(__filterMode==='all'||__filterMode==='sata'||__filterMode==='missed')||el.getAttribute('data-loop')===__filterMode;
+el.style.display=show?'':'none';});
+}
+function _buildFilterBar(){
+const bar=document.getElementById('harnessFilterBar');if(!bar)return;
+let html='<span class="filter-label">Loop:</span>';
+html+='<button class="fbtn fbtn-hot active" data-f="all" onclick="applyBlockFilter(\'all\')">All '+ALL_Q.length+'</button>';
+const short=window.BLOCK_SHORT||{};
+Object.keys(BLOCKS).forEach(b=>{
+const n=ALL_Q.filter(q=>q.block===b).length;if(!n)return;
+html+='<button class="fbtn" data-f="'+b+'" onclick="applyBlockFilter(\''+b+'\')">'+(short[b]||BLOCKS[b])+' &middot; '+n+'</button>';});
+const ns=ALL_Q.filter(q=>q.sata).length;
+if(ns)html+='<button class="fbtn fbtn-sata" data-f="sata" onclick="applyBlockFilter(\'sata\')">SATA only &middot; '+ns+'</button>';
+// The page restores the last session on load, so landing on it shows whatever was
+// already answered. Without this there is no way to wipe that and start over.
+html+='<button class="fbtn fbtn-fresh" data-f="__fresh" onclick="clearAllAnswers()">Start fresh</button>';
+bar.innerHTML=html;
+if(!document.getElementById('harnessFilterNote')){
+const note=document.createElement('div');note.className='filter-note';note.id='harnessFilterNote';
+bar.parentNode.insertBefore(note,bar.nextSibling);}
+_syncFilterBtns();
+}
+function clearAllAnswers(){
+answered={};selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+window.__missedIds=null;
+if(__filterMode==='missed')__filterMode='all';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+window.__optsShuffled=false;
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function _buildMissedBtn(){
+const card=document.getElementById('scoreCard');if(!card||document.getElementById('drillMissedBtn'))return;
+const btn=document.createElement('button');
+btn.className='btn-missed';btn.id='drillMissedBtn';btn.type='button';
+btn.setAttribute('onclick','drillMissed()');
+btn.textContent='Drill missed';
+const restart=card.querySelector('.btn-restart');
+if(restart&&restart.parentNode===card)card.insertBefore(btn,restart.nextSibling);else card.appendChild(btn);
+}
+
+function restartQuiz(){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();
+// 'missed' is a transient drill, not a scope to stay stuck in — pages without a
+// filter bar have no other way back to the full set.
+if(__filterMode==='missed'){__filterMode='all';_syncFilterBtns();_syncLoopSections();}
+document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered:answered,selections:selections}));}
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const cr=_credit(q);const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';}});
+updateProgress();if(_activeQ().length&&_answeredCount()===_activeQ().length)showScore(false);}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+function _buildMustKnows(){
+const src=document.querySelector('.svg-card');
+if(!src||document.querySelector('.mk-fab'))return;
+const titleEl=src.querySelector('h3');
+const title=titleEl?titleEl.textContent:'Labs & Must-Knows';
+const fab=document.createElement('button');
+fab.className='mk-fab';fab.type='button';
+fab.setAttribute('aria-label','Show labs and must-knows');
+fab.innerHTML='<span class="mk-ico">&#128204;</span>Must-Knows';
+const overlay=document.createElement('div');
+overlay.className='mk-overlay';
+const panel=document.createElement('div');
+panel.className='mk-panel';
+panel.innerHTML='<div class="mk-panel-head"><h3>'+title+'</h3><button class="mk-close" type="button" aria-label="Close">&times;</button></div>'+src.outerHTML;
+overlay.appendChild(panel);
+document.body.appendChild(fab);document.body.appendChild(overlay);
+function open(){overlay.classList.add('open');}
+function close(){overlay.classList.remove('open');}
+fab.addEventListener('click',open);
+panel.querySelector('.mk-close').addEventListener('click',close);
+overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+}
+
+function _tone(p){return p>=85?'#22c55e':p>=70?'#fbbf24':'#f87171';}
+function _buildStatsPanel(){
+const anchor=document.getElementById('lastAttempt');
+if(!anchor||document.querySelector('.stats-wrap'))return;
+const wrap=document.createElement('div');wrap.className='stats-wrap';
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const reps=hist.length;
+const best=reps?Math.max(...hist.map(e=>e.score)):0;
+const avg=reps?Math.round(hist.reduce((s,e)=>s+e.score,0)/reps):0;
+const last=reps?hist.sort((a,b)=>new Date(b.date)-new Date(a.date))[0]:null;
+const sumText=reps?reps+' rep'+(reps>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%':'no attempts yet';
+wrap.innerHTML='<button class="stats-toggle" type="button"><span>Rep History</span><span class="st-summary">'+sumText+'</span><span class="st-arrow">&#9660;</span></button><div class="stats-body" id="statsBody"></div>';
+anchor.parentNode.insertBefore(wrap,anchor.nextSibling);
+wrap.querySelector('.stats-toggle').addEventListener('click',function(){wrap.classList.toggle('open');if(wrap.classList.contains('open'))_renderStatsBody();});
+}
+function _renderStatsBody(){
+const body=document.getElementById('statsBody');if(!body)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+if(!hist.length){body.innerHTML='<div class="st-empty">No attempts recorded yet. Finish a run and it lands here.</div>';return;}
+hist.sort((a,b)=>new Date(b.date)-new Date(a.date));
+const bestPct=Math.max(...hist.map(e=>e.score));
+let bestShown=false;
+let rows='<h4>Attempts ('+hist.length+')</h4>';
+hist.forEach(e=>{
+const d=new Date(e.date);
+const ds=isNaN(d.getTime())?e.date:d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+const isBest=e.score===bestPct&&!bestShown;if(isBest)bestShown=true;
+const isDrill=e.examLabel&&/drill|missed/i.test(e.examLabel);
+const label=isDrill?' <span class="st-label">drill</span>':'';
+const tag=isBest?' <span class="st-label">best</span>':'';
+rows+='<div class="st-row'+(isBest?' best':'')+'"><span class="st-date">'+ds+'</span><span class="st-score" style="color:'+_tone(e.score)+'">'+Math.round(e.score)+'%'+tag+label+'</span></div>';
+});
+const blkKeys=typeof BLOCKS!=='undefined'?Object.keys(BLOCKS):[];
+let blkHtml='';
+if(blkKeys.length>1){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+const blks=blkKeys.filter(b=>tally[b]).map(b=>({key:b,name:BLOCKS[b],pct:Math.round(tally[b].c/tally[b].t*100)})).sort((a,b)=>a.pct-b.pct);
+if(blks.length){
+blkHtml='<h4>Block averages (this run)</h4>';
+blks.forEach(b=>{
+blkHtml+='<div class="st-blk-row"><span class="st-blk-name">'+b.name+'</span><span class="st-blk-bar"><i style="width:'+b.pct+'%;background:'+_tone(b.pct)+'"></i></span><span class="st-blk-pct" style="color:'+_tone(b.pct)+'">'+b.pct+'%</span></div>';
+});
+blkHtml+='<div class="st-note">Sorted weakest first. Red blocks need another rep.</div>';
+}}
+body.innerHTML=rows+blkHtml;
+}
+
+function _refreshStatsSummary(){
+const el=document.querySelector('.st-summary');if(!el)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const n=hist.length;
+if(!n){el.textContent='no attempts yet';return;}
+const best=Math.max(...hist.map(e=>e.score));
+const avg=Math.round(hist.reduce((s,e)=>s+e.score,0)/n);
+el.textContent=n+' rep'+(n>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%';
+if(document.querySelector('.stats-wrap.open'))_renderStatsBody();
+}
+
+_buildFilterBar();
+_buildMissedBtn();
+// A drill page must open clean. Restoring the previous run meant landing on the
+// page with questions already clicked, rationales open and Submit locked — the
+// opposite of what a drill is for. The score itself is kept separately under
+// EXAM_ID+'-last' and still shows in the "last attempt" card.
+localStorage.removeItem(EXAM_ID+'-state');
+buildQuiz();
+_buildStatsPanel();
+_buildMustKnows();
+
+/* Weak-question tracker: every harness quiz feeds the shared weak list. */
+
+
+</script>
+</body>
+</html>

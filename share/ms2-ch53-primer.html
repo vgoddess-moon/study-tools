@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+/* Keep my place: resumes an unfinished quiz after the tab reloads.
+   Phones and iPads throw away a sleeping tab and reload it on unlock, which put
+   every quiz back at Q1. This works on every quiz engine (primer harness, banks,
+   mocks, pre-lecture, case study, the older inline pages) without knowing their
+   internals:
+     1. Math.random is seeded per session, and reseeded before every tap, so a
+        reload rebuilds the exact same question set and option order.
+     2. Every quiz tap is logged (option, Submit, Undo, Next/Prev, filters, Drill missed).
+     3. On reload the log is replayed. Storage writes are switched off during the
+        replay, so scores, history and the weak list are never counted twice.
+   A finished quiz (score card showing) still opens clean, like before.
+   Must load as the FIRST script in <head>. Kill switch: localStorage keepPlace = '0'. */
+(function () {
+  'use strict';
+  if (window.__rsLoaded) return;
+  window.__rsLoaded = true;
+  var LS = window.localStorage, KEY = 'rs:' + location.pathname, MAX_AGE = 7 * 864e5;
+  var realRandom = Math.random, realNow = Date.now;
+  try { if (LS.getItem('keepPlace') === '0') return; } catch (e) { return; }
+
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function read() { try { return JSON.parse(LS.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function write(o) { try { Storage.prototype.setItem.call(LS, KEY, JSON.stringify(o)); } catch (e) {} }
+  function fresh() { return { v: 1, seed: (realRandom() * 4294967296) >>> 0, log: [], done: false, ts: realNow() }; }
+
+  var sess = read();
+  if (!sess || sess.v !== 1 || sess.done || !sess.log || realNow() - sess.ts > MAX_AGE) sess = fresh();
+  var pending = sess.log.slice();   // what to replay on this load
+  write(sess);
+
+  var rng = mulberry(hash(sess.seed + ':load'));
+  Math.random = function () { return rng(); };
+  function reseed(n) { rng = mulberry(hash(sess.seed + ':' + n)); }
+
+  /* ---------- which taps count ---------- */
+  var ZONE = '.q-card,#quizArea,#focusBar,#scoreCard,.q-opts,.options,[data-f]';
+  var SKIP = 'a[href],#fbMode,#fbModeTop,#rmPill,#rmPanel,.stats-wrap,.mk-fab,.mk-overlay,#rsToast';
+  var VERB = /^\s*(applyFilter|pick|sataDone|submit\w*|select\w*|toggleOpt|drillMissed|restart\w*|retake\w*|startExam|next\w*|prev\w*|go\w*|showScore|finish\w*|undo\w*)\b/;
+  var RESET = /clearAllAnswers|hardReset|clearHistory|resetAll/;
+  function actionable(t) { return t && t.closest ? t.closest('[onclick],button,.opt,.q-opt,[data-f]') : null; }
+  function classify(el) {
+    if (!el || el.closest(SKIP)) return null;
+    var oc = el.getAttribute('onclick') || '';
+    if (RESET.test(oc) || el.getAttribute('data-f') === '__fresh') return 'reset';
+    if (el.closest(ZONE) || VERB.test(oc)) return 'log';
+    return null;
+  }
+  function locate(el) {
+    if (el.id) return { i: el.id };
+    var f = el.getAttribute('data-f');
+    if (f !== null) return { f: f };
+    var path = [], n = el;
+    while (n && n !== document.body && !n.id) { path.unshift(Array.prototype.indexOf.call(n.parentNode.children, n)); n = n.parentNode; }
+    return { a: n && n.id ? n.id : null, p: path };
+  }
+  function resolve(loc) {
+    if (loc.i) return document.getElementById(loc.i);
+    if (loc.f !== undefined) { var fs = document.querySelectorAll('[data-f]'); for (var k = 0; k < fs.length; k++) if (fs[k].getAttribute('data-f') === loc.f) return fs[k]; return null; }
+    var n = loc.a ? document.getElementById(loc.a) : document.body;
+    for (var j = 0; n && j < loc.p.length; j++) n = n.children[loc.p[j]];
+    return n || null;
+  }
+
+  /* ---------- finished? (score card showing) ---------- */
+  function finished() {
+    var sc = document.getElementById('scoreCard') || document.getElementById('results');
+    if (!sc) return false;
+    // Any unanswered card left means it is not finished, whatever the score card says.
+    // (Only for engines that mark answered cards with answered-* classes.)
+    var cards = document.querySelectorAll('.q-card'), open = 0, marked = 0;
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].style.display === 'none') continue;
+      if (/answered-/.test(cards[i].className)) marked++; else open++;
+    }
+    if (marked && open) return false;
+    try { return window.getComputedStyle(sc).display !== 'none' && sc.style.display !== 'none'; } catch (e) { return false; }
+  }
+  var doneTimer = null;
+  function checkDone() {
+    clearTimeout(doneTimer);
+    doneTimer = setTimeout(function () { var s = read() || sess; s.done = finished(); s.ts = realNow(); sess = s; write(s); }, 120);
+  }
+
+  /* ---------- record ---------- */
+  window.__rsReplaying = false;
+  window.addEventListener('click', function (e) {
+    if (window.__rsReplaying) return;
+    var el = actionable(e.target), kind = classify(el);
+    if (!kind) return;
+    if (kind === 'reset') { sess = fresh(); write(sess); return; }
+    var s = read() || sess;
+    if (s.done) { s.done = false; }
+    reseed(s.log.length);
+    s.log.push(locate(el)); s.ts = realNow(); sess = s; write(s);
+    checkDone();
+  }, true);
+
+  /* ---------- replay ---------- */
+  function replay() {
+    if (!pending.length) return;
+    var SP = Storage.prototype, oSet = SP.setItem, oRem = SP.removeItem, oClr = SP.clear;
+    SP.setItem = function (k) { if (String(k).indexOf('rs:') === 0) return oSet.apply(this, arguments); };
+    SP.removeItem = function () {}; SP.clear = function () {};
+    var offset = 0, ok = 0;
+    Date.now = function () { return realNow() + offset; };
+    window.__rsReplaying = true;
+    try {
+      for (var i = 0; i < pending.length; i++) {
+        var el = resolve(pending[i]);
+        if (!el && pending[i].i && pending[i].i.indexOf('qt-') === 0) {
+          // A 25-second time-out (quiz-timer.js) whose hidden button is not wired yet.
+          var tc = document.getElementById(pending[i].i.slice(3));
+          if (tc && window.__qtTimeOut) window.__qtTimeOut(tc);
+          ok++; continue;
+        }
+        if (!el) break;
+        reseed(i);
+        offset += 1500;
+        try { el.click(); } catch (e) {}
+        ok++;
+      }
+    } finally {
+      Date.now = realNow;
+      setTimeout(function () {
+        window.__rsReplaying = false;
+        SP.setItem = oSet; SP.removeItem = oRem; SP.clear = oClr;
+        if (ok < pending.length) { sess.log = pending.slice(0, ok); write(sess); }
+        if (finished()) { sess = fresh(); write(sess); return; }
+        place(); toast();
+      }, 0);
+    }
+  }
+
+  function place() {
+    var cur = document.querySelector('.focus-on #quizArea .q-card.focus-cur');
+    if (!cur) {
+      var cards = document.querySelectorAll('.q-card');
+      for (var i = 0; i < cards.length; i++) { if (!/answered-/.test(cards[i].className)) { cur = cards[i]; break; } }
+    }
+    if (cur && cur.getBoundingClientRect) {
+      var top = cur.getBoundingClientRect().top + (window.pageYOffset || 0) - 70;
+      try { window.scrollTo(0, Math.max(0, top)); } catch (e) {}
+    }
+  }
+
+  function toast() {
+    var answered = document.querySelectorAll('.q-card.answered-correct,.q-card.answered-wrong,.q-card.answered-partial').length;
+    var d = document.createElement('div');
+    d.id = 'rsToast';
+    d.setAttribute('style', 'position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:9999;background:#13181f;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:8px 12px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 6px 20px #0008;display:flex;gap:10px;align-items:center;max-width:calc(100% - 32px)');
+    d.innerHTML = '<span>&#128278; Picked up where you left off' + (answered ? ' &middot; ' + answered + ' answered' : '') + '</span>'
+      + '<button type="button" style="background:transparent;color:#a78bfa;border:1px solid #4c1d95;border-radius:8px;padding:4px 8px;font:inherit;cursor:pointer">Start over</button>';
+    d.querySelector('button').onclick = function () { sess = fresh(); write(sess); location.reload(); };
+    document.body.appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.style.transition = 'opacity .6s', d.style.opacity = '0'; }, 5000);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 5800);
+  }
+
+  function boot() { setTimeout(replay, 60); }
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+})();
+
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS2 Ch 53 &mdash; Assessment of the Endocrine System Primer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Shared primer styles — dark theme, matches study-tools design system */
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0f14;color:#e2e8f0;font-family:'DM Sans',sans-serif;line-height:1.6;padding:1rem;min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif}
+.container{max-width:860px;margin:0 auto}
+.exam-header{text-align:center;padding:2rem 1rem;margin-bottom:1.5rem}
+.exam-header h1{font-size:2rem;color:#f8fafc;margin-bottom:.25rem}
+.exam-header .subtitle{color:#94a3b8;font-size:.95rem}
+.back-link{display:inline-block;margin-bottom:1rem;color:#c084fc;text-decoration:none;font-size:.85rem;font-family:'IBM Plex Mono',monospace}
+.back-link:hover{color:#e9d5ff}
+.exam-info{background:#1a1f2e;border:1px solid #334155;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:.9rem;color:#cbd5e1;text-align:center}
+.svg-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;overflow-x:auto}
+.svg-card h3{color:#c084fc;font-size:1rem;margin-bottom:.75rem;text-align:center}
+.legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;font-size:.72rem;color:#94a3b8}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:99px;display:inline-block}
+.last-attempt{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none;text-align:center;font-size:.9rem;color:#94a3b8}
+.last-attempt .score-val{font-size:1.5rem;font-weight:700;color:#c084fc}
+.progress-wrap{background:#1e293b;border-radius:99px;height:8px;margin-bottom:2rem;overflow:hidden;position:sticky;top:.5rem;z-index:50}
+.progress-bar{height:100%;background:linear-gradient(90deg,#7c3aed,#c084fc);border-radius:99px;transition:width .3s}
+.q-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s}
+.q-card.answered-correct{border-color:#22c55e}
+.q-card.answered-wrong{border-color:#ef4444}
+.q-card.answered-partial{border-color:#fbbf24}
+.q-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:#64748b}
+.badge{font-size:.65rem;padding:.2rem .5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-ch{background:#0a1f2a;color:#7dd3fc}
+.badge-blk{background:#1a1425;color:#c4b5fd}
+.badge-type{background:#0a2018;color:#6ee7b7}
+.badge-trap{background:#2a0a0a;color:#f87171}
+.badge-sata{background:#1a1f2e;color:#c084fc;border:1px solid #7c3aed}
+.q-stem{font-size:1rem;color:#f1f5f9;margin-bottom:1rem}
+.sata-hint{font-size:.8rem;color:#c084fc;font-style:italic;margin-bottom:.75rem}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.opt{background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.6rem}
+.opt:hover{border-color:#334155;background:#161b24}
+.opt.selected{border-color:#c084fc;background:#1a0a2a}
+.opt.correct-show{border-color:#22c55e;background:#052e16}
+.opt.wrong-show{border-color:#ef4444;background:#2a0a0a}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;color:#64748b;min-width:1.2rem;padding-top:.05rem}
+.opt-text{font-size:.9rem;flex:1}
+.opt-rationale{display:none;font-size:.8rem;color:#94a3b8;margin-top:.35rem;padding-top:.35rem;border-top:1px solid #1e293b;line-height:1.5}
+.btn-submit{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-submit:hover{background:#6d28d9}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+.vocab-tip{background:#150a1f;border-left:3px solid #c084fc;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:1rem;display:none;font-size:.82rem;color:#e9d5ff;line-height:1.5}
+.vocab-tip strong{color:#c084fc}
+.score-card{background:#13181f;border:1px solid #1e293b;border-radius:12px;padding:2rem;margin-top:2rem;display:none;text-align:center}
+.score-card h2{font-size:1.5rem;margin-bottom:.5rem}
+.big-score{font-size:3rem;font-weight:700;color:#c084fc;margin:.5rem 0}
+.breakdown-wrap{margin-top:1.5rem;text-align:left}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.85rem}
+.breakdown-row .bd-label{color:#cbd5e1}
+.breakdown-row .bd-score{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.btn-restart{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:.6rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:background .2s}
+.btn-restart:hover{background:#334155}
+@media(max-width:600px){.q-card{padding:1rem}.exam-header h1{font-size:1.5rem}}
+
+/* Floating must-knows / labs reference — injected by harness */
+.mk-fab{position:fixed;right:1rem;bottom:1rem;z-index:200;display:flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#7c3aed,#c084fc);color:#fff;border:none;border-radius:99px;padding:.7rem 1.1rem;font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;letter-spacing:.02em;cursor:pointer;box-shadow:0 6px 20px -4px rgba(124,58,237,.7);transition:transform .15s,box-shadow .15s}
+.mk-fab:hover{transform:translateY(-2px);box-shadow:0 8px 26px -4px rgba(124,58,237,.85)}
+.mk-fab:active{transform:translateY(0)}
+.mk-fab .mk-ico{font-size:1rem;line-height:1}
+.mk-overlay{position:fixed;inset:0;z-index:210;background:rgba(6,8,12,.72);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.mk-overlay.open{display:flex}
+.mk-panel{background:#13181f;border:1px solid #2a3444;border-radius:16px 16px 0 0;width:100%;max-width:860px;max-height:85vh;overflow-y:auto;padding:1.25rem 1.25rem 1.5rem;box-shadow:0 -10px 40px -8px rgba(0,0,0,.7);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.mk-overlay.open .mk-panel{transform:translateY(0)}
+.mk-panel-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.9rem;position:sticky;top:-1.25rem;background:#13181f;padding:.25rem 0 .5rem;border-bottom:1px solid #1e293b}
+.mk-panel-head h3{color:#c084fc;font-size:1rem;margin:0}
+.mk-close{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:99px;width:2rem;height:2rem;font-size:1.1rem;line-height:1;cursor:pointer;flex-shrink:0;transition:background .15s}
+.mk-close:hover{background:#334155}
+.mk-panel .svg-card{background:transparent;border:none;padding:0;margin:0}
+.mk-panel .svg-card h3{display:none}
+@media(min-width:700px){.mk-overlay{align-items:center}.mk-panel{border-radius:16px;max-height:82vh}.mk-overlay.open .mk-panel{transform:translateY(0)}.mk-panel{transform:translateY(24px)}}
+
+/* ---- Filter bar + drill-missed (opt-in via #harnessFilterBar) ---- */
+.filter-bar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:1rem 0 .5rem}
+.filter-label{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-right:.2rem}
+.fbtn{background:#13181f;color:#94a3b8;border:1px solid #334155;border-radius:999px;padding:.4rem .85rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.fbtn:hover{background:#1e293b;color:#e2e8f0}
+.fbtn.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.fbtn-hot{border-color:#7c3aed;color:#c4b5fd}
+.fbtn-sata{border-color:#f59e0b;color:#fbbf24}
+.fbtn-sata.active{background:#f59e0b;border-color:#f59e0b;color:#0c0f14}
+.fbtn-fresh{margin-left:auto;border-color:#475569;color:#94a3b8}
+.fbtn-fresh:hover{background:#334155;color:#f8fafc}
+.filter-note{font-size:.8rem;color:#64748b;margin-bottom:1rem;line-height:1.5}
+.btn-missed{display:none;margin-top:.6rem;background:#1e3a2f;color:#34d399;border:1.5px solid #34d399;border-radius:9px;padding:.55rem 1.3rem;font-size:.85rem;font-weight:700;cursor:pointer;width:100%;box-sizing:border-box;font-family:inherit}
+.btn-missed:hover{background:#14532d}
+
+/* ---- Stats panel (attempt history + block averages) ---- */
+.stats-wrap{background:#13181f;border:1px solid #1e293b;border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
+.stats-toggle{width:100%;background:none;border:none;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;color:#c4b5fd}
+.stats-toggle:hover{background:#1a1f2e}
+.stats-toggle .st-summary{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#94a3b8;font-weight:400}
+.stats-toggle .st-arrow{transition:transform .2s;color:#64748b}
+.stats-wrap.open .stats-toggle .st-arrow{transform:rotate(180deg)}
+.stats-body{display:none;padding:0 1rem 1rem;border-top:1px solid #1e293b}
+.stats-wrap.open .stats-body{display:block}
+.stats-body h4{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 .4rem}
+.st-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.4rem .8rem;margin-bottom:.25rem;font-size:.78rem}
+.st-row.best{border-color:#7c3aed}
+.st-date{color:#94a3b8;font-family:'IBM Plex Mono',monospace;min-width:7rem}
+.st-score{font-family:'IBM Plex Mono',monospace;font-weight:600;margin-left:auto}
+.st-label{color:#94a3b8;font-size:.72rem;margin-left:.5rem}
+.st-blk-row{display:flex;align-items:center;background:#0c0f14;border:1px solid #1e293b;border-radius:8px;padding:.45rem .8rem;margin-bottom:.3rem;font-size:.78rem}
+.st-blk-name{color:#cbd5e1;min-width:40%;flex-shrink:0}
+.st-blk-bar{flex:1;height:5px;border-radius:99px;background:#1e293b;overflow:hidden;margin:0 .7rem}
+.st-blk-bar i{display:block;height:100%;border-radius:99px}
+.st-blk-pct{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:3rem;text-align:right}
+.st-note{color:#64748b;font-size:.72rem;margin-top:.5rem;line-height:1.45}
+.st-empty{color:#64748b;font-size:.78rem;font-style:italic;padding:.5rem 0}
+
+</style>
+</head>
+<body>
+<div class="container">
+<div class="exam-header">
+<h1>Ch 53 &mdash; Assessment of the Endocrine System</h1>
+<p class="subtitle">MS2 Exam 5 &middot; built from Prof. Vil&rsquo;s recap sheet</p>
+</div>
+<div class="exam-info">Chapter 53 is her <strong>gland-by-gland map</strong> &mdash; location, hormones, conditions. It is the chapter everything else in the hormone block stands on. The single highest-yield idea in it is the <strong>primary vs. secondary rule</strong>: when the stimulating hormone is HIGH and the target hormone is LOW, the gland itself failed. When both are LOW, the pituitary failed &mdash; or, far more commonly, someone stopped their steroids. Two corrections to carry forward: <strong>calcitonin is not the active form of vitamin D</strong> (that is calcitriol &mdash; calcitonin comes from thyroid C cells and LOWERS calcium), and the posterior pituitary <strong>manufactures nothing</strong>.</div>
+<div class="svg-card">
+<h3>Primary vs. Secondary, FLAT PiG, Salt-Sugar-Sex, the Calcium Seesaw &amp; Stimulate-the-Low</h3>
+<svg viewBox="0 0 820 470" xmlns="http://www.w3.org/2000/svg">
+<rect width="820" height="470" fill="#0f172a"/>
+
+<rect x="14" y="14" width="792" height="96" rx="8" fill="#1e293b" stroke="#fca5a5" stroke-width="2"/>
+<text x="26" y="36" fill="#fca5a5" font-family="DM Sans" font-size="14" font-weight="700">THE ONE RULE THAT SORTS EVERY ENDOCRINE QUESTION &#8212; PRIMARY vs. SECONDARY</text>
+<text x="26" y="58" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">PRIMARY   = the GLAND ITSELF failed. Hormone LOW, stimulating hormone HIGH (pituitary is shouting).</text>
+<text x="26" y="76" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">SECONDARY = the PITUITARY failed. Hormone LOW, stimulating hormone LOW (nobody is shouting).</text>
+<text x="26" y="94" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">low cortisol + HIGH ACTH = ADDISON &#183; low cortisol + LOW ACTH = pituitary OR steroid withdrawal</text>
+
+<rect x="14" y="124" width="386" height="150" rx="8" fill="#1e293b" stroke="#93c5fd" stroke-width="2"/>
+<text x="26" y="146" fill="#93c5fd" font-family="DM Sans" font-size="14" font-weight="700">ANTERIOR PITUITARY &#8212; F L A T   P i G</text>
+<text x="26" y="168" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">F SH   L H   A CTH   T SH   Prolactin   i   G H</text>
+<text x="26" y="190" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">ANTERIOR  = PORTAL blood &#183; MAKES its own hormones</text>
+<text x="26" y="208" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">POSTERIOR = AXONS &#183; MANUFACTURES NOTHING</text>
+<text x="26" y="226" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">Posterior only STORES + RELEASES: ADH, OXYTOCIN</text>
+<text x="26" y="248" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">PROLACTIN is held down by constant DOPAMINE</text>
+<text x="26" y="266" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">INHIBITION &#8212; block dopamine and prolactin RISES</text>
+
+<rect x="416" y="124" width="390" height="150" rx="8" fill="#1e293b" stroke="#6ee7b7" stroke-width="2"/>
+<text x="428" y="146" fill="#6ee7b7" font-family="DM Sans" font-size="14" font-weight="700">ADRENAL &#8212; SALT, SUGAR, SEX (then the sparks)</text>
+<text x="428" y="168" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">G lomerulosa  ALDOSTERONE   SALT   (mineralocort.)</text>
+<text x="428" y="186" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">F asciculata  CORTISOL      SUGAR  (glucocort.)</text>
+<text x="428" y="204" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">R eticularis  ANDROGENS     SEX</text>
+<text x="428" y="226" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">MEDULLA = EPI + NOREPI. Fun, not essential for life.</text>
+<text x="428" y="244" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">Medulla tumor = PHEOCHROMOCYTOMA</text>
+<text x="428" y="262" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">NEVER PALPATE THE ABDOMEN &#183; ALPHA BLOCK B4 BETA</text>
+
+<rect x="14" y="288" width="386" height="166" rx="8" fill="#1e293b" stroke="#fcd34d" stroke-width="2"/>
+<text x="26" y="310" fill="#fcd34d" font-family="DM Sans" font-size="14" font-weight="700">CALCIUM &#8211; PHOSPHORUS SEESAW</text>
+<text x="26" y="332" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">Ca 9.0&#8211;10.5 mg/dL   Phos 3.0&#8211;4.5 mg/dL</text>
+<text x="26" y="350" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">Mg 1.3&#8211;2.1 mEq/L    Ca UP &#8594; Phos DOWN. Always.</text>
+<text x="26" y="372" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">PTH   RAISES Ca &#8212; bone, kidney, gut (parathyroid)</text>
+<text x="26" y="390" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">CALCITONIN LOWERS Ca &#8212; THYROID C cells</text>
+<text x="26" y="408" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">CALCITRIOL is the active vitamin D. NOT calcitonin.</text>
+<text x="26" y="430" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">HIGH Ca = SEDATED body. LOW Ca = IRRITABLE body.</text>
+<text x="26" y="448" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">Ca will not correct? CHECK THE MAGNESIUM.</text>
+
+<rect x="416" y="288" width="390" height="166" rx="8" fill="#1e293b" stroke="#c4b5fd" stroke-width="2"/>
+<text x="428" y="310" fill="#c4b5fd" font-family="DM Sans" font-size="14" font-weight="700">PROVOCATIVE vs. SUPPRESSION &#8212; ONE LINE</text>
+<text x="428" y="332" fill="#6ee7b7" font-family="IBM Plex Mono" font-size="11">STIMULATE THE LOW. SUPPRESS THE HIGH.</text>
+<text x="428" y="354" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">Will not RESPOND to stimulation &#8594; THE GLAND IS DEAD</text>
+<text x="428" y="372" fill="#e2e8f0" font-family="IBM Plex Mono" font-size="11">Will not SUPPRESS &#8594; THERE IS A TUMOR</text>
+<text x="428" y="394" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">PROVOCATIVE: cosyntropin (ACTH), water deprivation,</text>
+<text x="428" y="412" fill="#fcd34d" font-family="IBM Plex Mono" font-size="11">GH stimulation, TRH stimulation</text>
+<text x="428" y="430" fill="#93c5fd" font-family="IBM Plex Mono" font-size="11">SUPPRESSION: dexamethasone, OGTT for GH, saline</text>
+<text x="428" y="448" fill="#fca5a5" font-family="IBM Plex Mono" font-size="11">STOP water deprivation: &gt;2 kg lost OR BP drops</text>
+</svg>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:#c4b5fd"></span>Chapter</span>
+<span><span class="dot" style="background:#6ee7b7"></span>Type</span>
+<span><span class="dot" style="background:#f87171"></span>Trap</span>
+<span><span class="dot" style="background:#c084fc"></span>SATA</span>
+</div>
+<div class="last-attempt" id="lastAttempt">
+<div>Last Attempt: <span class="score-val" id="lastScore">&mdash;</span> &middot; <span id="lastDate">&mdash;</span></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div id="quizArea"></div>
+<div class="score-card" id="scoreCard">
+<h2>Primer Complete</h2>
+<div class="big-score" id="finalScore">0%</div>
+<p id="finalText" style="color:#94a3b8;margin-bottom:.5rem"></p>
+<div class="breakdown-wrap" id="breakdownArea"></div>
+<p style="color:#c4b5fd;font-size:.85rem;margin-top:1rem">This is a before-lecture warm-up. Your weakest sub-topic is where lecture attention pays off most.</p>
+<button class="btn-restart" onclick="restartQuiz()">Run It Again</button>
+</div>
+</div>
+<script>
+const EXAM_ID='ms2-ch53-primer';
+const EXAM_LABEL='MS2 Ch 53 - Endocrine Assessment';
+const BLOCKS={A:'Negative Feedback, the Three-Tier Axis &amp; Primary vs. Secondary',B:'Pituitary &mdash; Anterior vs. Posterior, FLAT PiG &amp; the Sella Turcica',C:'Adrenal Cortex vs. Medulla &mdash; Salt, Sugar, Sex',D:'Thyroid, Parathyroid &amp; the Calcium&ndash;Phosphorus Seesaw',E:'Pancreas, Pineal &amp; Gonads',F:'Provocative vs. Suppression Tests &amp; Endocrine Assessment'};
+const ALL_Q=[
+{id:1,block:'A',chapter:53,type:'Concept',
+stem:'Her sheet calls negative feedback &ldquo;the thermostat.&rdquo; What does a negative feedback loop actually do when a hormone level rises above the set point?',
+options:[
+{letter:'A',text:'It shuts off the signal that told the gland to release the hormone',correct:true,rationale:'Correct. Rising hormone feeds back on the hypothalamus and pituitary and turns the releasing signal OFF &mdash; exactly like a thermostat cutting the furnace once the room warms up.'},
+{letter:'B',text:'It increases the signal so more hormone is released',correct:false,rationale:'That is positive feedback, and it is rare. Negative feedback is the default in the endocrine system.'},
+{letter:'C',text:'It converts the excess hormone into an inactive storage form',correct:false,rationale:'Some hormones are protein-bound, but that is transport, not the feedback loop itself.'},
+{letter:'D',text:'It triggers the kidney to excrete the excess hormone',correct:false,rationale:'Clearance happens, but the regulating mechanism she is asking about is the shut-off of the releasing signal.'}
+],
+vocabTip:'Negative feedback = the product turns OFF its own signal. Nearly every endocrine loop in this chapter works this way.'},
+
+{id:2,block:'A',chapter:53,type:'Concept',
+stem:'Trace the three-tier axis she drew for cortisol. Which sequence is correct?',
+options:[
+{letter:'A',text:'Hypothalamus releases CRH &rarr; anterior pituitary releases ACTH &rarr; adrenal cortex releases cortisol',correct:true,rationale:'Correct. Hypothalamus &rarr; pituitary &rarr; target gland. Cortisol then feeds back and shuts down both CRH and ACTH.'},
+{letter:'B',text:'Anterior pituitary releases CRH &rarr; hypothalamus releases ACTH &rarr; adrenal medulla releases cortisol',correct:false,rationale:'Two errors: the hypothalamus makes CRH and the pituitary makes ACTH, and cortisol comes from the CORTEX, not the medulla.'},
+{letter:'C',text:'Adrenal cortex releases CRH &rarr; hypothalamus releases cortisol &rarr; pituitary releases ACTH',correct:false,rationale:'The axis only runs downward from the hypothalamus. The target gland is always last.'},
+{letter:'D',text:'Hypothalamus releases ACTH &rarr; posterior pituitary releases CRH &rarr; adrenal cortex releases cortisol',correct:false,rationale:'The POSTERIOR pituitary makes nothing. ACTH is an ANTERIOR pituitary hormone.'}
+],
+vocabTip:'Every axis in this chapter is the same shape: hypothalamic releasing hormone &rarr; pituitary tropic hormone &rarr; target gland hormone.',
+trap:'If a question hands you a hormone and asks &ldquo;which gland?&rdquo;, first ask which TIER it sits on. CRH is tier 1, ACTH is tier 2, cortisol is tier 3.'},
+
+{id:3,block:'A',chapter:53,type:'Lab',
+stem:'A client has a low serum cortisol and a HIGH ACTH. Where is the problem?',
+options:[
+{letter:'A',text:'The adrenal gland itself &mdash; this is primary adrenal insufficiency (Addison disease)',correct:true,rationale:'Correct. The pituitary is shouting (high ACTH) and the adrenal cannot answer. A dead target gland with a loud pituitary is the definition of PRIMARY.'},
+{letter:'B',text:'The pituitary gland &mdash; this is secondary adrenal insufficiency',correct:false,rationale:'In secondary failure the pituitary is the broken part, so ACTH would be LOW, not high.'},
+{letter:'C',text:'The hypothalamus is over-producing CRH',correct:false,rationale:'That would drive ACTH up and cortisol up with it. Here cortisol is low.'},
+{letter:'D',text:'The client is on high-dose exogenous steroids',correct:false,rationale:'Exogenous steroids SUPPRESS ACTH. You would see low cortisol with low ACTH.'}
+],
+vocabTip:'HIGH stimulating hormone + LOW target hormone = PRIMARY gland failure. Memorize the pair, not the disease name.'},
+
+{id:4,block:'A',chapter:53,type:'Lab',
+stem:'A different client has a low serum cortisol and a LOW ACTH. Which two causes should the nurse consider first?',
+options:[
+{letter:'A',text:'Pituitary failure, or &mdash; far more commonly &mdash; abrupt withdrawal of long-term steroids',correct:true,rationale:'Correct. Her sheet makes this point specifically: the single most common cause of adrenal insufficiency overall is not a rare pituitary tumor, it is someone stopping prednisone abruptly.'},
+{letter:'B',text:'Addison disease or adrenal hemorrhage',correct:false,rationale:'Both destroy the adrenal gland itself, which would drive ACTH HIGH.'},
+{letter:'C',text:'Adrenal tuberculosis or autoimmune adrenalitis',correct:false,rationale:'These are primary causes. ACTH would be high.'},
+{letter:'D',text:'Pheochromocytoma or neuroblastoma',correct:false,rationale:'Both are medulla tumors and do not affect cortisol at all.'}
+],
+vocabTip:'Exogenous steroids act like cortisol, so the pituitary sees &ldquo;plenty&rdquo; and stops making ACTH. Stop the drug suddenly and there is nothing left.',
+trap:'The rare answer is the tempting one. When both cortisol and ACTH are low, ask about the medication list BEFORE you think tumor.'},
+
+{id:5,block:'A',chapter:53,type:'SATA',
+sata:true,
+stem:'<strong>Select all that apply.</strong> Her sheet says positive feedback is rare and lists only a few true examples. Which of the following are genuine positive feedback loops?',
+options:[
+{letter:'A',text:'Oxytocin release during labor',correct:true,rationale:'Correct. Stretch releases oxytocin, contractions get stronger, which stretches more. It only stops when the baby is delivered.'},
+{letter:'B',text:'The clotting cascade',correct:true,rationale:'Correct. Each activated factor activates more of the next. It amplifies until the clot is formed.'},
+{letter:'C',text:'The LH surge that triggers ovulation',correct:true,rationale:'Correct. Rising estrogen flips from inhibiting LH to driving it, producing the surge.'},
+{letter:'D',text:'Cortisol shutting down CRH and ACTH',correct:false,rationale:'That is classic NEGATIVE feedback &mdash; the product turns off its own signal.'},
+{letter:'E',text:'Rising T4 suppressing TSH',correct:false,rationale:'Also negative feedback. This is the standard thyroid loop.'},
+{letter:'F',text:'High serum calcium shutting off PTH',correct:false,rationale:'Negative feedback again. The parathyroid stops when calcium is adequate.'}
+],
+vocabTip:'Positive feedback amplifies until an outside EVENT ends it (delivery, a formed clot, ovulation). Negative feedback self-corrects.'},
+
+{id:6,block:'A',chapter:53,type:'Lab',
+stem:'A client has a HIGH TSH and a LOW free T4. What does the nurse conclude?',
+options:[
+{letter:'A',text:'Primary hypothyroidism &mdash; the thyroid gland itself has failed',correct:true,rationale:'Correct. The pituitary is screaming (high TSH) and the thyroid cannot answer. Same pattern as Addison, different gland.'},
+{letter:'B',text:'Secondary hypothyroidism from a pituitary problem',correct:false,rationale:'If the pituitary were broken, TSH would be LOW alongside the low T4.'},
+{letter:'C',text:'Hyperthyroidism',correct:false,rationale:'Free T4 is low. The client is hypothyroid regardless of the TSH direction.'},
+{letter:'D',text:'Normal thyroid function with lab error',correct:false,rationale:'This is a textbook coherent pattern, not an error.'}
+],
+vocabTip:'TSH and T4 normally move in OPPOSITE directions. When they move opposite, the problem is the target gland.'},
+
+{id:7,block:'A',chapter:53,type:'Lab',
+stem:'A client has a HIGH TSH <em>and</em> a HIGH free T4 &mdash; both elevated together. What does this pattern suggest?',
+options:[
+{letter:'A',text:'A pituitary problem &mdash; something is driving TSH independently of feedback',correct:true,rationale:'Correct. If both are high, negative feedback is broken. A TSH-secreting pituitary adenoma keeps pumping TSH even though T4 is already high.'},
+{letter:'B',text:'Primary hypothyroidism',correct:false,rationale:'In primary hypothyroidism T4 is LOW. Here it is high.'},
+{letter:'C',text:'Hashimoto thyroiditis',correct:false,rationale:'Hashimoto destroys thyroid tissue: low T4, high TSH.'},
+{letter:'D',text:'Levothyroxine overdose',correct:false,rationale:'Excess levothyroxine raises T4 and SUPPRESSES TSH. The two would move opposite.'}
+],
+vocabTip:'When the stimulating hormone and the target hormone move in the SAME direction, suspect the pituitary.',
+trap:'This is the pattern students miss. Do not auto-answer &ldquo;hypothyroid&rdquo; just because TSH is high &mdash; read the T4.'},
+
+{id:8,block:'A',chapter:53,type:'Concept',
+stem:'Her sheet notes that cortisol is &ldquo;permissive for catecholamines.&rdquo; What is the clinical consequence she double-underlined?',
+options:[
+{letter:'A',text:'Without cortisol, the blood vessels cannot respond to epinephrine or norepinephrine &mdash; so addisonian crisis shock does not respond to fluids and pressors alone',correct:true,rationale:'Correct. This is the WHY behind the crisis priority. You can pour in fluid and hang levophed and the pressure will not come up until you give the hydrocortisone.'},
+{letter:'B',text:'Cortisol directly constricts blood vessels itself',correct:false,rationale:'Cortisol is not a vasoconstrictor. It makes the vessels ABLE to respond to the ones that are.'},
+{letter:'C',text:'Cortisol converts norepinephrine into epinephrine in the adrenal medulla',correct:false,rationale:'This conversion does occur, but that is not the meaning of &ldquo;permissive&rdquo; or the point of her note.'},
+{letter:'D',text:'Cortisol prevents catecholamines from being broken down',correct:false,rationale:'Not the mechanism she is describing. Permissive means it enables the receptor response.'}
+],
+vocabTip:'PERMISSIVE = one hormone has to be present for another hormone to work. Cortisol is the permission slip catecholamines need.',
+trap:'In an addisonian crisis question, the answer is HYDROCORTISONE FIRST &mdash; not another liter, not a higher pressor rate.'},
+
+{id:9,block:'B',chapter:53,type:'Vocab',
+stem:'Which hormones belong to the ANTERIOR pituitary in the FLAT PiG mnemonic?',
+options:[
+{letter:'A',text:'FSH, LH, ACTH, TSH, prolactin, and growth hormone',correct:true,rationale:'Correct. F-L-A-T P-i-G. The lowercase i is just a spacer.'},
+{letter:'B',text:'ADH, oxytocin, FSH, LH, TSH, and prolactin',correct:false,rationale:'ADH and oxytocin are POSTERIOR. Everything else listed is anterior.'},
+{letter:'C',text:'ADH, oxytocin, cortisol, and aldosterone',correct:false,rationale:'Cortisol and aldosterone are adrenal hormones, not pituitary.'},
+{letter:'D',text:'TSH, T3, T4, and calcitonin',correct:false,rationale:'T3, T4, and calcitonin come from the thyroid. Only TSH is pituitary.'}
+],
+vocabTip:'FLAT PiG: FSH, LH, ACTH, TSH, Prolactin, GH &mdash; the six anterior hormones. If it is not on that list, it is posterior or it is not pituitary at all.'},
+
+{id:10,block:'B',chapter:53,type:'Concept',
+stem:'Her sheet stresses that the posterior pituitary &ldquo;manufactures nothing.&rdquo; What does that actually mean?',
+options:[
+{letter:'A',text:'ADH and oxytocin are made in the hypothalamus and travel down axons to be STORED and RELEASED by the posterior pituitary',correct:true,rationale:'Correct. The posterior pituitary is nerve tissue &mdash; a storage terminal, not a factory.'},
+{letter:'B',text:'The posterior pituitary has no hormone function at all',correct:false,rationale:'It releases two critical hormones. It just does not synthesize them.'},
+{letter:'C',text:'ADH and oxytocin are made in the adrenal gland and transported by blood',correct:false,rationale:'Wrong gland and wrong route. Hypothalamus, by axon.'},
+{letter:'D',text:'The posterior pituitary makes ADH but stores oxytocin made elsewhere',correct:false,rationale:'Neither one is made there. Both come from hypothalamic neurons.'}
+],
+vocabTip:'ANTERIOR = portal BLOOD supply, makes its own hormones. POSTERIOR = AXONS, stores and releases only.'},
+
+{id:11,block:'B',chapter:53,type:'Assessment',
+stem:'A client with a pituitary tumor reports losing the outer half of the visual field in both eyes. What is this called and why does it happen?',
+options:[
+{letter:'A',text:'Bitemporal hemianopsia &mdash; the tumor is pressing upward on the optic chiasm where the nasal fibers cross',correct:true,rationale:'Correct. The pituitary sits in the sella turcica directly under the chiasm, so it grows straight into it. The lost fields are the temporal (outer) ones.'},
+{letter:'B',text:'Diplopia &mdash; the tumor is compressing the oculomotor nerve',correct:false,rationale:'Diplopia is double vision, not field loss, and it comes from a different cranial nerve.'},
+{letter:'C',text:'Homonymous hemianopsia &mdash; a stroke has damaged one occipital lobe',correct:false,rationale:'Homonymous loss is the SAME side in both eyes and points to a stroke, not a pituitary tumor.'},
+{letter:'D',text:'Presbyopia &mdash; an expected age-related change',correct:false,rationale:'Presbyopia is loss of near focus with age and is unrelated.'}
+],
+vocabTip:'Sella turcica = the bony saddle in the sphenoid bone that holds the pituitary, directly beneath the optic chiasm. Location IS the symptom.',
+trap:'&ldquo;Bumping into things on both sides&rdquo; or &ldquo;tunnel vision&rdquo; in a pituitary question is the field-cut clue, even when the word hemianopsia is never used.'},
+
+{id:12,block:'B',chapter:53,type:'Concept',
+stem:'Prolactin is unique among the anterior pituitary hormones. What controls it?',
+options:[
+{letter:'A',text:'It is under constant INHIBITION by dopamine &mdash; block dopamine and prolactin rises',correct:true,rationale:'Correct. Every other anterior hormone needs a releasing signal to go up. Prolactin is held down, so removing the brake is what raises it.'},
+{letter:'B',text:'It is released by a hypothalamic prolactin-releasing hormone',correct:false,rationale:'The dominant control is inhibitory, not stimulatory. This is what makes prolactin the exception.'},
+{letter:'C',text:'It is controlled by negative feedback from estrogen',correct:false,rationale:'Estrogen influences it, but dopamine inhibition is the primary control she wrote down.'},
+{letter:'D',text:'It is released directly by the posterior pituitary in response to suckling',correct:false,rationale:'Prolactin is ANTERIOR. Suckling triggers OXYTOCIN from the posterior pituitary for letdown.'}
+],
+vocabTip:'Dopamine = prolactin-inhibiting factor. That one fact explains both antipsychotic-induced galactorrhea and why we treat prolactinomas with dopamine AGONISTS.',
+trap:'Antipsychotics block dopamine. Expect a question where a client on haloperidol or risperidone develops galactorrhea or amenorrhea.'},
+
+{id:13,block:'B',chapter:53,type:'SATA',
+sata:true,
+stem:'<strong>Select all that apply.</strong> Which findings would the nurse expect in a client whose posterior pituitary is releasing too LITTLE ADH?',
+options:[
+{letter:'A',text:'Urine output of 4 to 30 L per day',correct:true,rationale:'Correct. Without ADH the kidney cannot concentrate urine, so volume is enormous. This is diabetes insipidus.'},
+{letter:'B',text:'Dilute, pale urine with low specific gravity',correct:true,rationale:'Correct. Nothing is being reabsorbed, so the urine is essentially water.'},
+{letter:'C',text:'Rising serum sodium',correct:true,rationale:'Correct. Water leaves and sodium stays behind, so serum sodium climbs. DI = Dry Inside.'},
+{letter:'D',text:'Extreme thirst',correct:true,rationale:'Correct. Polydipsia is the body trying to keep up with the losses. If the client cannot drink, they deteriorate fast.'},
+{letter:'E',text:'Weight gain without peripheral edema',correct:false,rationale:'That is SIADH &mdash; too MUCH ADH. Opposite problem.'},
+{letter:'F',text:'Serum sodium below 135 mEq/L',correct:false,rationale:'Hyponatremia is SIADH. In DI sodium is high.'}
+],
+vocabTip:'DI = Dry Inside (too little ADH). SIADH = Soaked Inside (too much ADH). SERUM SODIUM is the single discriminator.'},
+
+{id:14,block:'B',chapter:53,type:'Priority',
+stem:'Two clients arrive with confusion. One has a serum sodium of 118 mEq/L; the other has 158 mEq/L. Which disorder goes with which value?',
+options:[
+{letter:'A',text:'118 is SIADH; 158 is diabetes insipidus',correct:true,rationale:'Correct. SIADH holds water, dilutes sodium down. DI dumps water, concentrates sodium up. Sodium alone separates them.'},
+{letter:'B',text:'118 is diabetes insipidus; 158 is SIADH',correct:false,rationale:'Reversed. Too much ADH keeps water IN, which dilutes the sodium.'},
+{letter:'C',text:'Both values indicate SIADH at different stages',correct:false,rationale:'SIADH only produces hyponatremia. It never raises sodium.'},
+{letter:'D',text:'Neither value can be explained by a pituitary disorder',correct:false,rationale:'Both are classic posterior pituitary presentations.'}
+],
+vocabTip:'When you see confusion plus an abnormal sodium in an endocrine question, go straight to the sodium number before you read anything else.'},
+
+{id:15,block:'B',chapter:53,type:'Concept',
+stem:'FSH and LH act on the gonads. Her sheet corrects one common wording error. What is it?',
+options:[
+{letter:'A',text:'FSH and LH STIMULATE the gonads to produce sex hormones &mdash; they do not produce estrogen or testosterone themselves',correct:true,rationale:'Correct. FSH and LH are pituitary tropic hormones. The ovary and testis make the sex steroids.'},
+{letter:'B',text:'FSH and LH are produced by the ovaries and testes',correct:false,rationale:'Backwards. They are anterior pituitary hormones acting ON the gonads.'},
+{letter:'C',text:'FSH and LH are the same hormone measured two different ways',correct:false,rationale:'They are distinct hormones with distinct targets.'},
+{letter:'D',text:'FSH and LH are released by the posterior pituitary',correct:false,rationale:'Both are anterior &mdash; the F and the L in FLAT PiG.'}
+],
+vocabTip:'LH = Leydig cells (testosterone). FSH = Fertility / Sperm. Use the letters to remember the male targets.'},
+
+{id:16,block:'B',chapter:53,type:'Vocab',
+stem:'In the male, which pairing is correct?',
+options:[
+{letter:'A',text:'LH stimulates the Leydig cells to make testosterone; FSH drives sperm production',correct:true,rationale:'Correct. L for Leydig, F for Fertility. Her sheet gives exactly this memory hook.'},
+{letter:'B',text:'FSH stimulates the Leydig cells; LH drives sperm production',correct:false,rationale:'Reversed. The letters are the mnemonic &mdash; LH goes with Leydig.'},
+{letter:'C',text:'LH and FSH both act only on the female reproductive system',correct:false,rationale:'Both act on the testis as well. The axis is the same in both sexes.'},
+{letter:'D',text:'Testosterone is produced directly by the anterior pituitary',correct:false,rationale:'The pituitary sends the signal; the testis makes the hormone.'}
+],
+vocabTip:'LH = Leydig. FSH = Fertility/Sperm. Two letters, two targets.'},
+
+{id:17,block:'C',chapter:53,type:'Vocab',
+stem:'Her sheet uses &ldquo;Salt, Sugar, Sex&rdquo; for the adrenal CORTEX. Match the layers outside-in.',
+options:[
+{letter:'A',text:'Glomerulosa makes aldosterone (salt), fasciculata makes cortisol (sugar), reticularis makes androgens (sex)',correct:true,rationale:'Correct. GFR from outside in, and the deeper you go the sweeter it gets: salt, sugar, sex.'},
+{letter:'B',text:'Glomerulosa makes cortisol, fasciculata makes androgens, reticularis makes aldosterone',correct:false,rationale:'Scrambled. Aldosterone is the outermost layer.'},
+{letter:'C',text:'All three layers make epinephrine and norepinephrine',correct:false,rationale:'Those are MEDULLA hormones, not cortex.'},
+{letter:'D',text:'Glomerulosa makes androgens, fasciculata makes aldosterone, reticularis makes cortisol',correct:false,rationale:'Reversed order. Remember GFR pairs with salt-sugar-sex in that same order.'}
+],
+vocabTip:'G-F-R = Glomerulosa, Fasciculata, Reticularis. Salt, Sugar, Sex. Outside in, in that order.'},
+
+{id:18,block:'C',chapter:53,type:'Concept',
+stem:'Which statement correctly contrasts the adrenal cortex with the adrenal medulla?',
+options:[
+{letter:'A',text:'The cortex is essential for life; the medulla is not',correct:true,rationale:'Correct. Lose the cortex and you die without replacement cortisol and aldosterone. Lose the medulla and the sympathetic nervous system covers for it.'},
+{letter:'B',text:'The medulla is essential for life; the cortex is not',correct:false,rationale:'Reversed. Her sheet describes the medulla as &ldquo;fun, not essential.&rdquo;'},
+{letter:'C',text:'Both are equally essential and neither can be replaced',correct:false,rationale:'Cortex hormones can be replaced pharmacologically, which is exactly how Addison is treated.'},
+{letter:'D',text:'The cortex makes catecholamines and the medulla makes steroids',correct:false,rationale:'Exactly backwards. Cortex = steroids. Medulla = catecholamines.'}
+],
+vocabTip:'CORTEX = steroids = life. MEDULLA = catecholamines = the fight-or-flight extras.'},
+
+{id:19,block:'C',chapter:53,type:'Concept',
+stem:'What does aldosterone actually do at the kidney?',
+options:[
+{letter:'A',text:'Reabsorbs sodium and water while excreting potassium',correct:true,rationale:'Correct. Sodium and water in, potassium out. That is why aldosterone excess causes hypertension with hypokalemia and aldosterone deficiency causes hypotension with hyperkalemia.'},
+{letter:'B',text:'Excretes sodium and water while reabsorbing potassium',correct:false,rationale:'Reversed. That pattern would lower blood pressure and raise potassium, which is what happens when aldosterone is MISSING.'},
+{letter:'C',text:'Reabsorbs calcium and excretes phosphorus',correct:false,rationale:'That is PTH territory, not aldosterone.'},
+{letter:'D',text:'Reabsorbs water only, with no effect on electrolytes',correct:false,rationale:'That describes ADH. Aldosterone moves sodium and potassium.'}
+],
+vocabTip:'Aldosterone: Na and H2O IN, K OUT. Every aldosterone question &mdash; Addison, Conn, spironolactone &mdash; comes back to this one line.'},
+
+{id:20,block:'C',chapter:53,type:'SATA',
+sata:true,
+stem:'<strong>Select all that apply.</strong> Her sheet ranks aldosterone&rsquo;s triggers in order. Which of the following genuinely stimulate aldosterone release?',
+options:[
+{letter:'A',text:'Activation of the renin-angiotensin-aldosterone system by low renal perfusion',correct:true,rationale:'Correct, and this is the NUMBER ONE trigger. Low blood flow to the kidney releases renin, which ultimately drives aldosterone.'},
+{letter:'B',text:'A rising serum potassium',correct:true,rationale:'Correct, and this is the SECOND trigger. Aldosterone dumps potassium, so a high potassium directly calls for more.'},
+{letter:'C',text:'ACTH from the anterior pituitary',correct:true,rationale:'Correct, but it is a MINOR contributor. This is precisely why secondary adrenal insufficiency does not cause hyperkalemia &mdash; RAAS keeps aldosterone going even when ACTH is gone.'},
+{letter:'D',text:'ADH from the posterior pituitary',correct:false,rationale:'ADH controls free water only and does not stimulate aldosterone.'},
+{letter:'E',text:'A rising serum calcium',correct:false,rationale:'Calcium regulation runs through PTH and calcitonin, not aldosterone.'},
+{letter:'F',text:'TSH from the anterior pituitary',correct:false,rationale:'TSH acts on the thyroid only.'}
+],
+vocabTip:'RAAS &gt; potassium &gt; ACTH. That ranking is the whole reason primary and secondary adrenal insufficiency have different potassium levels.',
+trap:'Because ACTH is only a minor trigger, PRIMARY Addison gets hyperkalemic (aldosterone is gone) but SECONDARY does not (aldosterone is preserved).'},
+
+{id:21,block:'C',chapter:53,type:'Assessment',
+stem:'A provider orders a serum cortisol level. When should the nurse draw it, and why?',
+options:[
+{letter:'A',text:'Early morning, around 0600 to 0800, because cortisol follows a diurnal rhythm and peaks then',correct:true,rationale:'Correct. Cortisol is highest on waking and lowest near midnight. Drawing at the wrong hour makes a normal result look abnormal and an abnormal one look normal.'},
+{letter:'B',text:'At bedtime, when cortisol is at its peak',correct:false,rationale:'Bedtime is the TROUGH. A midnight salivary cortisol is used diagnostically precisely because it should be low then.'},
+{letter:'C',text:'Immediately after a meal, to capture the postprandial rise',correct:false,rationale:'Cortisol is not tied to meals the way glucose or insulin are.'},
+{letter:'D',text:'At any time &mdash; cortisol is stable across the day',correct:false,rationale:'It is one of the most time-dependent labs in the chapter.'}
+],
+vocabTip:'Diurnal rhythm: cortisol PEAKS 0600&ndash;0800, BOTTOMS near midnight. A midnight salivary cortisol that is NOT low suggests Cushing.'},
+
+{id:22,block:'C',chapter:53,type:'Priority',
+stem:'A client is being worked up for a suspected pheochromocytoma. Which nursing action is contraindicated?',
+options:[
+{letter:'A',text:'Deep palpation of the abdomen during the assessment',correct:true,rationale:'Correct &mdash; this is the action to AVOID. Pressing on the tumor can dump catecholamines and trigger a hypertensive crisis. Her sheet writes it as an absolute: never palpate the abdomen.'},
+{letter:'B',text:'Monitoring blood pressure frequently',correct:false,rationale:'Appropriate and necessary. Paroxysmal severe hypertension is the hallmark.'},
+{letter:'C',text:'Providing a quiet, low-stimulation environment',correct:false,rationale:'Appropriate. Stress can provoke an attack.'},
+{letter:'D',text:'Collecting a 24-hour urine for catecholamines and metanephrines',correct:false,rationale:'Appropriate &mdash; this is the standard diagnostic test.'}
+],
+vocabTip:'Pheochromocytoma = a catecholamine-secreting tumor of the adrenal MEDULLA. The five Ps: pressure, pain (headache), perspiration, palpitations, pallor.',
+trap:'This is a &ldquo;which action should the nurse AVOID&rdquo; stem. Read the question direction carefully &mdash; the correct answer is the wrong action.'},
+
+{id:23,block:'C',chapter:53,type:'Concept',
+stem:'A client with pheochromocytoma is being prepared for surgery. Which drug sequence is correct?',
+options:[
+{letter:'A',text:'Start the alpha blocker FIRST, then add the beta blocker',correct:true,rationale:'Correct. Alpha blockade before beta blockade. Her sheet flags this as a hard rule.'},
+{letter:'B',text:'Start the beta blocker first, then add the alpha blocker',correct:false,rationale:'Dangerous. Blocking beta receptors first leaves alpha-mediated vasoconstriction unopposed and blood pressure spikes.'},
+{letter:'C',text:'Give both simultaneously on the morning of surgery',correct:false,rationale:'The sequence and the lead time both matter. Alpha blockade runs for days to weeks before surgery.'},
+{letter:'D',text:'Neither class is used; only calcium channel blockers are safe',correct:false,rationale:'Alpha blockade is the cornerstone of preoperative management.'}
+],
+vocabTip:'ALPHA BEFORE BETA. Alphabetical order &mdash; A comes before B. That is the memory hook.',
+trap:'&ldquo;Unopposed alpha stimulation&rdquo; is the phrase the rationale will use. If beta goes first, the pressure goes UP, not down.'},
+
+{id:24,block:'C',chapter:53,type:'SATA',
+sata:true,
+stem:'<strong>Select all that apply.</strong> Which findings would the nurse expect in a client with excess adrenal ANDROGEN production from the zona reticularis?',
+options:[
+{letter:'A',text:'Hirsutism in a female client',correct:true,rationale:'Correct. Excess androgen produces male-pattern hair growth on the face, chest, and abdomen.'},
+{letter:'B',text:'Deepening of the voice',correct:true,rationale:'Correct. Virilization affects the larynx.'},
+{letter:'C',text:'Menstrual irregularity or amenorrhea',correct:true,rationale:'Correct. Androgen excess disrupts the normal cycle.'},
+{letter:'D',text:'Acne',correct:true,rationale:'Correct. Androgens drive sebaceous gland activity.'},
+{letter:'E',text:'Bitemporal hemianopsia',correct:false,rationale:'That is a mass-effect finding from a PITUITARY tumor pressing on the optic chiasm.'},
+{letter:'F',text:'Hyperkalemia',correct:false,rationale:'Potassium is an ALDOSTERONE issue, not an androgen one.'}
+],
+vocabTip:'The reticularis is the SEX layer. Excess there = virilization in women; in men the effect is often silent.',
+trap:'These changes are visible and permanent-feeling to the client. Do not skip the psychosocial option when the stem mentions body image.'},
+
+{id:25,block:'D',chapter:53,type:'Concept',
+stem:'Her sheet contains one factual error worth correcting: she wrote that calcitonin is &ldquo;the active form of vitamin D.&rdquo; What is actually true?',
+options:[
+{letter:'A',text:'Calcitonin comes from thyroid parafollicular C cells and LOWERS calcium; the active form of vitamin D is CALCITRIOL',correct:true,rationale:'Correct. The two words look alike and do opposite jobs from different organs. Calcitriol (from the kidney) RAISES calcium by increasing gut absorption; calcitonin LOWERS it.'},
+{letter:'B',text:'Calcitonin is correct &mdash; it is the active vitamin D made by the kidney',correct:false,rationale:'This is the error. Calcitonin is a thyroid hormone, not a vitamin D metabolite.'},
+{letter:'C',text:'Calcitonin comes from the parathyroid glands and raises calcium',correct:false,rationale:'That describes PTH. Calcitonin is from the THYROID and lowers calcium.'},
+{letter:'D',text:'Calcitonin and calcitriol are two names for the same hormone',correct:false,rationale:'Different molecules, different glands, opposite effects on serum calcium.'}
+],
+vocabTip:'CalciTONIN = TONES calcium DOWN (thyroid C cells). CalciTRIOL = active vitamin D from the kidney, raises calcium.',
+trap:'Two near-identical words with opposite effects is exactly the kind of pair a test writer builds a distractor from. Say them out loud separately.'},
+
+{id:26,block:'D',chapter:53,type:'Concept',
+stem:'PTH raises serum calcium by acting on three organs. Which set is correct?',
+options:[
+{letter:'A',text:'Bone (releases calcium), kidney (reabsorbs calcium and activates vitamin D), and gut (absorbs more calcium)',correct:true,rationale:'Correct. Bone, kidney, gut &mdash; three routes, all pushing calcium up. The gut effect is indirect, through activated vitamin D.'},
+{letter:'B',text:'Bone, liver, and spleen',correct:false,rationale:'The liver does a first hydroxylation of vitamin D but is not one of the three PTH target organs, and the spleen has no role.'},
+{letter:'C',text:'Thyroid, pancreas, and adrenal cortex',correct:false,rationale:'None of these are PTH targets.'},
+{letter:'D',text:'Kidney only',correct:false,rationale:'The kidney is one route of three.'}
+],
+vocabTip:'PTH: BONE, KIDNEY, GUT. All three push serum calcium UP and phosphorus DOWN.'},
+
+{id:27,block:'D',chapter:53,type:'Lab',
+stem:'A client&rsquo;s serum calcium is 12.4 mg/dL. Without seeing the phosphorus level, what can the nurse reasonably predict?',
+options:[
+{letter:'A',text:'Phosphorus will be low, because calcium and phosphorus move in opposite directions',correct:true,rationale:'Correct. Her sheet states this as an always-rule: Ca up, Phos down. Normal Ca is 9.0 to 10.5 mg/dL; normal Phos is 3.0 to 4.5 mg/dL.'},
+{letter:'B',text:'Phosphorus will also be high, because they move together',correct:false,rationale:'They are inverse, not parallel. This is one of the most reliable relationships in the chapter.'},
+{letter:'C',text:'Phosphorus will be unchanged',correct:false,rationale:'The seesaw means a change in one predicts a change in the other.'},
+{letter:'D',text:'Phosphorus cannot be predicted from calcium at all',correct:false,rationale:'It can &mdash; that is the point of the seesaw.'}
+],
+vocabTip:'Ca 9.0&ndash;10.5 mg/dL &middot; Phos 3.0&ndash;4.5 mg/dL &middot; Mg 1.3&ndash;2.1 mEq/L. Memorize all three; they run together in questions.'},
+
+{id:28,block:'D',chapter:53,type:'Priority',
+stem:'A client is 6 hours post-thyroidectomy and reports numbness and tingling around the mouth and in the fingertips. What is the nurse&rsquo;s priority concern?',
+options:[
+{letter:'A',text:'Hypocalcemia from inadvertent damage to or removal of the parathyroid glands',correct:true,rationale:'Correct. The four parathyroids sit on the back of the thyroid, so thyroid surgery puts them at risk. Perioral and fingertip paresthesia is the earliest sign of falling calcium.'},
+{letter:'B',text:'Expected post-operative nerve irritation that requires no action',correct:false,rationale:'Never dismiss perioral tingling after thyroid surgery. It is the classic early hypocalcemia signal.'},
+{letter:'C',text:'An allergic reaction to the surgical prep solution',correct:false,rationale:'Allergy would present with rash, itching, or airway symptoms &mdash; not symmetric perioral paresthesia.'},
+{letter:'D',text:'Thyroid storm',correct:false,rationale:'Storm presents with fever, tachycardia, and agitation, not numbness.'}
+],
+vocabTip:'LOCATION is the reason. The parathyroids are on the posterior thyroid, so every thyroidectomy carries a hypocalcemia risk.',
+trap:'Keep CALCIUM GLUCONATE at the bedside after thyroidectomy. If a question asks what to have available, that is the answer.'},
+
+{id:29,block:'D',chapter:53,type:'Assessment',
+stem:'The nurse inflates a blood pressure cuff on the arm and the client&rsquo;s hand draws into a carpal spasm. What is this sign, and what does it indicate?',
+options:[
+{letter:'A',text:'Trousseau sign &mdash; it indicates hypocalcemia',correct:true,rationale:'Correct. Occluding blood flow provokes spasm in a calcium-depleted neuromuscular system. Its partner is Chvostek sign: tapping the facial nerve causes the cheek to twitch.'},
+{letter:'B',text:'Chvostek sign &mdash; it indicates hypocalcemia',correct:false,rationale:'Right electrolyte, wrong sign. Chvostek is the FACIAL tap.'},
+{letter:'C',text:'Trousseau sign &mdash; it indicates hypercalcemia',correct:false,rationale:'Right sign, wrong direction. HIGH calcium sedates the body; it does not cause spasm.'},
+{letter:'D',text:'Homans sign &mdash; it indicates deep vein thrombosis',correct:false,rationale:'Homans is calf pain on dorsiflexion and is unrelated to calcium.'}
+],
+vocabTip:'TROUSSEAU = the cuff (Think: T for Tourniquet). CHVOSTEK = the CHeek. Both mean LOW calcium.'},
+
+{id:30,block:'D',chapter:53,type:'Concept',
+stem:'Her sheet compresses all of calcium into one sentence: &ldquo;high calcium = sedated body; low calcium = irritable body.&rdquo; Which findings follow from that?',
+options:[
+{letter:'A',text:'High calcium gives constipation, lethargy, and weak reflexes; low calcium gives tetany, twitching, and brisk reflexes',correct:true,rationale:'Correct. One sentence generates both symptom lists. That is why she wrote it that way.'},
+{letter:'B',text:'High calcium gives seizures and tetany; low calcium gives lethargy and constipation',correct:false,rationale:'Exactly reversed. Sedated means slow; irritable means twitchy.'},
+{letter:'C',text:'Both high and low calcium produce identical neuromuscular findings',correct:false,rationale:'They produce opposite findings, which is what makes the rule useful.'},
+{letter:'D',text:'Calcium has no effect on neuromuscular irritability',correct:false,rationale:'Calcium stabilizes nerve membranes. It is the central mechanism here.'}
+],
+vocabTip:'SEDATED vs. IRRITABLE. Apply it to bowel sounds, reflexes, level of consciousness, and muscle tone &mdash; all of them follow.'},
+
+{id:31,block:'D',chapter:53,type:'Lab',
+stem:'A client&rsquo;s calcium remains low despite repeated calcium replacement. What should the nurse anticipate checking next?',
+options:[
+{letter:'A',text:'Serum magnesium',correct:true,rationale:'Correct. Magnesium is required for PTH to be released and to work. If magnesium is low, calcium will not correct no matter how much you give.'},
+{letter:'B',text:'Serum sodium',correct:false,rationale:'Sodium does not gate calcium correction.'},
+{letter:'C',text:'Serum chloride',correct:false,rationale:'Not part of the calcium regulatory pathway.'},
+{letter:'D',text:'Serum glucose',correct:false,rationale:'Glucose has no bearing on refractory hypocalcemia.'}
+],
+vocabTip:'Calcium will not correct? CHECK THE MAGNESIUM. Normal Mg is 1.3 to 2.1 mEq/L.',
+trap:'This is a favorite &ldquo;what would you check next&rdquo; stem. The answer is almost never more calcium.'},
+
+{id:32,block:'D',chapter:53,type:'Concept',
+stem:'Which pairing correctly describes thyroid hormone effects?',
+options:[
+{letter:'A',text:'Hypothyroid is &ldquo;slow and low&rdquo;; hyperthyroid is &ldquo;high and fast&rdquo;',correct:true,rationale:'Correct. Thyroid hormone sets metabolic rate, so every system follows &mdash; heart rate, bowel motility, temperature, mood, weight.'},
+{letter:'B',text:'Hypothyroid is &ldquo;high and fast&rdquo;; hyperthyroid is &ldquo;slow and low&rdquo;',correct:false,rationale:'Reversed. Hypo means too little hormone and therefore a slower system.'},
+{letter:'C',text:'Thyroid hormone affects only the heart rate',correct:false,rationale:'It affects essentially every tissue. That is why the symptom lists are so long.'},
+{letter:'D',text:'Thyroid hormone has no effect on body temperature',correct:false,rationale:'Cold intolerance in hypothyroid and heat intolerance in hyperthyroid are core findings.'}
+],
+vocabTip:'Pick ONE system and run it both ways: HR slow/fast, bowels constipated/diarrhea, weight up/down, cold/heat intolerance.'},
+
+{id:33,block:'E',chapter:53,type:'Vocab',
+stem:'Which islet cell makes which pancreatic hormone?',
+options:[
+{letter:'A',text:'Alpha cells make glucagon, beta cells make insulin, delta cells make somatostatin',correct:true,rationale:'Correct. Use her hook: alpha makes gluc-A-gon, beta makes insulin.'},
+{letter:'B',text:'Alpha cells make insulin, beta cells make glucagon, delta cells make amylase',correct:false,rationale:'Alpha and beta are reversed, and amylase is a digestive enzyme from the exocrine pancreas.'},
+{letter:'C',text:'Beta cells make somatostatin and delta cells make insulin',correct:false,rationale:'Beta makes insulin. Delta makes somatostatin.'},
+{letter:'D',text:'All three cell types make insulin in different amounts',correct:false,rationale:'Each cell type makes one hormone.'}
+],
+vocabTip:'The A in glucAgon points to Alpha. Beta gets insulin by elimination.'},
+
+{id:34,block:'E',chapter:53,type:'Lab',
+stem:'Beyond lowering glucose, what else does insulin do that matters at the bedside?',
+options:[
+{letter:'A',text:'It drives potassium and phosphorus INTO the cells along with glucose',correct:true,rationale:'Correct. This is why insulin plus D50 is used to treat hyperkalemia, and why serum potassium falls during DKA treatment even though total body potassium is depleted.'},
+{letter:'B',text:'It pulls potassium OUT of the cells into the serum',correct:false,rationale:'Reversed. Insulin moves potassium IN, which lowers the serum level.'},
+{letter:'C',text:'It has no effect on electrolytes',correct:false,rationale:'Its potassium effect is clinically central.'},
+{letter:'D',text:'It raises serum calcium directly',correct:false,rationale:'Calcium is regulated by PTH, calcitonin, and vitamin D.'}
+],
+vocabTip:'Insulin drags glucose, potassium, and phosphorus into the cell. Expect potassium to FALL when you start an insulin drip.',
+trap:'During DKA treatment, watch for HYPOkalemia as insulin runs &mdash; even if the admission potassium was high.'},
+
+{id:35,block:'E',chapter:53,type:'Concept',
+stem:'A client with severe alcohol-related liver disease is hypoglycemic. Glucagon is given but has little effect. Why?',
+options:[
+{letter:'A',text:'Glucagon works by breaking down stored glycogen, and this client has no glycogen reserve left',correct:true,rationale:'Correct. Glucagon is a key to a pantry. If the pantry is empty &mdash; starvation, alcohol use disorder, advanced liver disease &mdash; the key opens nothing.'},
+{letter:'B',text:'Glucagon is inactivated by alcohol in the bloodstream',correct:false,rationale:'Not the mechanism. The problem is the missing substrate.'},
+{letter:'C',text:'Glucagon only works if given intravenously',correct:false,rationale:'It is effective IM and subcutaneously as well. Route is not the issue here.'},
+{letter:'D',text:'Glucagon requires insulin to be present to work',correct:false,rationale:'Glucagon opposes insulin; it does not require it.'}
+],
+vocabTip:'Glucagon FAILS when there is no glycogen. In that client, give IV dextrose instead.'},
+
+{id:36,block:'E',chapter:53,type:'Priority',
+stem:'Her sheet ties the pineal gland and melatonin to one specific nursing problem. Which one?',
+options:[
+{letter:'A',text:'ICU delirium from disrupted day-night cues &mdash; so the nurse clusters care and protects sleep',correct:true,rationale:'Correct. Constant light, noise, and hourly interruptions suppress the normal melatonin rhythm. Clustering care and dimming lights at night is a real intervention, not comfort fluff.'},
+{letter:'B',text:'Hypocalcemia from disrupted PTH secretion',correct:false,rationale:'Calcium is parathyroid territory, not pineal.'},
+{letter:'C',text:'Hyperglycemia from disrupted insulin secretion',correct:false,rationale:'That is pancreatic.'},
+{letter:'D',text:'Hypertension from catecholamine release',correct:false,rationale:'That is the adrenal medulla.'}
+],
+vocabTip:'Pineal &rarr; melatonin &rarr; circadian rhythm. In an ICU question, protecting sleep IS the endocrine intervention.'},
+
+{id:37,block:'E',chapter:53,type:'Teaching',
+stem:'A client is starting levothyroxine. Which instruction is correct?',
+options:[
+{letter:'A',text:'Take it in the morning on an empty stomach, 30 to 60 minutes before food, and separate it by 4 hours from calcium, iron, and antacids',correct:true,rationale:'Correct. All three of those bind levothyroxine in the gut and block absorption. Morning dosing also avoids insomnia.'},
+{letter:'B',text:'Take it at bedtime with a calcium supplement to improve absorption',correct:false,rationale:'Calcium BLOCKS absorption, and bedtime dosing can cause insomnia.'},
+{letter:'C',text:'Take it with breakfast to prevent stomach upset',correct:false,rationale:'Food significantly reduces absorption. It must be taken on an empty stomach.'},
+{letter:'D',text:'Stop the medication once symptoms improve',correct:false,rationale:'It is lifelong replacement. Symptom improvement means the dose is working, not that it is finished.'}
+],
+vocabTip:'Empty stomach, morning, 4 hours from calcium/iron/antacids, lifelong. Dose changes are START LOW, GO SLOW &mdash; especially in older adults and cardiac patients.'},
+
+{id:38,block:'E',chapter:53,type:'SATA',
+sata:true,
+stem:'<strong>Select all that apply.</strong> An older adult is being assessed for possible thyroid dysfunction. Which statements about presentation in older adults are accurate?',
+options:[
+{letter:'A',text:'Symptoms are often atypical or absent compared with younger adults',correct:true,rationale:'Correct. Her sheet flags this specifically. The classic textbook picture frequently does not appear.'},
+{letter:'B',text:'Hyperthyroidism may present with apathy and depression rather than agitation',correct:true,rationale:'Correct. Apathetic hyperthyroidism is a real and commonly missed presentation in older adults.'},
+{letter:'C',text:'Hypothyroid changes may be dismissed as normal aging',correct:true,rationale:'Correct. Fatigue, dry skin, constipation, and slowed thinking all get attributed to age instead of the thyroid.'},
+{letter:'D',text:'New-onset atrial fibrillation may be the presenting sign of hyperthyroidism',correct:true,rationale:'Correct. In an older adult, the cardiac finding may arrive before anything else.'},
+{letter:'E',text:'Older adults always present with the classic heat intolerance and weight loss',correct:false,rationale:'The word &ldquo;always&rdquo; plus the classic picture is the opposite of what her sheet says.'},
+{letter:'F',text:'Thyroid disease is rare after age 65 and rarely needs screening',correct:false,rationale:'It becomes MORE common with age, not less.'}
+],
+vocabTip:'In older adults, endocrine disease hides behind &ldquo;just getting old.&rdquo; Treat vague functional decline as a reason to check labs.',
+trap:'Any option containing &ldquo;always&rdquo; or &ldquo;never&rdquo; alongside a classic textbook symptom list is usually the distractor.'},
+
+{id:39,block:'F',chapter:53,type:'Concept',
+stem:'Her sheet left &ldquo;Provocative tests&rdquo; and &ldquo;Suppression tests&rdquo; completely blank. What is the one-line rule that fills both in?',
+options:[
+{letter:'A',text:'Stimulate the LOW and suppress the HIGH &mdash; if it will not respond the gland is dead, and if it will not suppress there is a tumor',correct:true,rationale:'Correct. Every endocrine dynamic test in the chapter is one of those two moves, and the interpretation is always the same.'},
+{letter:'B',text:'Stimulate the HIGH and suppress the LOW',correct:false,rationale:'Reversed, and it makes no clinical sense &mdash; you never push a hormone that is already excessive.'},
+{letter:'C',text:'Both test types are used only to confirm pituitary tumors',correct:false,rationale:'They are used across every gland &mdash; adrenal, thyroid, pituitary, and posterior pituitary.'},
+{letter:'D',text:'Provocative and suppression tests are two names for the same procedure',correct:false,rationale:'They are opposite maneuvers used for opposite suspicions.'}
+],
+vocabTip:'Suspect a DEFICIENCY &rarr; provocative (stimulation) test. Suspect an EXCESS &rarr; suppression test.'},
+
+{id:40,block:'F',chapter:53,type:'Lab',
+stem:'A client receives cosyntropin (synthetic ACTH) and the serum cortisol does not rise. What does this indicate?',
+options:[
+{letter:'A',text:'The adrenal cortex itself cannot respond &mdash; primary adrenal insufficiency',correct:true,rationale:'Correct. You gave the gland the strongest possible signal and it produced nothing. It is not a signaling problem; the gland is gone.'},
+{letter:'B',text:'The pituitary is not producing enough ACTH',correct:false,rationale:'You bypassed the pituitary entirely by giving synthetic ACTH. The pituitary is not what is being tested.'},
+{letter:'C',text:'The client has Cushing syndrome',correct:false,rationale:'Cushing is cortisol EXCESS and would be investigated with a suppression test, not a stimulation test.'},
+{letter:'D',text:'The test is invalid and must be repeated at midnight',correct:false,rationale:'A flat response is a diagnostic result, not a timing error.'}
+],
+vocabTip:'Cosyntropin / ACTH stimulation = the provocative test for adrenal insufficiency. No rise = primary failure.'},
+
+{id:41,block:'F',chapter:53,type:'Priority',
+stem:'A client is undergoing a water deprivation test. Which finding requires the nurse to STOP the test immediately?',
+options:[
+{letter:'A',text:'A weight loss greater than 2 kg or a significant drop in blood pressure',correct:true,rationale:'Correct. These are the safety stop points. The test deliberately dehydrates the client, and in true diabetes insipidus the losses can become dangerous quickly.'},
+{letter:'B',text:'The client reports thirst',correct:false,rationale:'Thirst is expected throughout the test and is not a stop criterion by itself.'},
+{letter:'C',text:'Urine specific gravity remains low',correct:false,rationale:'That is the diagnostic finding the test is looking for, not a reason to stop.'},
+{letter:'D',text:'Serum sodium rises by 2 mEq/L',correct:false,rationale:'A small rise is expected. Weight and blood pressure are the monitored safety parameters.'}
+],
+vocabTip:'Water deprivation test: withhold fluids, monitor weight, BP, urine output, and specific gravity hourly. STOP for &gt;2 kg loss or a significant BP drop.',
+trap:'Safety stop criteria are high-yield. If a question asks what to monitor during this test, weight and blood pressure are the answer.'},
+
+{id:42,block:'F',chapter:53,type:'Lab',
+stem:'During a water deprivation test, the client is then given desmopressin. Urine concentration improves markedly. What does this distinguish?',
+options:[
+{letter:'A',text:'Central diabetes insipidus &mdash; the kidney works, the brain was not making ADH',correct:true,rationale:'Correct. Supplying the missing hormone fixes the problem, which localizes the failure to the hypothalamus or posterior pituitary.'},
+{letter:'B',text:'Nephrogenic diabetes insipidus',correct:false,rationale:'In nephrogenic DI the kidney cannot respond to ADH, so desmopressin produces little or no change.'},
+{letter:'C',text:'SIADH',correct:false,rationale:'SIADH is too much ADH. These clients are already concentrating urine excessively.'},
+{letter:'D',text:'Primary polydipsia',correct:false,rationale:'In primary polydipsia the client concentrates urine during deprivation alone, before any desmopressin is given.'}
+],
+vocabTip:'Responds to desmopressin = CENTRAL. Does not respond = NEPHROGENIC. LITHIUM is the most commonly tested cause of nephrogenic DI.'},
+
+{id:43,block:'F',chapter:53,type:'Lab',
+stem:'A high-dose dexamethasone suppression test causes cortisol to fall. What does this localize?',
+options:[
+{letter:'A',text:'A pituitary source &mdash; Cushing DISEASE',correct:true,rationale:'Correct. A pituitary adenoma retains some feedback sensitivity, so a high enough dose still suppresses it. An adrenal tumor or an ectopic ACTH source will not suppress at any dose.'},
+{letter:'B',text:'An adrenal tumor',correct:false,rationale:'Adrenal tumors make cortisol autonomously and do not suppress.'},
+{letter:'C',text:'An ectopic ACTH-producing lung tumor',correct:false,rationale:'Ectopic sources ignore feedback entirely and do not suppress.'},
+{letter:'D',text:'Adrenal insufficiency',correct:false,rationale:'You do not use a suppression test to investigate a deficiency &mdash; you use stimulation.'}
+],
+vocabTip:'Cushing DISEASE = pituitary source. Cushing SYNDROME = cortisol excess from ANY cause. High-dose dexamethasone that suppresses points to the pituitary.',
+trap:'Disease vs. syndrome is a one-word swap that changes the answer. Read which term the stem uses.'},
+
+{id:44,block:'F',chapter:53,type:'Concept',
+stem:'Why is an oral glucose tolerance test used in the workup of suspected acromegaly?',
+options:[
+{letter:'A',text:'Glucose normally SUPPRESSES growth hormone; if GH stays high after a glucose load, the secretion is autonomous',correct:true,rationale:'Correct. It is a suppression test for a suspected excess. It will not suppress, so there is a tumor.'},
+{letter:'B',text:'Glucose normally raises growth hormone, so a rise confirms the diagnosis',correct:false,rationale:'Reversed. The test works because glucose should push GH DOWN.'},
+{letter:'C',text:'The test measures insulin resistance, which is the diagnostic criterion',correct:false,rationale:'Acromegaly does cause insulin resistance, but the test here is measuring GH suppression.'},
+{letter:'D',text:'It is used to rule out diabetes insipidus',correct:false,rationale:'DI does not affect glucose. DI clients have NORMAL blood glucose &mdash; that is what separates it from diabetes mellitus.'}
+],
+vocabTip:'Excess hormone &rarr; suppression test. GH excess is suppressed with glucose; cortisol excess is suppressed with dexamethasone.'},
+
+{id:45,block:'F',chapter:53,type:'Teaching',
+stem:'A client is scheduled for a 24-hour urine collection for catecholamines. Which instruction is correct?',
+options:[
+{letter:'A',text:'Discard the first voiding, note the start time, save every voiding after that, and include the final voiding at the 24-hour mark',correct:true,rationale:'Correct. The collection starts empty. Missing even one voiding invalidates the entire specimen and it has to be restarted.'},
+{letter:'B',text:'Save the first voiding and discard the last one',correct:false,rationale:'Reversed. Discard first, keep last.'},
+{letter:'C',text:'Collect only the morning voidings for 24 hours',correct:false,rationale:'Every voiding over the full period must be collected.'},
+{letter:'D',text:'Refrigeration and preservatives are unnecessary',correct:false,rationale:'Most 24-hour collections require refrigeration or a preservative in the container.'}
+],
+vocabTip:'Discard the FIRST, keep the LAST. If any voiding is lost, the collection restarts from zero.',
+trap:'This is the single most common procedural question on endocrine assessment. It shows up on nearly every bank.'},
+
+{id:46,block:'F',chapter:53,type:'Assessment',
+stem:'A female client being evaluated for an endocrine disorder has developed facial hair and says she avoids leaving the house. What is the nurse&rsquo;s best response?',
+options:[
+{letter:'A',text:'Acknowledge how distressing the change is, ask what she has already tried, and discuss hair-management options while the underlying disorder is treated',correct:true,rationale:'Correct. It validates without dismissing, gathers information, and gives her something actionable. Body image changes are a real nursing diagnosis in this chapter, not a footnote.'},
+{letter:'B',text:'Reassure her that the hair growth will fully reverse once treatment begins',correct:false,rationale:'False reassurance. Some androgen-driven changes do not fully reverse, and promising otherwise damages trust.'},
+{letter:'C',text:'Tell her the physical changes are minor compared with the medical risks',correct:false,rationale:'Dismissive. It ranks her concern below yours and shuts down the conversation.'},
+{letter:'D',text:'Suggest she avoid mirrors until the hormone levels normalize',correct:false,rationale:'Avoidance is not a therapeutic intervention and reinforces the isolation she just described.'}
+],
+vocabTip:'Endocrine disorders change how people LOOK. On a psychosocial item, the answer validates the feeling and offers a concrete next step &mdash; never false reassurance.'}
+];
+</script>
+<script>
+/* Shared primer harness — reads globals EXAM_ID, EXAM_LABEL, BLOCKS, ALL_Q.
+   Each per-chapter primer is a small shell that defines those four globals,
+   links primer.css, then includes this file.
+
+   Optional, opt-in per page:
+     <div id="harnessFilterBar"></div>   → renders block/SATA/missed filter buttons
+     elements with [data-loop="<blockKey>"] → shown/hidden to match the active block */
+let answered={};
+let selections={};
+let __filterMode='all';
+
+function _seedHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _shuffleAllOptions(){if(window.__optsShuffled)return;window.__optsShuffled=true;ALL_Q.forEach(function(q){if(!q.options||q.options.length<2)return;var a=q.options.slice();var rnd=mulberry32(_seedHash(EXAM_ID+'#'+q.id));for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}var L=['A','B','C','D','E','F'];for(var k=0;k<a.length;k++){a[k].letter=L[k];}q.options=a;});}
+
+function _isCorrect(q){const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];return c.length===s.length&&c.every(l=>s.includes(l));}
+// SATA partial credit: all right = 1.0, right but incomplete = 0.5, any wrong option selected = 0.
+function _credit(q){
+if(_isCorrect(q))return 1;
+if(!q.sata)return 0;
+const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[q.id]||[];
+if(!s.length||s.some(l=>!c.includes(l)))return 0;
+return 0.5;
+}
+function _fmt(n){return n%1?n.toFixed(1):String(n);}
+function _activeQ(){
+if(__filterMode==='all')return ALL_Q;
+if(__filterMode==='sata')return ALL_Q.filter(q=>q.sata);
+if(__filterMode==='missed')return ALL_Q.filter(q=>window.__missedIds&&window.__missedIds.includes(q.id));
+return ALL_Q.filter(q=>q.block===__filterMode);
+}
+function _answeredCount(){return _activeQ().filter(q=>answered[q.id]).length;}
+
+function buildQuiz(){
+_shuffleAllOptions();
+const area=document.getElementById('quizArea');area.innerHTML='';
+_activeQ().forEach((q,idx)=>{
+const card=document.createElement('div');card.className='q-card';card.id='qcard-'+q.id;
+let badges='<span class="badge badge-blk">CH '+q.chapter+'</span>';
+if(q.type)badges+='<span class="badge badge-type">'+q.type+'</span>';
+if(q.trap)badges+='<span class="badge badge-trap">Trap</span>';
+if(q.sata)badges+='<span class="badge badge-sata">SATA</span>';
+const optsHtml=q.options.map(o=>'<div class="opt" id="opt-'+q.id+'-'+o.letter+'" onclick="selectOption('+q.id+',\''+o.letter+'\','+(q.sata?true:false)+')"><div class="opt-letter">'+o.letter+'.</div><div class="opt-text">'+o.text+'<div class="opt-rationale" id="rat-'+q.id+'-'+o.letter+'">'+o.rationale+'</div></div></div>').join('');
+const sataHint=q.sata?'<div class="sata-hint">Select ALL that apply</div>':'';
+card.innerHTML='<div class="q-top"><span class="q-num">Q'+(idx+1)+'</span>'+badges+'</div><div class="q-stem">'+q.stem+'</div>'+sataHint+'<div class="opts">'+optsHtml+'</div><button class="btn-submit" id="btn-'+q.id+'" onclick="submitAnswer('+q.id+')" disabled>Submit</button><div class="vocab-tip" id="tip-'+q.id+'">'+q.vocabTip+'</div>';
+area.appendChild(card);
+});
+loadState();
+_focusRefresh();
+}
+
+/* ---- One-at-a-time view: every card is still built, so scoring and the weak tracker are untouched. ---- */
+function _focusOn(){try{return localStorage.getItem('primerFocus')!=='0';}catch(e){return true;}}
+function _focusCards(){return Array.prototype.slice.call(document.querySelectorAll('#quizArea .q-card'));}
+function _focusEnsureUI(){
+if(!document.getElementById('focusCss')){
+const st=document.createElement('style');st.id='focusCss';
+st.textContent='.focus-bar{position:sticky;bottom:0;z-index:30;display:none;align-items:center;gap:.5rem;background:#0c0f14ee;backdrop-filter:blur(6px);border-top:1px solid #1e293b;padding:.6rem .5rem;margin:0 -.5rem}'
++'.focus-on .focus-bar{display:flex}'
++'.focus-bar button{border:none;border-radius:8px;padding:.7rem 1rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}'
++'.fb-prev{background:#1e293b;color:#e2e8f0}.fb-next{background:#7c3aed;color:#fff;flex:1}.fb-next.ready{background:#22c55e;color:#04210f;box-shadow:0 0 0 2px #22c55e55}'
++'.fb-prev:disabled{opacity:.35;cursor:not-allowed}.fb-count{color:#94a3b8;font-size:.8rem;min-width:5.5rem;text-align:center}'
++'.fb-mode{background:transparent;color:#94a3b8;border:1px solid #334155!important;font-size:.72rem!important;padding:.45rem .6rem!important}'
++'.focus-on #quizArea .q-card{display:none}.focus-on #quizArea .q-card.focus-cur{display:block}.focus-on .mk-fab{bottom:5rem}.focus-on a[href*="weak-drill"]{bottom:4.6rem!important}'
++'.focus-toggle-top{display:flex;justify-content:flex-end;margin:.25rem 0 .75rem}'
++'.focus-toggle-top button{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:.4rem .8rem;font-size:.75rem;cursor:pointer;font-family:inherit}';
+document.head.appendChild(st);}
+if(!document.getElementById('focusBar')){
+const area=document.getElementById('quizArea');if(!area)return;
+const bar=document.createElement('div');bar.className='focus-bar';bar.id='focusBar';
+bar.innerHTML='<button type="button" class="fb-prev" id="fbPrev">&#8249; Prev</button><span class="fb-count" id="fbCount"></span><button type="button" class="fb-next" id="fbNext">Next &#8250;</button><button type="button" class="fb-mode" id="fbMode">Show all</button>';
+area.parentNode.insertBefore(bar,area.nextSibling);
+const top=document.createElement('div');top.className='focus-toggle-top';top.id='focusTop';
+top.innerHTML='<button type="button" id="fbModeTop">One at a time: on</button>';
+area.parentNode.insertBefore(top,area);
+document.getElementById('fbPrev').onclick=function(){_focusGo(-1);};
+document.getElementById('fbNext').onclick=function(){_focusNext();};
+document.getElementById('fbMode').onclick=_focusToggle;
+document.getElementById('fbModeTop').onclick=_focusToggle;
+}}
+function _focusToggle(){try{localStorage.setItem('primerFocus',_focusOn()?'0':'1');}catch(e){}_focusRefresh(true);}
+function _focusShow(i,scroll){
+const cards=_focusCards();if(!cards.length)return;
+window.__fi=Math.max(0,Math.min(cards.length-1,i));
+cards.forEach(function(c,k){c.classList.toggle('focus-cur',k===window.__fi);});
+_focusUpdateBar();
+if(scroll&&_focusOn()){const top=cards[window.__fi].getBoundingClientRect().top+window.pageYOffset-70;window.scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+}
+function _focusGo(d){_focusShow((window.__fi||0)+d,true);}
+function _focusNext(){
+const cards=_focusCards();
+if((window.__fi||0)<cards.length-1){_focusShow((window.__fi||0)+1,true);return;}
+const firstOpen=cards.findIndex(function(c){return !/answered-/.test(c.className);});
+if(firstOpen>=0){_focusShow(firstOpen,true);return;}
+const sc=document.getElementById('scoreCard');if(sc){sc.style.display='block';sc.scrollIntoView({behavior:'smooth'});}
+}
+function _focusUpdateBar(){
+const cards=_focusCards();const i=window.__fi||0;
+const cnt=document.getElementById('fbCount');if(cnt)cnt.textContent='Question '+(i+1)+' of '+cards.length;
+const prev=document.getElementById('fbPrev');if(prev)prev.disabled=i<=0;
+const nx=document.getElementById('fbNext');
+if(nx&&cards[i]){const done=/answered-/.test(cards[i].className);nx.classList.toggle('ready',done);
+nx.innerHTML=i>=cards.length-1?'Finish &#8250;':'Next &#8250;';}
+const tp=document.getElementById('fbModeTop');if(tp)tp.textContent='One at a time: '+(_focusOn()?'on':'off');
+const bm=document.getElementById('fbMode');if(bm)bm.textContent=_focusOn()?'Show all':'One at a time';
+}
+function _focusRefresh(keepPlace){
+_focusEnsureUI();
+document.body.classList.toggle('focus-on',_focusOn());
+const cards=_focusCards();if(!cards.length)return;
+_focusShow(keepPlace?(window.__fi||0):0,false);
+}
+document.addEventListener('click',function(e){
+if(!_focusOn())return;
+if(e.target&&e.target.closest&&e.target.closest('.btn-submit')){setTimeout(_focusUpdateBar,60);}
+},true);
+
+function selectOption(qId,letter,isSata){
+if(answered[qId])return;if(!selections[qId])selections[qId]=[];
+const el=document.getElementById('opt-'+qId+'-'+letter);
+if(isSata){if(selections[qId].includes(letter)){selections[qId]=selections[qId].filter(l=>l!==letter);el.classList.remove('selected');}else{selections[qId].push(letter);el.classList.add('selected');}}
+else{selections[qId].forEach(l=>{const p=document.getElementById('opt-'+qId+'-'+l);if(p)p.classList.remove('selected');});selections[qId]=[letter];el.classList.add('selected');}
+document.getElementById('btn-'+qId).disabled=selections[qId].length===0;
+}
+
+function submitAnswer(qId){
+if(answered[qId])return;answered[qId]=true;
+const q=ALL_Q.find(x=>x.id===qId);
+const correct=q.options.filter(o=>o.correct).map(o=>o.letter);
+const ok=correct.length===selections[qId].length&&correct.every(l=>selections[qId].includes(l));
+q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);el.style.cursor='default';if(o.correct)el.classList.add('correct-show');else if(selections[qId].includes(o.letter)&&!o.correct)el.classList.add('wrong-show');document.getElementById('rat-'+qId+'-'+o.letter).style.display='block';});
+document.getElementById('tip-'+qId).style.display='block';
+const cr=_credit(q);
+const card=document.getElementById('qcard-'+qId);card.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');
+const btn=document.getElementById('btn-'+qId);btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';
+updateProgress();saveState();
+if(_answeredCount()===_activeQ().length)showScore();
+}
+
+function updateProgress(){const t=_activeQ().length;document.getElementById('progressBar').style.width=(t?_answeredCount()/t*100:0)+'%';}
+
+function _buildBreakdown(){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+let html='';
+Object.keys(BLOCKS).forEach(b=>{if(!tally[b])return;const t=tally[b];const pct=Math.round(t.c/t.t*100);const col=pct>=80?'#22c55e':pct>=66?'#fbbf24':'#f87171';html+='<div class="breakdown-row"><span class="bd-label">'+BLOCKS[b]+'</span><span class="bd-score" style="color:'+col+'">'+_fmt(t.c)+'/'+t.t+' &middot; '+pct+'%</span></div>';});
+document.getElementById('breakdownArea').innerHTML=html;
+}
+
+function showScore(doSave){
+const act=_activeQ();
+let correct=0;act.forEach(q=>{if(answered[q.id])correct+=_credit(q);});
+const total=act.length;
+const pct=total?Math.round(correct/total*100):0;
+document.getElementById('finalScore').textContent=pct+'%';document.getElementById('finalText').textContent=_fmt(correct)+' of '+total+' correct';
+_buildBreakdown();
+_syncMissedBtn();
+document.getElementById('scoreCard').style.display='block';document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+if(doSave===false)return;
+const tag=__filterMode==='all'?'':' ['+_filterLabel(__filterMode)+']';
+const rec={score:pct,correct:correct,total:total,date:new Date().toLocaleDateString(),filter:__filterMode};
+localStorage.setItem(EXAM_ID+'-last',JSON.stringify(rec));localStorage.setItem(EXAM_ID+'-label',EXAM_LABEL);
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]');
+hist.push({examId:EXAM_ID,examLabel:EXAM_LABEL+tag,date:new Date().toISOString(),score:pct,correct:correct,total:total});
+localStorage.setItem('examHistory',JSON.stringify(hist.slice(-1000)));
+_refreshStatsSummary();
+}
+
+function _filterLabel(m){
+if(m==='all')return 'All';
+if(m==='sata')return 'SATA only';
+if(m==='missed')return 'Drill missed';
+return (typeof BLOCKS!=='undefined'&&BLOCKS[m])?BLOCKS[m]:m;
+}
+
+/* ---- Drill missed ---- */
+function _missedIds(){return _activeQ().filter(q=>answered[q.id]&&!_isCorrect(q)).map(q=>q.id);}
+function _syncMissedBtn(){
+const btn=document.getElementById('drillMissedBtn');if(!btn)return;
+const n=_missedIds().length;
+btn.style.display=n>0?'block':'none';
+btn.textContent='Drill missed — '+n+(n===1?' question':' questions');
+}
+function drillMissed(){
+const ids=_missedIds();if(!ids.length)return;
+window.__missedIds=ids;
+ids.forEach(id=>{delete answered[id];delete selections[id];});
+saveState();
+__filterMode='missed';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+document.getElementById('quizArea').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ---- Filter bar (opt-in: page must contain #harnessFilterBar) ---- */
+function applyBlockFilter(mode){
+const switching=mode!==__filterMode;
+__filterMode=mode;
+// Entering a single loop (or SATA-only) is a fresh drill. restartQuiz() only clears
+// what is in scope, so answers from an earlier pass over the full set used to survive
+// and reappear pre-clicked. 'all' is exempt because it is the review view and wiping
+// it would throw away a half-finished full run; 'missed' is exempt because
+// drillMissed() already cleared exactly those ids.
+if(switching&&mode!=='missed'&&mode!=='all'){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();}
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+function _syncFilterBtns(){
+document.querySelectorAll('#harnessFilterBar .fbtn').forEach(b=>{
+b.classList.toggle('active',b.getAttribute('data-f')===__filterMode);});
+const note=document.getElementById('harnessFilterNote');
+if(note){const n=_activeQ().length;
+note.textContent=__filterMode==='all'?'All '+n+' questions, every loop mixed together. Use this once each loop already holds on its own.'
+:__filterMode==='sata'?n+' select-all questions. Scored at half credit: all right = full point, right but incomplete = half, one wrong option = zero.'
+:__filterMode==='missed'?n+' question'+(n===1?'':'s')+' you missed, reset and reshuffled. Answer them again.'
+:n+' questions from '+_filterLabel(__filterMode)+' only. The teaching panel above matches this loop.';}
+}
+function _syncLoopSections(){
+const secs=document.querySelectorAll('[data-loop]');if(!secs.length)return;
+secs.forEach(el=>{
+const show=(__filterMode==='all'||__filterMode==='sata'||__filterMode==='missed')||el.getAttribute('data-loop')===__filterMode;
+el.style.display=show?'':'none';});
+}
+function _buildFilterBar(){
+const bar=document.getElementById('harnessFilterBar');if(!bar)return;
+let html='<span class="filter-label">Loop:</span>';
+html+='<button class="fbtn fbtn-hot active" data-f="all" onclick="applyBlockFilter(\'all\')">All '+ALL_Q.length+'</button>';
+const short=window.BLOCK_SHORT||{};
+Object.keys(BLOCKS).forEach(b=>{
+const n=ALL_Q.filter(q=>q.block===b).length;if(!n)return;
+html+='<button class="fbtn" data-f="'+b+'" onclick="applyBlockFilter(\''+b+'\')">'+(short[b]||BLOCKS[b])+' &middot; '+n+'</button>';});
+const ns=ALL_Q.filter(q=>q.sata).length;
+if(ns)html+='<button class="fbtn fbtn-sata" data-f="sata" onclick="applyBlockFilter(\'sata\')">SATA only &middot; '+ns+'</button>';
+// The page restores the last session on load, so landing on it shows whatever was
+// already answered. Without this there is no way to wipe that and start over.
+html+='<button class="fbtn fbtn-fresh" data-f="__fresh" onclick="clearAllAnswers()">Start fresh</button>';
+bar.innerHTML=html;
+if(!document.getElementById('harnessFilterNote')){
+const note=document.createElement('div');note.className='filter-note';note.id='harnessFilterNote';
+bar.parentNode.insertBefore(note,bar.nextSibling);}
+_syncFilterBtns();
+}
+function clearAllAnswers(){
+answered={};selections={};
+localStorage.removeItem(EXAM_ID+'-state');
+window.__missedIds=null;
+if(__filterMode==='missed')__filterMode='all';
+_syncFilterBtns();_syncLoopSections();
+document.getElementById('scoreCard').style.display='none';
+window.__optsShuffled=false;
+buildQuiz();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function _buildMissedBtn(){
+const card=document.getElementById('scoreCard');if(!card||document.getElementById('drillMissedBtn'))return;
+const btn=document.createElement('button');
+btn.className='btn-missed';btn.id='drillMissedBtn';btn.type='button';
+btn.setAttribute('onclick','drillMissed()');
+btn.textContent='Drill missed';
+const restart=card.querySelector('.btn-restart');
+if(restart&&restart.parentNode===card)card.insertBefore(btn,restart.nextSibling);else card.appendChild(btn);
+}
+
+function restartQuiz(){
+_activeQ().forEach(q=>{delete answered[q.id];delete selections[q.id];});
+saveState();
+// 'missed' is a transient drill, not a scope to stay stuck in — pages without a
+// filter bar have no other way back to the full set.
+if(__filterMode==='missed'){__filterMode='all';_syncFilterBtns();_syncLoopSections();}
+document.getElementById('scoreCard').style.display='none';window.__optsShuffled=false;buildQuiz();window.scrollTo({top:0,behavior:'smooth'});}
+function saveState(){localStorage.setItem(EXAM_ID+'-state',JSON.stringify({answered:answered,selections:selections}));}
+function loadState(){
+const saved=localStorage.getItem(EXAM_ID+'-state');
+if(saved){const st=JSON.parse(saved);answered=st.answered||{};selections=st.selections||{};
+Object.keys(answered).forEach(qId=>{const q=ALL_Q.find(x=>x.id==qId);if(!q)return;const c=q.options.filter(o=>o.correct).map(o=>o.letter);const s=selections[qId]||[];const ok=c.length===s.length&&c.every(l=>s.includes(l));q.options.forEach(o=>{const el=document.getElementById('opt-'+qId+'-'+o.letter);if(el){if(s.includes(o.letter))el.classList.add('selected');if(o.correct)el.classList.add('correct-show');else if(s.includes(o.letter)&&!o.correct)el.classList.add('wrong-show');el.style.cursor='default';const r=document.getElementById('rat-'+qId+'-'+o.letter);if(r)r.style.display='block';}});const t=document.getElementById('tip-'+qId);if(t)t.style.display='block';const cr=_credit(q);const cd=document.getElementById('qcard-'+qId);if(cd)cd.classList.add(ok?'answered-correct':cr===0.5?'answered-partial':'answered-wrong');const btn=document.getElementById('btn-'+qId);if(btn){btn.disabled=true;btn.textContent=ok?'Correct!':cr===0.5?'Half credit — you missed one':'Review the reasoning';}});
+updateProgress();if(_activeQ().length&&_answeredCount()===_activeQ().length)showScore(false);}
+const last=localStorage.getItem(EXAM_ID+'-last');
+if(last){const r=JSON.parse(last);document.getElementById('lastAttempt').style.display='block';document.getElementById('lastScore').textContent=r.score+'%';document.getElementById('lastDate').textContent=r.date;}
+}
+
+function _buildMustKnows(){
+const src=document.querySelector('.svg-card');
+if(!src||document.querySelector('.mk-fab'))return;
+const titleEl=src.querySelector('h3');
+const title=titleEl?titleEl.textContent:'Labs & Must-Knows';
+const fab=document.createElement('button');
+fab.className='mk-fab';fab.type='button';
+fab.setAttribute('aria-label','Show labs and must-knows');
+fab.innerHTML='<span class="mk-ico">&#128204;</span>Must-Knows';
+const overlay=document.createElement('div');
+overlay.className='mk-overlay';
+const panel=document.createElement('div');
+panel.className='mk-panel';
+panel.innerHTML='<div class="mk-panel-head"><h3>'+title+'</h3><button class="mk-close" type="button" aria-label="Close">&times;</button></div>'+src.outerHTML;
+overlay.appendChild(panel);
+document.body.appendChild(fab);document.body.appendChild(overlay);
+function open(){overlay.classList.add('open');}
+function close(){overlay.classList.remove('open');}
+fab.addEventListener('click',open);
+panel.querySelector('.mk-close').addEventListener('click',close);
+overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+}
+
+function _tone(p){return p>=85?'#22c55e':p>=70?'#fbbf24':'#f87171';}
+function _buildStatsPanel(){
+const anchor=document.getElementById('lastAttempt');
+if(!anchor||document.querySelector('.stats-wrap'))return;
+const wrap=document.createElement('div');wrap.className='stats-wrap';
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const reps=hist.length;
+const best=reps?Math.max(...hist.map(e=>e.score)):0;
+const avg=reps?Math.round(hist.reduce((s,e)=>s+e.score,0)/reps):0;
+const last=reps?hist.sort((a,b)=>new Date(b.date)-new Date(a.date))[0]:null;
+const sumText=reps?reps+' rep'+(reps>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%':'no attempts yet';
+wrap.innerHTML='<button class="stats-toggle" type="button"><span>Rep History</span><span class="st-summary">'+sumText+'</span><span class="st-arrow">&#9660;</span></button><div class="stats-body" id="statsBody"></div>';
+anchor.parentNode.insertBefore(wrap,anchor.nextSibling);
+wrap.querySelector('.stats-toggle').addEventListener('click',function(){wrap.classList.toggle('open');if(wrap.classList.contains('open'))_renderStatsBody();});
+}
+function _renderStatsBody(){
+const body=document.getElementById('statsBody');if(!body)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+if(!hist.length){body.innerHTML='<div class="st-empty">No attempts recorded yet. Finish a run and it lands here.</div>';return;}
+hist.sort((a,b)=>new Date(b.date)-new Date(a.date));
+const bestPct=Math.max(...hist.map(e=>e.score));
+let bestShown=false;
+let rows='<h4>Attempts ('+hist.length+')</h4>';
+hist.forEach(e=>{
+const d=new Date(e.date);
+const ds=isNaN(d.getTime())?e.date:d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+const isBest=e.score===bestPct&&!bestShown;if(isBest)bestShown=true;
+const isDrill=e.examLabel&&/drill|missed/i.test(e.examLabel);
+const label=isDrill?' <span class="st-label">drill</span>':'';
+const tag=isBest?' <span class="st-label">best</span>':'';
+rows+='<div class="st-row'+(isBest?' best':'')+'"><span class="st-date">'+ds+'</span><span class="st-score" style="color:'+_tone(e.score)+'">'+Math.round(e.score)+'%'+tag+label+'</span></div>';
+});
+const blkKeys=typeof BLOCKS!=='undefined'?Object.keys(BLOCKS):[];
+let blkHtml='';
+if(blkKeys.length>1){
+const tally={};
+_activeQ().forEach(q=>{if(!answered[q.id])return;const b=q.block;if(!tally[b])tally[b]={c:0,t:0};tally[b].t++;tally[b].c+=_credit(q);});
+const blks=blkKeys.filter(b=>tally[b]).map(b=>({key:b,name:BLOCKS[b],pct:Math.round(tally[b].c/tally[b].t*100)})).sort((a,b)=>a.pct-b.pct);
+if(blks.length){
+blkHtml='<h4>Block averages (this run)</h4>';
+blks.forEach(b=>{
+blkHtml+='<div class="st-blk-row"><span class="st-blk-name">'+b.name+'</span><span class="st-blk-bar"><i style="width:'+b.pct+'%;background:'+_tone(b.pct)+'"></i></span><span class="st-blk-pct" style="color:'+_tone(b.pct)+'">'+b.pct+'%</span></div>';
+});
+blkHtml+='<div class="st-note">Sorted weakest first. Red blocks need another rep.</div>';
+}}
+body.innerHTML=rows+blkHtml;
+}
+
+function _refreshStatsSummary(){
+const el=document.querySelector('.st-summary');if(!el)return;
+const hist=JSON.parse(localStorage.getItem('examHistory')||'[]').filter(e=>e.examId===EXAM_ID);
+const n=hist.length;
+if(!n){el.textContent='no attempts yet';return;}
+const best=Math.max(...hist.map(e=>e.score));
+const avg=Math.round(hist.reduce((s,e)=>s+e.score,0)/n);
+el.textContent=n+' rep'+(n>1?'s':'')+' · avg '+avg+'% · best '+Math.round(best)+'%';
+if(document.querySelector('.stats-wrap.open'))_renderStatsBody();
+}
+
+_buildFilterBar();
+_buildMissedBtn();
+// A drill page must open clean. Restoring the previous run meant landing on the
+// page with questions already clicked, rationales open and Submit locked — the
+// opposite of what a drill is for. The score itself is kept separately under
+// EXAM_ID+'-last' and still shows in the "last attempt" card.
+localStorage.removeItem(EXAM_ID+'-state');
+buildQuiz();
+_buildStatsPanel();
+_buildMustKnows();
+
+/* Weak-question tracker: every harness quiz feeds the shared weak list. */
+
+
+</script>
+</body>
+</html>
