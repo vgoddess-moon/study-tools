@@ -170,6 +170,7 @@ function snapshot(card){
 var toastEl=null,toastT=0,pillEl=null;
 function toast(msg,color){
   if(!document.body)return;
+  if(window.__tmHide&&window.__tmHide())return;   // Test mode: no right/wrong hints until the end
   if(!toastEl){
     toastEl=document.createElement('div');
     toastEl.style.cssText='position:fixed;left:50%;bottom:4.2rem;transform:translateX(-50%);z-index:9999;'
@@ -191,7 +192,7 @@ function updatePill(){
   var places=MAP[pageName()],c=places&&places[0]?count(places[0][0],places[0][1]):count();
   if(!c.weak){if(pillEl)pillEl.style.display='none';return;}
   if(!pillEl){
-    pillEl=document.createElement('a');
+    pillEl=document.createElement('a');pillEl.id='wqPill';
     pillEl.style.cssText='position:fixed;left:.75rem;bottom:.75rem;z-index:9998;background:#1a0e00;'
       +'border:1px solid #f97316;color:#fb923c;padding:.45rem .8rem;border-radius:999px;'
       +'font:700 .78rem system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.5)';
@@ -370,3 +371,5 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* The optional 25-second question timer rides along with the tracker, so every quiz page gets it. */
 if(!window.__qtLoaded&&!window.__qtLoading){window.__qtLoading=true;var _qt=document.createElement("script");_qt.src="quiz-timer.js";document.head.appendChild(_qt);}
+/* Study / Test switch rides along the same way (test-mode.js). */
+if(!window.__tmLoaded&&!window.__tmLoading){window.__tmLoading=true;var _tm=document.createElement("script");_tm.src="test-mode.js";document.head.appendChild(_tm);}
