@@ -339,6 +339,7 @@ function typing(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='T
 function handle(e){
 if(!on()||typing(e)||e.ctrlKey||e.metaKey||e.altKey)return;
 var k=e.key,c=sync();if(!c)return;
+if(k&&k.length===1)k=k.toLowerCase();   // Caps Lock or Shift turns the remote's y/h into Y/H; treat them the same
 var done=isDone(c),used=true;
 /* The big button is a thumb-stick: tilt sends ArrowUp/ArrowDown and it also fires u. It ONLY scrolls; u does nothing, so it can never pick or submit by accident. */
 if(k==='ArrowDown'){scrollStep(1);}
