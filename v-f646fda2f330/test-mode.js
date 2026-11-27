@@ -18,6 +18,15 @@
        Study everywhere else. Once she flips it on a page, that choice is remembered there
        (localStorage "tm:<page>").
 
+   PACE (added 11/27): in Test mode every Submit is timed. Each gap is capped at 5 minutes so a break
+   doesn't count. The score card shows seconds per question against a 75 s goal; the run's pace is
+   saved in testModeLog as `sp`. State lives in localStorage "tmPace:<page>" so a reload keeps it.
+
+   WHY I MISSED IT (added 11/27): once the score card shows, every missed card gets a row of reason
+   chips (spans, not buttons, so resume.js never logs them). Picks are saved in localStorage
+   "missWhy" by page + question hash, and the score card tallies this run's reasons with the fix
+   for the top one, plus her top reason across all pages.
+
    The switch buttons have no onclick attribute and sit outside the quiz zone, so resume.js
    never logs or replays them. Nothing here changes how a question is scored. */
 (function(){
@@ -26,7 +35,8 @@ if(window.__tmLoaded)return;window.__tmLoaded=true;
 
 var PAGE='tm:'+location.pathname.split('/').pop(), LOG='testModeLog';
 var MOCKY=/mock|sim|final|blueprint|cumulative|comprehensive|predictive/i.test(location.pathname);
-var touched=false, wasRevealed=false;
+var touched=false, wasRevealed=false, loadT=Date.now(), runPace=null;
+var PACE='tmPace:'+location.pathname.split('/').pop(), GOAL=75, CAP=300000;
 
 function engine(){
   if(typeof window.submitAnswer==='function'&&typeof window.selectOption==='function')return 'harness';
@@ -63,8 +73,22 @@ document.addEventListener('click',function(e){
   if(!card)return;
   card.querySelectorAll('.opt.tm-pick').forEach(function(o){o.classList.remove('tm-pick');});
   card.querySelectorAll('.opt.selected').forEach(function(o){o.classList.add('tm-pick');});
-  if(!window.__rsReplaying)touched=true;
+  if(!window.__rsReplaying){touched=true;if(isOn()&&!answered(card))paceStep();}
 },true);
+
+/* ---- pace ---- */
+function paceGet(){try{return JSON.parse(localStorage.getItem(PACE)||'null');}catch(e){return null;}}
+function paceSet(o){try{if(o)localStorage.setItem(PACE,JSON.stringify(o));else localStorage.removeItem(PACE);}catch(e){}}
+function paceStep(){
+  var now=Date.now(),s=paceGet()||{last:loadT,act:0,n:0};
+  s.act+=Math.min(CAP,Math.max(0,now-(s.last||loadT)));s.n++;s.last=now;paceSet(s);
+}
+function paceLine(sp,n){
+  if(!sp)return '';
+  var over=sp>GOAL;
+  return '<div class="tmPace" style="margin-top:.35rem;color:'+(over?'#fca5a5':'#86efac')+'">⏱ <b>Pace: '+sp+' s per question</b> (goal '+GOAL+' s or less)'
+    +(n?' &middot; '+n+' timed':'')+(over?'. At this pace a 150-question Exit takes '+Math.round(sp*150/60)+' min. Read the stem first, name what it asks, then the options.':'. On pace.')+'</div>';
+}
 
 /* Harness pages reload their own saved answers; mark those picks from its `selections`. */
 function markHarnessPicks(){
@@ -100,7 +124,10 @@ function logRun(){
   cards.forEach(function(c){if(c.style.display!=='none')n++;});
   var label=window._runLabel||(typeof __filterMode!=='undefined'?String(__filterMode):'');
   var log=readLog();
-  log.push({p:location.pathname.split('/').pop(),t:document.title,s:pct,n:n,f:label,d:new Date().toISOString()});
+  var ps=paceGet();runPace=ps&&ps.n?{sp:Math.round(ps.act/ps.n/1000),n:ps.n}:null;paceSet(null);
+  var row={p:location.pathname.split('/').pop(),t:document.title,s:pct,n:n,f:label,d:new Date().toISOString()};
+  if(runPace)row.sp=runPace.sp;
+  log.push(row);
   try{localStorage.setItem(LOG,JSON.stringify(log.slice(-500)));}catch(e){}
 }
 function note(){
@@ -111,9 +138,66 @@ function note(){
   if(!mine.length){if(el)el.remove();return;}
   var last=mine.slice(-3),avg=Math.round(last.reduce(function(a,r){return a+r.s;},0)/last.length);
   if(!el){el=document.createElement('div');el.id='tmNote';sc.appendChild(el);}
-  el.innerHTML='📝 <b>Test-mode average here: '+avg+'%</b> (last '+last.length+' cold run'+(last.length>1?'s':'')+': '
-    +last.map(function(r){return r.s+'%';}).join(', ')+'). This is the number to trust — study-mode scores run high.';
+  var lr=mine[mine.length-1],sp=runPace?runPace.sp:lr.sp,pn=runPace?runPace.n:0;
+  var html='📝 <b>Test-mode average here: '+avg+'%</b> (last '+last.length+' cold run'+(last.length>1?'s':'')+': '
+    +last.map(function(r){return r.s+'%';}).join(', ')+'). This is the number to trust — study-mode scores run high.'+paceLine(sp,pn);
+  if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html;}
 }
+
+/* ---- why I missed it ---- */
+var WHY=[['know',"Didn't know it",'Content gap: it is on your weak list. Drill it there, then let the Recall deck space it.'],
+  ['read','Misread the stem','Read the stem first and say what it asks (first? priority? needs teaching?) before you look at the options.'],
+  ['act','Checked instead of acting','If the stem already gives you the abnormal finding, act. Assess only when the data is missing.'],
+  ['sata','SATA pick slip',"Judge each SATA option as its own true/false. Don't add options on vibes, and don't stop early."],
+  ['chg','Changed my answer','Changing helps only about half the time. Change only for a concrete reason you can name.'],
+  ['time','Rushed / timed out','Pace, not knowledge: do the daily timed 20 and keep each question near 75 s.']];
+function whyGet(){try{return JSON.parse(localStorage.getItem('missWhy')||'{}')||{};}catch(e){return {};}}
+function whySet(o){try{localStorage.setItem('missWhy',JSON.stringify(o));}catch(e){}}
+function hsh(s){s=String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36)+s.length.toString(36);}
+function cardKey(c){var st=c.querySelector('.q-stem');return st?location.pathname.split('/').pop()+'|'+hsh(st.textContent.replace(/\s+/g,' ').trim()):null;}
+function missed(c){return c.style.display!=='none'&&/answered-(wrong|partial)/.test(c.className);}
+function whyChips(){
+  var all=whyGet();
+  document.querySelectorAll('#quizArea .q-card').forEach(function(c){
+    var row=c.querySelector('.tmWhy');
+    if(!missed(c)){if(row)row.remove();return;}
+    var k=cardKey(c);if(!k)return;
+    if(!row){
+      row=document.createElement('div');row.className='tmWhy';row.dataset.k=k;
+      row.innerHTML='<span class="tmWhyQ">Why did I miss it?</span>'+WHY.map(function(w){return '<span class="tmChip" role="button" tabindex="0" data-w="'+w[0]+'">'+w[1]+'</span>';}).join('');
+      c.appendChild(row);
+    }
+    var cur=all[k]&&all[k].w;
+    row.querySelectorAll('.tmChip').forEach(function(s){s.classList.toggle('on',s.dataset.w===cur);});
+  });
+}
+document.addEventListener('click',function(e){
+  var s=e.target&&e.target.closest&&e.target.closest('.tmChip');if(!s)return;
+  e.preventDefault();e.stopPropagation();
+  var row=s.closest('.tmWhy'),k=row.dataset.k,all=whyGet();
+  if(all[k]&&all[k].w===s.dataset.w)delete all[k];
+  else all[k]={w:s.dataset.w,p:location.pathname.split('/').pop(),t:Date.now()};
+  whySet(all);whyChips();whyPanel();
+});
+function whyPanel(){
+  var sc=document.getElementById('scoreCard');if(!sc)return;
+  var el=document.getElementById('tmWhyPanel'),all=whyGet(),run={},nMiss=0,tagged=0,ever={};
+  document.querySelectorAll('#quizArea .q-card').forEach(function(c){if(!missed(c))return;nMiss++;var k=cardKey(c),w=k&&all[k]&&all[k].w;if(w){tagged++;run[w]=(run[w]||0)+1;}});
+  if(!nMiss){if(el)el.remove();return;}
+  Object.keys(all).forEach(function(k){var w=all[k].w;ever[w]=(ever[w]||0)+1;});
+  var name=function(w){for(var i=0;i<WHY.length;i++)if(WHY[i][0]===w)return WHY[i];return [w,w,''];};
+  var top=function(o){return Object.keys(o).sort(function(a,b){return o[b]-o[a];})[0];};
+  var html='🔎 <b>Why I missed them</b> &middot; tagged '+tagged+' of '+nMiss+' misses (tap a chip under each missed card).';
+  if(tagged){
+    html+='<div style="margin-top:.3rem">'+Object.keys(run).sort(function(a,b){return run[b]-run[a];}).map(function(w){return name(w)[1]+': <b>'+run[w]+'</b>';}).join(' &middot; ')+'</div>';
+    html+='<div style="margin-top:.3rem">Fix for your top reason: '+name(top(run))[2]+'</div>';
+  }
+  var et=top(ever);
+  if(et)html+='<div style="margin-top:.3rem;color:#94a3b8">Across all pages your #1 reason so far: <b>'+name(et)[1]+'</b> ('+ever[et]+').</div>';
+  if(!el){el=document.createElement('div');el.id='tmWhyPanel';sc.appendChild(el);}
+  if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html;}
+}
+window.__tmWhy={get:whyGet,key:cardKey};
 
 /* ---- Finish & grade ---- */
 var finArmed=0;
@@ -163,7 +247,11 @@ function tick(){
   if(hide)markHarnessPicks();
   lockButtons(hide);
   if(rev&&!wasRevealed&&isOn()&&touched&&!window.__rsReplaying){logRun();touched=false;}
-  if(rev)note();
+  if(rev){note();whyChips();whyPanel();}
+  else{
+    document.querySelectorAll('.tmWhy').forEach(function(r){r.remove();});
+    if(!document.querySelector('#quizArea .q-card[class*="answered-"]')&&paceGet()){paceSet(null);loadT=Date.now();runPace=null;}
+  }
   wasRevealed=rev;
   paintFinish();
 }
@@ -184,6 +272,11 @@ function css(){
   +'#tmFinish{position:fixed;left:50%;bottom:.9rem;transform:translateX(-50%);z-index:9997;padding:.6rem 1.1rem;border-radius:999px;'
   +'border:1px solid #60a5fa;background:#0f1d33;color:#bfdbfe;font:700 .85rem/1.2 system-ui,sans-serif;cursor:pointer;'
   +'box-shadow:0 2px 12px rgba(0,0,0,.5);max-width:calc(100vw - 2rem)}'
+  +'.tmWhy{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem;padding-top:.6rem;border-top:1px dashed #334155;align-items:center}'
+  +'.tmWhyQ{font-size:.78rem;color:#94a3b8;margin-right:.2rem}'
+  +'.tmChip{padding:.4rem .7rem;border-radius:999px;border:1px solid #334155;background:#13181f;color:#cbd5e1;font-size:.8rem;cursor:pointer;user-select:none}'
+  +'.tmChip.on{border-color:#f59e0b;background:#2a1d05;color:#fcd34d}'
+  +'#tmWhyPanel{margin-top:.6rem;padding:.6rem .8rem;border-radius:10px;background:#1a1405;border:1px solid #78350f;color:#fde68a;font-size:.85rem;line-height:1.45}'
   +'#tmNote{margin-top:.8rem;padding:.6rem .8rem;border-radius:10px;background:#0f1d33;border:1px solid #1e3a8a;color:#bfdbfe;font-size:.85rem;line-height:1.45}';
   document.head.appendChild(st);
 }
